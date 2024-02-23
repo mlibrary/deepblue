@@ -6,12 +6,14 @@ class Aptrust::AptrustInfo
 
   mattr_accessor :aptrust_info_debug_verbose, default: false
 
-  DEFAULT_ACCESS           = 'Institution'          unless const_defined? :DEFAULT_ACCESS
-  DEFAULT_CREATOR          = ''                     unless const_defined? :DEFAULT_CREATOR
-  DEFAULT_DESCRIPTION      = 'No description.'      unless const_defined? :DEFAULT_DESCRIPTION
-  DEFAULT_ITEM_DESCRIPTION = 'No item description.' unless const_defined? :DEFAULT_ITEM_DESCRIPTION
-  DEFAULT_STORAGE_OPTION   = 'Standard'             unless const_defined? :DEFAULT_STORAGE_OPTION
-  DEFAULT_TITLE            = 'No Title'             unless const_defined? :DEFAULT_TITLE
+  mattr_accessor :aptrust_info_txt_template, default: ::Aptrust::AptrustIntegrationService.aptrust_info_txt_template
+
+  mattr_accessor :default_access,           default: ::Aptrust::AptrustIntegrationService.default_access
+  mattr_accessor :default_creator,          default: ::Aptrust::AptrustIntegrationService.default_creator
+  mattr_accessor :default_description,      default: ::Aptrust::AptrustIntegrationService.default_description
+  mattr_accessor :default_item_description, default: ::Aptrust::AptrustIntegrationService.default_item_description
+  mattr_accessor :default_storage_option,   default: ::Aptrust::AptrustIntegrationService.default_storage_option
+  mattr_accessor :default_title,            default: ::Aptrust::AptrustIntegrationService.default_title
 
   attr_accessor :aptrust_config
   attr_accessor :access
@@ -26,8 +28,8 @@ class Aptrust::AptrustInfo
                                            ::Deepblue::LoggingHelper.called_from,
                                            # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_info_debug_verbose
-    rv = aptrust_config.blank? ? DEFAULT_STORAGE_OPTION : aptrust_config.storage_option
-    rv ||= DEFAULT_STORAGE_OPTION
+    rv = aptrust_config.blank? ? ::Aptrust::AptrustInfo.default_storage_option : aptrust_config.storage_option
+    rv ||= ::Aptrust::AptrustInfo.default_storage_option
     rv
   end
 
@@ -44,24 +46,32 @@ class Aptrust::AptrustInfo
                                            # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_info_debug_verbose
     @aptrust_config   = aptrust_config
-    @access           = ::Aptrust.arg_init_squish( access,           DEFAULT_ACCESS )
-    @creator          = ::Aptrust.arg_init_squish( creator,          DEFAULT_CREATOR )
-    @description      = ::Aptrust.arg_init_squish( description,      DEFAULT_DESCRIPTION )
-    @item_description = ::Aptrust.arg_init_squish( item_description, DEFAULT_ITEM_DESCRIPTION )
+    @access           = ::Aptrust.arg_init_squish( access,           ::Aptrust::AptrustInfo.default_access )
+    @creator          = ::Aptrust.arg_init_squish( creator,          ::Aptrust::AptrustInfo.default_creator )
+    @description      = ::Aptrust.arg_init_squish( description,      ::Aptrust::AptrustInfo.default_description )
+    @item_description = ::Aptrust.arg_init_squish( item_description, ::Aptrust::AptrustInfo.default_item_description )
     @storage_option   = ::Aptrust.arg_init(        storage_option,
                                                  ::Aptrust::AptrustInfo.default_storage( aptrust_config: aptrust_config ) )
-    @title            = ::Aptrust.arg_init_squish( title,            DEFAULT_TITLE )
+    @title            = ::Aptrust.arg_init_squish( title,            ::Aptrust::AptrustInfo.default_title )
   end
 
   def build
-    <<~INFO
-      Title: #{title}
-      Access: #{access}
-      Storage-Option: #{storage_option}
-      Description: #{description}
-      Item Description: #{item_description}
-      Creator/Author: #{creator}
-    INFO
+    template = build_template.dup
+    build_replace( template )
+  end
+
+  def build_replace( template )
+    template.gsub!( '%title%',            title )
+    template.gsub!( '%access%',           access )
+    template.gsub!( '%storage_option%',   storage_option )
+    template.gsub!( '%description%',      description )
+    template.gsub!( '%item_description%', item_description )
+    template.gsub!( '%creator%',          creator )
+    return template
+  end
+
+  def build_template
+    aptrust_info_txt_template
   end
 
   def build_fulcrum # save as reference

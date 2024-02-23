@@ -11,11 +11,12 @@ module Deepblue
 
   class YamlPopulate < AbstractTask
 
-    DEFAULT_CREATE_ZERO_LENGTH_FILES = true
-    DEFAULT_EXPORT_FILES = true
-    DEFAULT_MODE = ::Deepblue::MetadataHelper::MODE_BUILD
-    DEFAULT_OVERWRITE_EXPORT_FILES = true
-    DEFAULT_TARGET_DIR = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}"
+    DEFAULT_CREATE_ZERO_LENGTH_FILES = true unless const_defined? :DEFAULT_CREATE_ZERO_LENGTH_FILES
+    DEFAULT_EXPORT_FILES             = true
+    DEFAULT_EXPORT_FILES_FILTER_DATE = nil
+    DEFAULT_MODE                     = ::Deepblue::MetadataHelper::MODE_BUILD
+    DEFAULT_OVERWRITE_EXPORT_FILES   = true
+    DEFAULT_TARGET_DIR               = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}"
 
     DEBUG_VERBOSE = false
 
@@ -28,6 +29,8 @@ module Deepblue
       @populate_type = populate_type
       @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
       @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
+      @export_files_filter_date = task_options_value( key: 'export_files_filter_date',
+                                                      default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
       @mode = task_options_value( key: 'mode', default_value: DEFAULT_MODE )
       raise UnknownMode.new( "mode: '#{@mode}'" ) unless ::Deepblue::MetadataHelper::VALID_MODES.include? @mode
       @create_zero_length_files = task_options_value( key: 'create_zero_length_files',

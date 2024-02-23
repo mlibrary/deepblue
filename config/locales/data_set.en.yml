@@ -107,6 +107,7 @@ en:
       date_modified:        "Last modified"
       date_published:       "Published"
       date_updated:         "Date updated"
+      depositor_creator:    "Depositor Creator"
       doi:                  "DOI"
       edit_groups:          "Edit Groups"
       edit_users:           "Edit Users"
@@ -216,6 +217,7 @@ en:
         date_modified:        "Last Modified"
         date_published:       "Published"
         date_updated:         "Date Updated"
+        depositor_creator:    "Depositor Creator"
         description:          "Description"
         description_abstract: "Abstract or Summary"
         doi:                  "DOI"
@@ -275,6 +277,8 @@ en:
           Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
         date_created: >
           The date the work’s data was created, as determined by the creator.
+        depositor_creator: >
+          Flag to indicate that the depositor is one of the creators.
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
           mind that your responses will enable people to discover, identify, and understand your data. If you are

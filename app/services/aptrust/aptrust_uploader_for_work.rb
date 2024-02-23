@@ -7,12 +7,17 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
 
-  mattr_accessor :aptrust_service_allow_deposit,            default: true
-  mattr_accessor :aptrust_service_deposit_context,          default: '' # none for DBD
-  mattr_accessor :aptrust_service_deposit_local_repository, default: 'deepbluedata'
+  mattr_accessor :deposit_context,          default: ::Aptrust::AptrustIntegrationService.deposit_context
+  mattr_accessor :deposit_local_repository, default: ::Aptrust::AptrustIntegrationService.deposit_local_repository
+
+  mattr_accessor :bag_description,          default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
 
   def self.dbd_bag_description( work: )
-    "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/" # TODO: improve this, or move to config
+    # "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/"
+    description = bag_description.dup
+    description.gsub!( '%work_type%', work.class.name )
+    description.gsub!( '%hostname%', "#{Rails.configuration.hostname}/data/" )
+    return description
   end
 
   def self.dbd_bag_id_type( work: )
@@ -68,51 +73,54 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   attr_accessor :exported_file_set_files
 
   def initialize( aptrust_config: nil,
-                  clean_up_after_deposit: ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
-                  clean_up_bag:           ::Aptrust::AptrustUploader::CLEAN_UP_BAG,
-                  clean_up_bag_data:      ::Aptrust::AptrustUploader::CLEAN_UP_BAG_DATA,
-                  clear_status:           ::Aptrust::AptrustUploader::CLEAR_STATUS,
-                  work: nil,
-                  msg_handler: nil )
+                  clean_up_after_deposit:       ::Aptrust::AptrustUploader.clean_up_after_deposit,
+                  clean_up_bag:                 ::Aptrust::AptrustUploader.clean_up_bag,
+                  clean_up_bag_data:            ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  clear_status:                 ::Aptrust::AptrustUploader.clear_status,
+                  export_file_sets:              true,
+                  export_file_sets_filter_date:  nil,
+                  export_file_sets_filter_event: nil,
+                  work:                          nil,
+                  msg_handler:                   nil )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_uploader_for_work_debug_verbose
     bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: work )
-    super( object_id:          work.id,
-           msg_handler:        msg_handler,
-           aptrust_info:       ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
-           # aptrust_info:       ::Aptrust::AptrustInfoFromWork.new( work: work,
-           #                                                       aptrust_config: ::Aptrust::AptrustConfig.new ),
-           #bag_id_context:     aptrust_service_deposit_context,
-           #bag_id_local_repository:  aptrust_service_deposit_local_repository,
-           bag_id_type:        bag_id_type,
-           clean_up_after_deposit: clean_up_after_deposit,
-           clean_up_bag:       clean_up_bag,
-           clean_up_bag_data:  clean_up_bag_data,
-           clear_status:       clear_status,
-           export_dir:         ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
-           working_dir:        ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
-           bi_description:     ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
+    super( object_id:                     work.id,
+           msg_handler:                   msg_handler,
+           aptrust_info:                  ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
+           bag_id_type:                   bag_id_type,
+           clean_up_after_deposit:        clean_up_after_deposit,
+           clean_up_bag:                  clean_up_bag,
+           clean_up_bag_data:             clean_up_bag_data,
+           clear_status:                  clear_status,
+           export_dir:                    ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
+           export_file_sets:              export_file_sets,
+           export_file_sets_filter_date:  export_file_sets_filter_date,
+           export_file_sets_filter_event: export_file_sets_filter_event,
+           working_dir:                   ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
+           bi_description:                ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
+
     @work = work
     @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }
   end
 
   def allow_deposit?
-    return ALLOW_DEPOSIT # TODO: check size
+    super # TODO: check size
     # return false unless monograph.is_a?(Sighrax::Monograph)
   end
 
   def aptrust_info_work
     @aptrust_info ||= ::Aptrust::AptrustInfoFromWork.new( work:             work,
-                                                        aptrust_config:   aptrust_config,
-                                                        access:           ai_access,
-                                                        creator:          ai_creator,
-                                                        description:      ai_description,
-                                                        item_description: ai_item_description,
-                                                        storage_option:   ai_storage_option,
-                                                        title:            ai_title ).build
+                                                          aptrust_config:   aptrust_config,
+                                                          access:           ai_access,
+                                                          creator:          ai_creator,
+                                                          description:      ai_description,
+                                                          item_description: ai_item_description,
+                                                          storage_option:   ai_storage_option,
+                                                          title:            ai_title ).build
   end
 
   def aptrust_info_work_write
@@ -152,15 +160,26 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def export_work_files( target_dir: )
     work.metadata_report( dir: target_dir, filename_pre: 'w_' )
+    export_file_sets_filter_date = export_file_sets_filter_date_init
     pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
-                                        options: { mode: 'bag',
-                                                   target_dir: target_dir,
-                                                   export_files: true } )
+                                        options: { mode:                     'bag',
+                                                   export_files:              export_file_sets,
+                                                   export_files_filter_date:  export_file_sets_filter_date,
+                                                   target_dir:                target_dir } )
     @exported_file_set_files = pop.yaml_bag_work( id: work.id, work: work )
     # export provenance log
     entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
     prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
     ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
+  end
+
+  def export_file_sets_filter_date_init
+    return export_file_sets_filter_date if export_file_sets_filter_date.present?
+    return nil if export_file_sets_filter_event
+    records = ::Aptrust::Event.for_most_recent_event( noid: work.id, event: export_file_sets_filter_event )
+    record = Array( records ).first
+    return nil unless record.present?
+    return record.updated_at
   end
 
   def export_work_files2( target_dir: )

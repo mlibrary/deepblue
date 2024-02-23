@@ -137,6 +137,7 @@ en:
           thumbnail_id:    'Thumbnail id'
           doi:             'DOI'
           tombstone:       'Tombstone'
+          version_count:   'Versions'
         work:
           id:              'Id'
           create_date:     'Create date'

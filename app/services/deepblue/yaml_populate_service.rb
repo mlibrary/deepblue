@@ -111,8 +111,9 @@ module Deepblue
         yaml_item( out, indent, ":original_name:", value, escape: true )
         yaml_item( out, indent, ":visibility:", file_set.visibility )
 
-        original = file_set.original_file
-        versions = original ? original.versions.all : []
+        # original = file_set.original_file
+        # versions = original ? original.versions.all : []
+        versions = file_set.versions
         yaml_item( out, indent, ":version_count:", versions.count )
         if versions.count > 1
           versions.each_with_index do |ver,index|
@@ -430,6 +431,7 @@ module Deepblue
                                   out: nil,
                                   populate_works: true,
                                   export_files: true,
+                                  export_files_filter_date: nil,
                                   target_filename: nil,
                                   target_dirname: nil )
 
@@ -451,7 +453,9 @@ module Deepblue
         if export_files
           collection.member_objects.each do |work|
             next unless yaml_is_a_work?( curation_concern: work )
-            yaml_work_export_files( work: work, target_dirname: target_dir )
+            yaml_work_export_files( work: work,
+                                    export_files_filter_date: export_files_filter_date,
+                                    target_dirname: target_dir )
           end
         end
       else
@@ -529,13 +533,14 @@ module Deepblue
       return target_file
     end
 
-    def yaml_populate_work( curation_concern:,
-                            dir: MetadataHelper::DEFAULT_BASE_DIR,
-                            out: nil,
-                            export_files: true,
-                            target_filename: nil,
-                            target_dirname: nil,
-                            log_filename: nil )
+    def yaml_populate_work( curation_concern:         ,
+                            dir:                      MetadataHelper::DEFAULT_BASE_DIR,
+                            out:                      nil,
+                            export_files:             true,
+                            export_files_filter_date: nil,
+                            target_filename:          nil,
+                            target_dirname:           nil,
+                            log_filename:             nil )
 
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -543,6 +548,7 @@ module Deepblue
                                              "dir=#{dir}",
                                              "out.nil?=#{out.nil?}",
                                              "export_files=#{export_files}",
+                                             "export_files_filter_date=#{export_files_filter_date}",
                                              "target_filename=#{target_filename}",
                                              "target_dirname=#{target_dirname}",
                                              "log_filename=#{log_filename}",
@@ -557,17 +563,24 @@ module Deepblue
         # Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
         if export_files
           Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
-          yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
+          yaml_work_export_files( work: curation_concern,
+                                  export_files_filter_date: export_files_filter_date,
+                                  target_dirname: target_dir,
+                                  log_filename: log_filename )
         end
         File.open( target_file, 'w' ) do |out2|
-          yaml_populate_work( curation_concern: curation_concern,
-                              out: out2,
-                              export_files: export_files,
-                              target_filename: target_file,
-                              target_dirname: target_dir )
+          yaml_populate_work( curation_concern:         curation_concern,
+                              out:                      out2,
+                              export_files:             export_files,
+                              export_files_filter_date: export_files_filter_date,
+                              target_filename:          target_file,
+                              target_dirname:           target_dir )
         end
         # if export_files
-        #   yaml_work_export_files( work: curation_concern, target_dirname: target_dir, log_filename: log_filename )
+        #   yaml_work_export_files( work: curation_concern,
+        #                           export_files_filter_date: export_files_filter_date,
+        #                           target_dirname: target_dir,
+        #                           log_filename: log_filename )
         # end
       else
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
@@ -618,10 +631,15 @@ module Deepblue
       "user_#{user.email}"
     end
 
-    def yaml_work_export_files( work:, target_dirname: nil, log_filename: nil )
+    def yaml_work_export_files( work:,
+                                export_files_filter_date: nil,
+                                target_dirname: nil,
+                                log_filename: nil )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "work.nil?=#{work.nil?}",
+                                             "export_files_filter_date=#{export_files_filter_date}",
                                              "target_dirname=#{target_dirname}",
                                              "" ] if DEBUG_VERBOSE
       log_filename ||= "w_#{work.id}.export.log"
@@ -635,6 +653,8 @@ module Deepblue
       total_byte_count = 0
       if work.file_sets.count.positive?
         work.file_sets.each do |file_set|
+          date_modified = file_set.date_modified
+          next if export_files_filter_date.present? && date_modified >= export_files_filter_date
           export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
           exported_file_set_files << export_file_name if collect_exported_file_set_files
           write_file = if overwrite_export_files
@@ -669,8 +689,9 @@ module Deepblue
           end
           # TODO: write out version files if versions exist
           # TODO:
-          original = file_set.original_file
-          versions = original ? original.versions.all : []
+          # original = file_set.original_file
+          # versions = original ? original.versions.all : []
+          versions = file_set.versions
           parent = File.dirname export_file_name
           # puts "export_file_name=#{export_file_name}"
           filename = File.basename export_file_name

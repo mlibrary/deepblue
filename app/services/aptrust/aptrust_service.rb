@@ -6,8 +6,8 @@ class Aptrust::AptrustService
 
   mattr_accessor :aptrust_service_debug_verbose, default: false
 
-  mattr_accessor :aptrust_service_allow_deposit,      default: true
-  mattr_accessor :aptrust_service_deposit_context,    default: "" # none for DBD
+  mattr_accessor :allow_deposit,      default: ::Aptrust::AptrustIntegrationService.allow_deposit
+  mattr_accessor :deposit_context,    default: "" # none for DBD
   mattr_accessor :aptrust_service_deposit_repository, default: "deepbluedata"
 
   EXT_TAR = '.tar'
@@ -28,7 +28,7 @@ class Aptrust::AptrustService
                  uploaded uploading ]
 
   def self.context
-    rv = aptrust_service_deposit_context
+    rv = deposit_context
     if rv.blank?
       hostname = ::Deepblue::ReportHelper.hostname_short
       if 'local' == hostname
@@ -42,7 +42,7 @@ class Aptrust::AptrustService
   end
 
   def self.allow_deposit?
-    return false unless aptrust_service_allow_deposit
+    return false unless allow_deposit
     # TODO: check for service available
     return true
   end
@@ -260,7 +260,7 @@ class Aptrust::AptrustService
                                            "id=#{id}",
                                            "" ] if aptrust_service_debug_verbose
     work = find_work( id )
-    uploader = AptrustUploaderForWork.new( work: work )
+    uploader = AptrustUploaderForWork.new( work: work, export_file_sets: true )
     uploader.upload
   end
 

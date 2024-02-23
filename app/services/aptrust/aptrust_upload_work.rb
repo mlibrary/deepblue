@@ -12,19 +12,25 @@ class Aptrust::AptrustUploadWork
   attr_accessor :clear_status
   attr_accessor :debug_assume_upload_succeeds
   attr_accessor :debug_verbose
+  attr_accessor :export_file_sets
+  attr_accessor :export_file_sets_filter_date
+  attr_accessor :export_file_sets_filter_event
   attr_accessor :msg_handler
   attr_accessor :noid
 
   attr_accessor :aptrust_config
 
-  def initialize( clean_up_after_deposit:       ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
-                  clean_up_bag:                 ::Aptrust::AptrustUploader::CLEAN_UP_BAG,
-                  clean_up_bag_data:            ::Aptrust::AptrustUploader::CLEAN_UP_BAG_DATA,
-                  clear_status:                 ::Aptrust::AptrustUploader::CLEAR_STATUS,
-                  debug_assume_upload_succeeds: false,
-                  noid:                         ,
-                  msg_handler:                  nil,
-                  debug_verbose:                aptrust_upload_work_debug_verbose )
+  def initialize( clean_up_after_deposit:        ::Aptrust::AptrustUploader.clean_up_after_deposit,
+                  clean_up_bag:                  ::Aptrust::AptrustUploader.clean_up_bag,
+                  clean_up_bag_data:             ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  clear_status:                  ::Aptrust::AptrustUploader.clear_status,
+                  debug_assume_upload_succeeds:  false,
+                  export_file_sets:              true,
+                  export_file_sets_filter_date:  nil,
+                  export_file_sets_filter_event: nil,
+                  noid:                          ,
+                  msg_handler:                   nil,
+                  debug_verbose:                 aptrust_upload_work_debug_verbose )
 
     @debug_verbose = debug_verbose
     @debug_verbose ||= aptrust_upload_work_debug_verbose
@@ -33,13 +39,16 @@ class Aptrust::AptrustUploadWork
 
     @noid = noid
 
-    @clean_up_after_deposit = clean_up_after_deposit
-    @clean_up_bag           = clean_up_bag
-    @clean_up_bag_data      = clean_up_bag_data
-    @clear_status           = clear_status
-    @debug_assume_upload_succeeds = debug_assume_upload_succeeds
+    @aptrust_config                = ::Aptrust::AptrustConfig.new
+    @clean_up_after_deposit        = clean_up_after_deposit
+    @clean_up_bag                  = clean_up_bag
+    @clean_up_bag_data             = clean_up_bag_data
+    @clear_status                  = clear_status
+    @debug_assume_upload_succeeds  = debug_assume_upload_succeeds
 
-    @aptrust_config = ::Aptrust::AptrustConfig.new
+    @export_file_sets              = export_file_sets
+    @export_file_sets_filter_date  = export_file_sets_filter_date
+    @export_file_sets_filter_event = export_file_sets_filter_event
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "noid=#{noid}",
@@ -47,6 +56,9 @@ class Aptrust::AptrustUploadWork
                              "clean_up_bag=#{clean_up_bag}",
                              "clean_up_bag_data=#{clean_up_bag_data}",
                              "clear_status=#{clear_status}",
+                             "export_file_sets=#{export_file_sets}",
+                             "export_file_sets_filter_date=#{export_file_sets_filter_date}",
+                             "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                              "" ] if debug_verbose
   end
@@ -56,13 +68,16 @@ class Aptrust::AptrustUploadWork
     # status = ::Aptrust::Status.for_id( noid: work.id )
     # status = status[0] unless status.blank?
 
-    uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:         aptrust_config,
-                                                      clean_up_after_deposit: clean_up_after_deposit,
-                                                      clean_up_bag:           clean_up_bag,
-                                                      clean_up_bag_data:      clean_up_bag_data,
-                                                      clear_status:           clear_status,
-                                                      work:                   work,
-                                                      msg_handler:            msg_handler )
+    uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:                aptrust_config,
+                                                      clean_up_after_deposit:        clean_up_after_deposit,
+                                                      clean_up_bag:                  clean_up_bag,
+                                                      clean_up_bag_data:             clean_up_bag_data,
+                                                      clear_status:                  clear_status,
+                                                      export_file_sets:              export_file_sets,
+                                                      export_file_sets_filter_date:  export_file_sets_filter_date,
+                                                      export_file_sets_filter_event: export_file_sets_filter_event,
+                                                      work:                          work,
+                                                      msg_handler:                   msg_handler )
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              # "uploader.aptrust_config=#{uploader.aptrust_config}",

@@ -10,44 +10,51 @@ class Aptrust::AptrustFindAndUpload
 
   FILTER_DEFAULT = ::Aptrust::AptrustFilterWork.new unless const_defined? :FILTER_DEFAULT
 
+  attr_accessor :aptrust_config
   attr_accessor :clean_up_after_deposit
   attr_accessor :clean_up_bag
   attr_accessor :clean_up_bag_data
   attr_accessor :clear_status
   attr_accessor :debug_assume_upload_succeeds
   attr_accessor :debug_verbose
+  attr_accessor :export_file_sets
+  attr_accessor :export_file_sets_filter_date
+  attr_accessor :export_file_sets_filter_event
   attr_accessor :filter
   attr_accessor :max_upload_jobs
   attr_accessor :max_uploads
   attr_accessor :msg_handler
-
   attr_accessor :upload_count
 
-  attr_accessor :aptrust_config
-
-  def initialize( clean_up_after_deposit:       ::Aptrust::AptrustUploader::CLEAN_UP_AFTER_DEPOSIT,
-                  clean_up_bag:                 ::Aptrust::AptrustUploader::CLEAN_UP_BAG,
-                  clean_up_bag_data:            ::Aptrust::AptrustUploader::CLEAN_UP_BAG_DATA,
-                  clear_status:                 ::Aptrust::AptrustUploader::CLEAR_STATUS,
-                  debug_assume_upload_succeeds: false,
-                  filter:                       nil,
-                  max_upload_jobs:              1,
-                  max_uploads:                  -1,
-                  msg_handler:                  nil,
-                  debug_verbose:                aptrust_find_and_upload_debug_verbose )
+  def initialize( clean_up_after_deposit:        ::Aptrust::AptrustUploader.clean_up_after_deposit,
+                  clean_up_bag:                  ::Aptrust::AptrustUploader.clean_up_bag,
+                  clean_up_bag_data:             ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  clear_status:                  ::Aptrust::AptrustUploader.clear_status,
+                  debug_assume_upload_succeeds:  false,
+                  export_file_sets:              true,
+                  export_file_sets_filter_date:  nil,
+                  export_file_sets_filter_event: nil,
+                  filter:                        nil,
+                  max_upload_jobs:               1,
+                  max_uploads:                   -1,
+                  msg_handler:                   nil,
+                  debug_verbose:                 aptrust_find_and_upload_debug_verbose )
 
     @debug_verbose = debug_verbose
     @debug_verbose ||= aptrust_find_and_upload_debug_verbose
     @msg_handler = msg_handler
     @msg_handler ||= ::Deepblue::MessageHandlerNull.new
 
-    @clean_up_after_deposit = clean_up_after_deposit
-    @clean_up_bag           = clean_up_bag
-    @clean_up_bag_data      = clean_up_bag_data
-    @clear_status           = clear_status
-    @debug_assume_upload_succeeds = debug_assume_upload_succeeds
-    @filter = filter
-    @filter ||= FILTER_DEFAULT
+    @clean_up_after_deposit        = clean_up_after_deposit
+    @clean_up_bag                  = clean_up_bag
+    @clean_up_bag_data             = clean_up_bag_data
+    @clear_status                  = clear_status
+    @debug_assume_upload_succeeds  = debug_assume_upload_succeeds
+    @export_file_sets              = export_file_sets
+    @export_file_sets_filter_date  = export_file_sets_filter_date
+    @export_file_sets_filter_event = export_file_sets_filter_event
+    @filter                        = filter
+    @filter                       ||= FILTER_DEFAULT
     # @filter.debug_verbose = true if @filter.respond_to? :debug_verbose=
 
     @max_upload_jobs = max_upload_jobs
@@ -63,6 +70,9 @@ class Aptrust::AptrustFindAndUpload
                              "clean_up_bag_data=#{clean_up_bag_data}",
                              "clear_status=#{clear_status}",
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "export_file_sets=#{export_file_sets}",
+                             "export_file_sets_filter_date=#{export_file_sets_filter_date}",
+                             "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "filter=#{filter}",
                              "max_upload_jobs=#{max_upload_jobs}",
                              "max_uploads=#{max_uploads}",
@@ -77,13 +87,16 @@ class Aptrust::AptrustFindAndUpload
 
     # else start uplaod
     if 1 == max_upload_jobs
-      uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:         aptrust_config,
-                                                        clean_up_after_deposit: clean_up_after_deposit,
-                                                        clean_up_bag:           clean_up_bag,
-                                                        clean_up_bag_data:      clean_up_bag_data,
-                                                        clear_status:           clear_status,
-                                                        work:                   work,
-                                                        msg_handler:            msg_handler )
+      uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:                aptrust_config,
+                                                        clean_up_after_deposit:        clean_up_after_deposit,
+                                                        clean_up_bag:                  clean_up_bag,
+                                                        clean_up_bag_data:             clean_up_bag_data,
+                                                        clear_status:                  clear_status,
+                                                        export_file_sets:              export_file_sets,
+                                                        export_file_sets_filter_date:  export_file_sets_filter_date,
+                                                        export_file_sets_filter_event: export_file_sets_filter_event,
+                                                        work:                          work,
+                                                        msg_handler:                   msg_handler )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                # "uploader.aptrust_config=#{uploader.aptrust_config}",
                                "uploader.bag_id_context=#{uploader.bag_id_context}",
