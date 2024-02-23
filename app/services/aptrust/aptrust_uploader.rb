@@ -6,12 +6,13 @@ class Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_debug_verbose, default: false
 
-  CLEAN_UP_AFTER_DEPOSIT = true  unless const_defined? :CLEAN_UP_AFTER_DEPOSIT
-  CLEAN_UP_BAG           = false unless const_defined? :CLEAN_UP_BAG
-  CLEAN_UP_BAG_DATA      = true  unless const_defined? :CLEAN_UP_BAG_DATA
-  CLEAR_STATUS           = true  unless const_defined? :CLEAR_STATUS
+  mattr_accessor :allow_deposit,          default: ::Aptrust::AptrustIntegrationService.allow_deposit
 
-  ALLOW_DEPOSIT          = true                               unless const_defined? :ALLOW_DEPOSIT
+  mattr_accessor :clean_up_after_deposit, default: ::Aptrust::AptrustIntegrationService.clean_up_after_deposit
+  mattr_accessor :clean_up_bag,           default: ::Aptrust::AptrustIntegrationService.clean_up_bag
+  mattr_accessor :clean_up_bag_data,      default: ::Aptrust::AptrustIntegrationService.clean_up_bag_data
+  mattr_accessor :clear_status,           default: ::Aptrust::AptrustIntegrationService.clear_status
+
   BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
   DEFAULT_BI_DESCRIPTION = 'No description supplied.'         unless const_defined? :DEFAULT_BI_DESCRIPTION
   DEFAULT_BI_SOURCE      = 'University of Michigan'           unless const_defined? :DEFAULT_BI_SOURCE
@@ -62,6 +63,9 @@ class Aptrust::AptrustUploader
   attr_accessor :clean_up_bag_data
   attr_accessor :clear_status
 
+  attr_accessor :export_file_sets
+  attr_accessor :export_file_sets_filter_date
+  attr_accessor :export_file_sets_filter_event
   attr_accessor :export_by_closure
   attr_accessor :export_copy_src
   attr_accessor :export_move_src
@@ -101,14 +105,17 @@ class Aptrust::AptrustUploader
                   bag_id_local_repository: nil, # ignored if bag_id is defined
                   bag_id_type:             nil, # ignored if bag_id is defined
 
-                  clean_up_after_deposit: CLEAN_UP_AFTER_DEPOSIT,
-                  clean_up_bag:           CLEAN_UP_BAG,
-                  clean_up_bag_data:      CLEAN_UP_BAG_DATA,
-                  clear_status:           CLEAR_STATUS,
+                  clean_up_after_deposit: ::Aptrust::AptrustUploader.clean_up_after_deposit,
+                  clean_up_bag:           ::Aptrust::AptrustUploader.clean_up_bag,
+                  clean_up_bag_data:      ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  clear_status:           ::Aptrust::AptrustUploader.clear_status,
 
-                  export_by_closure:   nil,
-                  export_copy_src:     false,
-                  export_src_dir:      nil,
+                  export_file_sets:              true,
+                  export_file_sets_filter_date:  nil,
+                  export_file_sets_filter_event: nil,
+                  export_by_closure:             nil,
+                  export_copy_src:               false,
+                  export_src_dir:                nil,
 
                   export_dir:          nil,
                   working_dir:         nil,
@@ -181,6 +188,9 @@ class Aptrust::AptrustUploader
     @clear_status           = clear_status
     @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
+    @export_file_sets    = export_file_sets
+    @export_file_sets_filter_date = export_file_sets_filter_date
+    @export_file_sets_filter_event = export_file_sets_filter_event
     @export_by_closure   = export_by_closure
     @export_copy_src     = export_copy_src
     @export_src_dir      = export_src_dir
@@ -194,7 +204,7 @@ class Aptrust::AptrustUploader
   end
 
   def allow_deposit?
-    return ALLOW_DEPOSIT
+    return allow_deposit
   end
 
   def aptrust_config
@@ -309,7 +319,7 @@ class Aptrust::AptrustUploader
   def bag_info_init
     rv = {
       'Source-Organization'         => bi_source,
-      'Bag-Count'                   => '1',
+      'Bag-Count'                   => bag_info_bag_count,
       'Bagging-Date'                => bag_date_str( bi_date ),
       'Bagging-Timestamp'           => bag_date_time_str( bi_date ),
       'Internal-Sender-Description' => bi_description,
@@ -318,17 +328,23 @@ class Aptrust::AptrustUploader
     return rv
   end
 
+  def bag_info_bag_count( count: 1, max: 1 )
+    "#{count} of #{max}"
+  end
+
   def bag_export
     track( status: ::Aptrust::EVENT_BAGGING )
-    bag.write_bag_info( bag_info ) # Create bagit-info.txt file
+    info = bag_info
+    bag.write_bag_info( info ) # Create bagit-info.txt file
     aptrust_info_write
     status = export_data
     if status == ::Aptrust::EVENT_EXPORTED
       bag_manifest
       track( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag_dir}" )
-      return ::Aptrust::EVENT_BAGGED
+      status = ::Aptrust::EVENT_BAGGED
     end
-    return export_status
+    bag.write_bag_info( info ) # Update/create bagit-info.txt file
+    return status
   end
 
   def bag_manifest

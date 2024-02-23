@@ -259,7 +259,8 @@ module Deepblue
 
     def print_file_set_line( out, work: nil, file_set: nil, file_size: 0, file_ext: '', header: false )
       if header
-        out << '"' << I18n.t( "report.curation_concerns.header.file_set.parent_work_id" ) << '"'
+        out << '"' << I18n.t( "report.curation_concerns.header.work.id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.parent_work_id" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.date_modified" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.depositor" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.status" ) << '"'
@@ -270,6 +271,7 @@ module Deepblue
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.file_name" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.thumbnail_id" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.doi" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.version_count" ) << '"'
         # out << ',' << '"' << I18n.t( "report.curation_concerns.header.file_set.tombstone" ) << '"'
       else
         return out if file_set.nil?
@@ -285,6 +287,7 @@ module Deepblue
         out << ',' << '"' << file_set.label << '"'
         out << ',' << '"' << (file_set.thumbnail_id.nil? ? '' : file_set.thumbnail_id).to_s << '"'
         out << ',' << '"' << (file_set.doi.nil? ? '' : file_set.doi).to_s << '"'
+        out << ',' << file_set.version_count
         # out << ',' << '"' << (Array(file_set.tombstone).empty? ? '' : Array(file_set.tombstone).first).to_s << '"'
       end
       out << "\n"
