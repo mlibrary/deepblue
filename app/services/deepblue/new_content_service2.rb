@@ -992,6 +992,7 @@ module Deepblue
         date_modified = build_date( hash: work_hash, key: :date_modified )
         date_published = build_date( hash: work_hash, key: :date_published )
         date_uploaded = build_date( hash: work_hash, key: :date_uploaded )
+        depositor_creator = work_hash[:depositor_creator]
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
@@ -1026,6 +1027,7 @@ module Deepblue
                              date_modified: date_modified,
                              date_published: date_published,
                              date_uploaded: date_uploaded,
+                             depositor_creator: depositor_creator,
                              description: description,
                              doi: doi,
                              fundedby: fundedby,
@@ -1400,6 +1402,7 @@ module Deepblue
         diff_attr_value( diffs, work, attr_name: :date_uploaded, value: build_date( hash: work_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: work_hash )
         diff_attr_value( diffs, work, attr_name: :depositor, value: depositor )
+        diff_attr( diffs, work, work_hash, attr_name: :depositor_creator, multi: false )
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
@@ -2090,6 +2093,7 @@ module Deepblue
                         date_modified:,
                         date_published:,
                         date_uploaded:,
+                        depositor_creator:,
                         description:,
                         doi:,
                         fundedby:,
@@ -2119,6 +2123,7 @@ module Deepblue
                        date_modified: date_modified,
                        date_published: date_published,
                        date_uploaded: date_uploaded,
+                       depositor_creator: depositor_creator,
                        description: description,
                        doi: doi,
                        fundedby: fundedby,
@@ -2148,6 +2153,7 @@ module Deepblue
                        date_modified: date_modified,
                        date_published: date_published,
                        date_uploaded: date_uploaded,
+                       depositor_creator: depositor_creator,
                        description: description,
                        doi: doi,
                        fundedby: fundedby,
@@ -2644,6 +2650,7 @@ module Deepblue
         update_attr_value( updates, work, attr_name: :date_uploaded, value: build_date(hash: work_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: work_hash )
         update_attr_value( updates, work, attr_name: :depositor, value: depositor )
+        update_attr( updates, work, work_hash, attr_name: :depositor_creator, multi: false )
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description

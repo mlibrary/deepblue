@@ -5,6 +5,7 @@
 <% end %>
 <div class="base-terms">
   <% f.object.primary_terms.each do |term| %>
+    <!-- <%= "Render term: #{term}" %> -->
     <%= render_edit_field_partial(term, f: f) %>
   <% end %>
   <div class="add-files-link"><button onclick="movetofilestab();">Add Files</button><span><%= image_tag("arrow-right.svg", class: "arrow-icon", alt:"next arrow icon", 'aria-hidden'=> "true") %></span></div>

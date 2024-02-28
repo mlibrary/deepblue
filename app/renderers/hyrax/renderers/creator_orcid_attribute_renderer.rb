@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Hyrax
   module Renderers
 
@@ -9,6 +11,7 @@ module Hyrax
 
       # Draw the table row for the attribute
       def render
+        # Flipflop.strict_orcid?
         return '' if values.blank? && !options[:include_empty]
         puralized_label =
         markup = %(<tr><th>#{label}</th>\n<td><ul class='tabular'>\n)

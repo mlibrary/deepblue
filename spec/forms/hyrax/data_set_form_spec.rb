@@ -16,7 +16,8 @@ RSpec.describe Hyrax::DataSetForm do
   let(:ability) { Ability.new(user) }
   let(:form) { described_class.new(work, ability, nil) }
 
-  let( :expected_required_fields ) { %i[
+  let( :expected_required_fields ) do
+    %i[
     title
     creator
     authoremail
@@ -24,9 +25,12 @@ RSpec.describe Hyrax::DataSetForm do
     description
     rights_license
     subject_discipline
-  ] }
-  let( :expected_primary_terms ) { %i[
+    ]
+  end
+  let( :expected_primary_terms ) do
+    rv = %i[
     title
+    depositor_creator
     creator
     creator_orcid
     authoremail
@@ -44,7 +48,9 @@ RSpec.describe Hyrax::DataSetForm do
     language
     referenced_by
     access_deepblue
-  ] }
+    ]
+    rv
+  end
 
   describe "#required_fields" do
     subject { form.required_fields }

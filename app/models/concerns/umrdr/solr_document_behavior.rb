@@ -42,6 +42,10 @@ module Umrdr
       fetch('curation_notes_user_tesim', [])
     end
 
+    def depositor_creator
+      Array(self['depositor_creator_tesim']).first
+    end
+
     def date_coverage
       Array(self['date_coverage_tesim']).first
     end

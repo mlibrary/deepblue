@@ -1,0 +1,8 @@
+<% show_edit_creator_orcid = Rails.configuration.creator_orcid_visible_edit || !Flipflop.strict_orcid? %>
+<% if show_edit_creator_orcid %>
+  <% if f.object.multiple? key %>
+    <%= f.input key, as: :multi_value, input_html: { class: 'form-control', data: { 'key' => key } }, required: f.object.required?(key) %>
+  <% else %>
+    <%= f.input key, input_html: { data: { 'key' => key } }, required: f.object.required?(key) %>
+  <% end %>
+<% end %>

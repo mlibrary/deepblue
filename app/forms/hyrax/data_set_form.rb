@@ -12,6 +12,7 @@ module Hyrax
     self.terms +=
       %i[
         authoremail
+        depositor_creator
         creator_orcid
         date_coverage
         description
@@ -32,8 +33,10 @@ module Hyrax
       ]
 
     self.default_work_primary_terms =
+      # order is same as edit display order
       %i[
         title
+        depositor_creator
         creator
         creator_orcid
         authoremail
@@ -73,6 +76,10 @@ module Hyrax
     end
 
     def merge_date_coverage_attributes!(hsh)
+      @attributes.merge!(hsh&.stringify_keys || {})
+    end
+
+    def merge_depositor_creator_attributes!(hsh)
       @attributes.merge!(hsh&.stringify_keys || {})
     end
 

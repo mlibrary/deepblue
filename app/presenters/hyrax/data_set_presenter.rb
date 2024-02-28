@@ -13,6 +13,7 @@ module Hyrax
               :curation_notes_user,
               :date_coverage,
               :date_published, :date_published2,
+              :depositor_creator,
               :doi,
               :doi_minted?,
               :doi_minting_enabled?,
@@ -140,6 +141,36 @@ module Hyrax
     end
 
     # end box
+
+    def depositor_orcid
+      @depositor_orcid ||= depositor_orcid_init
+    end
+
+    def depositor_orcid_init
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user.email=#{current_user.email}",
+                                             "current_user.orcid=#{current_user.orcid}",
+                                             "depositor=#{depositor}",
+                                             "" ] if debug_verbose
+      rv = ""
+      dep = depositor
+      if dep.present? && current_user.email == depositor
+        rv = current_user.orcid
+      elsif dep.present?
+        user = User.find_by_user_key email
+        rv = user&.orcid
+      else
+        rv = current_user.orcid
+      end
+      rv ||= ""
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
+    end
 
     # display date range as from_date To to_date
     def date_coverage

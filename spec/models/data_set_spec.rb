@@ -41,6 +41,7 @@ RSpec.describe DataSet do
       date_published
       date_updated
       depositor
+      depositor_creator
       description
       doi
       file_set_ids
@@ -92,6 +93,7 @@ RSpec.describe DataSet do
       date_coverage
       date_published
       depositor
+      depositor_creator
       description
       doi
       fundedby
@@ -377,7 +379,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_mint_doi( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 52,
+                                     size: 53,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -426,7 +428,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_publish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 53,
+                                     size: 54,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -476,7 +478,7 @@ RSpec.describe DataSet do
       expect( subject.provenance_unpublish( current_user: current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 52,
+                                     size: 53,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
@@ -565,7 +567,7 @@ RSpec.describe DataSet do
       expect( subject.entomb!( epitaph, current_user ) ).to eq true
       after = Deepblue::ProvenanceHelper.to_log_format_timestamp Time.now
       validate_prov_logger_received( prov_logger_received: prov_logger_received,
-                                     size: 55,
+                                     size: 56,
                                      before: before,
                                      after: after,
                                      exp_event: exp_event,
