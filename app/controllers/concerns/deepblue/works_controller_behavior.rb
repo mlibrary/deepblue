@@ -445,6 +445,8 @@ module Deepblue
       cov_date = Date.edtf(@form.date_coverage)
       cov_params = Dataset::DateCoverageService.interval_to_params cov_date
       @form.merge_date_coverage_attributes! cov_params
+      depositor_creator_params = Dataset::DepositorCreatorService.depositor_creator_to_params @form.depositor_creator
+      @form.merge_depositor_creator_attributes! depositor_creator_params
     end
 
     def create
@@ -1028,6 +1030,9 @@ module Deepblue
     end
 
     def update
+      return redirect_to my_works_path,
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
+
       #Stores the button selection
       save_as_draft = params[:save_as_draft]
 
@@ -1046,9 +1051,6 @@ module Deepblue
                                      event: :update,
                                      current_user: current_user,
                                      save_as_draft: save_as_draft )
-
-      return redirect_to my_works_path,
-                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_edit_work?
       if current_ability.admin?
         check_for_and_run_bulk_file_set_delete
       end
@@ -1067,7 +1069,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "" ] if deepblue_works_controller_behavior_debug_verbose
-          had_error = update_rest  save_as_draft
+          had_error = update_rest save_as_draft
           if had_error
             if curation_concern.present?
               render_json_response( response_type: :unprocessable_entity, options: { errors: curation_concern.errors } )

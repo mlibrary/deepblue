@@ -19,6 +19,7 @@ module Hyrax
     self.show_presenter = Hyrax::DataSetPresenter
 
     before_action :assign_date_coverage,         only: %i[create update]
+    before_action :assign_depositor_creator,     only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
     # before_action :assign_ticket_status,         only: %i[create update]
     before_action :prepare_tombstone_permissions,only: [:show]
@@ -62,6 +63,8 @@ module Hyrax
     attr_accessor :user_email_one, :user_email_two
 
     attr_accessor :provenance_log_entries
+
+    attr_accessor :read_me_file_set
 
     attr_accessor :tombstone_permissions_hack
     @tombstone_permissions_hack = false
@@ -221,14 +224,7 @@ module Hyrax
 
     ## end ticketing
 
-    ## date_coverage
-
-    # Create EDTF::Interval from form parameters
-    # Replace the date coverage parameter prior with serialization of EDTF::Interval
-    def assign_date_coverage
-      cov_interval = Dataset::DateCoverageService.params_to_interval params
-      params[PARAMS_KEY]['date_coverage'] = cov_interval ? cov_interval.edtf : ""
-    end
+    ## admin_set
 
     def assign_admin_set
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -248,7 +244,7 @@ module Hyrax
                                                "Rails.configuration.default_admin_set_id=#{Rails.configuration.default_admin_set_id}",
                                                "" ] if data_sets_controller_debug_verbose
         if admin_set.id != Rails.configuration.default_admin_set_id &&
-                    admin_set&.title&.first == Rails.configuration.data_set_admin_set_title
+          admin_set&.title&.first == Rails.configuration.data_set_admin_set_title
 
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
@@ -262,9 +258,182 @@ module Hyrax
       end
     end
 
+    # end admin_set
+
+    ## date_coverage
+
+    # Create EDTF::Interval from form parameters
+    # Replace the date coverage parameter prior with serialization of EDTF::Interval
+    def assign_date_coverage
+      cov_interval = Dataset::DateCoverageService.params_to_interval params
+      params[PARAMS_KEY]['date_coverage'] = cov_interval ? cov_interval.edtf : ""
+    end
+
     # end date_coverage
 
-    attr_accessor :read_me_file_set
+    ## depositor_creator
+
+    # if depositor_creator flag is set, add depositor orcid
+    # else remove depositor orcid
+    def assign_depositor_creator
+
+      # TODO: current_user may not be the depositor
+
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params['depositor_creator_available']=#{params['depositor_creator_available']}",
+                                             "params['depositor_orcid']=#{params['depositor_orcid']}",
+                                             "current_user.orcid=#{current_user.orcid}",
+                                             "params[PARAMS_KEY]['depositor_creator']=#{params[PARAMS_KEY]['depositor_creator']}",
+                                             "" ] if debug_verbose
+      return unless params['depositor_creator_available'].present?
+      params[PARAMS_KEY]['depositor_creator'] = assign_depositor_creator_str
+      depositor_orcid = assign_depositor_get_depositor_orcid
+      return if depositor_orcid.blank?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params['depositor_creator_available']=#{params['depositor_creator_available']}",
+                                             "depositor_orcid=#{depositor_orcid}",
+                                             "Hyrax::Orcid::OrcidHelper::validate_orcid=#{Hyrax::Orcid::OrcidHelper::validate_orcid( depositor_orcid )}",
+                                             "params[PARAMS_KEY]['depositor_creator']=#{params[PARAMS_KEY]['depositor_creator']}",
+                                             "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
+                                             "" ] if debug_verbose
+      # if the depositor_creator value is "true"
+      if "true" == params[PARAMS_KEY]['depositor_creator']
+        assign_depositor_creator_add( depositor_orcid: depositor_orcid )
+      else
+        assign_depositor_creator_remove( depositor_orcid: depositor_orcid )
+      end
+    end
+
+    def assign_depositor_get_depositor_orcid
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params['depositor_orcid']=#{params['depositor_orcid']}",
+                                             "current_user.orcid=#{current_user.orcid}",
+                                             "" ] if debug_verbose
+      rv = params['depositor_orcid']
+      return rv if rv.present?
+      rv = current_user.orcid
+      rv ||= ""
+      return rv
+    end
+
+    def assign_depositor_creator_add( depositor_orcid: )
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
+                                             "depositor_orcid=#{depositor_orcid}",
+                                             "" ] if debug_verbose
+      return if depositor_orcid.blank?
+      creator_orcid = assign_depositor_creator_get_creator_orcid
+      current_user_orcid = Hyrax::Orcid::OrcidHelper::validate_orcid( depositor_orcid )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "creator_orcid=#{creator_orcid}",
+                                             "current_user_orcid=#{current_user_orcid}",
+                                             "" ] if debug_verbose
+      return if current_user_orcid.blank?
+      # check for presence of depositor_orcid and add it to creator_orcid if necessary
+      found = false
+      creator_orcid.each do|orcid|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "orcid=#{orcid}",
+                                               "" ] if debug_verbose
+        orcid ||= ""
+        found = true if orcid.include? current_user_orcid
+        break if found
+      end
+      return if found
+      creator_orcid = [depositor_orcid] + creator_orcid
+      params[PARAMS_KEY]['creator_orcid'] = creator_orcid
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "updated creator_orcid=#{creator_orcid}",
+                                             "" ] if debug_verbose
+    end
+
+    def assign_depositor_creator_get_creator_orcid
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
+                                             "" ] if debug_verbose
+      creator_orcid = params[PARAMS_KEY]['creator_orcid']
+      return creator_orcid unless creator_orcid.nil?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "need to get creator_orcid from curation_concern",
+                                             "" ] if debug_verbose
+      @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
+      creator_orcid = curation_concern.creator_orcid
+      creator_orcid ||= []
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "creator_orcid=#{creator_orcid}",
+                                             "" ] if debug_verbose
+      return creator_orcid
+    end
+
+    def assign_depositor_creator_remove( depositor_orcid: )
+      debug_verbose = true || data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
+                                             "depositor_orcid=#{depositor_orcid}",
+                                             "" ] if debug_verbose
+      return if depositor_orcid.blank?
+      creator_orcid = assign_depositor_creator_get_creator_orcid
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "creator_orcid=#{creator_orcid}",
+                                             "" ] if debug_verbose
+      return if creator_orcid.blank?
+      current_user_orcid = Hyrax::Orcid::OrcidHelper::validate_orcid( depositor_orcid )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "current_user_orcid=#{current_user_orcid}",
+                                             "" ] if debug_verbose
+      return if current_user_orcid.blank?
+      # check for presence of depositor_orcid and add it to creator_orcid if necessary
+      found = nil
+      creator_orcid.each do|orcid|
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "orcid=#{orcid}",
+                                               "" ] if debug_verbose
+        orcid ||= ""
+        if orcid.include? current_user_orcid
+          found = orcid
+          break
+        end
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "found=#{found}",
+                                             "" ] if debug_verbose
+      return if found.blank?
+      creator_orcid = [depositor_orcid] - [found]
+      params[PARAMS_KEY]['creator_orcid'] = creator_orcid
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "updated creator_orcid=#{creator_orcid}",
+                                             "" ] if debug_verbose
+    end
+
+    def assign_depositor_creator_str
+      param = params[PARAMS_KEY]['depositor_creator']
+      return "false" if param.blank?
+      return "true" if "true" == param
+      return "true" if "1" == param
+      return "false"
+    end
+
+    # end depositor_creator
 
     def can_display_provenance_log?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

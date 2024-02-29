@@ -349,7 +349,9 @@ class Aptrust::AptrustUploader
 
   def bag_manifest
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
-    bag.manifest!(algo: 'md5') # Create tagmanifest-info.txt and the data directory maniftest.txt
+    # Create tagmanifest-info.txt and the data directory maniftest.txt
+    # bag.manifest!(algo: 'md5')
+    bag.manifest!( algo: 'sha1' ) # TODO: make the algorithm a config parameter
 
     # need to rewrite the tag manifest files to include the aptrust-info.txt file
     tag_files = bag.tag_files
@@ -369,7 +371,6 @@ class Aptrust::AptrustUploader
     # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
     sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
     File.delete(sha1tag) if File.exist?(sha1tag)
-
   end
 
   def bag_tar

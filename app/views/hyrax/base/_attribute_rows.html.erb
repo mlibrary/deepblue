@@ -41,6 +41,9 @@
 <%= presenter.attribute_to_html(:creator, render_as: :creator, label: I18n.t('show.labels.creator') ) %>
 <%= presenter.attribute_to_html(:creator_orcid, render_as: :creator_orcid, label: I18n.t('show.labels.creator_orcid') ) %>
 <%= presenter.attribute_to_html(:depositor, render_as: :depositor) %>
+<% if false || Flipflop.strict_orcid? %>
+<%= presenter.attribute_to_html(:depositor_creator, render_as: :depositor_creator) %>
+<% end %>
 <%= presenter.attribute_to_html(:authoremail, label: t('show.labels.authoremail'), work_type: "DataSet" ) %>
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.labels.subject_discipline')) %>

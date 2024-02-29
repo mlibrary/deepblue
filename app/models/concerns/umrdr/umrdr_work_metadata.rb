@@ -56,6 +56,11 @@ module Umrdr
         index.as :stored_searchable
       end
 
+      property :depositor_creator, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#depositor_creator'), multiple: false do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :date_coverage, predicate: ::RDF::Vocab::DC.temporal, multiple: false do |index|
         index.type :text
         index.as :stored_searchable, :facetable

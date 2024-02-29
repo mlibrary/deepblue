@@ -277,6 +277,7 @@ module DeepBlueDocs
     # see see config/initalizers/jira_integration.rb for deposit notifications through jira flag
 
     # end confgure email
+    config.creator_orcid_visible_edit = false
 
     config.upload_max_number_of_files = 100
     config.upload_max_file_size = 5.gigabytes

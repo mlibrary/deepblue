@@ -38,6 +38,7 @@ module Deepblue
                                             curation_notes_admin_ordered
                                             curation_notes_user
                                             curation_notes_user_ordered
+                                            depositor_creator
                                             date_coverage
                                             date_created
                                             date_modified

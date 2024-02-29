@@ -83,6 +83,7 @@ class DataSet < ActiveFedora::Base
       date_published
       date_updated
       depositor
+      depositor_creator
       description
       doi
       file_set_ids
@@ -134,6 +135,7 @@ class DataSet < ActiveFedora::Base
       date_published
       date_updated
       depositor
+      depositor_creator
       description
       doi
       file_set_ids
@@ -248,6 +250,7 @@ class DataSet < ActiveFedora::Base
       date_published
       date_updated
       depositor
+      depositor_creator
       description
       doi
       file_set_ids
@@ -285,6 +288,7 @@ class DataSet < ActiveFedora::Base
       date_coverage
       date_published
       depositor
+      depositor_creator
       description
       doi
       fundedby

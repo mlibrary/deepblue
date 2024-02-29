@@ -107,7 +107,7 @@ en:
       date_modified:        "Last modified"
       date_published:       "Published"
       date_updated:         "Date updated"
-      depositor_creator:    "Depositor Creator"
+      depositor_creator:    "Use depositor ORCID"
       doi:                  "DOI"
       edit_groups:          "Edit Groups"
       edit_users:           "Edit Users"
@@ -217,7 +217,7 @@ en:
         date_modified:        "Last Modified"
         date_published:       "Published"
         date_updated:         "Date Updated"
-        depositor_creator:    "Depositor Creator"
+        depositor_creator:    "Use depositor ORCID"
         description:          "Description"
         description_abstract: "Abstract or Summary"
         doi:                  "DOI"
@@ -278,7 +278,7 @@ en:
         date_created: >
           The date the work’s data was created, as determined by the creator.
         depositor_creator: >
-          Flag to indicate that the depositor is one of the creators.
+          Flag to indicate despositor's ORCID is to be included.
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
           mind that your responses will enable people to discover, identify, and understand your data. If you are

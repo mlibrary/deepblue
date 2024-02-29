@@ -30,6 +30,7 @@ class DataSetIndexer < Hyrax::WorkIndexer
       solr_doc[:creator_ordered_tesim] = object.creator_ordered
       solr_doc[:creator_orcid_json_ssim] = object.creator_orcid_json
       solr_doc[:creator_orcid_ordered_tesim] = object.creator_orcid_ordered
+      solr_doc[:depositor_creator_tesim] = object.depositor_creator
       solr_doc[:doi_tesim] = object.doi
 
       # this causes referenced_by to be displayed as a single string, not a list of values

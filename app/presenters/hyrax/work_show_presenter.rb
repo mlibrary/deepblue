@@ -59,6 +59,7 @@ module Hyrax
               :curation_notes_user,
               :date_coverage,
               :date_published, :date_published2,
+              :depositor_creator,
               :doi,
               :doi_minted?,
               :doi_minting_enabled?,
