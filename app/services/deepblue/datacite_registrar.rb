@@ -168,7 +168,7 @@ module Deepblue
                                              "" ] if debug_verbose
       return false if curation_concern.blank?
       return false if curation_concern.doi.blank?
-      return false if curation_concern.doi == ::Deepblue::DoiBehavior.doi_pending
+      return false if ::Deepblue::DoiBehavior.doi_pending?( doi: curation_concern.doi )
       doi_url = doi_for_register_url( curation_concern.doi )
       json_metadata = client.get_metadata_as_json( doi_url )
       return false if json_metadata.blank?
@@ -184,7 +184,7 @@ module Deepblue
                                              "" ] if debug_verbose
       return false if curation_concern.blank?
       return false if curation_concern.doi.blank?
-      return false if curation_concern.doi == ::Deepblue::DoiBehavior.doi_pending
+      return false if ::Deepblue::DoiBehavior.doi_pending?( doi: curation_concern.doi )
       url = client.get_url(curation_concern.doi, raise_error: false)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

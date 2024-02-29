@@ -9,15 +9,54 @@ module Deepblue
 
     mattr_accessor :doi_behavior_debug_verbose, default: ::Deepblue::DoiMintingService.doi_behavior_debug_verbose
 
-    mattr_accessor :doi_minting_enabled, default: true
-    mattr_accessor :doi_pending, default: 'doi_pending'
-    mattr_accessor :doi_minimum_file_count, default: 1
+    mattr_accessor :doi_minting_enabled,       default: true
+    #mattr_accessor :doi_pending,               default: 'doi_pending'.freeze
+    mattr_accessor :doi_minimum_file_count,    default: 1
+    mattr_accessor :doi_pending_timeout_delta, default: 1.hour
 
     mattr_accessor :doi_regex, default: /\A10\.\d{4,}(\.\d+)*\/[-._;():\/A-Za-z\d]+\z/.freeze
 
+    def self.doi_minted?( doi: )
+      return false if doi.nil?
+      # return false if doi.blank? # use this instead?
+      return true
+      # !doi.nil?
+    rescue
+      nil
+    end
+
+    def self.doi_pending?( doi: )
+      # return doi == doi_pending
+      # return doi == 'doi_pending'
+      return false if doi.blank?
+      return true if doi.start_with? 'doi_pending'
+      return true if doi.start_with? 'DOI pending'
+      return false
+    end
+
+    def self.doi_pending_init
+      rv = "DOI pending as of #{DateTime.now}"
+      return rv
+    end
+
+    def self.doi_pending_timeout?( doi: )
+      return false unless doi_pending?( doi: doi )
+      return true if 'doi_pending' == doi
+      match = doi.match( /^.*pending as of (\d.+)$/ )[0]
+      return false if match.blank?
+      begin
+        as_of = DateTime.parse( match )
+        as_of = as_of + DoiBehavior.doi_pending_timeout_delta
+        return true if as_of > DataTime.now
+      rescue
+        return false
+      end
+      return false
+    end
+
     def self.doi_render( value )
       value = value.first if value.is_a? Array
-      return value if value == doi_pending
+      return value if doi_pending?( doi: value )
       return value if value.start_with? 'http'
       return value.sub 'doi:', 'https://doi.org/'
     end
@@ -40,17 +79,19 @@ module Deepblue
     end
 
     def doi_minted?
-      !doi.nil?
-    rescue
-      nil
+      DoiBehavior.doi_minted?( doi: doi )
     end
 
     def doi_minting_enabled?
       ::Deepblue::DoiBehavior.doi_minting_enabled
     end
 
+    def doi_pending_init
+      DoiBehavior.doi_pending_init
+    end
+
     def doi_pending?
-      doi == doi_pending
+      DoiBehavior.doi_pending?( doi: doi )
     end
 
     def doi_registrar
@@ -91,7 +132,7 @@ module Deepblue
       #                                      "curation_concern.id=#{id}",
       #                                      "past doi_minted?" ] if doi_behavior_debug_verbose
       return false if work? && enforce_minimum_file_count && file_sets.count < doi_minimum_file_count
-      self.doi = doi_pending
+      self.doi = doi_pending_init
       self.save
       self.reload
       ::Deepblue::DoiMintingService.doi_mint_job( curation_concern: self,

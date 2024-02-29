@@ -300,7 +300,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     end
 
     context 'private work pending doi', skip: true do
-      let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior.doi_pending ) }
+      let(:work) { create(:private_data_set, user: user, title: ['test title'], doi: ::Deepblue::DoiBehavior.doi_pending_init ) }
 
       it 'redirects' do
         allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
