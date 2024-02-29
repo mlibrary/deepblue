@@ -53,7 +53,7 @@ RSpec.describe Deepblue::DoiControllerBehavior do
 
     context 'doi pending' do
       let(:data_set) do
-        work = create(:data_set_with_one_file, depositor: depositor_email, doi: ::Deepblue::DoiBehavior.doi_pending)
+        work = create(:data_set_with_one_file, depositor: depositor_email, doi: ::Deepblue::DoiBehavior.doi_pending_init )
         work.depositor = depositor_email
         work
       end

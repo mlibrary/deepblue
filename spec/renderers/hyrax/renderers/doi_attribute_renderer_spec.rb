@@ -14,7 +14,7 @@ RSpec.describe Hyrax::Renderers::DoiAttributeRenderer do
     let(:field) { 'this is ignored' }
     let(:values) { ['ignored'] }
     let(:options) { { ignored: true } }
-    let(:pending) { ::Deepblue::DoiBehavior.doi_pending }
+    let(:pending) { ::Deepblue::DoiBehavior.doi_pending_init }
     let(:https) { "http://some.address" }
     let(:doi_noid) { 'doi:the_doi_noid' }
     let(:doi) { "doi:#{doi_noid}" }

@@ -88,7 +88,7 @@ module Umrdr
     end
 
     def doi_pending?
-      doi == ::Deepblue::DoiBehavior.doi_pending
+      ::Deepblue::DoiBehavior.doi_pending?( doi: doi )
     end
 
     ## end DOI methods

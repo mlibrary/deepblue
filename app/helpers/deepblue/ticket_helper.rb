@@ -4,13 +4,14 @@ module Deepblue
 
   module TicketHelper
 
-    STATUS_DRAFT = 'In draft mode, no ticket needed yet.' unless const_defined? :STATUS_DRAFT
-    STATUS_EMBARGOED = 'Embargoed, should have a ticket.' unless const_defined? :STATUS_EMBARGOED
-    STATUS_NOT_OPEN = 'Visibility not open, no ticket needed.' unless const_defined? :STATUS_NOT_OPEN
-    STATUS_OPEN = 'Visibility is open, should have a ticket.' unless const_defined? :STATUS_OPEN
+    STATUS_DRAFT     = 'In draft mode, no ticket needed yet.'.freeze      unless const_defined? :STATUS_DRAFT
+    STATUS_EMBARGOED = 'Embargoed, should have a ticket.'.freeze          unless const_defined? :STATUS_EMBARGOED
+    STATUS_NOT_OPEN  = 'Visibility not open, no ticket needed.'.freeze    unless const_defined? :STATUS_NOT_OPEN
+    STATUS_OPEN      = 'Visibility is open, should have a ticket.'.freeze unless const_defined? :STATUS_OPEN
 
-    TICKET_JOB_STARTING = 'job starting' unless const_defined? :TICKET_JOB_STARTING
-    TICKET_PENDING = 'pending' unless const_defined? :TICKET_PENDING
+    TICKET_JOB_STARTING          = 'job starting'.freeze unless const_defined? :TICKET_JOB_STARTING
+    TICKET_PENDING               = 'pending'.freeze      unless const_defined? :TICKET_PENDING
+    TICKET_PENDING_TIMEOUT_DELTA = 1.hour.freeze         unless const_defined? :TICKET_PENDING_TIMEOUT_DELTA
 
     mattr_accessor :ticket_helper_debug_verbose, default: false
 
@@ -64,6 +65,14 @@ module Deepblue
                                                   debug_verbose: false )
     end
 
+    def self.new_ticket_necessary?( curation_concern: )
+      return false unless curation_concern.present?
+      ticket = curation_concern.ticket
+      return true if ticket.blank?
+      return true if ticket_pending?( ticket: ticket )
+      return false
+    end
+
     def self.new_ticket_if_necessary( curation_concern: nil,
                                       cc_id: nil,
                                       current_user: nil,
@@ -95,7 +104,7 @@ module Deepblue
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.ticket=#{curation_concern.ticket}",
                                              "" ] if debug_verbose
-      return if curation_concern.ticket.present?
+      return unless new_ticket_necessary?( curation_concern:curation_concern )
       rv = ticket_from_curation_concern_notes_admin( curation_concern: curation_concern, debug_verbose: debug_verbose )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -179,6 +188,33 @@ module Deepblue
       return false
     end
 
+    def self.ticket_pending?( ticket: )
+      # return TICKET_PENDING == ticket
+      return false if ticket.blank?
+      return true if ticket.start_with? TICKET_PENDING
+      return false
+    end
+
+    def self.ticket_pending_init
+      rv = "#{TICKET_PENDING} as of #{DateTime.now}"
+      return rv
+    end
+
+    def self.ticket_pending_timeout?( ticket: )
+      return false unless ticket_pending?( ticket: ticket )
+      return true if TICKET_PENDING == ticket
+      match = ticket.match( /^.*pending as of (\d.+)$/ )[0]
+      return false if match.blank?
+      begin
+        as_of = DateTime.parse( match )
+        as_of = as_of + TICKET_PENDING_TIMEOUT_DELTA
+        return true if as_of > DataTime.now
+      rescue
+        return false
+      end
+      return false
+    end
+
     def self.ticket_status( curation_concern:, raw_ticket: nil, debug_verbose: ticket_helper_debug_verbose )
       debug_verbose = debug_verbose || ticket_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -233,8 +269,7 @@ module Deepblue
       is_draft = ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern
       return false if is_draft
       cc_ticket_equals_ticket_job_starting = TICKET_JOB_STARTING == curation_concern.ticket
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "curation_concern.id=#{curation_concern.id}",
                                "curation_concern.ticket=#{curation_concern.ticket}",
                                "is_draft=#{is_draft}",
@@ -242,21 +277,19 @@ module Deepblue
                                "" ] if msg_handler.debug_verbose
       unless cc_ticket_equals_ticket_job_starting
         msg = "Start new ticket job? false -- curation_concern.ticket=#{curation_concern.ticket}"
-        msg_handler.bold_debug [ msg_handler.here,
-                                 msg_handler.called_from,
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                  "msg=#{msg}",
                                  "" ] if msg_handler.debug_verbose
         msg_handler.msg_verbose msg unless cc_ticket_equals_ticket_job_starting
         return false
       end
       msg = 'Start new ticket job? true'
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "msg=#{msg}",
                                "" ] if msg_handler.debug_verbose
       msg_handler.msg_verbose msg
       update_curation_concern_ticket( curation_concern: curation_concern,
-                                      update_ticket: TICKET_PENDING,
+                                      update_ticket: TicketHelper.ticket_pending_init,
                                       msg_handler: msg_handler )
       return true # actually create the ticket
     end
@@ -275,11 +308,11 @@ module Deepblue
     end
 
     def self.update_curation_concern_ticket( curation_concern:, msg_handler: nil, test_mode: false, update_ticket: )
-      ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
-                                     id: curation_concern.id,
-                                     event: :update_curation_concern_ticket,
-                                     test_mode: test_mode,
-                                     update_ticket: update_ticket )
+      ::Deepblue::DebugLogHelper.log( class_name: self.class.name,
+                                      id: curation_concern.id,
+                                      event: :update_curation_concern_ticket,
+                                      test_mode: test_mode,
+                                      update_ticket: update_ticket )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
