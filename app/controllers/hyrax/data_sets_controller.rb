@@ -153,14 +153,15 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::AptrustUploadWorkJob.perform_later( id:                     params[:id],
-                                            email_results_to:       current_user.email,
-                                            clean_up_after_deposit: true,  # TODO
-                                            clean_up_bag:           false, # TODO
-                                            clean_up_bag_data:      true,  # TODO
-                                            clear_status:           true,  # force upload
-                                            debug_assume_upload_succeeds: true,
-                                            debug_verbose:          true )  # TODO
+      ::AptrustUploadWorkJob.perform_later( id:                           params[:id],
+              email_results_to:             current_user.email,
+              cleanup_after_deposit:        ::Aptrust::AptrustIntegrationService.from_controller_cleanup_after_deposit,
+              cleanup_before_deposit:       ::Aptrust::AptrustIntegrationService.from_controller_cleanup_before_deposit,
+              cleanup_bag:                  ::Aptrust::AptrustIntegrationService.from_controller_cleanup_bag,
+              cleanup_bag_data:             ::Aptrust::AptrustIntegrationService.from_controller_cleanup_bag_data,
+              clear_status:                 ::Aptrust::AptrustIntegrationService.from_controller_clear_status,
+              debug_assume_upload_succeeds: ::Aptrust::AptrustIntegrationService.from_controller_debug_assume_upload_succeeds,
+              debug_verbose:                ::Aptrust::AptrustIntegrationService.from_controller_debug_verbose )
       flash[:notice] = "APTrust upload work started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end

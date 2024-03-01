@@ -51,7 +51,7 @@ module Deepblue
       #                                        "called_from=#{called_from}",
       #                                        "cc_type=#{model_name.to_s}",
       #                                        "status=#{IngestStatus::STARTED}",
-      #                                        "" ], bold_puts: true if true || ingest_behavior_debug_verbose
+      #                                        "" ], bold_puts: true if ingest_behavior_debug_verbose
       IngestStatus.new( cc_id: id,
                         cc_type: model_name.to_s,
                         status: IngestStatus::STARTED,

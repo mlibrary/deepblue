@@ -7,10 +7,9 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
 
-  mattr_accessor :deposit_context,          default: ::Aptrust::AptrustIntegrationService.deposit_context
-  mattr_accessor :deposit_local_repository, default: ::Aptrust::AptrustIntegrationService.deposit_local_repository
-
-  mattr_accessor :bag_description,          default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
+  mattr_accessor :deposit_context,  default: ::Aptrust::AptrustIntegrationService.deposit_context
+  mattr_accessor :local_repository, default: ::Aptrust::AptrustIntegrationService.local_repository
+  mattr_accessor :bag_description,  default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
 
   def self.dbd_bag_description( work: )
     # "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/"
@@ -27,7 +26,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def self.dbd_export_dir
     hostname = dbd_hostname_short
-    rv = Settings.aptrust.export_dir
+    rv = ::Aptrust::AptrustIntegrationService.export_dir
     if rv.blank? && 'local' == hostname
       rv = './data/aptrust_export/'
     elsif rv.blank?
@@ -48,7 +47,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def self.dbd_working_dir
     hostname = dbd_hostname_short
-    rv = Settings.aptrust.working_dir # TODO: get this from config
+    rv = ::Aptrust::AptrustIntegrationService.working_dir
     if rv.blank? && 'local' == hostname
       rv = './data/aptrust_work/'
     elsif rv.blank?
@@ -73,28 +72,28 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   attr_accessor :exported_file_set_files
 
   def initialize( aptrust_config: nil,
-                  clean_up_after_deposit:       ::Aptrust::AptrustUploader.clean_up_after_deposit,
-                  clean_up_bag:                 ::Aptrust::AptrustUploader.clean_up_bag,
-                  clean_up_bag_data:            ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  cleanup_after_deposit:        ::Aptrust::AptrustUploader.cleanup_after_deposit,
+                  cleanup_before_deposit:       ::Aptrust::AptrustUploader.cleanup_before_deposit,
+                  cleanup_bag:                  ::Aptrust::AptrustUploader.cleanup_bag,
+                  cleanup_bag_data:             ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:                 ::Aptrust::AptrustUploader.clear_status,
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
                   work:                          nil,
-                  msg_handler:                   nil )
+                  msg_handler:                   nil,
+                  debug_verbose:                 aptrust_uploader_for_work_debug_verbose )
 
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
-                                           "" ] if aptrust_uploader_for_work_debug_verbose
     bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: work )
     super( object_id:                     work.id,
            msg_handler:                   msg_handler,
+           debug_verbose:                 debug_verbose,
            aptrust_info:                  ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
            bag_id_type:                   bag_id_type,
-           clean_up_after_deposit:        clean_up_after_deposit,
-           clean_up_bag:                  clean_up_bag,
-           clean_up_bag_data:             clean_up_bag_data,
+           cleanup_after_deposit:         cleanup_after_deposit,
+           cleanup_before_deposit:        cleanup_before_deposit,
+           cleanup_bag:                   cleanup_bag,
+           cleanup_bag_data:              cleanup_bag_data,
            clear_status:                  clear_status,
            export_dir:                    ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
            export_file_sets:              export_file_sets,
@@ -129,8 +128,10 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def cleanup_bag_data_files
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
-    return [] unless clean_up_bag_data
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "" ] if debug_verbose
+    return [] unless cleanup_bag_data
     return [] unless Dir.exist? bag.bag_dir
     files = exported_file_set_files
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,

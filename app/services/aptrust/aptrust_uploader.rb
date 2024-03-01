@@ -8,9 +8,10 @@ class Aptrust::AptrustUploader
 
   mattr_accessor :allow_deposit,          default: ::Aptrust::AptrustIntegrationService.allow_deposit
 
-  mattr_accessor :clean_up_after_deposit, default: ::Aptrust::AptrustIntegrationService.clean_up_after_deposit
-  mattr_accessor :clean_up_bag,           default: ::Aptrust::AptrustIntegrationService.clean_up_bag
-  mattr_accessor :clean_up_bag_data,      default: ::Aptrust::AptrustIntegrationService.clean_up_bag_data
+  mattr_accessor :cleanup_after_deposit,  default: ::Aptrust::AptrustIntegrationService.cleanup_after_deposit
+  mattr_accessor :cleanup_before_deposit, default: ::Aptrust::AptrustIntegrationService.cleanup_before_deposit
+  mattr_accessor :cleanup_bag,            default: ::Aptrust::AptrustIntegrationService.cleanup_bag
+  mattr_accessor :cleanup_bag_data,       default: ::Aptrust::AptrustIntegrationService.cleanup_bag_data
   mattr_accessor :clear_status,           default: ::Aptrust::AptrustIntegrationService.clear_status
 
   BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
@@ -58,9 +59,10 @@ class Aptrust::AptrustUploader
   attr_accessor :bag_id_type
 
   attr_accessor :debug_assume_upload_succeeds
-  attr_accessor :clean_up_after_deposit
-  attr_accessor :clean_up_bag
-  attr_accessor :clean_up_bag_data
+  attr_accessor :cleanup_after_deposit
+  attr_accessor :cleanup_before_deposit
+  attr_accessor :cleanup_bag
+  attr_accessor :cleanup_bag_data
   attr_accessor :clear_status
 
   attr_accessor :export_file_sets
@@ -105,9 +107,10 @@ class Aptrust::AptrustUploader
                   bag_id_local_repository: nil, # ignored if bag_id is defined
                   bag_id_type:             nil, # ignored if bag_id is defined
 
-                  clean_up_after_deposit: ::Aptrust::AptrustUploader.clean_up_after_deposit,
-                  clean_up_bag:           ::Aptrust::AptrustUploader.clean_up_bag,
-                  clean_up_bag_data:      ::Aptrust::AptrustUploader.clean_up_bag_data,
+                  cleanup_after_deposit:  ::Aptrust::AptrustUploader.cleanup_after_deposit,
+                  cleanup_before_deposit: ::Aptrust::AptrustUploader.cleanup_before_deposit,
+                  cleanup_bag:            ::Aptrust::AptrustUploader.cleanup_bag,
+                  cleanup_bag_data:       ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:           ::Aptrust::AptrustUploader.clear_status,
 
                   export_file_sets:              true,
@@ -122,10 +125,24 @@ class Aptrust::AptrustUploader
 
                   debug_verbose:       aptrust_uploader_debug_verbose )
 
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "debug_verbose=#{debug_verbose}",
+                                           "msg_handler=#{msg_handler.pretty_inspect}",
+                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           "" ] if aptrust_uploader_debug_verbose
+
     @debug_verbose = debug_verbose
     @debug_verbose ||= aptrust_uploader_debug_verbose
     @msg_handler = msg_handler
     @msg_handler ||= ::Aptrust::NULL_MSG_HANDLER
+
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "@debug_verbose=#{@debug_verbose}",
+                                           "@msg_handler=#{@msg_handler.pretty_inspect}",
+                                           # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
+                                           "" ] if aptrust_uploader_debug_verbose
 
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,
@@ -182,18 +199,19 @@ class Aptrust::AptrustUploader
     @bag_id_local_repository = bag_id_local_repository
     @bag_id_type             = ::Aptrust.arg_init( bag_id_type, DEFAULT_TYPE )
 
-    @clean_up_after_deposit = clean_up_after_deposit
-    @clean_up_bag           = clean_up_bag
-    @clean_up_bag_data      = clean_up_bag_data
-    @clear_status           = clear_status
+    @cleanup_after_deposit        = cleanup_after_deposit
+    @cleanup_before_deposit       = cleanup_before_deposit
+    @cleanup_bag                  = cleanup_bag
+    @cleanup_bag_data             = cleanup_bag_data
+    @clear_status                 = clear_status
     @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
-    @export_file_sets    = export_file_sets
-    @export_file_sets_filter_date = export_file_sets_filter_date
+    @export_file_sets              = export_file_sets
+    @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
-    @export_by_closure   = export_by_closure
-    @export_copy_src     = export_copy_src
-    @export_src_dir      = export_src_dir
+    @export_by_closure             = export_by_closure
+    @export_copy_src               = export_copy_src
+    @export_src_dir                = export_src_dir
 
     @export_dir          = ::Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
     @working_dir         = ::Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
@@ -253,6 +271,15 @@ class Aptrust::AptrustUploader
     @bag_data_dir ||= File.join( bag.bag_dir, "data" )
   end
 
+  def bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+    return [] unless Dir.exist? bag.bag_dir
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir,
+                                                          dotmatch: true,
+                                                          msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    return files
+  end
+
   def bag_date_str( t )
     rv = t.utc.strftime("%Y-%m-%d")
     rv = Time.parse(rv).iso8601
@@ -287,6 +314,7 @@ class Aptrust::AptrustUploader
     bag_target_dir = File.join( working_dir, bag_id )
     Dir.mkdir( bag_target_dir ) unless Dir.exist? bag_target_dir
     bag = BagIt::Bag.new( bag_target_dir )
+    return bag
   end
 
   def bag_id
@@ -351,7 +379,10 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
     # Create tagmanifest-info.txt and the data directory maniftest.txt
     # bag.manifest!(algo: 'md5')
-    bag.manifest!( algo: 'sha1' ) # TODO: make the algorithm a config parameter
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "aptrust_config.bag_checksum_algorithm=#{aptrust_config.bag_checksum_algorithm}",
+                             "" ] if debug_verbose
+    bag.manifest!( algo: aptrust_config.bag_checksum_algorithm )
 
     # need to rewrite the tag manifest files to include the aptrust-info.txt file
     tag_files = bag.tag_files
@@ -365,12 +396,17 @@ class Aptrust::AptrustUploader
     # rewrite tagmanifest-info.txt if necessary
     bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
 
-    # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
-    # "Bag contains illegal tag manifest 'sha1'""
-    # APTrust only wants SHA256, or MD5, not SHA1.
-    # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
-    sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
-    File.delete(sha1tag) if File.exist?(sha1tag)
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "aptrust_config.bag_delete_manifest_sha1=#{aptrust_config.bag_delete_manifest_sha1}",
+                             "" ] if debug_verbose
+    if aptrust_config.bag_delete_manifest_sha1
+      # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
+      # "Bag contains illegal tag manifest 'sha1'""
+      # APTrust only wants SHA256, or MD5, not SHA1.
+      # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
+      sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
+      File.delete(sha1tag) if File.exist?(sha1tag)
+    end
   end
 
   def bag_tar
@@ -385,8 +421,8 @@ class Aptrust::AptrustUploader
       return false, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                           "debug_assume_upload_succeeds=#{debug_assume_upload_succeedss}",
-                                           "" ] if debug_verbose
+                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "" ] if debug_verbose
     if debug_assume_upload_succeeds
       track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
       return true, ::Aptrust::EVENT_UPLOAD_SKIPPED
@@ -452,89 +488,147 @@ class Aptrust::AptrustUploader
     bag.bag_dir
   end
 
-  def cleanup_bag
+  def cleanup_bag_after
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_after_deposit=#{cleanup_after_deposit}",
+                             "cleanup_bag=#{cleanup_bag}",
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "" ] if debug_verbose
+    return unless cleanup_after_deposit
+    delete_bag_data if cleanup_bag_data
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+    delete_bag( delete_dir: true ) if cleanup_bag
+  end
+
+  def cleanup_bag_before
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_bag_before_deposit=#{cleanup_before_deposit}",
+                             "" ] if debug_verbose
+    return unless cleanup_before_deposit
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "" ] if debug_verbose
+    delete_bag_data_before if cleanup_bag_data
+    delete_bag( delete_dir: false )
+    @bag = nil
+    bag
+  end
+
+  def cleanup_bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "" ] if debug_verbose
+    return [] unless cleanup_bag_data
+    files = bag_data_files
+    return files
+  end
+
+  def cleanup_tar_file( cleanup_flag: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_flag=#{cleanup_flag}",
+                             "" ] if debug_verbose
+    return unless cleanup_flag
+    filename = File.join( export_dir, tar_filename )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "delete filename=#{filename}",
+                             "" ] if debug_verbose
+    return unless File.exist? filename
+    File.delete filename
+  end
+
+  def delete_bag( delete_dir: false )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "delete_dir=#{delete_dir}", "" ] if debug_verbose
+    delete_files_in( dir: bag.bag_dir )
+    return unless delete_dir
+    delete_dir( dir: bag.bag_dir )
+  end
+
+  def delete_bag_data
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag.bag_dir=#{bag.bag_dir}",
                              "Dir.exist? bag.bag_dir=#{Dir.exist? bag.bag_dir}",
                              "" ] if debug_verbose
     return unless Dir.exist? bag.bag_dir
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "clean_up_after_deposit=#{clean_up_after_deposit}",
-                             "clean_up_bag=#{clean_up_bag}",
-                             "clean_up_bag_data=#{clean_up_bag_data}",
-                             "" ] if debug_verbose
-    return unless clean_up_after_deposit
     files = cleanup_bag_data_files
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "files.size=#{files.size}",
+                             "cleanup_bag_data_files files.size=#{files.size}",
                              "" ] if debug_verbose
-    null_msg_handler = ::Aptrust::NULL_MSG_HANDLER
+    delete_files( files: files )
+    delete_dir( dir: bag_data_dir )
+  end
+
+  def delete_bag_data_before
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag.bag_dir=#{bag.bag_dir}",
+                             "Dir.exist? bag.bag_dir=#{Dir.exist? bag.bag_dir}",
+                             "" ] if debug_verbose
+    return unless Dir.exist? bag.bag_dir
+    files = bag_data_files
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "cleanup_bag_data_files files.size=#{files.size}",
+                             "" ] if debug_verbose
+    delete_files( files: files )
+  end
+
+  def delete_dir( dir: )
+    if Dir.empty? dir
+      msg_handler.bold_debug [ "deleting #{dir}", ] if debug_verbose
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    else
+      msg_handler.bold_debug [ "can't delete #{dir}", ] if debug_verbose
+    end
+  end
+
+  def delete_files( files: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files.size=#{files.size}", "" ] if debug_verbose
     if files.present?
-      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: null_msg_handler )
+      files.each { |f| msg_handler.bold_debug [ "delete file #{f}" ] if debug_verbose }
+      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
       files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.bag_dir,
                                                             dotmatch: true,
-                                                            msg_handler: null_msg_handler )
-
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_data_dir, msg_handler: null_msg_handler ) if Dir.empty? bag_data_dir
+                                                            msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      files.each { |f| msg_handler.bold_debug [ "after delete #{f}" ] if debug_verbose }
     end
-    return unless clean_up_bag
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.bag_dir,
-                                                          dotmatch: true,
-                                                          msg_handler: null_msg_handler )
-    ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: null_msg_handler )
-    ::Deepblue::DiskUtilitiesHelper.delete_dir( bag.bag_dir, msg_handler: null_msg_handler ) if Dir.empty? bag_data_dir
   end
 
-  def cleanup_bag_data_files
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "clean_up_bag_data=#{clean_up_bag_data}",
-                             "" ] if debug_verbose
-    return [] unless Dir.exist? bag.bag_dir
-    return [] unless clean_up_bag_data
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_data_dir,
+  def delete_files_in( dir: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "dir=#{dir}", "" ] if debug_verbose
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir,
                                                           dotmatch: true,
                                                           msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-    return files
-  end
-
-  def cleanup_tar_file
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
-    return unless clean_up_after_deposit
-    filename = File.join( export_dir, tar_filename )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                           "delete filename=#{filename}",
-                                           "" ] if debug_verbose
-    return unless File.exist? filename
-    File.delete filename
+    files.each { |f| msg_handler.bold_debug [ "delete file #{f}" ] if debug_verbose }
+    ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
   end
 
   def deposit
     bag_uploaded_succeeded = false
     begin
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                             "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
-                                             "clear_status=#{clear_status}",
-                                             "" ] if debug_verbose
+                               "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
+                               "clear_status=#{clear_status}",
+                               "" ] if debug_verbose
       aptrust_upload_status.clear_statuses if clear_status
       track( status: ::Aptrust::EVENT_DEPOSITING )
+      cleanup_tar_file( cleanup_flag: cleanup_before_deposit )
+      cleanup_bag_before
       status = bag_export
       if status == ::Aptrust::EVENT_BAGGED
         bag_tar
         bag_uploaded_succeeded, status = bag_upload
         msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                               "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
-                                               "status=#{status}",
-                                               "" ] if debug_verbose
+                                 "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
+                                 "status=#{status}",
+                                 "" ] if debug_verbose
       end
     rescue StandardError => e
-      #msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..20]
+      msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30] if debug_verbose
       track( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     return unless bag_uploaded_succeeded
     begin
       track( status: ::Aptrust::EVENT_DEPOSITED ) if status == ::Aptrust::EVENT_UPLOADED
-      cleanup_tar_file
-      cleanup_bag
+      cleanup_tar_file( cleanup_flag: cleanup_after_deposit )
+      cleanup_bag_after
     end
   end
 
@@ -619,6 +713,10 @@ class Aptrust::AptrustUploader
   end
 
   def track( status:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "status=#{status}",
+                             "note=#{note}",
+                             "" ] if debug_verbose
     aptrust_upload_status.track( status: status, note: note )
   end
 
