@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_01_155844) do
+ActiveRecord::Schema.define(version: 2024_03_04_140913) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -93,6 +93,19 @@ ActiveRecord::Schema.define(version: 2024_03_01_155844) do
     t.index ["event"], name: "index_aptrust_events_on_event"
     t.index ["noid"], name: "index_aptrust_events_on_noid"
     t.index ["timestamp"], name: "index_aptrust_events_on_timestamp"
+  end
+
+  create_table "aptrust_infos", force: :cascade do |t|
+    t.datetime "timestamp", null: false
+    t.string "system"
+    t.string "noid", null: false
+    t.string "query"
+    t.text "results"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["noid"], name: "index_aptrust_infos_on_noid"
+    t.index ["query"], name: "index_aptrust_infos_on_query"
+    t.index ["timestamp"], name: "index_aptrust_infos_on_timestamp"
   end
 
   create_table "aptrust_statuses", force: :cascade do |t|
