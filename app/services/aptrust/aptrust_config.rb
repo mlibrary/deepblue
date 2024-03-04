@@ -18,6 +18,9 @@ class Aptrust::AptrustConfig
   attr_accessor :aptrust_api_user
   attr_accessor :aptrust_api_key
 
+  attr_accessor :bag_checksum_algorithm
+  attr_accessor :bag_delete_manifest_sha1
+
   attr_accessor :download_dir
   attr_accessor :export_dir
   attr_accessor :working_dir
@@ -32,21 +35,23 @@ class Aptrust::AptrustConfig
     if filename.present?
       load( filename )
     else
-      @aws_access_key_id        = Settings.aptrust.aws_access_key_id
-      @aws_secret_access_key    = Settings.aptrust.aws_secret_access_key
-      @bucket                   = Settings.aptrust.bucket
-      @bucket_region            = Settings.aptrust.bucket_region
-      @context                  = Settings.aptrust.context
-      @repository               = Settings.aptrust.repository
-      @local_repository         = Settings.aptrust.local_repository
-      @aptrust_api_download_dir = Settings.aptrust.aptrust_api_download_dir
-      @aptrust_api_url          = Settings.aptrust.aptrust_api_url
-      @aptrust_api_user         = Settings.aptrust.aptrust_api_user
-      @aptrust_api_key          = Settings.aptrust.aptrust_api_key
-      @download_dir             = Settings.aptrust.download_dir
-      @export_dir               = Settings.aptrust.export_dir
-      @working_dir              = Settings.aptrust.working_dir
-      @storage_option           = Settings.aptrust.storage_option
+      @aws_access_key_id         = Settings.aptrust.aws_access_key_id
+      @aws_secret_access_key     = Settings.aptrust.aws_secret_access_key
+      @bag_checksum_algorithm    = ::Aptrust::AptrustIntegrationService.bag_checksum_algorithm
+      @bag_delete_manifest_sha1  = ::Aptrust::AptrustIntegrationService.bag_delete_manifest_sha1
+      @bucket                    = Settings.aptrust.bucket
+      @bucket_region             = Settings.aptrust.bucket_region
+      @context                   = ::Aptrust::AptrustIntegrationService.deposit_context  # Settings.aptrust.context
+      @repository                = ::Aptrust::AptrustIntegrationService.repository       # Settings.aptrust.repository
+      @local_repository          = ::Aptrust::AptrustIntegrationService.local_repository # Settings.aptrust.local_repository
+      @aptrust_api_download_dir  = Settings.aptrust.aptrust_api_download_dir
+      @aptrust_api_url           = Settings.aptrust.aptrust_api_url
+      @aptrust_api_user          = Settings.aptrust.aptrust_api_user
+      @aptrust_api_key           = Settings.aptrust.aptrust_api_key
+      @download_dir              = ::Aptrust::AptrustIntegrationService.download_dir   # Settings.aptrust.download_dir
+      @export_dir                = ::Aptrust::AptrustIntegrationService.export_dir     # Settings.aptrust.export_dir
+      @working_dir               = ::Aptrust::AptrustIntegrationService.working_dir    # Settings.aptrust.working_dir
+      @storage_option            = ::Aptrust::AptrustIntegrationService.storage_option # Settings.aptrust.storage_option
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

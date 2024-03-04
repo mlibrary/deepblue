@@ -21,9 +21,10 @@ aptrust_upload_work_job:
   description: Upload a work to APTrust
   args:
     by_request_only: true
-    clean_up_after_deposit: true
-    clean_up_bag: false
-    clean_up_bag_data: true
+    cleanup_after_deposit: true
+    cleanup_before_deposit: true
+    cleanup_bag: false
+    cleanup_bag_data: true
     clear_status: true
     export_file_sets: true
     export_file_sets_filter_date: ''
@@ -68,9 +69,10 @@ aptrust_upload_work_job:
       break if by_request_only? && !allow_by_request_only?
       msg_handler.debug_verbose     = debug_verbose
       debug_assume_upload_succeeds  = job_options_value( key: 'debug_assume_upload_succeeds',  default_value: false )
-      clean_up_after_deposit        = job_options_value( key: 'clean_up_after_deposit',        default_value: true )
-      clean_up_bag                  = job_options_value( key: 'clean_up_bag',                  default_value: false )
-      clean_up_bag_data             = job_options_value( key: 'clean_up_bag_data',             default_value: true )
+      cleanup_after_deposit         = job_options_value( key: 'cleanup_after_deposit',         default_value: true )
+      cleanup_before_deposit        = job_options_value( key: 'cleanup_before_deposit',        default_value: true )
+      cleanup_bag                   = job_options_value( key: 'cleanup_bag',                   default_value: false )
+      cleanup_bag_data              = job_options_value( key: 'cleanup_bag_data',              default_value: true )
       clear_status                  = job_options_value( key: 'clear_status',                  default_value: true )
       export_file_sets              = job_options_value( key: 'export_file_sets',              default_value: nil )
       export_file_sets_filter_date  = job_options_value( key: 'export_file_sets_filter_date',  default_value: nil )
@@ -78,9 +80,10 @@ aptrust_upload_work_job:
       id                            = job_options_value( key: 'id',                            default_value: nil )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
-                               "clean_up_after_deposit=#{clean_up_after_deposit}",
-                               "clean_up_bag=#{clean_up_bag}",
-                               "clean_up_bag_data=#{clean_up_bag_data}",
+                               "cleanup_after_deposit=#{cleanup_after_deposit}",
+                               "cleanup_before_deposit=#{cleanup_before_deposit}",
+                               "cleanup_bag=#{cleanup_bag}",
+                               "cleanup_bag_data=#{cleanup_bag_data}",
                                "clear_status=#{clear_status}",
                                "export_file_sets=#{export_file_sets}",
                                "export_file_sets_filter_date=#{export_file_sets_filter_date}",
@@ -88,9 +91,10 @@ aptrust_upload_work_job:
                                "id=#{id}",
                                "" ] if debug_verbose
       run_job_delay
-      uploader = ::Aptrust::AptrustUploadWork.new( clean_up_after_deposit:        clean_up_after_deposit,
-                                                   clean_up_bag:                  clean_up_bag,
-                                                   clean_up_bag_data:             clean_up_bag_data,
+      uploader = ::Aptrust::AptrustUploadWork.new( cleanup_after_deposit:         cleanup_after_deposit,
+                                                   cleanup_before_deposit:        cleanup_before_deposit,
+                                                   cleanup_bag:                   cleanup_bag,
+                                                   cleanup_bag_data:              cleanup_bag_data,
                                                    clear_status:                  clear_status,
                                                    debug_assume_upload_succeeds:  debug_assume_upload_succeeds,
                                                    export_file_sets:              export_file_sets,
