@@ -27,6 +27,41 @@ class Aptrust::AptrustUploaderStatus
     clear_status( id: id )
   end
 
+  def self.track_db( noid:, status_event:, note: nil, timestamp: DateTime.now )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "noid=#{noid}",
+                                           "status_event=#{status_event}",
+                                           "note=#{note}",
+                                           "timestamp=#{timestamp}",
+                                           "" ] if aptrust_uplaoder_status_debug_verbose
+    begin
+      timestamp ||= DateTime.now
+      status = ::Aptrust::Status.for_id( noid: noid )
+      if status.blank?
+        status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )
+      else
+        status = status[0]
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "status=#{status.pretty_inspect}",
+                                               "" ] if aptrust_uplaoder_status_debug_verbose
+        status.timestamp = timestamp
+        status.event = status_event
+        status.event_note = note
+      end
+      status.save
+      event = ::Aptrust::Event.new( timestamp: timestamp,
+                                    event: status_event,
+                                    event_note: note,
+                                    noid: noid,
+                                    aptrust_status_id: status.id )
+      event.save
+    rescue Exception => e
+      ::Deepblue::LoggingHelper.bold_error ["AptrustUploaderStatus.track_db error #{e}"] + e.backtrace[0..20]
+    end
+  end
+
   attr_accessor :id
   attr_accessor :status
   attr_accessor :status_history
@@ -124,39 +159,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def update_db( status_event:, note: nil, timestamp: DateTime.now )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "status_event=#{status_event}",
-                                           "note=#{note}",
-                                           "timestamp=#{timestamp}",
-                                           "" ] if aptrust_uplaoder_status_debug_verbose
-    begin
-    timestamp ||= DateTime.now
-    status = ::Aptrust::Status.for_id( noid: id )
-    if status.blank?
-      status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: id )
-    else
-      status = status[0]
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "status.class=#{status.class.name}",
-                                             "status=#{status}",
-                                             "" ] if aptrust_uplaoder_status_debug_verbose
-      status.timestamp = timestamp
-      status.event = status_event
-      status.event_note = note
-    end
-    status.save
-    aptrust_status_id = status.id
-    event = ::Aptrust::Event.new( timestamp: timestamp,
-                       event: status_event,
-                       event_note: note,
-                       noid: id,
-                       aptrust_status_id: aptrust_status_id )
-    event.save
-    rescue Exception => e
-      ::Deepblue::LoggingHelper.bold_error ["AptrustUploaderStatus.update_db error #{e}"] + e.backtrace[0..20]
-    end
+    AptrustUploaderStatus.track_db( noid: id, status_event: status_event, note: note, timestamp: timestamp )
   end
 
   def load_status_history
