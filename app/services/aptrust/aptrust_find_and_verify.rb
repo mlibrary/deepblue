@@ -36,18 +36,17 @@ class Aptrust::AptrustFindAndVerify
     @verify_count = 0
     @aptrust_config = ::Aptrust::AptrustConfig.new
 
-    msg_handler.bold_debug [ msg_handler.here,
-                                           msg_handler.called_from,
-                                           "debug_assume_verify_succeeds=#{debug_assume_verify_succeeds}",
-                                           "force_verification=#{force_verification}",
-                                           "max_verifies=#{max_verifies}",
-                                           "reverify_failed=#{reverify_failed}",
-                                           # "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "debug_assume_verify_succeeds=#{debug_assume_verify_succeeds}",
+                             "force_verification=#{force_verification}",
+                             "max_verifies=#{max_verifies}",
+                             "reverify_failed=#{reverify_failed}",
+                             # "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
+                             "" ] if debug_verbose
   end
 
   def identifier( status: )
-    return aptrust_config.identifier( noid: status.noid, type: "#{status.type}." )
+    return aptrust_config.identifier( id_context: aptrust_config.context, noid: status.noid, type: "#{status.type}." )
   end
 
   def process( identifier:, noid:, status: )
@@ -58,12 +57,11 @@ class Aptrust::AptrustFindAndVerify
                                                     msg_handler: msg_handler,
                                                     debug_assume_verify_succeeds: debug_assume_verify_succeeds,
                                                     debug_verbose: debug_verbose )
-    msg_handler.bold_debug [ msg_handler.here,
-                                           msg_handler.called_from,
-                                           "identifier=#{identifier}",
-                                           "noid=#{noid}",
-                                           "status.event=#{status.event}",
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "identifier=#{identifier}",
+                             "noid=#{noid}",
+                             "status.event=#{status.event}",
+                             "" ] if debug_verbose
     if status.event == ::Aptrust::EVENT_DEPOSIT_SKIPPED || debug_assume_verify_succeeds
       verifier.object_id = noid
       verifier.track( status: ::Aptrust::EVENT_VERIFY_SKIPPED )
@@ -72,12 +70,11 @@ class Aptrust::AptrustFindAndVerify
       rv = verifier.ingest_status( identifier: identifier, noid: noid )
     end
     @verify_count += 1
-    msg_handler.bold_debug [ msg_handler.here,
-                                           msg_handler.called_from,
-                                           "identifier=#{identifier}",
-                                           "noid=#{noid}",
-                                           "rv=#{rv}",
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "identifier=#{identifier}",
+                             "noid=#{noid}",
+                             "rv=#{rv}",
+                             "" ] if debug_verbose
     return rv
   end
 
@@ -90,34 +87,30 @@ class Aptrust::AptrustFindAndVerify
 
   def run
     begin
-      msg_handler.bold_debug [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
 
       ::Aptrust::Status.all.each do |status|
-        msg_handler.bold_debug [ msg_handler.here,
-                                                 msg_handler.called_from,
-                                                 "max_verifies=#{max_verifies}",
-                                                 "@verify_count=#{@verify_count}",
-                                                 "status.noid=#{status.noid}",
-                                                 "status.event=#{status.event}",
-                                                 "" ] if debug_verbose
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "max_verifies=#{max_verifies}",
+                                 "@verify_count=#{@verify_count}",
+                                 "status.noid=#{status.noid}",
+                                 "status.event=#{status.event}",
+                                 "" ] if debug_verbose
         return if -1 != max_verifies && @verify_count >= max_verifies
         # next unless ::Aptrust::EVENTS_NEED_VERIFY.include? status.event
         next unless needs_verification?( status: status.event )
         noid = status.noid
         identifier = identifier( status: status )
         rv = process( identifier: identifier, noid: noid, status: status )
-        msg_handler.bold_debug [ msg_handler.here,
-                                               msg_handler.called_from,
-                                               "rv=#{rv}",
-                                               "" ] if debug_verbose
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "rv=#{rv}",
+                                 "" ] if debug_verbose
       end
     rescue Exception => e
       Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
       msg_handler.bold_error [ msg_handler.here,
-                                             "Aptrust::AptrustFindAndVerify.run #{e.class}: #{e.message} at #{e.backtrace[0]}",
-                                             "" ] + e.backtrace # error
+                               "Aptrust::AptrustFindAndVerify.run #{e.class}: #{e.message} at #{e.backtrace[0]}",
+                               "" ] + e.backtrace # error
       raise
     end
   end

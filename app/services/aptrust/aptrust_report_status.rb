@@ -8,7 +8,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
 
   attr_accessor :target_file
   attr_accessor :csv
-
+  attr_accessor :aws_bucket
   attr_accessor :column_names
 
   def initialize( msg_handler:         nil,
@@ -32,6 +32,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
   def column_names
     @column_names ||= [ "noid",
                         "http_status",
+                        "aws_bucket_status",
                         "id",
                        "name",
                        "etag",
@@ -86,6 +87,26 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
     return rv
   end
 
+  def aws_bucket
+    @aws_bucket ||= aws_bucket_init
+  end
+
+  def aws_bucket_init
+    bucket = ::Aptrust::AptrustAwsBucket.new( aptrust_config: aptrust_config )
+    rv = bucket.files_from_local_repository
+    return rv
+  end
+
+  def aws_bucket_contains( filename: )
+    aws_bucket.files.include? filename
+  end
+
+  def aws_bucket_status( noid: )
+    filename = "#{aptrust_config.identifier( noid: noid, type: 'DataSet' )}.tar"
+    rv = aws_bucket_contains( filename: filename )
+    return rv ? "in bucket" : ""
+  end
+
   def process( status: )
     begin # until true for break
       noid = status.noid
@@ -116,6 +137,8 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
           row << noid
         elsif "http_status" == col
           row << http_status
+        elsif "aws_bucket_status"
+          row << aws_bucket_status( noid: noid )
         else
           row << key_values[col]
         end

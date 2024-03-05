@@ -59,11 +59,11 @@ class Aptrust::AptrustConfig
                                            "" ] if aptrust_config_debug_verbose
   end
 
-  def identifier( template: nil, type:, noid: )
+  def identifier( template: nil, id_context: context, noid:, type: )
     rv = template
     rv ||= ::Aptrust::IDENTIFIER_TEMPLATE
     rv = rv.gsub( /\%local_repository\%/, local_repository )
-    rv = rv.gsub( /\%context\%/, context )
+    rv = rv.gsub( /\%context\%/, id_context )
     rv = rv.gsub( /\%type\%/, type )
     rv = rv.gsub( /\%id\%/, noid )
     return rv
