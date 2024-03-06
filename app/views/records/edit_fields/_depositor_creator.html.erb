@@ -1,10 +1,17 @@
-<% show_edit_despositor_creator = Flipflop.strict_orcid? && @presenter.depositor_orcid.present? %>
+<%# Note: @presenter will be nil if this a new deposit  %>
+<% if @presenter.present? %>
+  <% show_edit_despositor_creator = Flipflop.strict_orcid? && @presenter&.depositor_orcid.present? %>
+  <% show_edit_depositor_orcid = @presenter.depositor_orcid  %>
+<% else %>
+  <% show_edit_despositor_creator = Flipflop.strict_orcid? && current_user&.orcid.present? %>
+  <% show_edit_depositor_orcid = current_user.orcid  %>
+<% end %>
 <% if show_edit_despositor_creator %>
   <%= hidden_field_tag('depositor_creator_available', 'true') %>
-  <%= hidden_field_tag('depositor_orcid', @presenter.depositor_orcid) %>
+  <%= hidden_field_tag('depositor_orcid', show_edit_depositor_orcid) %>
   <!-- Current User is <%= current_user.email %> -->
-  <!-- Depositor is <%= @presenter.depositor %> -->
-  <!-- Depositor orcid is <%= @presenter.depositor_orcid %> -->
-  <!--  Depositor orcid stripped is "<%= Hyrax::Orcid::OrcidHelper::validate_orcid( @presenter.depositor_orcid ) %>" -->
+  <!-- Depositor is <%= @presenter&.depositor %> -->
+  <!-- Depositor orcid is <%= show_edit_depositor_orcid %> -->
+  <!-- Depositor orcid stripped is "<%= Hyrax::Orcid::OrcidHelper::validate_orcid( show_edit_depositor_orcid ) %>" -->
   <%= f.input :depositor_creator, as: :boolean, required: false, label: t('simple_form.labels.data_set.depositor_creator')  %>
 <% end %>
