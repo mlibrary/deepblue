@@ -159,7 +159,7 @@ module Hyrax
       if dep.present? && current_user.email == dep
         rv = current_user.orcid
       elsif dep.present?
-        user = User.find_by_user_key dep
+        user = ::User.find_by_user_key dep
         rv = user&.orcid
       else
         rv = current_user.orcid
