@@ -156,10 +156,10 @@ module Hyrax
                                              "" ] if debug_verbose
       rv = ""
       dep = depositor
-      if dep.present? && current_user.email == depositor
+      if dep.present? && current_user.email == dep
         rv = current_user.orcid
       elsif dep.present?
-        user = User.find_by_user_key email
+        user = User.find_by_user_key dep
         rv = user&.orcid
       else
         rv = current_user.orcid
