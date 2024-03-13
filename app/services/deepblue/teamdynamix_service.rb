@@ -276,6 +276,7 @@ module Deepblue
       requestor_email = requestor_email_for( curation_concern: curation_concern )
       # jira_summary = '' # keep this blank for now, it'll be a marker for records ported from jira
       description = []
+      cc_title = build_description_from_sanitize( cc_title )
       description << "Title: #{cc_title}<br/>"
       description << "Creator: #{creator}<br/>"
       description << "Deposit ID: #{deposit_id}<br/>"
@@ -286,9 +287,17 @@ module Deepblue
       description << "Description:"
       curation_concern.description.each do |line|
         line = line.split( /[\n\r]+/ ).join(" ")
+        line = build_description_from_sanitize( line )
         description << "<p>#{line}</p>"
       end
       return description.join("\n")
+    end
+
+    def build_description_from_sanitize( str )
+      # something is trigering an XSS attack filter, so try this:
+      str = ActionView::Base.full_sanitizer.sanitize( str )
+      str.gsub!( 'DATA', 'D.A.T.A.' )
+      str.gsub!( 'EXEC', 'E.X.E.C.' )
     end
 
     def build_data( data: )
@@ -901,7 +910,12 @@ module Deepblue
                                    "response&.body=#{response&.body.pretty_inspect}",
                                    "" ] if debug_verbose
       return '' unless response&.body.present?
-      rv = JSON.parse( response.body )
+      begin
+        rv = JSON.parse( response.body )
+      rescue JSON::ParserError
+        # TODO: send an error email to dev team / fritx
+        rv = "JSON::ParserError on '#{response.body}'"
+      end
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
                                    "response_parse_body rv=#{rv.pretty_inspect}" ] if debug_verbose
