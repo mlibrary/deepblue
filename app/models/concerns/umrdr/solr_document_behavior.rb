@@ -87,8 +87,16 @@ module Umrdr
       ::Deepblue::DoiBehavior.doi_minting_enabled
     end
 
+    def doi_needs_minting?
+      ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi )
+    end
+
     def doi_pending?
       ::Deepblue::DoiBehavior.doi_pending?( doi: doi )
+    end
+
+    def doi_pending_timeout?
+      ::Deepblue::DoiBehavior.doi_pending_timeout?( doi: doi )
     end
 
     ## end DOI methods

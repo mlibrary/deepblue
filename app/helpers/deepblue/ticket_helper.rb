@@ -203,13 +203,16 @@ module Deepblue
     def self.ticket_pending_timeout?( ticket: )
       return false unless ticket_pending?( ticket: ticket )
       return true if TICKET_PENDING == ticket
-      match = ticket.match( /^.*pending as of (\d.+)$/ )[0]
+      match = ticket.match( /^.*pending as of (\d.+)$/ )
       return false if match.blank?
+      as_of = match[1]
+      return false if as_of.blank?
       begin
-        as_of = DateTime.parse( match )
+        as_of = DateTime.parse( as_of )
         as_of = as_of + TICKET_PENDING_TIMEOUT_DELTA
-        return true if as_of > DataTime.now
-      rescue
+        return true if as_of < DateTime.now
+      rescue Exception => e
+        # puts e
         return false
       end
       return false

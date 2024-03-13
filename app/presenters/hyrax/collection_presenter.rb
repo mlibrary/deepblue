@@ -50,7 +50,9 @@ module Hyrax
              :doi,
              :doi_minted?,
              :doi_minting_enabled?,
+             :doi_needs_minting?,
              :doi_pending?,
+             :doi_pending_timeout?,
              :human_readable_type,
              :representative_id,
              :stringify_keys,
@@ -158,13 +160,16 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
-                                             "true if doi_pending?=#{doi_pending?}",
-                                             "true if doi_minted?=#{doi_minted?}",
+                                             "true if doi_needs_minting?=#{doi_needs_minting?}",
+                                             "false if doi_pending?=#{doi_pending?}",
+                                             "false if doi_minted?=#{doi_minted?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if collection_presenter_debug_verbose
       return false unless doi_minting_enabled?
-      return false if doi_pending? || doi_minted?
+      return true if doi_needs_minting?
+      return false if doi_pending?
+      return false if doi_minted?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end

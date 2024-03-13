@@ -26,7 +26,9 @@ module Hyrax
              :doi,
              :doi_minted?,
              :doi_minting_enabled?,
+             :doi_needs_minting?,
              :doi_pending?,
+             :doi_pending_timeout?,
              :file_size,
              :original_checksum,
              :mime_type,
@@ -315,14 +317,17 @@ module Hyrax
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
                                              "false if anonymous_show?=#{anonymous_show?}",
                                              "false if parent&.tombstone.present?=#{parent&.tombstone.present?}",
-                                             "true if doi_pending?=#{doi_pending?}",
-                                             "true if doi_minted?=#{doi_minted?}",
+                                             "true if doi_needs_minting?=#{doi_needs_minting?}",
+                                             "false if doi_pending?=#{doi_pending?}",
+                                             "false if doi_minted?=#{doi_minted?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if anonymous_show?
       return false if parent&.tombstone.present?
-      return false if doi_pending? || doi_minted?
+      return true if doi_needs_minting?
+      return false if doi_pending?
+      return false if doi_minted?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end

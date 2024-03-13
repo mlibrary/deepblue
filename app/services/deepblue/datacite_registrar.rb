@@ -50,7 +50,7 @@ module Deepblue
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
 
       # Create a draft DOI (if necessary)
-      if doi.blank? || doi == 'doi_pending'
+      if ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi )
         doi = mint_draft_doi
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -92,7 +92,7 @@ module Deepblue
                                              "" ] if debug_verbose
 
       # Create a draft DOI (if necessary)
-      if doi.blank? || doi == 'doi_pending'
+      if ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi )
         doi = mint_draft_doi
         doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
         curation_concern.doi = doi

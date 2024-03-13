@@ -46,7 +46,6 @@ module Deepblue
                                            "current_ability&.admin?=#{current_ability&.admin?}",
                                            "curation_concern.doi=#{cc.doi}",
                                            "curation_concern.doi_pending?=#{cc.doi_pending?}",
-                                           "curation_concern.doi_minted?=#{cc.doi_minted?}",
                                            "curation_concern.work?=#{cc.work?}",
                                            "" ] if doi_controller_behavior_debug_verbose
       if cc.is_a? SolrDocument
@@ -60,14 +59,14 @@ module Deepblue
         cc = PersistHelper.find( id )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "curation_concern=#{cc}",
+                                               "curation_concern.id=#{cc.id}",
                                                "" ] if doi_controller_behavior_debug_verbose
       end
       # Do not mint doi if
       #   one already exists
       #   work file_set count is 0.
       msg = if cc.doi_pending?
-              MsgHelper.t( 'data_set.doi_is_being_minted' )
+              doi_mint_pending( cc: cc )
             elsif cc.doi_minted?
               MsgHelper.t( 'data_set.doi_already_exists' )
             elsif cc.work? && cc.file_sets.count < 1
@@ -85,6 +84,17 @@ module Deepblue
                                             "msg=#{msg}",
                                             "" ] if doi_controller_behavior_debug_verbose
       return msg
+    end
+
+    def doi_mint_pending( cc: )
+      doi = cc.doi
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "cc.id=#{cc.id}",
+                                             "cc.doi_pending_timeout?=#{cc.doi_pending_timeout?}",
+                                             "" ] if doi_controller_behavior_debug_verbose
+      return MsgHelper.t( 'data_set.doi_is_being_minted' ) unless cc.doi_pending_timeout?
+      return cc.doi_mint( current_user: current_user, event_note: cc.class.name )
     end
 
   end
