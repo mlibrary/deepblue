@@ -20,8 +20,16 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
                                          "target_url=#{target_url}",
                                          "" ] if debug_verbose
     initialize_no_args_hash( id: id, debug_verbose: debug_verbose )
+    curation_concern = ::PersistHelper.find( id )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "curation_concern.id=#{id}",
+                                           ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
+                                           "curation_concern.doi=#{curation_concern.doi}",
+                                           "curation_concern.doi_needs_minting?=#{curation_concern.doi_needs_minting?}",
+                                           "" ] if debug_verbose
+    return unless curation_concern.doi_needs_minting?
     if 0 < job_delay
-      return unless ::PersistHelper.find( id ).doi_pending?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "curation_concern.id=#{id}",
@@ -31,15 +39,6 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
                                            "" ] if debug_verbose
       sleep job_delay
     end
-    curation_concern = ::PersistHelper.find( id )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                         ::Deepblue::LoggingHelper.called_from,
-                                         "curation_concern.id=#{id}",
-                                         ::Deepblue::LoggingHelper.obj_class( "curation_concern", curation_concern ),
-                                         "curation_concern.doi=#{curation_concern.doi}",
-                                         "curation_concern.doi_pending?=#{curation_concern.doi_pending?}",
-                                         "" ] if debug_verbose
-    return unless curation_concern.doi_pending?
     current_user = curation_concern.depositor if current_user.blank?
     user = User.find_by_user_key( current_user )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -63,7 +63,9 @@ module Hyrax
               :doi,
               :doi_minted?,
               :doi_minting_enabled?,
+              :doi_needs_minting?,
               :doi_pending?,
+              :doi_pending_timeout?,
               :fundedby,
               :fundedby_other,
               :grantnumber,
@@ -116,7 +118,9 @@ module Hyrax
              :description,
              :doi_minted?,
              :doi_minting_enable?,
+             :doi_needs_minting?,
              :doi_pending?,
+             :doi_pending_timeout?,
              :language,
              :embargo_release_date,
              :lease_expiration_date,
@@ -362,17 +366,21 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
                                              "false if tombstoned?=#{tombstoned?}",
-                                             "true if doi_pending?=#{doi_pending?}",
-                                             "true if doi_minted?=#{doi_minted?}",
                                              "false if anonymous_show?=#{anonymous_show?}",
+                                             "false if draft_mode?=#{draft_mode?}",
+                                             "true if doi_needs_minting?=#{doi_needs_minting?}",
+                                             "false if doi_pending?=#{doi_pending?}",
+                                             "false if doi_minted?=#{doi_minted?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
                                              "" ] if work_show_presenter_debug_verbose
       return false unless doi_minting_enabled?
       return false if tombstoned?
-      return false if doi_pending? || doi_minted?
       return false if anonymous_show?
       return false if draft_mode?
+      return true if doi_needs_minting?
+      return false if doi_pending?
+      return false if doi_minted?
       return true if current_ability.admin?
       current_ability.can?( :edit, id )
     end

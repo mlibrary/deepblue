@@ -16,6 +16,13 @@ module Deepblue
 
     mattr_accessor :doi_regex, default: /\A10\.\d{4,}(\.\d+)*\/[-._;():\/A-Za-z\d]+\z/.freeze
 
+    def self.doi_is_registered?( doi: )
+      # doi_status_when_public.in?(['registered', 'findable'])
+      return false unless DoiBehavior.doi_minted?( doi: doi )
+      return false if DoiBehavior.doi_pending?( doi: doi )
+      return true
+    end
+
     def self.doi_minted?( doi: )
       return false if doi.nil?
       # return false if doi.blank? # use this instead?
@@ -23,6 +30,14 @@ module Deepblue
       # !doi.nil?
     rescue
       nil
+    end
+
+    def self.doi_needs_minting?( doi: )
+      return true if doi.blank?
+      if DoiBehavior.doi_pending?( doi: doi )
+        return true if DoiBehavior.doi_pending_timeout?( doi: doi )
+      end
+      return false
     end
 
     def self.doi_pending?( doi: )
@@ -34,21 +49,35 @@ module Deepblue
       return false
     end
 
-    def self.doi_pending_init
-      rv = "DOI pending as of #{DateTime.now}"
+    def self.doi_pending_init( as_of: DateTime.now )
+      rv = "DOI pending as of #{as_of}"
       return rv
     end
 
     def self.doi_pending_timeout?( doi: )
-      return false unless doi_pending?( doi: doi )
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+      #                                       ::Deepblue::LoggingHelper.called_from,
+      #                                       "doi=#{doi}",
+      #                                       "false unless DoiBehavior.doi_pending?( doi: doi )=#{DoiBehavior.doi_pending?( doi: doi )}",
+      #                                       "" ]
+      return false unless DoiBehavior.doi_pending?( doi: doi )
       return true if 'doi_pending' == doi
-      match = doi.match( /^.*pending as of (\d.+)$/ )[0]
+      match = doi.match( /^.*pending as of (\d.+)$/ )
       return false if match.blank?
+      as_of = match[1]
+      return false if as_of.blank?
       begin
-        as_of = DateTime.parse( match )
+        as_of = DateTime.parse( as_of )
         as_of = as_of + DoiBehavior.doi_pending_timeout_delta
-        return true if as_of > DataTime.now
-      rescue
+        # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
+        #                                       ::Deepblue::LoggingHelper.called_from,
+        #                                       "doi=#{doi}",
+        #                                       "as_of=#{as_of}",
+        #                                       "true if as_of < DateTime.now=#{as_of < DateTime.now}",
+        #                                       "" ]
+        return true if as_of < DateTime.now
+      rescue Exception => e
+        # puts e
         return false
       end
       return false
@@ -56,7 +85,7 @@ module Deepblue
 
     def self.doi_render( value )
       value = value.first if value.is_a? Array
-      return value if doi_pending?( doi: value )
+      return value if DoiBehavior.doi_pending?( doi: value )
       return value if value.start_with? 'http'
       return value.sub 'doi:', 'https://doi.org/'
     end
@@ -72,10 +101,7 @@ module Deepblue
     end
 
     def doi_is_registered?
-      # doi_status_when_public.in?(['registered', 'findable'])
-      return false unless doi_minted?
-      return false if doi_pending?
-      return true
+      DoiBehavior.doi_is_registered?( doi: doi )
     end
 
     def doi_minted?
@@ -86,12 +112,20 @@ module Deepblue
       ::Deepblue::DoiBehavior.doi_minting_enabled
     end
 
+    def doi_needs_minting?
+      DoiBehavior.doi_needs_minting?( doi: doi )
+    end
+
     def doi_pending_init
       DoiBehavior.doi_pending_init
     end
 
     def doi_pending?
       DoiBehavior.doi_pending?( doi: doi )
+    end
+
+    def doi_pending_timeout?
+      DoiBehavior.doi_pending_timeout?( doi: doi )
     end
 
     def doi_registrar
@@ -108,6 +142,7 @@ module Deepblue
                                              "curation_concern.id=#{id}",
                                              "class.name=#{self.class.name}",
                                              "doi=#{doi}",
+                                             "doi_needs_minting?=#{doi_needs_minting?}",
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "enforce_minimum_file_count=#{enforce_minimum_file_count}",
@@ -121,12 +156,12 @@ module Deepblue
       #                                        "" ] if true
       # return false # TODO: disabled
       return false unless Settings.datacite.active
-      return false if doi_pending?
+      return false unless doi_needs_minting?
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                      ::Deepblue::LoggingHelper.called_from,
       #                                      "curation_concern.id=#{id}",
       #                                      "past doi_pending?" ] if doi_behavior_debug_verbose
-      return false if doi_minted?
+      # return false if doi_minted?
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                      ::Deepblue::LoggingHelper.called_from,
       #                                      "curation_concern.id=#{id}",
