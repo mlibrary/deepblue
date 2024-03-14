@@ -368,10 +368,16 @@ class Aptrust::AptrustUploader
     status = export_data
     if status == ::Aptrust::EVENT_EXPORTED
       bag_manifest
+      msg_handler.msg_error "bag.complete? return false" unless bag.complete?
+      msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "bag.complete?=#{bag.complete?}",
+                               "bag.consistent?=#{bag.consistent?}",
+                               "" ] if debug_verbose
       track( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag_dir}" )
       status = ::Aptrust::EVENT_BAGGED
     end
-    bag.write_bag_info( info ) # Update/create bagit-info.txt file
+    # bag.write_bag_info( info ) # this causes it generate an incorrect bag checksum
     return status
   end
 
@@ -399,12 +405,42 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "aptrust_config.bag_delete_manifest_sha1=#{aptrust_config.bag_delete_manifest_sha1}",
                              "" ] if debug_verbose
+    manifest_file = "manifest-#{aptrust_config.bag_checksum_algorithm}.txt"
+    manifest_file = File.join( bag.bag_dir, manifest_file )
+    if 'sha1' == aptrust_config.bag_checksum_algorithm
+      # TODO: create a class to load the manifest-sha1.txt file and support querying for
+      #       checksum consistency with file sets
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "can validate file set checksums using #{manifest_file}",
+                               "" ] if debug_verbose
+    end
+    if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "manifest_file=#{manifest_file}",
+                               "" ] if debug_verbose
+      if File.exist? manifest_file
+        contents = File.open( manifest_file, "r" ) { |io| io.read }
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "manifest_file contents:",
+                                 "#{contents}",
+                                 "" ] if debug_verbose
+      end
+    end
     if aptrust_config.bag_delete_manifest_sha1
       # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
       # "Bag contains illegal tag manifest 'sha1'""
       # APTrust only wants SHA256, or MD5, not SHA1.
       # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
       sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
+      if debug_verbose
+        if File.exist?(sha1tag)
+          contents = File.open( sha1tag, "r" ) { |io| io.read }
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                   "sha1tag contents:",
+                                   "#{contents}",
+                                   "" ] if debug_verbose
+        end
+      end
       File.delete(sha1tag) if File.exist?(sha1tag)
     end
   end
@@ -501,6 +537,7 @@ class Aptrust::AptrustUploader
   end
 
   def cleanup_bag_before
+    return # skip this for now
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "cleanup_bag_before_deposit=#{cleanup_before_deposit}",
                              "" ] if debug_verbose

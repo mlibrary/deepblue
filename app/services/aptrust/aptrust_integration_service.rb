@@ -20,6 +20,11 @@ module Aptrust
       raise e
     end
 
+    def self.setup_status
+      puts "@@_setup_ran=#{@@_setup_ran}"
+      puts "@@_setup_failed=#{@@_setup_failed}"
+    end
+
     mattr_accessor :aptrust_integration_debug_verbose, default: false
 
     mattr_accessor :allow_deposit,             default: true
