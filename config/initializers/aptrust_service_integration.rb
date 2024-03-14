@@ -1,6 +1,9 @@
 
 Aptrust::AptrustIntegrationService.setup do |config|
 
+  puts "Starting Aptrust::AptrustIntegrationService"
+  begin
+
   config.aptrust_integration_debug_verbose = false
 
   config.allow_deposit            = true
@@ -10,6 +13,8 @@ Aptrust::AptrustIntegrationService.setup do |config|
 
   config.bag_checksum_algorithm   = 'md5' # md5, sha1, sha256
   config.bag_delete_manifest_sha1 = true
+  # config.bag_checksum_algorithm   = 'sha1' # md5, sha1, sha256
+  # config.bag_delete_manifest_sha1 = false
 
   config.cleanup_after_deposit    = true
   config.cleanup_before_deposit   = true
@@ -86,5 +91,11 @@ as well as four suplemental files (file names prefixed with a 'w' and the %work_
 a log of file exports (prefixed with the %work_type% NOID),  a metadata report,
 a provenance log extract for the %work_type%, and an ingest/populate yaml-based script.
 END_OF_DESCRIPTION
+
+  rescue Exception => e
+    puts e
+    raise
+  end
+  puts "Finished Aptrust::AptrustIntegrationService"
 
 end

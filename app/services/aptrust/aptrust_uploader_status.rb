@@ -159,7 +159,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def update_db( status_event:, note: nil, timestamp: DateTime.now )
-    AptrustUploaderStatus.track_db( noid: id, status_event: status_event, note: note, timestamp: timestamp )
+    ::Aptrust::AptrustUploaderStatus.track_db( noid: id, status_event: status_event, note: note, timestamp: timestamp )
   end
 
   def load_status_history

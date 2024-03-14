@@ -2,6 +2,7 @@
 
 require_relative './aptrust'
 
+# TODO: fix this
 class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
 
   mattr_accessor :aptrust_report_status_debug_verbose, default: false
@@ -98,7 +99,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
   end
 
   def aws_bucket_contains( filename: )
-    aws_bucket.files.include? filename
+    aws_bucket.include? filename
   end
 
   def aws_bucket_status( noid: )

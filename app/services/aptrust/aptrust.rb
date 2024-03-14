@@ -4,7 +4,7 @@ module Aptrust
 
     mattr_accessor :aptrust_debug_verbose, default: false
 
-    mattr_accessor :aptrust_debug_assume_upload_succeeds, default: true # TODO: set this false for production
+    mattr_accessor :aptrust_debug_assume_upload_succeeds, default: false # TODO: set this false for production
 
     STATUS_IN_DB = true unless const_defined? :STATUS_IN_DB
 
