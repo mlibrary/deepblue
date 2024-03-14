@@ -68,12 +68,14 @@ module Deepblue
     def self.doi_minted?( doi: )
       return false if doi.blank?
       return false if DOI_MINT_NOW == doi
+      return false if ::Deepblue::DoiBehavior.doi_pending?( doi: doi )
       return true
     end
 
     def self.doi_minting_started?( doi: )
       return false if doi.blank?
       return false if DOI_MINT_NOW == doi
+      return true if ::Deepblue::DoiBehavior.doi_pending?( doi: doi )
       # TODO: more conditions
       return true
     end

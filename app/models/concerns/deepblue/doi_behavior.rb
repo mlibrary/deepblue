@@ -25,6 +25,7 @@ module Deepblue
 
     def self.doi_minted?( doi: )
       return false if doi.nil?
+      return false if DoiBehavior.doi_pending?( doi: doi )
       # return false if doi.blank? # use this instead?
       return true
       # !doi.nil?
