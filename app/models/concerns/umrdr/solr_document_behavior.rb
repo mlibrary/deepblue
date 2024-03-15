@@ -77,8 +77,7 @@ module Umrdr
     end
 
     def doi_minted?
-      # the first time this is called, doi will not be in solr.
-      doi.present?
+      ::Deepblue::DoiBehavior.doi_minted?( doi: doi )
     rescue
       nil
     end
