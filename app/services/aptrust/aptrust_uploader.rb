@@ -65,6 +65,7 @@ class Aptrust::AptrustUploader
   attr_accessor :cleanup_bag_data
   attr_accessor :clear_status
 
+  attr_accessor :export_errors
   attr_accessor :export_file_sets
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
@@ -206,6 +207,7 @@ class Aptrust::AptrustUploader
     @clear_status                 = clear_status
     @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
+    @export_errors                 = nil
     @export_file_sets              = export_file_sets
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
@@ -691,9 +693,26 @@ class Aptrust::AptrustUploader
       status = ::Aptrust::EVENT_EXPORT_FAILED
       status_note = 'no export method defined'
     end until true
+    export_data_resolve_errors
     track( status: ::Aptrust::EVENT_EXPORTED, note: status_note )
     return status
- end
+  end
+
+  def export_data_resolve_errors
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "export_errors=#{export_errors.pretty_inspect}",
+                             "" ] if debug_verbose
+    return unless export_errors.present?
+    # if export_errors may contain an instance of the ::Deepblue::ExportFilesChecksumMismatch
+    export_errors.each do |error|
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "error=#{error.pretty_inspect}",
+                               "" ] if debug_verbose
+      note = "#{error}"
+      track( status: ::Aptrust::EVENT_ERROR, note: note )
+    end
+    export_errors = nil
+  end
 
   def export_data_by_closure # DBD dependency
     return if export_by_closure.nil?

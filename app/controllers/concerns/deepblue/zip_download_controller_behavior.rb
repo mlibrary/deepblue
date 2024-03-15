@@ -86,10 +86,11 @@ module Deepblue
           metadata_filename = curation_concern.metadata_report( dir: target_dir )
           zipfile.add( metadata_filename.basename, metadata_filename )
           ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                          file_sets: curation_concern.file_sets,
-                          log_prefix: "Zip: ",
-                          do_export_predicate: ->(_target_file_name, _target_file) { true },
-                          quiet: !zip_download_controller_behavior_debug_verbose ) do |target_file_name, target_file|
+                  file_sets: curation_concern.file_sets,
+                  log_prefix: "Zip: ",
+                  do_export_predicate: ->(_target_file_name, _target_file) { true },
+                  quiet: !zip_download_controller_behavior_debug_verbose ) do |file_set, target_file_name, target_file|
+
             zipfile.add( target_file_name, target_file )
           end
         end

@@ -29,9 +29,9 @@ class GlobusCopyJob < GlobusJob
       file_sets = curation_concern.file_sets
       do_copy_predicate = ->(target_file_name, _target_file) { globus_do_copy?( target_file_name ) }
       ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: @target_prep_dir_tmp,
-                                                      file_sets: file_sets,
-                                                      log_prefix: @globus_log_prefix,
-                                                      do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
+                                file_sets: file_sets,
+                                log_prefix: @globus_log_prefix,
+                                do_export_predicate: do_copy_predicate ) do |file_set, target_file_name, target_file|
 
         sleep delay_per_file_seconds if delay_per_file_seconds.positive?
         move_destination = GlobusJob.target_file_name( @target_prep_dir, target_file_name )

@@ -11,34 +11,45 @@ module Deepblue
 
   class YamlPopulate < AbstractTask
 
-    DEFAULT_CREATE_ZERO_LENGTH_FILES = true unless const_defined? :DEFAULT_CREATE_ZERO_LENGTH_FILES
-    DEFAULT_EXPORT_FILES             = true
-    DEFAULT_EXPORT_FILES_FILTER_DATE = nil
-    DEFAULT_MODE                     = ::Deepblue::MetadataHelper::MODE_BUILD
-    DEFAULT_OVERWRITE_EXPORT_FILES   = true
-    DEFAULT_TARGET_DIR               = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}"
+    DEBUG_VERBOSE                    = false                 unless const_defined? :DEBUG_VERBOSE
 
-    DEBUG_VERBOSE = false
+    DEFAULT_CREATE_ZERO_LENGTH_FILES = true                  unless const_defined? :DEFAULT_CREATE_ZERO_LENGTH_FILES
+    DEFAULT_EXPORT_FILES             = true                  unless const_defined? :DEFAULT_EXPORT_FILES
+    DEFAULT_EXPORT_FILES_FILTER_DATE = nil                   unless const_defined? :DEFAULT_EXPORT_FILES_FILTER_DATE
+    DEFAULT_MODE                     = ::Deepblue::MetadataHelper::MODE_BUILD unless const_defined? :DEFAULT_MODE
+    DEFAULT_OVERWRITE_EXPORT_FILES   = true                  unless const_defined? :DEFAULT_OVERWRITE_EXPORT_FILES
+    DEFAULT_TARGET_DIR               = "#{::Deepblue::GlobusIntegrationService.globus_upload_dir}" unless const_defined? :DEFAULT_TARGET_DIR
+    DEFAULT_VALIDATE_FILE_CHECKSUMS  = false                 unless const_defined? :DEFAULT_VALIDATE_FILE_CHECKSUMS
 
     attr_accessor :populate_ids
-    attr_accessor :populate_type
     attr_accessor :populate_stats
+    attr_accessor :populate_type
+
+    # options
+    attr_accessor :debug_verbose
+    attr_accessor :create_zero_length_files
+    attr_accessor :export_files
+    attr_accessor :export_files_filter_date
+    attr_accessor :mode
+    attr_accessor :overwrite_export_files
+    attr_accessor :target_dir
+    attr_accessor :validate_file_checksums
 
     def initialize( msg_handler: nil, populate_type:, options: )
       super( msg_handler: msg_handler, options: options )
       @populate_type = populate_type
-      @target_dir = task_options_value( key: 'target_dir', default_value: DEFAULT_TARGET_DIR )
-      @export_files = task_options_value( key: 'export_files', default_value: DEFAULT_EXPORT_FILES )
-      @export_files_filter_date = task_options_value( key: 'export_files_filter_date',
-                                                      default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
-      @mode = task_options_value( key: 'mode', default_value: DEFAULT_MODE )
-      raise UnknownMode.new( "mode: '#{@mode}'" ) unless ::Deepblue::MetadataHelper::VALID_MODES.include? @mode
-      @create_zero_length_files = task_options_value( key: 'create_zero_length_files',
-                                                      default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
-      @overwrite_export_files = task_options_value( key: 'overwrite_export_files',
-                                                    default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
+      # options
+      @debug_verbose            = task_options_value( key: 'debug_verbose',            default_value: DEBUG_VERBOSE )
+      @create_zero_length_files = task_options_value( key: 'create_zero_length_files', default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
+      @export_files             = task_options_value( key: 'export_files',             default_value: DEFAULT_EXPORT_FILES )
+      @export_files_filter_date = task_options_value( key: 'export_files_filter_date', default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
+      @mode                     = task_options_value( key: 'mode',                     default_value: DEFAULT_MODE )
+      @overwrite_export_files   = task_options_value( key: 'overwrite_export_files',   default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
+      @target_dir               = task_options_value( key: 'target_dir',               default_value: DEFAULT_TARGET_DIR )
+      @validate_file_checksums  = task_options_value( key: 'validate_file_checksums',  default_value: DEFAULT_VALIDATE_FILE_CHECKSUMS )
       @populate_ids = []
       @populate_stats = []
+      raise UnknownMode.new( "mode: '#{@mode}'" ) unless ::Deepblue::MetadataHelper::VALID_MODES.include? @mode
     end
 
     def report_collection( first_id:, measurements:, total: nil )
@@ -158,12 +169,14 @@ module Deepblue
     def yaml_bag_work( id:, work: nil )
       @mode = ::Deepblue::MetadataHelper::MODE_BAG
       report_puts "Bagging work #{id} to '#{@target_dir}' with export files flag set to #{@export_files}"
-      service = YamlPopulateService.new( mode: @mode,
-                                         create_zero_length_files: @create_zero_length_files,
-                                         overwrite_export_files: @overwrite_export_files,
-                                         collect_exported_file_set_files: true )
-      puts "yaml_bag_work( id: #{id}, work: #{work} )" if DEBUG_VERBOSE
-      puts "@target_dir=#{@target_dir}" if DEBUG_VERBOSE
+      service = YamlPopulateService.new( mode:                            @mode,
+                                         collect_exported_file_set_files: @collect_exported_file_set_files,
+                                         create_zero_length_files:        @create_zero_length_files,
+                                         overwrite_export_files:          @overwrite_export_files,
+                                         validate_file_checksums:         @validate_file_checksums,
+                                         debug_verbose:                   @debug_verbose )
+      # puts "yaml_bag_work( id: #{id}, work: #{work} )" if DEBUG_VERBOSE
+      # puts "@target_dir=#{@target_dir}" if DEBUG_VERBOSE
       if work.nil?
         log_filename = "#{id}.export.log"
         service.yaml_populate_work( curation_concern: id,
@@ -177,17 +190,18 @@ module Deepblue
                                     export_files: @export_files,
                                     log_filename: log_filename )
       end
-      exported_file_set_files = service.exported_file_set_files
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
-      return exported_file_set_files
+      return service
     end
 
     def yaml_populate_collection( id:, collection: nil )
       report_puts "Exporting collection #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
-      service = YamlPopulateService.new( mode: @mode,
+      service = YamlPopulateService.new( mode:                     @mode,
+                                         collect_exported_file_set_files: @collect_exported_file_set_files,
                                          create_zero_length_files: @create_zero_length_files,
-                                         overwrite_export_files: @overwrite_export_files )
+                                         overwrite_export_files:   @overwrite_export_files,
+                                         validate_file_checksums:  @validate_file_checksums )
       if collection.nil?
         service.yaml_populate_collection( collection: id, dir: @target_dir, export_files: @export_files )
       else
@@ -195,13 +209,16 @@ module Deepblue
       end
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
+      return service
     end
 
     def yaml_populate_work( id:, work: nil )
       report_puts "Exporting work #{id} to '#{@target_dir}' with export files flag set to #{@export_files} and mode #{@mode}"
-      service = YamlPopulateService.new( mode: @mode,
+      service = YamlPopulateService.new( mode:                     @mode,
+                                         collect_exported_file_set_files: @collect_exported_file_set_files,
                                          create_zero_length_files: @create_zero_length_files,
-                                         overwrite_export_files: @overwrite_export_files )
+                                         overwrite_export_files:   @overwrite_export_files,
+                                         validate_file_checksums:  @validate_file_checksums )
       if work.nil?
         service.yaml_populate_work( curation_concern: id, dir: @target_dir, export_files: @export_files )
       else
@@ -209,6 +226,7 @@ module Deepblue
       end
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
+      return service
     end
 
   end

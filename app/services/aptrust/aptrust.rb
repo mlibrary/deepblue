@@ -24,6 +24,7 @@ module Aptrust
     EVENT_DEPOSIT_SKIPPED = 'deposit_skipped' unless const_defined? :EVENT_DEPOSIT_SKIPPED
     EVENT_DEPOSITED       = 'deposited'       unless const_defined? :EVENT_DEPOSITED
     EVENT_DEPOSITING      = 'depositing'      unless const_defined? :EVENT_DEPOSITING
+    EVENT_ERROR           = 'error'           unless const_defined? :EVENT_ERROR
     EVENT_EXPORTED        = 'exported'        unless const_defined? :EVENT_EXPORTED
     EVENT_EXPORTING       = 'exporting'       unless const_defined? :EVENT_EXPORTING
     EVENT_EXPORT_FAILED   = 'export_failed'   unless const_defined? :EVENT_EXPORT_FAILED

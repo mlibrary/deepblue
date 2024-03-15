@@ -164,10 +164,15 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     export_file_sets_filter_date = export_file_sets_filter_date_init
     pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
                                         options: { mode:                     'bag',
+                                                   collect_exported_file_set_files: true,
                                                    export_files:              export_file_sets,
                                                    export_files_filter_date:  export_file_sets_filter_date,
-                                                   target_dir:                target_dir } )
-    @exported_file_set_files = pop.yaml_bag_work( id: work.id, work: work )
+                                                   target_dir:                target_dir,
+                                                   validate_file_checksums:   true,
+                                                   debug_verbose:             debug_verbose } )
+    service = pop.yaml_bag_work( id: work.id, work: work )
+    @exported_file_set_files = service.exported_file_set_files
+    @export_errors = service.errors
     # export provenance log
     entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
     prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
@@ -181,19 +186,6 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     record = Array( records ).first
     return nil unless record.present?
     return record.updated_at
-  end
-
-  def export_work_files2( target_dir: )
-    work.metadata_report( dir: target_dir, filename_pre: 'w_' )
-    # TODO: import script?
-    # TODO: work.import_script( dir: target_dir )
-    file_sets = work.file_sets
-    do_copy_predicate = ->(target_file_name, _target_file) { export_do_copy?( target_dir, target_file_name ) }
-    ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                                                    file_sets: file_sets,
-                                                    log_prefix: '',
-                                                    do_export_predicate: do_copy_predicate ) do |target_file_name, target_file|
-    end
   end
 
   def export_data_work( target_dir: )
