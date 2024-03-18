@@ -822,13 +822,14 @@ module Hyrax
                                do_export_predicate: ->(_target_file_name, _target_file) { true },
                                quiet: false,
                                &block )
+
         file_sets = curation_concern.file_sets
-        Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                                                      file_sets: file_sets,
-                                                      log_prefix: log_prefix,
-                                                      do_export_predicate: do_export_predicate,
-                                                      quiet: quiet,
-                                                      &block )
+        ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
+                                                        file_sets: file_sets,
+                                                        log_prefix: log_prefix,
+                                                        do_export_predicate: do_export_predicate,
+                                                        quiet: quiet,
+                                                        &block )
       end
 
       def flash_and_go_back( msg )

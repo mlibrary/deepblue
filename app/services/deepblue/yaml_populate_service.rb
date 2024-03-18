@@ -4,13 +4,24 @@ module Deepblue
 
   class YamlPopulateService
 
-    DEFAULT_CREATE_ZERO_LENGTH_FILES = true
-    DEFAULT_OVERWRITE_EXPORT_FILES = true
+    DEBUG_VERBOSE                           = false unless const_defined? :DEBUG_VERBOSE
 
-    DEBUG_VERBOSE = false
+    DEFAULT_COLLECT_EXPORTED_FILE_SET_FILES = false unless const_defined? :DEFAULT_COLLECT_EXPORTED_FILE_SET_FILES
+    DEFAULT_CREATE_ZERO_LENGTH_FILES        = true  unless const_defined? :DEFAULT_CREATE_ZERO_LENGTH_FILES
+    DEFAULT_OVERWRITE_EXPORT_FILES          = true  unless const_defined? :DEFAULT_OVERWRITE_EXPORT_FILES
+    DEFAULT_VALIDATE_FILE_CHECKSUMS         = false unless const_defined? :DEFAULT_VALIDATE_FILE_CHECKSUMS
 
+    # options
+    attr_accessor :collect_exported_file_set_files
+    attr_accessor :create_zero_length_files
+    attr_accessor :debug_verbose
     attr_accessor :mode
+    attr_accessor :overwrite_export_files
     attr_accessor :source
+    attr_accessor :validate_file_checksums
+
+    attr_accessor :errors
+    attr_accessor :exported_file_set_files
 
     # TODO: count these
     attr_reader :total_collections_exported
@@ -18,29 +29,30 @@ module Deepblue
     attr_reader :total_works_exported
     attr_reader :total_users_exported
 
-    attr_accessor :overwrite_export_files
-    attr_accessor :create_zero_length_files
+    def initialize( collect_exported_file_set_files: DEFAULT_COLLECT_EXPORTED_FILE_SET_FILES,
+                    create_zero_length_files:        DEFAULT_CREATE_ZERO_LENGTH_FILES,
+                    mode:                            MetadataHelper::MODE_BUILD,
+                    overwrite_export_files:          DEFAULT_OVERWRITE_EXPORT_FILES,
+                    source:                          MetadataHelper::DEFAULT_SOURCE,
+                    validate_file_checksums:         DEFAULT_VALIDATE_FILE_CHECKSUMS,
+                    debug_verbose:                   DEBUG_VERBOSE )
 
-    attr_accessor :exported_file_set_files
-    attr_accessor :collect_exported_file_set_files
-
-    def initialize( create_zero_length_files: DEFAULT_CREATE_ZERO_LENGTH_FILES,
-                    mode: MetadataHelper::MODE_BUILD,
-                    overwrite_export_files: DEFAULT_OVERWRITE_EXPORT_FILES,
-                    source: MetadataHelper::DEFAULT_SOURCE,
-                    collect_exported_file_set_files: false )
-
-      @create_zero_length_files = create_zero_length_files
-      @mode = mode
-      @overwrite_export_files = overwrite_export_files
-      @source = source
-      @total_collections_exported = 0
-      @total_file_sets_exported = 0
-      @total_file_sets_size_exported = 0
-      @total_works_exported = 0
-      @total_users_exported = 0
+      # options
+      @debug_verbose                   = debug_verbose
       @collect_exported_file_set_files = collect_exported_file_set_files
-      @exported_file_set_files = []
+      @create_zero_length_files        = create_zero_length_files
+      @mode                            = mode
+      @overwrite_export_files          = overwrite_export_files
+      @source                          = source
+      @validate_file_checksums         = validate_file_checksums
+
+      @exported_file_set_files       = []
+      @errors                        = []
+      @total_collections_exported    = 0
+      @total_file_sets_exported      = 0
+      @total_file_sets_size_exported = 0
+      @total_works_exported          = 0
+      @total_users_exported          = 0
     end
 
     def yaml_body_collections( out, indent:, curation_concern: )
@@ -552,10 +564,10 @@ module Deepblue
                                              "target_filename=#{target_filename}",
                                              "target_dirname=#{target_dirname}",
                                              "log_filename=#{log_filename}",
-                                             "" ] if DEBUG_VERBOSE
+                                             "" ] if debug_verbose
       target_file = nil
       dir = Pathname.new dir unless dir.is_a? Pathname
-      puts "dir=#{dir}" if DEBUG_VERBOSE
+      # puts "dir=#{dir}" if debug_verbose
       if out.nil?
         curation_concern = yaml_work_find( curation_concern: curation_concern ) if curation_concern.is_a? String
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
@@ -631,6 +643,12 @@ module Deepblue
       "user_#{user.email}"
     end
 
+    def yaml_validate_file_set_checksum_build( file_set: )
+      return nil unless validate_file_checksums
+      rv = { algorithm: file_set.checksum_algorithm, checksum: file_set.checksum_value }
+      return rv
+    end
+
     def yaml_work_export_files( work:,
                                 export_files_filter_date: nil,
                                 target_dirname: nil,
@@ -641,7 +659,7 @@ module Deepblue
                                              "work.nil?=#{work.nil?}",
                                              "export_files_filter_date=#{export_files_filter_date}",
                                              "target_dirname=#{target_dirname}",
-                                             "" ] if DEBUG_VERBOSE
+                                             "" ] if debug_verbose
       log_filename ||= "w_#{work.id}.export.log"
       log_file = target_dirname.join log_filename
       File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
@@ -672,7 +690,15 @@ module Deepblue
           if write_file && file.present?
             source_uri = file.uri.value
             log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
-            bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: export_file_name )
+            validate_with_checksum = yaml_validate_file_set_checksum_build( file_set: file_set )
+            log_lines_from_export = []
+            bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri,
+                                                              target_file: export_file_name,
+                                                              validate_with_checksum: validate_with_checksum,
+                                                              log_lines: log_lines_from_export,
+                                                              errors: @errors,
+                                                              debug_verbose: debug_verbose )
+            log_lines( log_file, log_lines_from_export ) if log_lines_from_export.present?
             total_byte_count += bytes_copied
             log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
           elsif write_file && file.nil? && export_file_name.present?
@@ -709,7 +735,9 @@ module Deepblue
                 v_filename = File.join parent, v_filename
                 # TODO: check if overwriting, and do the right thing
                 log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
-                bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri, target_file: v_filename )
+                bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri,
+                                                                  target_file: v_filename,
+                                                                  debug_verbose: debug_verbose )
                 total_byte_count += bytes_copied
                 log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
               end

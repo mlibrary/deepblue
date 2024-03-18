@@ -2,11 +2,44 @@
 
 module Deepblue
 
+  class ExportFilesError < ::StandardError; end
+
+  class ExportFilesChecksumMismatch < ::Deepblue::ExportFilesError
+    attr_reader :algorithm
+    attr_reader :checksum
+    attr_reader :file_name
+    attr_reader :file_set_id
+    attr_reader :message
+    attr_writer :default_message
+
+    def initialize( algorithm:, checksum:, file_set: nil, file_name:, message: nil )
+      @algorithm = algorithm
+      @checksum = checksum
+      @file_set_id = file_set.present? ? file_set.id : ''
+      @file_name = file_name
+      @message = message
+      id = nil
+      id = file_set.id if file_set.present?
+      id ||= File.basename file_name
+      @default_message = "#{id}: checksum mismatch #{checksum}/#{algorithm} for file: #{file_name}"
+    end
+
+    def to_s
+      @message || @default_message
+    end
+  end
+
+
   module ExportFilesHelper
 
     mattr_accessor :export_files_helper_debug_verbose, default: false
 
+    mattr_accessor :export_files_throw_checksum_mismatch, default: true
+
     require 'down'
+
+    DEFAULT_LOG_PREFIX = "export_file_sets" unless const_defined? :DEFAULT_LOG_PREFIX
+    DEFAULT_QUIET      = false              unless const_defined? :DEFAULT_QUIET
 
     def self.export_file( file:, target_file:, debug_verbose: export_files_helper_debug_verbose )
       debug_verbose = debug_verbose || export_files_helper_debug_verbose
@@ -28,13 +61,22 @@ module Deepblue
       return bytes_copied
     end
 
-    def self.export_file_uri( source_uri:, target_file:, debug_verbose: export_files_helper_debug_verbose )
+    def self.export_file_uri( source_uri:,
+                              file_set: nil,
+                              target_file:,
+                              validate_with_checksum: nil,
+                              log_lines: nil,
+                              errors: nil,
+                              checksum_mismatch_is_error: export_files_throw_checksum_mismatch,
+                              debug_verbose: export_files_helper_debug_verbose )
+
       debug_verbose = debug_verbose || export_files_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "source_uri=#{source_uri}",
                                              "target_file=#{target_file}",
                                              "target_file.class.name=#{target_file.class.name}",
+                                             "validate_with_checksum=#{validate_with_checksum}",
                                              "" ] if debug_verbose
       if source_uri.starts_with?( "http:" ) || source_uri.starts_with?( "https:" )
         begin
@@ -48,6 +90,17 @@ module Deepblue
       else
         bytes_exported = URI.open( source_uri ) { |io| IO.copy_stream( io, target_file ) }
       end
+      rv = export_validate_checksum( validate_with_checksum: validate_with_checksum,
+                                     file_set: file_set,
+                                     file: target_file,
+                                     log_lines: log_lines,
+                                     errors: errors,
+                                     checksum_mismatch_is_error: checksum_mismatch_is_error,
+                                     debug_verbose: debug_verbose )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "bytes_exported=#{bytes_exported}",
+                                             "" ] if debug_verbose
       return bytes_exported
     end
 
@@ -60,9 +113,9 @@ module Deepblue
 
     def self.export_file_sets( target_dir:,
                                file_sets:,
-                               log_prefix: "export_file_sets",
+                               log_prefix: DEFAULT_LOG_PREFIX,
                                do_export_predicate: ->(_target_file_name, _target_file) { true },
-                               quiet: false,
+                               quiet: DEFAULT_QUIET,
                                &on_export_block )
 
       LoggingHelper.debug "#{log_prefix} Starting export to #{target_dir}" unless quiet
@@ -97,7 +150,7 @@ module Deepblue
             total_bytes += bytes_copied
             copied = DeepblueHelper.human_readable_size( bytes_copied )
             LoggingHelper.debug "#{log_prefix} copied #{copied} to #{target_file}" unless quiet
-            on_export_block.call( target_file_name, target_file ) if on_export_block # rubocop:disable Style/SafeNavigation
+            on_export_block.call( file_set, target_file_name, target_file ) if on_export_block # rubocop:disable Style/SafeNavigation
           else
             LoggingHelper.debug "#{log_prefix} skipped export of #{target_file}" unless quiet
           end
@@ -112,6 +165,7 @@ module Deepblue
                                src_dir: './log',
                                target_root_dir: nil,
                                debug_verbose: export_files_helper_debug_verbose )
+
       server_part = export_server_part
       if target_root_dir.blank?
         if ::Deepblue::InitializationConstants::HOSTNAME_LOCAL == server_part
@@ -183,6 +237,49 @@ module Deepblue
       export_file( file: file, target_file: temp_file, debug_verbose: debug_verbose )
     end
 
+    def self.export_validate_checksum( validate_with_checksum:,
+                                       file:,
+                                       file_set: nil,
+                                       log_lines: nil,
+                                       errors: nil,
+                                       checksum_mismatch_is_error: export_files_throw_checksum_mismatch,
+                                       debug_verbose: export_files_helper_debug_verbose )
+
+      # validate_with_checksum.present? --> of the form [ algorithm, checksum ], algorithm should be sha1
+      return true unless validate_with_checksum.present?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "validate_with_checksum=#{validate_with_checksum}",
+                                             "file=#{file}",
+                                             "errors=#{errors}",
+                                             "checksum_mismatch_is_error=#{checksum_mismatch_is_error}",
+                                             "" ] if debug_verbose
+      algorithm = validate_with_checksum[:algorithm]
+      checksum = validate_with_checksum[:checksum]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "algorithm=#{algorithm}",
+                                             "checksum=#{checksum}",
+                                             "" ] if debug_verbose
+      # TODO: deal with non-SHA1 algorithms
+      rv = Digest::SHA1.file file
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "digest rv=#{rv}",
+                                             "rv == checksum=#{rv == checksum}",
+                                             "" ] if debug_verbose
+      rv = rv == checksum
+      log_lines << "Checksum #{checksum}/#{algorithm} validated: #{rv}" unless log_lines.nil?
+      unless rv
+        error = ExportFilesChecksumMismatch.new( file_set: file_set,
+                                                 algorithm: algorithm,
+                                                 checksum: checksum,
+                                                 file_name: file )
+        errors << error unless errors.nil?
+        raise error if checksum_mismatch_is_error
+      end
+      return rv
+    end
 
   end
 
