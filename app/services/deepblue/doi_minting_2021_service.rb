@@ -75,11 +75,16 @@ module Deepblue
       doi
     end
 
+    def doi_pending?( doi )
+      ::Deepblue::DoiBehavior.doi_pending?( doi: doi )
+    end
+
     def get_metadata(doi)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "doi=#{doi}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
+      return doi if doi.blank? || doi_pending?( doi )
       response = mds_connection.get("metadata/#{doi}")
       raise Error.new("Failed getting DOI '#{doi}' metadata", response) unless response.status == 200
 
@@ -91,6 +96,7 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "doi=#{doi}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
+      return "" if doi.blank? || doi_pending?( doi )
       response = mds_connection.get("metadata/#{doi}")
       raise Error.new("Failed getting DOI '#{doi}' metadata", response) unless response.status == 200
 
@@ -109,14 +115,22 @@ module Deepblue
     # This will mint a new draft DOI if the passed doi parameter is blank
     # The passed datacite xml needs an identifier (just the prefix when minting new DOIs)
     # Beware: This will convert registered DOIs into findable!
-    def put_metadata(doi, metadata)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "doi=#{doi}",
-                                             "metadata=#{metadata}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
-      doi = prefix if doi.blank?
-      response = mds_connection.put("metadata/#{doi}", metadata, { 'Content-Type': 'application/xml;charset=UTF-8' })
+    def put_metadata( doi, metadata, msg_handler: )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "doi=#{doi}",
+                               "metadata=",
+                               metadata.pretty_inspect,
+                               "" ] if msg_handler.debug_verbose
+
+      doi = prefix if doi.blank? || doi_pending?( doi )
+      path = "metadata/#{doi}"
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "doi=#{doi}",
+                               "path=#{path}",
+                               "" ] if msg_handler.debug_verbose
+      # return false unless Rails.env.production?
+
+      response = mds_connection.put( path, metadata, { 'Content-Type': 'application/xml;charset=UTF-8' })
       raise Error.new("Failed creating metadata for DOI '#{doi}'", response) unless response.status == 201
 
       /^OK \((?<found_or_created_doi>.*)\)$/ =~ response.body
@@ -131,9 +145,9 @@ module Deepblue
                                              ::Deepblue::LoggingHelper.called_from,
                                              "doi=#{doi}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
+      return doi if doi.blank? || doi_pending?( doi )
       response = mds_connection.delete("metadata/#{doi}")
       raise Error.new("Failed deleting DOI '#{doi}' metadata", response) unless response.status == 200
-
       doi
     end
 

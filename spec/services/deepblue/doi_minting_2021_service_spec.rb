@@ -87,23 +87,24 @@ describe ::Deepblue::DoiMinting2021Service, :datacite_api do
         describe '#put_metadata' do
           let(:metadata) { File.join(Rails.root, 'spec', 'fixtures', 'metadata.xml') }
           let(:doi) { draft_doi }
+          let(:msg_handler) { ::Deepblue::MessageHandlerNull.new }
 
           context 'when doi param is blank' do
             let(:doi) { prefix }
 
             it 'creates a doi' do
-              expect(client.put_metadata(nil, metadata)).to match ::Deepblue::DoiBehavior.doi_regex
+              expect(client.put_metadata(nil, metadata, msg_handler: msg_handler)).to match ::Deepblue::DoiBehavior.doi_regex
             end
           end
 
           it 'returns the same doi' do
-            expect(client.put_metadata(draft_doi, metadata)).to eq draft_doi
+            expect(client.put_metadata(draft_doi, metadata, msg_handler: msg_handler)).to eq draft_doi
           end
 
           context 'with unknown doi' do
             let(:prefix) { 'unknown-prefix' }
             it 'errors with unknown DOI' do
-              expect { client.put_metadata(unknown_doi, metadata) }.to raise_error(Deepblue::DoiMinting2021Service::Error,
+              expect { client.put_metadata(unknown_doi, metadata, msg_handler: msg_handler) }.to raise_error(Deepblue::DoiMinting2021Service::Error,
                                                                                    /Failed creating metadata for DOI '[^\s]+'/)
             end
           end

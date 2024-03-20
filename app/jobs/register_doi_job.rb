@@ -34,17 +34,17 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                                       current_user: current_user,
                                                       debug_verbose: debug_verbose,
                                                       registrar: registrar,
-                                                      registrar_opts: registrar_opts )
+                                                      registrar_opts: registrar_opts,
+                                                      msg_handler: msg_handler )
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
-    job_status_register( exception: e,
-                         rails_log: true,
-                         args: { model: model,
-                                 current_user: current_user,
-                                 registrar: registrar,
-                                 registrar_opts: registrar_opts,
-                                 debug_verbose: debug_verbose } )
-    email_failure( task_name: task_name, exception: e, event: event_name )
+    args = { id: id,
+             current_user: current_user.pretty_inspect,
+             registrar: registrar.pretty_inspect,
+             registrar_opts: registrar_opts.pretty_inspect,
+             debug_verbose: debug_verbose }
+    job_status_register( exception: e, rails_log: true, args: args )
+    email_failure( task_name: task_name, task_args: args, exception: e, event: event_name )
     raise e
   end
 

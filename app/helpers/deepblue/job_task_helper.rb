@@ -126,9 +126,29 @@ END_BODY
                                                                   subscription_service_id: subscription_service_id )
     end
 
+    def self.email_lines_to_html( lines:, tag: nil, join: nil )
+      return "<br/>" if lines.blank?
+      html_lines = []
+      lines.each do |line|
+        if tag.present?
+          html_lines << "<#{tag}>#{line.chomp}<#{tag}><br/>"
+        else
+          html_lines << "#{line.chomp}<br/>"
+        end
+      end
+      return html_lines if join.blank?
+      return html_lines.join( join )
+    end
+
+    def self.email_task_args_to_html( task_args: )
+      return "<br/>" if task_args.blank?
+      return "#{task_args.pretty_inspect}<br/>"
+    end
+
     def self.email_failure( targets:,
                             subscription_service_id: nil,
                             task_name:,
+                            task_args: nil,
                             exception:,
                             event:,
                             event_note: '',
@@ -147,6 +167,7 @@ END_BODY
                                              ::Deepblue::LoggingHelper.called_from,
                                              "targets=#{targets}",
                                              "task_name=#{task_name}",
+                                             "task_args=#{task_args}",
                                              "exception=#{exception}",
                                              "event=#{event}",
                                              "event_note=#{event_note}",
@@ -162,15 +183,15 @@ END_BODY
 #{task_name} on #{hostname} failed.<br/>
 #{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
 #{timestamp_end.blank? ? "" : "Ended: #{timestamp_end}<br/>"}
+Task args:<br/>
+#{email_task_args_to_html( task_args: task_args)}
 <br/>
 Exception raised:<br/>
-<pre>
-#{exception.class} #{exception.message}
-
-#{exception.backtrace[0..20].join("\n")}
-</pre>
+<code>#{exception.class} #{exception.message}<code><br/>
 <br/>
-#{messages.empty? ? "" : "Messages:<br/>\n<pre>\n#{messages.join("\n")}\n</pre><br/>"}
+#{email_lines_to_html( lines: exception.backtrace[0..30], tag: 'code', join: "\n" )}
+<br/>
+#{email_lines_to_html( lines: messages, tag: 'code', join: "\n" )}
 END_BODY
       subject = "DBD #{task_name} from #{hostname} failed"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
