@@ -82,6 +82,7 @@ END_OF_TEMPLATE
 
   config.dbd_creator              = 'Deepblue Data'
   config.dbd_bag_description      = "Bag of a %work_type% hosted at %hostname%"
+  config.dbd_validate_file_checksums = true
 
   config.dbd_work_description =<<-END_OF_DESCRIPTION
 This bag contains all of the data and metadata related to a %work_type% exported from Deepblue Data hosted at

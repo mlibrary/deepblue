@@ -53,6 +53,7 @@ module Aptrust
     mattr_accessor :dbd_creator,               default: 'Deepblue Data'
     mattr_accessor :dbd_bag_description,       default: 'Deepblue Data Bag Description'
     mattr_accessor :dbd_work_description,      default: 'DBD Work Description'
+    mattr_accessor :dbd_validate_file_checksums, default: true
 
     mattr_accessor :download_dir,              default: './data/aptrust_download/'
     mattr_accessor :export_dir,                default: './data/aptrust_export/'
