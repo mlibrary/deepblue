@@ -153,13 +153,13 @@ aptrust_upload_job:
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                              "timestamp_end=#{timestamp_end}",
-                             "" ] if aptrust_upload_job_debug_verbose
+                             "" ] if debug_verbose
       email_results( task_name: EVENT, event: EVENT )
     end until true # for break
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
-    email_failure( task_name: EVENT, exception: e, event: EVENT )
+    email_failure( task_name: EVENT, task_args: args, exception: e, event: EVENT )
     raise e
   end
 

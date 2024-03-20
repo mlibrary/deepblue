@@ -66,11 +66,19 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
             #                                                                   moomin: registrar_class)
             expect(Hyrax.config).to_not receive(:identifier_registrars)
             allow(registrar_class).to receive(:new).and_call_original
-            expect(::Deepblue::DoiMintingService).to receive(:registrar_mint_doi).with( curation_concern: work,
-                                                              current_user: nil,
-                                                              debug_verbose: dbg_verbose,
-                                                              registrar: nil,
-                                                              registrar_opts: registrar_opts )
+            # expect(::Deepblue::DoiMintingService).to receive(:registrar_mint_doi).with( curation_concern: work,
+            #                                                   current_user: nil,
+            #                                                   debug_verbose: dbg_verbose,
+            #                                                   registrar: nil,
+            #                                                   registrar_opts: registrar_opts )
+            expect(::Deepblue::DoiMintingService).to receive(:registrar_mint_doi) do |args|
+              expect(args[:curation_concern]).to eq work
+              expect(args[:current_user]).to eq nil
+              expect(args[:debug_verbose]).to eq dbg_verbose
+              # expect(args[:msg_handler]).to eq msg_handler
+              expect(args[:registrar]).to eq nil
+              expect(args[:registrar_opts]).to eq registrar_opts
+            end
           end
 
           it 'calls the registrar' do

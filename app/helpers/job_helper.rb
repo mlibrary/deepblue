@@ -92,6 +92,7 @@ module JobHelper
 
   def email_failure( targets: email_targets,
                      task_name: self.class.name,
+                     task_args: nil,
                      exception:,
                      event: self.class.name,
                      event_note: '',
@@ -104,6 +105,7 @@ module JobHelper
                              ::Deepblue::LoggingHelper.called_from,
                              "targets=#{targets}",
                              "task_name=#{task_name}",
+                             "task_args=#{task_args}",
                              "msg_handler.msg_queue=#{msg_handler.msg_queue}",
                              "" ] if msg_handler.debug_verbose
     targets = email_failure_targets( from_dashboard: from_dashboard, targets: targets )
@@ -115,6 +117,7 @@ module JobHelper
     # lines = msg_handler.join
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,
+                                             task_args: task_args,
                                              exception: exception,
                                              event: event,
                                              event_note: event_note,

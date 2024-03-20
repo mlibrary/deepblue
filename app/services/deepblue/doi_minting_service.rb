@@ -344,7 +344,7 @@ module Deepblue
           datacite = ::Deepblue::DataCiteRegistrar.new
           datacite.debug_verbose = debug_verbose
         end
-        datacite.mint_doi( curation_concern: curation_concern )
+        datacite.mint_doi( curation_concern: curation_concern, msg_handler: msg_handler )
       else
         registrar ||= ::Deepblue::DataCiteRegistrar
         Hyrax::Identifier::Dispatcher.for(registrar.to_sym,
