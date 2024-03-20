@@ -698,18 +698,22 @@ class Aptrust::AptrustUploader
     return status
   end
 
+  def export_data_resolve_error( error )
+    # if export_errors may contain an instance of the ::Deepblue::ExportFilesChecksumMismatch
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "error=#{error.pretty_inspect}",
+                             "" ] if debug_verbose
+    note = "#{error}"
+    track( status: ::Aptrust::EVENT_ERROR, note: note )
+  end
+
   def export_data_resolve_errors
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "export_errors=#{export_errors.pretty_inspect}",
                              "" ] if debug_verbose
     return unless export_errors.present?
-    # if export_errors may contain an instance of the ::Deepblue::ExportFilesChecksumMismatch
     export_errors.each do |error|
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "error=#{error.pretty_inspect}",
-                               "" ] if debug_verbose
-      note = "#{error}"
-      track( status: ::Aptrust::EVENT_ERROR, note: note )
+      export_data_resolve_error( error )
     end
     export_errors = nil
   end

@@ -22,6 +22,7 @@ module Deepblue
       id = file_set.id if file_set.present?
       id ||= File.basename file_name
       @default_message = "#{id}: checksum mismatch #{checksum}/#{algorithm} for file: #{file_name}"
+      @message ||= @default_message
     end
 
     def to_s

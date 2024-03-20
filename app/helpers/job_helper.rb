@@ -101,8 +101,7 @@ module JobHelper
 
     return if child_job?
     initialize_defaults if @options.nil?
-    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                             ::Deepblue::LoggingHelper.called_from,
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "targets=#{targets}",
                              "task_name=#{task_name}",
                              "task_args=#{task_args}",
@@ -110,10 +109,9 @@ module JobHelper
                              "" ] if msg_handler.debug_verbose
     targets = email_failure_targets( from_dashboard: from_dashboard, targets: targets )
     return unless targets.present?
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "targets=#{targets}",
-                                           "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "targets=#{targets}",
+                                 "" ] if debug_verbose
     # lines = msg_handler.join
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,

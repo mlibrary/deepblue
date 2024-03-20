@@ -10,6 +10,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   mattr_accessor :deposit_context,  default: ::Aptrust::AptrustIntegrationService.deposit_context
   mattr_accessor :local_repository, default: ::Aptrust::AptrustIntegrationService.local_repository
   mattr_accessor :bag_description,  default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
+  mattr_accessor :validate_file_checksums, default: ::Aptrust::AptrustIntegrationService.dbd_validate_file_checksums
 
   def self.dbd_bag_description( work: )
     # "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/"
@@ -139,6 +140,39 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     return files
   end
 
+  def email_error( error )
+    # error is assumed to be an instance of ::Deepblue::ExportFilesChecksumMismatch at this point
+    targets = [ 'fritx@umich.edu' ]
+    task_name = self.class.name
+    task_args = nil
+    exception = error
+    message = error&.message
+    event = error.class.name.demodulize
+    timestamp_begin = DateTime.now
+    timestamp_end = timestamp_begin
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "targets=#{targets}",
+                             "task_name=#{task_name}",
+                             "task_args=#{task_args}",
+                             # "msg_handler.msg_queue=#{msg_handler.msg_queue}",
+                             "" ] if msg_handler.debug_verbose
+    ::Deepblue::JobTaskHelper.email_failure( targets: targets,
+                                             task_name: task_name,
+                                             task_args: task_args,
+                                             exception: exception,
+                                             event: event,
+                                             event_note: event_note,
+                                             timestamp_begin: timestamp_begin,
+                                             timestamp_end: timestamp_end,
+                                             msg_handler: nil,
+                                             debug_verbose: msg_handler.debug_verbose )
+  end
+
+  def export_data_resolve_error( error )
+    email_error( error ) if error is_a? ::Deepblue::ExportFilesChecksumMismatch
+    super.export_data_resolve_error( error )
+  end
+
   def export_do_copy?( target_dir, target_file_name ) # TODO: check file size?
     prep_file_name = target_file_name( target_dir, target_file_name )
     do_copy = true
@@ -168,7 +202,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                                    export_files:              export_file_sets,
                                                    export_files_filter_date:  export_file_sets_filter_date,
                                                    target_dir:                target_dir,
-                                                   validate_file_checksums:   true,
+                                                   validate_file_checksums:   validate_file_checksums,
                                                    debug_verbose:             debug_verbose } )
     service = pop.yaml_bag_work( id: work.id, work: work )
     @exported_file_set_files = service.exported_file_set_files
