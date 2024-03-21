@@ -701,9 +701,10 @@ class Aptrust::AptrustUploader
   def export_data_resolve_error( error )
     # if export_errors may contain an instance of the ::Deepblue::ExportFilesChecksumMismatch
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "error&.message=#{error&.message}",
                              "error=#{error.pretty_inspect}",
                              "" ] if debug_verbose
-    note = "#{error}"
+    note = "#{error&.message}"
     track( status: ::Aptrust::EVENT_ERROR, note: note )
   end
 

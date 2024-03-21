@@ -4,6 +4,8 @@ require_relative './aptrust'
 
 class Aptrust::AptrustUploaderStatus
 
+  NOTE_MAX_SIZE = 120 unless const_defined? :NOTE_MAX_SIZE
+
   mattr_accessor :aptrust_uplaoder_status_debug_verbose, default: false
 
   def self.clean_database!
@@ -37,6 +39,7 @@ class Aptrust::AptrustUploaderStatus
                                            "" ] if aptrust_uplaoder_status_debug_verbose
     begin
       timestamp ||= DateTime.now
+      note = note[0..(NOTE_MAX_SIZE-1)] if !note.nil? && note.size > NOTE_MAX_SIZE
       status = ::Aptrust::Status.for_id( noid: noid )
       if status.blank?
         status = ::Aptrust::Status.new( timestamp: timestamp, event: status_event, event_note: note, noid: noid )

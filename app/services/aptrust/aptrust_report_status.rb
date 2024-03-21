@@ -138,7 +138,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
           row << noid
         elsif "http_status" == col
           row << http_status
-        elsif "aws_bucket_status"
+        elsif "aws_bucket_status" == col
           row << aws_bucket_status( noid: noid )
         else
           row << key_values[col]

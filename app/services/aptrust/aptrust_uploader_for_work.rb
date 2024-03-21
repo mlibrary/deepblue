@@ -146,7 +146,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     task_name = self.class.name
     task_args = nil
     exception = error
-    message = error&.message
+    event_note = error&.message
     event = error.class.name.demodulize
     timestamp_begin = DateTime.now
     timestamp_end = timestamp_begin
@@ -169,8 +169,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def export_data_resolve_error( error )
-    email_error( error ) if error is_a? ::Deepblue::ExportFilesChecksumMismatch
-    super.export_data_resolve_error( error )
+    super
+    email_error( error ) if error.is_a? ::Deepblue::ExportFilesChecksumMismatch
   end
 
   def export_do_copy?( target_dir, target_file_name ) # TODO: check file size?
