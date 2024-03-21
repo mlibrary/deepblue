@@ -179,6 +179,12 @@ END_BODY
       targets.delete_if { |x| x.blank? }
       return if targets.blank?
       timestamp_end = DateTime.now if timestamp_end.blank?
+      backtrace = exception&.backtrace
+      if backtrace.is_a? Array
+        backtrace = backtrace[0..30] if bactrace.size > 30
+      else
+        backtrace = []
+      end
       body =<<-END_BODY
 #{task_name} on #{hostname} failed.<br/>
 #{timestamp_begin.blank? ? "" : "Began: #{timestamp_begin}<br/>"}
@@ -189,7 +195,7 @@ Task args:<br/>
 Exception raised:<br/>
 <code>#{exception.class} #{exception.message}<code><br/>
 <br/>
-#{email_lines_to_html( lines: exception.backtrace[0..30], tag: 'code', join: "\n" )}
+#{email_lines_to_html( lines: backtrace, tag: 'code', join: "\n" )}
 <br/>
 #{email_lines_to_html( lines: messages, tag: 'code', join: "\n" )}
 END_BODY
