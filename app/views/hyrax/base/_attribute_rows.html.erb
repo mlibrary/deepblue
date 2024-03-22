@@ -3,6 +3,8 @@
 
 <span itemprop="url" class="hide"><%= presenter.work_url %></span>
 
+<!-- tr><th>Anonymous show?</th><td><ul class='tabular_list'><li><%= presenter.anonymous_show? %></li></ul></td></tr -->
+
 <tr>
   <th>Methodology</th>
   <td>
@@ -76,8 +78,8 @@
 
 <%= presenter.attribute_to_html(:doi, label: t('show.labels.doi'), work_type: "DataSet", render_as: :doi, itemprop: "identifier" ) %>
 
-<% if presenter.current_ability.admin? %>
-  <%= presenter.attribute_to_html(:ticket, include_empty: true, label: t('show.labels.ticket') ) %>
+<% if presenter.current_ability.admin? && !presenter.anonymous_show? %>
+  <%= presenter.attribute_to_html(:ticket, include_empty: true, label: t('show.labels.ticket'), anonymous_hide: presenter.anonymous_show? ) %>
 <% end %>
 
 <span itemprop="license">
@@ -93,14 +95,14 @@
 <%= presenter.attribute_to_html(:rights_statement, render_as: :rights_statement ) %>
 
 <% if presenter.current_ability.admin? && !presenter.tombstone_permissions_hack? %>
-  <%= presenter.attribute_to_html(:prior_identifier, label: t('show.labels.prior_identifier') ) %>
+  <%= presenter.attribute_to_html(:prior_identifier, label: t('show.labels.prior_identifier'), anonymous_hide: presenter.anonymous_show? ) %>
 <% end %>
 
-<% if presenter.current_ability.admin? %>
-  <%= presenter.attribute_to_html(:read_users, label: t('show.labels.read_users') ) %>
-  <%= presenter.attribute_to_html(:edit_users, label: t('show.labels.edit_users') ) %>
-  <%= presenter.attribute_to_html(:read_groups, label: t('show.labels.read_groups') ) %>
-  <%= presenter.attribute_to_html(:edit_groups, label: t('show.labels.read_groups') ) %>
+<% if presenter.current_ability.admin? && !presenter.anonymous_show? %>
+  <%= presenter.attribute_to_html(:read_users, label: t('show.labels.read_users'), anonymous_hide: presenter.anonymous_show? ) %>
+  <%= presenter.attribute_to_html(:edit_users, label: t('show.labels.edit_users'), anonymous_hide: presenter.anonymous_show? ) %>
+  <%= presenter.attribute_to_html(:read_groups, label: t('show.labels.read_groups'), anonymous_hide: presenter.anonymous_show? ) %>
+  <%= presenter.attribute_to_html(:edit_groups, label: t('show.labels.read_groups'), anonymous_hide: presenter.anonymous_show? ) %>
 <% end %>
 
 <%# "secondary" attributes %>

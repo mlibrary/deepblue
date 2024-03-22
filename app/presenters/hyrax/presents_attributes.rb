@@ -32,6 +32,8 @@ module Hyrax
         return
       end
 
+      return if options[:anonymous_hide]
+
       value = send(field)
       renderer = renderer_for(field, options).new(field, value, options)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
