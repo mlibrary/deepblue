@@ -12,7 +12,6 @@ class Aptrust::AptrustFindAndUpload
 
   attr_accessor :aptrust_config
   attr_accessor :cleanup_after_deposit
-  attr_accessor :cleanup_before_deposit
   attr_accessor :cleanup_bag
   attr_accessor :cleanup_bag_data
   attr_accessor :clear_status
@@ -28,7 +27,6 @@ class Aptrust::AptrustFindAndUpload
   attr_accessor :upload_count
 
   def initialize( cleanup_after_deposit:         ::Aptrust::AptrustUploader.cleanup_after_deposit,
-                  cleanup_before_deposit:        ::Aptrust::AptrustUploader.cleanup_before_deposit,
                   cleanup_bag:                   ::Aptrust::AptrustUploader.cleanup_bag,
                   cleanup_bag_data:              ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:                  ::Aptrust::AptrustUploader.clear_status,
@@ -48,7 +46,6 @@ class Aptrust::AptrustFindAndUpload
     @msg_handler ||= ::Deepblue::MessageHandlerNull.new
 
     @cleanup_after_deposit         = cleanup_after_deposit
-    @cleanup_before_deposit        = cleanup_before_deposit
     @cleanup_bag                   = cleanup_bag
     @cleanup_bag_data              = cleanup_bag_data
     @clear_status                  = clear_status
@@ -69,7 +66,6 @@ class Aptrust::AptrustFindAndUpload
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "cleanup_after_deposit=#{cleanup_after_deposit}",
-                             "cleanup_before_deposit=#{cleanup_before_deposit}",
                              "cleanup_bag=#{cleanup_bag}",
                              "cleanup_bag_data=#{cleanup_bag_data}",
                              "clear_status=#{clear_status}",
@@ -93,7 +89,6 @@ class Aptrust::AptrustFindAndUpload
     if 1 == max_upload_jobs
       uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:                aptrust_config,
                                                         cleanup_after_deposit:         cleanup_after_deposit,
-                                                        cleanup_before_deposit:        cleanup_before_deposit,
                                                         cleanup_bag:                   cleanup_bag,
                                                         cleanup_bag_data:              cleanup_bag_data,
                                                         clear_status:                  clear_status,

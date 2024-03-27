@@ -156,7 +156,6 @@ module Hyrax
       ::AptrustUploadWorkJob.perform_later( id:                           params[:id],
               email_results_to:             current_user.email,
               cleanup_after_deposit:        ::Aptrust::AptrustIntegrationService.from_controller_cleanup_after_deposit,
-              cleanup_before_deposit:       ::Aptrust::AptrustIntegrationService.from_controller_cleanup_before_deposit,
               cleanup_bag:                  ::Aptrust::AptrustIntegrationService.from_controller_cleanup_bag,
               cleanup_bag_data:             ::Aptrust::AptrustIntegrationService.from_controller_cleanup_bag_data,
               clear_status:                 ::Aptrust::AptrustIntegrationService.from_controller_clear_status,

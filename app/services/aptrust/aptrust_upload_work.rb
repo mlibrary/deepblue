@@ -6,8 +6,8 @@ class Aptrust::AptrustUploadWork
 
   mattr_accessor :aptrust_upload_work_debug_verbose, default: false
 
+  attr_accessor :bag_max_total_file_size
   attr_accessor :cleanup_after_deposit
-  attr_accessor :cleanup_before_deposit
   attr_accessor :cleanup_bag
   attr_accessor :cleanup_bag_data
   attr_accessor :clear_status
@@ -21,8 +21,8 @@ class Aptrust::AptrustUploadWork
 
   attr_accessor :aptrust_config
 
-  def initialize( cleanup_after_deposit:         ::Aptrust::AptrustUploader.cleanup_after_deposit,
-                  cleanup_before_deposit:        ::Aptrust::AptrustUploader.cleanup_before_deposit,
+  def initialize( bag_max_total_file_size:       nil,
+                  cleanup_after_deposit:         ::Aptrust::AptrustUploader.cleanup_after_deposit,
                   cleanup_bag:                   ::Aptrust::AptrustUploader.cleanup_bag,
                   cleanup_bag_data:              ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:                  ::Aptrust::AptrustUploader.clear_status,
@@ -54,8 +54,8 @@ class Aptrust::AptrustUploadWork
     @noid = noid
 
     @aptrust_config                = ::Aptrust::AptrustConfig.new
+    @bag_max_total_file_size       = bag_max_total_file_size
     @cleanup_after_deposit         = cleanup_after_deposit
-    @cleanup_before_deposit        = cleanup_before_deposit
     @cleanup_bag                   = cleanup_bag
     @cleanup_bag_data              = cleanup_bag_data
     @clear_status                  = clear_status
@@ -67,8 +67,8 @@ class Aptrust::AptrustUploadWork
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "noid=#{noid}",
+                             "bag_max_total_file_size=#{bag_max_total_file_size}",
                              "cleanup_after_deposit=#{cleanup_after_deposit}",
-                             "cleanup_before_deposit=#{cleanup_before_deposit}",
                              "cleanup_bag=#{cleanup_bag}",
                              "cleanup_bag_data=#{cleanup_bag_data}",
                              "clear_status=#{clear_status}",
@@ -85,8 +85,8 @@ class Aptrust::AptrustUploadWork
     # status = status[0] unless status.blank?
 
     uploader = ::Aptrust::AptrustUploaderForWork.new( aptrust_config:                aptrust_config,
+                                                      bag_max_total_file_size:       bag_max_total_file_size,
                                                       cleanup_after_deposit:         cleanup_after_deposit,
-                                                      cleanup_before_deposit:        cleanup_before_deposit,
                                                       cleanup_bag:                   cleanup_bag,
                                                       cleanup_bag_data:              cleanup_bag_data,
                                                       clear_status:                  clear_status,

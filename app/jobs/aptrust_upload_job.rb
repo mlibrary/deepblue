@@ -22,7 +22,6 @@ aptrust_upload_job:
   args:
     by_request_only: true
     cleanup_after_deposit: true
-    cleanup_before_deposit: true
     cleanup_bag: false
     cleanup_bag_data: true
     clear_status: true
@@ -88,7 +87,6 @@ aptrust_upload_job:
       msg_handler.debug_verbose = debug_verbose
       debug_assume_upload_succeeds  = job_options_value( key: 'debug_assume_upload_succeeds',  default_value: false )
       cleanup_after_deposit         = job_options_value( key: 'cleanup_after_deposit',         default_value: true )
-      cleanup_before_deposit        = job_options_value( key: 'cleanup_before_deposit',        default_value: true )
       cleanup_bag                   = job_options_value( key: 'cleanup_bag',                   default_value: false )
       cleanup_bag_data              = job_options_value( key: 'cleanup_bag_data',              default_value: true )
       clear_status                  = job_options_value( key: 'clear_status',                  default_value: true )
@@ -107,7 +105,6 @@ aptrust_upload_job:
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "cleanup_after_deposit=#{cleanup_after_deposit}",
-                               "cleanup_before_deposit=#{cleanup_before_deposit}",
                                "cleanup_bag=#{cleanup_bag}",
                                "cleanup_bag_data=#{cleanup_bag_data}",
                                "clear_status=#{clear_status}",
@@ -135,7 +132,6 @@ aptrust_upload_job:
       filter.debug_verbose = filter_debug_verbose
       run_job_delay
       finder = ::Aptrust::AptrustFindAndUpload.new( cleanup_after_deposit:         cleanup_after_deposit,
-                                                    cleanup_before_deposit:        cleanup_before_deposit,
                                                     cleanup_bag:                   cleanup_bag,
                                                     cleanup_bag_data:              cleanup_bag_data,
                                                     clear_status:                  clear_status,
