@@ -172,7 +172,7 @@ module Deepblue
       msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
       msg = "#{msg} with export files flag set to #{@export_files}" unless @export_files
       report_puts msg
-      log_filename = "#{id}.export.log"
+      log_filename = "w_#{id}.export.log"
       @mode = ::Deepblue::MetadataHelper::MODE_BAG
       service = YamlPopulateService.new( mode:                            @mode,
                                          collect_exported_file_set_files: @collect_exported_file_set_files,

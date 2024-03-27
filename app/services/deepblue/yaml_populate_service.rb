@@ -649,6 +649,86 @@ module Deepblue
       return rv
     end
 
+    def yaml_work_export_file( file_set:, log_file:, target_dir: )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "file_set=#{file_set.id}",
+                                             "log_file=#{log_file}",
+                                             "target_dir=#{target_dir}",
+                                             "" ] if debug_verbose
+      bytes_exported = 0
+      export_file_name = yaml_export_file_path( target_dirname: target_dir, file_set: file_set )
+      exported_file_set_files << export_file_name if collect_exported_file_set_files
+      write_file = if overwrite_export_files
+                     true
+                   else
+                     !File.exist?( export_file_name )
+                   end
+      file = MetadataHelper.file_from_file_set( file_set )
+      export_what = yaml_export_log_file( file_set, export_file_name )
+      if write_file && file.present?
+        source_uri = file.uri.value
+        log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
+        validate_with_checksum = yaml_validate_file_set_checksum_build( file_set: file_set )
+        log_lines_from_export = []
+        bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri,
+                                                          target_file: export_file_name,
+                                                          validate_with_checksum: validate_with_checksum,
+                                                          log_lines: log_lines_from_export,
+                                                          errors: @errors,
+                                                          debug_verbose: debug_verbose )
+        log_lines( log_file, log_lines_from_export ) if log_lines_from_export.present?
+        bytes_exported += bytes_copied
+        log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
+      elsif write_file && file.nil? && export_file_name.present?
+        if create_zero_length_files
+          log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
+          File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
+        else
+          log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
+        end
+      elsif write_file && file.nil?
+        log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
+      else
+        log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
+      end
+      # original = file_set.original_file
+      # versions = original ? original.versions.all : []
+      versions = file_set.versions
+      filename = File.basename export_file_name
+      if versions.count > 1
+        versions.each_with_index do |ver,index|
+          index += 1 # not zero-based
+          next if index >= versions.count # skip exporting last version file as it is the current version
+          vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
+          if vc.empty?
+            # skip
+          else
+            vc = vc.first
+            v_filename = "v#{index}_#{filename}"
+            v_filename = File.join target_dir, v_filename
+            # TODO: check if overwriting, and do the right thing
+            log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
+            bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri,
+                                                              target_file: v_filename,
+                                                              debug_verbose: debug_verbose )
+            bytes_exported += bytes_copied
+            log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
+          end
+        end
+      end
+      return bytes_exported
+    end
+
+    def yaml_export_log_file( file_set, export_file_name )
+      file_size = if file_set.file_size.blank?
+                    file_set.original_file.nil? ? 0 : file_set.original_file.size
+                  else
+                    file_set.file_size[0]
+                  end
+      "#{export_file_name} (#{human_readable_size(file_size)} / #{file_size} bytes)"
+    end
+
     def yaml_work_export_files( work:,
                                 export_files_filter_date: nil,
                                 target_dirname: nil,
@@ -673,76 +753,70 @@ module Deepblue
         work.file_sets.each do |file_set|
           date_modified = file_set.date_modified
           next if export_files_filter_date.present? && date_modified >= export_files_filter_date
-          export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
-          exported_file_set_files << export_file_name if collect_exported_file_set_files
-          write_file = if overwrite_export_files
-                         true
-                       else
-                         !File.exist?( export_file_name )
-                       end
-          file = MetadataHelper.file_from_file_set( file_set )
-          file_size = if file_set.file_size.blank?
-                        file_set.original_file.nil? ? 0 : file_set.original_file.size
-                      else
-                        file_set.file_size[0]
-                      end
-          export_what = "#{export_file_name} (#{human_readable_size(file_size)} / #{file_size} bytes)"
-          if write_file && file.present?
-            source_uri = file.uri.value
-            log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
-            validate_with_checksum = yaml_validate_file_set_checksum_build( file_set: file_set )
-            log_lines_from_export = []
-            bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri,
-                                                              target_file: export_file_name,
-                                                              validate_with_checksum: validate_with_checksum,
-                                                              log_lines: log_lines_from_export,
-                                                              errors: @errors,
-                                                              debug_verbose: debug_verbose )
-            log_lines( log_file, log_lines_from_export ) if log_lines_from_export.present?
-            total_byte_count += bytes_copied
-            log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
-          elsif write_file && file.nil? && export_file_name.present?
-            if create_zero_length_files
-              log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
-              File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
-            else
-              log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
-            end
-          elsif write_file && file.nil?
-            log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
-          else
-            log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
-          end
-          # TODO: write out version files if versions exist
-          # TODO:
-          # original = file_set.original_file
-          # versions = original ? original.versions.all : []
-          versions = file_set.versions
-          parent = File.dirname export_file_name
-          # puts "export_file_name=#{export_file_name}"
-          filename = File.basename export_file_name
-          # puts `ls -l #{parent}`
-          if versions.count > 1
-            versions.each_with_index do |ver,index|
-              index += 1 # not zero-based
-              next if index >= versions.count # skip exporting last version file as it is the current version
-              vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
-              if vc.empty?
-
-              else
-                vc = vc.first
-                v_filename = "v#{index}_#{filename}"
-                v_filename = File.join parent, v_filename
-                # TODO: check if overwriting, and do the right thing
-                log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
-                bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri,
-                                                                  target_file: v_filename,
-                                                                  debug_verbose: debug_verbose )
-                total_byte_count += bytes_copied
-                log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
-              end
-            end
-          end
+          # export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
+          # exported_file_set_files << export_file_name if collect_exported_file_set_files
+          # write_file = if overwrite_export_files
+          #                true
+          #              else
+          #                !File.exist?( export_file_name )
+          #              end
+          # file = MetadataHelper.file_from_file_set( file_set )
+          bytes_exported = yaml_work_export_file( file_set: file_set, log_file: log_file, target_dir: target_dirname )
+          total_byte_count += bytes_exported
+          # if write_file && file.present?
+          #   source_uri = file.uri.value
+          #   log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
+          #   validate_with_checksum = yaml_validate_file_set_checksum_build( file_set: file_set )
+          #   log_lines_from_export = []
+          #   bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri,
+          #                                                     target_file: export_file_name,
+          #                                                     validate_with_checksum: validate_with_checksum,
+          #                                                     log_lines: log_lines_from_export,
+          #                                                     errors: @errors,
+          #                                                     debug_verbose: debug_verbose )
+          #   log_lines( log_file, log_lines_from_export ) if log_lines_from_export.present?
+          #   total_byte_count += bytes_copied
+          #   log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
+          # elsif write_file && file.nil? && export_file_name.present?
+          #   if create_zero_length_files
+          #     log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
+          #     File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
+          #   else
+          #     log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
+          #   end
+          # elsif write_file && file.nil?
+          #   log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
+          # else
+          #   log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
+          # end
+          # # original = file_set.original_file
+          # # versions = original ? original.versions.all : []
+          # versions = file_set.versions
+          # parent = File.dirname export_file_name
+          # # puts "export_file_name=#{export_file_name}"
+          # filename = File.basename export_file_name
+          # # puts `ls -l #{parent}`
+          # if versions.count > 1
+          #   versions.each_with_index do |ver,index|
+          #     index += 1 # not zero-based
+          #     next if index >= versions.count # skip exporting last version file as it is the current version
+          #     vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
+          #     if vc.empty?
+          #
+          #     else
+          #       vc = vc.first
+          #       v_filename = "v#{index}_#{filename}"
+          #       v_filename = File.join parent, v_filename
+          #       # TODO: check if overwriting, and do the right thing
+          #       log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
+          #       bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri,
+          #                                                         target_file: v_filename,
+          #                                                         debug_verbose: debug_verbose )
+          #       total_byte_count += bytes_copied
+          #       log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
+          #     end
+          #   end
+          # end
         end
       end
       end_time = Time.now
@@ -753,6 +827,7 @@ module Deepblue
       # rubocop:disable Rails/Output
       puts "#{e.class}: #{e.message} at #{e.backtrace.join("\n")}"
       # rubocop:enable Rails/Output
+      raise
     end
 
     def yaml_work_find( curation_concern: )

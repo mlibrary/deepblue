@@ -73,8 +73,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   attr_accessor :exported_file_set_files
 
   def initialize( aptrust_config: nil,
+                  bag_max_total_file_size:      nil,
                   cleanup_after_deposit:        ::Aptrust::AptrustUploader.cleanup_after_deposit,
-                  cleanup_before_deposit:       ::Aptrust::AptrustUploader.cleanup_before_deposit,
                   cleanup_bag:                  ::Aptrust::AptrustUploader.cleanup_bag,
                   cleanup_bag_data:             ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:                 ::Aptrust::AptrustUploader.clear_status,
@@ -91,8 +91,9 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            debug_verbose:                 debug_verbose,
            aptrust_info:                  ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
            bag_id_type:                   bag_id_type,
+           bag_id_context:                deposit_context,
+           bag_max_total_file_size:       bag_max_total_file_size,
            cleanup_after_deposit:         cleanup_after_deposit,
-           cleanup_before_deposit:        cleanup_before_deposit,
            cleanup_bag:                   cleanup_bag,
            cleanup_bag_data:              cleanup_bag_data,
            clear_status:                  clear_status,
@@ -123,12 +124,12 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                                           title:            ai_title ).build
   end
 
-  def aptrust_info_work_write
+  def aptrust_info_work_write( bag: )
     aptrust_info_work
-    aptrust_info_write( aptrust_info: aptrust_info )
+    aptrust_info_write( bag: bag, aptrust_info: aptrust_info )
   end
 
-  def cleanup_bag_data_files
+  def cleanup_bag_data_files( bag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "cleanup_bag_data=#{cleanup_bag_data}",
                              "" ] if debug_verbose
@@ -173,6 +174,11 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     email_error( error ) if error.is_a? ::Deepblue::ExportFilesChecksumMismatch
   end
 
+  def export_data_work( target_dir: )
+    path = Pathname.new target_dir
+    export_work_files( target_dir: path )
+  end
+
   def export_do_copy?( target_dir, target_file_name ) # TODO: check file size?
     prep_file_name = target_file_name( target_dir, target_file_name )
     do_copy = true
@@ -183,14 +189,13 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     do_copy
   end
 
-  def target_file_name( dir, filename, ext = '' ) # TODO: review
-    return Pathname.new( filename + ext ) if dir.nil?
-    if dir.is_a? String
-      rv = File.join dir, filename + ext
-    else
-      rv = dir.join( filename + ext )
-    end
-    return rv
+  def export_file_sets_filter_date_init
+    return export_file_sets_filter_date if export_file_sets_filter_date.present?
+    return nil if export_file_sets_filter_event
+    records = ::Aptrust::Event.for_most_recent_event( noid: work.id, event: export_file_sets_filter_event )
+    record = Array( records ).first
+    return nil unless record.present?
+    return record.updated_at
   end
 
   def export_work_files( target_dir: )
@@ -213,18 +218,14 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
   end
 
-  def export_file_sets_filter_date_init
-    return export_file_sets_filter_date if export_file_sets_filter_date.present?
-    return nil if export_file_sets_filter_event
-    records = ::Aptrust::Event.for_most_recent_event( noid: work.id, event: export_file_sets_filter_event )
-    record = Array( records ).first
-    return nil unless record.present?
-    return record.updated_at
-  end
-
-  def export_data_work( target_dir: )
-    path = Pathname.new target_dir
-    export_work_files( target_dir: path )
+  def target_file_name( dir, filename, ext = '' ) # TODO: review
+    return Pathname.new( filename + ext ) if dir.nil?
+    if dir.is_a? String
+      rv = File.join dir, filename + ext
+    else
+      rv = dir.join( filename + ext )
+    end
+    return rv
   end
 
 end

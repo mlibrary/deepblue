@@ -22,7 +22,6 @@ aptrust_upload_work_job:
   args:
     by_request_only: true
     cleanup_after_deposit: true
-    cleanup_before_deposit: true
     cleanup_bag: false
     cleanup_bag_data: true
     clear_status: true
@@ -69,8 +68,8 @@ aptrust_upload_work_job:
       break if by_request_only? && !allow_by_request_only?
       msg_handler.debug_verbose     = debug_verbose
       debug_assume_upload_succeeds  = job_options_value( key: 'debug_assume_upload_succeeds',  default_value: false )
+      bag_max_total_file_size       = job_options_value( key: 'bag_max_total_file_size',     default_value: nil )
       cleanup_after_deposit         = job_options_value( key: 'cleanup_after_deposit',         default_value: true )
-      cleanup_before_deposit        = job_options_value( key: 'cleanup_before_deposit',        default_value: true )
       cleanup_bag                   = job_options_value( key: 'cleanup_bag',                   default_value: false )
       cleanup_bag_data              = job_options_value( key: 'cleanup_bag_data',              default_value: true )
       clear_status                  = job_options_value( key: 'clear_status',                  default_value: true )
@@ -80,8 +79,8 @@ aptrust_upload_work_job:
       id                            = job_options_value( key: 'id',                            default_value: nil )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                               "bag_max_total_file_size=#{bag_max_total_file_size}",
                                "cleanup_after_deposit=#{cleanup_after_deposit}",
-                               "cleanup_before_deposit=#{cleanup_before_deposit}",
                                "cleanup_bag=#{cleanup_bag}",
                                "cleanup_bag_data=#{cleanup_bag_data}",
                                "clear_status=#{clear_status}",
@@ -91,8 +90,8 @@ aptrust_upload_work_job:
                                "id=#{id}",
                                "" ] if debug_verbose
       run_job_delay
-      uploader = ::Aptrust::AptrustUploadWork.new( cleanup_after_deposit:         cleanup_after_deposit,
-                                                   cleanup_before_deposit:        cleanup_before_deposit,
+      uploader = ::Aptrust::AptrustUploadWork.new( bag_max_total_file_size:       bag_max_total_file_size,
+                                                   cleanup_after_deposit:         cleanup_after_deposit,
                                                    cleanup_bag:                   cleanup_bag,
                                                    cleanup_bag_data:              cleanup_bag_data,
                                                    clear_status:                  clear_status,
