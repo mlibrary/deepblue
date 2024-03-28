@@ -48,7 +48,6 @@ module Deepblue
     mattr_accessor :doi_resource_type,                              default: 'Dataset'.freeze
     mattr_accessor :doi_resource_types,                             default: [ 'Dataset', 'Fileset' ].freeze
 
-
     mattr_accessor :doi_minting_2021_service_enabled,               default: true
     mattr_accessor :doi_minting_2021_service_direct,                default: true
     mattr_accessor :doi_minting_service_email_user_on_success,      default: false
@@ -57,6 +56,8 @@ module Deepblue
     mattr_accessor :test_mds_base_url,       default: "https://mds.test.datacite.org/"
     mattr_accessor :production_base_url,     default: "https://api.datacite.org/"
     mattr_accessor :production_mds_base_url, default: "https://mds.datacite.org/"
+
+    mattr_accessor :doi_pending_timeout_delta, default: 20.minutes
 
     def self.datacite_registrar( debug_verbose: false, task: false )
       datacite = ::Deepblue::DataCiteRegistrar.new

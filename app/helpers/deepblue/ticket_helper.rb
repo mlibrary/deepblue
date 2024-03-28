@@ -11,9 +11,10 @@ module Deepblue
 
     TICKET_JOB_STARTING          = 'job starting'.freeze unless const_defined? :TICKET_JOB_STARTING
     TICKET_PENDING               = 'pending'.freeze      unless const_defined? :TICKET_PENDING
-    TICKET_PENDING_TIMEOUT_DELTA = 1.hour.freeze         unless const_defined? :TICKET_PENDING_TIMEOUT_DELTA
 
     mattr_accessor :ticket_helper_debug_verbose, default: false
+
+    mattr_accessor :ticket_pending_timeout_delta, default: TeamdynamixIntegrationService.ticket_pending_timeout_delta
 
     def self.curation_notes_admin_link( prefix:, ticket_url: )
       return '' if ticket_url.blank?
@@ -209,7 +210,7 @@ module Deepblue
       return false if as_of.blank?
       begin
         as_of = DateTime.parse( as_of )
-        as_of = as_of + TICKET_PENDING_TIMEOUT_DELTA
+        as_of = as_of + ticket_pending_timeout_delta
         return true if as_of < DateTime.now
       rescue Exception => e
         # puts e

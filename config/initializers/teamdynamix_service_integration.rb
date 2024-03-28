@@ -11,6 +11,8 @@ Deepblue::TeamdynamixIntegrationService.setup do |config|
     # config.teamdynamix_service_active = true # override value in local settings
     config.enforce_dbd_account_id = false
 
+    config.ticket_pending_timeout_delta = 10.minutes
+
     puts "config.tdx_server=#{config.tdx_server}" if verbose_init
     if 'test' == config.tdx_server
       puts "congigure test teamdynamix" if verbose_init

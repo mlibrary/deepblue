@@ -39,6 +39,8 @@ module Deepblue
     mattr_accessor :teamdynamix_use_new_api, default: Settings.teamdynamix.use_new_api
     mattr_accessor :tdx_server, default: Settings.teamdynamix.tdx_server
 
+    mattr_accessor :ticket_pending_timeout_delta, default: 10.minutes
+
     mattr_accessor :check_admin_notes_for_existing_ticket, default: true
     mattr_accessor :enforce_dbd_account_id,     default: false
 
