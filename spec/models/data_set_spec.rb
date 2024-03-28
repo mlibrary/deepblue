@@ -145,7 +145,7 @@ RSpec.describe DataSet do
   describe 'constants' do
     it { expect( ::Deepblue::DoiBehavior.doi_minting_enabled ).to eq true }
     it { expect( ::Deepblue::DoiBehavior.doi_minimum_file_count ).to eq 1 }
-    it { expect( ::Deepblue::DoiBehavior.doi_pending_timeout_delta ).to eq 1.hour }
+    it { expect( ::Deepblue::DoiBehavior.doi_pending_timeout_delta ).to eq 20.minutes }
   end
 
   # it 'supports ordered multi-valued fields' do

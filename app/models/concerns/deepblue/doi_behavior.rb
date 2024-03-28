@@ -12,7 +12,7 @@ module Deepblue
     mattr_accessor :doi_minting_enabled,       default: true
     #mattr_accessor :doi_pending,               default: 'doi_pending'.freeze
     mattr_accessor :doi_minimum_file_count,    default: 1
-    mattr_accessor :doi_pending_timeout_delta, default: 1.hour
+    mattr_accessor :doi_pending_timeout_delta, default: ::Deepblue::DoiMintingService.doi_pending_timeout_delta
 
     mattr_accessor :doi_regex, default: /\A10\.\d{4,}(\.\d+)*\/[-._;():\/A-Za-z\d]+\z/.freeze
 

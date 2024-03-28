@@ -42,6 +42,7 @@ Deepblue::DoiMintingService.setup do |config|
   config.production_base_url     = "https://api.datacite.org/"
   config.production_mds_base_url = "https://mds.datacite.org/"
 
+  config.doi_pending_timeout_delta = 20.minutes
 
   # TODO
   # config.host     = ENV['EZID_HOST'] || Settings.ezid.host
