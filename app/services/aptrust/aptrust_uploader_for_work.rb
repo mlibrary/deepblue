@@ -3,6 +3,29 @@
 require_relative './aptrust'
 require_relative './aptrust_config'
 
+class Aptrust::WorkTasks
+
+  def self.upload( noid:,
+                   note: nil,
+                   bag_max_total_file_size: nil,
+                   cleanup_after_deposit: true,
+                   cleanup_bag: true,
+                   cleanup_bag_data: true,
+                   debug_verbose: false )
+
+    puts note unless note.nil?
+    msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, debug_verbose: debug_verbose )
+    uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
+                                                 bag_max_total_file_size: bag_max_total_file_size,
+                                                 cleanup_after_deposit: cleanup_after_deposit,
+                                                 cleanup_bag: cleanup_bag,
+                                                 cleanup_bag_data: cleanup_bag_data,
+                                                 noid: noid )
+    uploader.run;true
+  end
+
+end
+
 class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
@@ -11,6 +34,40 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   mattr_accessor :local_repository, default: ::Aptrust::AptrustIntegrationService.local_repository
   mattr_accessor :bag_description,  default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
   mattr_accessor :validate_file_checksums, default: ::Aptrust::AptrustIntegrationService.dbd_validate_file_checksums
+
+  def self.bag_id_init()
+    return Aptrust.aptrust_identifier( template: bag_id_template,
+                                       local_repository: bag_id_local_repository,
+                                       context: bag_id_context,
+                                       type: bag_id_type,
+                                       noid: object_id )
+  end
+
+  def self.cleanup_for_work( noid:,
+                             export_dir:    ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
+                             working_dir:   ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
+                             msg_handler:   ::Aptrust::NULL_MSG_HANDLER,
+                             debug_verbose: aptrust_uploader_for_work_debug_verbose )
+
+    aptrust_config = ::Aptrust::AptrustConfig.new
+    bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: nil )
+    bag_id = Aptrust.aptrust_identifier( template: ::Aptrust::IDENTIFIER_TEMPLATE,
+                                         local_repository: aptrust_config.local_repository,
+                                         context: bag_id_context,
+                                         type: bag_id_type,
+                                         noid: noid )
+    bag_dir = File.join( working_dir, bag_id )
+
+    ::Aptrust::AptrustUploader.cleanup_tar_file( bag_dir: bag_dir,
+                                                 export_dir: export_dir,
+                                                 msg_handler: msg_handler,
+                                                 debug_verbose: debug_verbose )
+
+    ::Aptrust::AptrustUploader.cleanup_bag_dir( bag_dir: bag_dir,
+                                                msg_handler: msg_handler,
+                                                debug_verbose: debug_verbose )
+
+  end
 
   def self.dbd_bag_description( work: )
     # "Bag of a #{work.class.name} hosted at deepblue.lib.umich.edu/data/"
@@ -72,7 +129,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   attr_accessor :work
   attr_accessor :exported_file_set_files
 
-  def initialize( aptrust_config: nil,
+  def initialize( aptrust_config:               nil,
                   bag_max_total_file_size:      nil,
                   cleanup_after_deposit:        ::Aptrust::AptrustUploader.cleanup_after_deposit,
                   cleanup_bag:                  ::Aptrust::AptrustUploader.cleanup_bag,
