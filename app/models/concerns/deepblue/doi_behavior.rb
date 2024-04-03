@@ -35,6 +35,7 @@ module Deepblue
 
     def self.doi_needs_minting?( doi: )
       return true if doi.blank?
+      return true if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
       if DoiBehavior.doi_pending?( doi: doi )
         return true if DoiBehavior.doi_pending_timeout?( doi: doi )
       end
@@ -42,11 +43,8 @@ module Deepblue
     end
 
     def self.doi_pending?( doi: )
-      # return doi == doi_pending
-      # return doi == 'doi_pending'
       return false if doi.blank?
-      return true if doi.start_with? 'doi_pending'
-      return true if doi.start_with? 'DOI pending'
+      return true if doi =~ /pending/
       return false
     end
 
@@ -62,9 +60,8 @@ module Deepblue
       #                                       "false unless DoiBehavior.doi_pending?( doi: doi )=#{DoiBehavior.doi_pending?( doi: doi )}",
       #                                       "" ]
       return false unless DoiBehavior.doi_pending?( doi: doi )
-      return true if 'doi_pending' == doi
       match = doi.match( /^.*pending as of (\d.+)$/ )
-      return false if match.blank?
+      return true if match.blank?
       as_of = match[1]
       return false if as_of.blank?
       begin
@@ -137,7 +134,13 @@ module Deepblue
       {}
     end
 
-    def doi_mint( current_user: nil, event_note: '', enforce_minimum_file_count: true, job_delay: 0 )
+    def doi_mint( current_user: nil,
+                  event_note: '',
+                  enforce_minimum_file_count: true,
+                  job_delay: 0,
+                  returnMessages: [],
+                  debug_verbose: doi_behavior_debug_verbose )
+
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{id}",
@@ -149,45 +152,35 @@ module Deepblue
                                              "enforce_minimum_file_count=#{enforce_minimum_file_count}",
                                              "job_delay=#{job_delay}",
                                              "Settings.datacite.active=#{Settings.datacite.active}",
-                                             "" ] if doi_behavior_debug_verbose
+                                             "" ] if debug_verbose
 
-      # ::Deepblue::LoggingHelper.bold_debug [ "","","", ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "exiting",
-      #                                        "" ] if true
-      # return false # TODO: disabled
-      return false unless Settings.datacite.active
-      return false unless doi_needs_minting?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                      ::Deepblue::LoggingHelper.called_from,
-      #                                      "curation_concern.id=#{id}",
-      #                                      "past doi_pending?" ] if doi_behavior_debug_verbose
-      # return false if doi_minted?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                      ::Deepblue::LoggingHelper.called_from,
-      #                                      "curation_concern.id=#{id}",
-      #                                      "past doi_minted?" ] if doi_behavior_debug_verbose
-      return false if work? && enforce_minimum_file_count && file_sets.count < doi_minimum_file_count
-      self.doi = doi_pending_init
-      self.save
-      self.reload
-      ::Deepblue::DoiMintingService.doi_mint_job( curation_concern: self,
-                                                  current_user: current_user,
-                                                  event_note: event_note,
-                                                  job_delay: job_delay )
-      # current_user = current_user.email if current_user.respond_to? :email
-      # target_url = EmailHelper.curation_concern_url( curation_concern: self )
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        "curation_concern.id=#{id}",
-      #                                        "class.name=#{self.class.name}",
-      #                                        "target_url=#{target_url}",
-      #                                        "doi=#{doi}",
-      #                                        "about to call DoiMintingJob",
-      #                                        "" ] if doi_behavior_debug_verbose
-      # raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
-      # ::DoiMintingJob.perform_later( id, current_user: current_user, job_delay: job_delay, target_url: target_url )
-      return true
+      rv = false
+      begin # until true for break
+        unless Settings.datacite.active
+          returnMessages << MsgHelper.t( 'data_set.doi_minting_service_inactive' )
+          break
+        end
+        unless doi_needs_minting?
+          returnMessages << MsgHelper.t( 'data_set.doi_is_already_pending' )
+          break
+        end
+        if work? && enforce_minimum_file_count && file_sets.count < doi_minimum_file_count
+          returnMessages << MsgHelper.t( 'data_set.doi_requires_work_with_files' )
+          break
+        end
+        self.doi = doi_pending_init
+        self.save
+        self.reload
+        ::Deepblue::DoiMintingService.doi_mint_job( curation_concern: self,
+                                                    current_user: current_user,
+                                                    event_note: event_note,
+                                                    job_delay: job_delay,
+                                                    debug_verbose: debug_verbose )
+        returnMessages << MsgHelper.t( 'data_set.doi_minting_started' )
+        rv = true
+      end until true # for break
+
+      return rv
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
     end

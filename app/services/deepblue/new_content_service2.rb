@@ -1571,9 +1571,9 @@ module Deepblue
                                                "curation_concern.doi=#{curation_concern.doi}",
                                                "" ] if new_content_service_debug_verbose
         return unless ::Deepblue::DoiMintingService::DOI_MINT_NOW == curation_concern.doi
-        curation_concern.doi = nil
-        curation_concern.save!
-        curation_concern.reload
+        # curation_concern.doi = nil
+        # curation_concern.save!
+        # curation_concern.reload
         curation_concern.doi_mint( current_user: user, event_note: 'NewContentService2', job_delay: 60 )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"

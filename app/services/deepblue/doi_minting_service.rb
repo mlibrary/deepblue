@@ -245,19 +245,19 @@ module Deepblue
                                              "about to call doi minting job",
                                              "" ] if debug_verbose
       raise IllegalOperation, "Attempting to mint doi before id is created." if target_url.blank?
-      if DoiMintingService.doi_minting_2021_service_enabled
+      # if DoiMintingService.doi_minting_2021_service_enabled
         ::RegisterDoiJob.perform_later( id: curation_concern.id,
                                         current_user: current_user,
                                         debug_verbose: debug_verbose,
                                         registrar: curation_concern.doi_registrar.presence,
                                         registrar_opts: curation_concern.doi_registrar_opts )
-      else
-        ::DoiMintingJob.perform_later( curation_concern.id,
-                                       current_user: current_user,
-                                       job_delay: job_delay,
-                                       target_url: target_url,
-                                       debug_verbose: debug_verbose )
-      end
+      # else
+      #   ::DoiMintingJob.perform_later( curation_concern.id,
+      #                                  current_user: current_user,
+      #                                  job_delay: job_delay,
+      #                                  target_url: target_url,
+      #                                  debug_verbose: debug_verbose )
+      # end
       return true
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
