@@ -16,6 +16,10 @@ en:
       "DOI process kicked off for work id: %{id}"
     doi_minting_started:
       "DOI minting has started."
+    doi_minting_service_inactive:
+      "DOI minting not active."
+    doi_is_already_pending:
+      "DOI is already pending."
     doi_requires_work_with_files:
       "DOI cannot be minted for a work without files."
     doi_user_without_access:
