@@ -13,6 +13,8 @@ class Aptrust::AptrustUploader
   mattr_accessor :cleanup_bag_data,       default: ::Aptrust::AptrustIntegrationService.cleanup_bag_data
   mattr_accessor :clear_status,           default: ::Aptrust::AptrustIntegrationService.clear_status
 
+  mattr_accessor :event_sleep_secs, default: 1
+
   BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
   DEFAULT_BI_DESCRIPTION = 'No description supplied.'         unless const_defined? :DEFAULT_BI_DESCRIPTION
   DEFAULT_BI_SOURCE      = 'University of Michigan'           unless const_defined? :DEFAULT_BI_SOURCE
@@ -28,6 +30,46 @@ class Aptrust::AptrustUploader
     # rv = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%SZ")
     # rv = Time.parse(rv).iso8601
     # return rv
+  end
+
+  def self.cleanup_bag_dir( bag_dir:, msg_handler:, debug_verbose: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_dir=#{bag_dir}",
+                             "" ] if debug_verbose
+    files_deleted = ::Deepblue::DiskUtilitiesHelper.delete_files_in_dir( bag_dir,
+                                                                         delete_subdirs: true,
+                                                                         msg_handler: msg_handler )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "files_deleted=#{files_deleted}",
+                             "" ] if debug_verbose
+    ::Aptrust::AptrustUploader.delete_bag_data_dir( bag_dir: bag_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
+    ::Aptrust::AptrustUploader.delete_bag_dir( bag_dir: bag_dir,
+                                               msg_handler: msg_handler,
+                                               debug_verbose: debug_verbose )
+  end
+
+  def self.cleanup_tar_file( bag_dir:, export_dir:, msg_handler:, debug_verbose: )
+    filename = File.join( export_dir, ::Aptrust::AptrustUploader.tar_filename( bag_dir: bag_dir ) )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "delete filename=#{filename}",
+                             "" ] if debug_verbose
+    return unless File.exist? filename
+    File.delete filename
+  end
+
+  def self.delete_bag_dir( bag_dir:, msg_handler:, debug_verbose: )
+    if Dir.empty? bag_dir
+      msg_handler.bold_debug [ "deleting #{bag_dir}", ] if debug_verbose
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    else
+      msg_handler.bold_debug [ "can't delete #{bag_dir}", ] if debug_verbose
+    end
+  end
+
+  def self.tar_filename( bag_dir: )
+    rv = File.basename( bag_dir ) + EXT_TAR
+    return rv
   end
 
   attr_accessor :additional_tag_files
@@ -144,33 +186,33 @@ class Aptrust::AptrustUploader
                                            # "aptrust_config.pretty_inspect=#{aptrust_config.pretty_inspect}",
                                            "" ] if aptrust_uploader_debug_verbose
 
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "object_id=#{object_id}",
-                                           "aptrust_config=#{aptrust_config}",
-                                           "aptrust_config_file=#{aptrust_config_file}",
-                                           "aptrust_info=#{aptrust_info}",
-                                           "ai_access=#{ai_access}",
-                                           "ai_creator=#{ai_creator}",
-                                           "ai_description=#{ai_description}",
-                                           "ai_item_description=#{ai_item_description}",
-                                           "ai_storage_option=#{ai_storage_option}",
-                                           "ai_title=#{ai_title}",
-                                           "bag_info=#{bag_info}",
-                                           "bi_date=#{bi_date}",
-                                           "bi_description=#{bi_description}",
-                                           "bi_id=#{bi_id}",
-                                           "bag_id=#{bag_id}",
-                                           "bag_id_context=#{bag_id_context}",
-                                           "bag_id_local_repository=#{bag_id_local_repository}",
-                                           "bag_id_type=#{bag_id_type}",
-                                           "bag_max_total_file_size=#{bag_max_total_file_size}",
-                                           "export_by_closure=#{export_by_closure}",
-                                           "export_copy_src=#{export_copy_src}",
-                                           "export_src_dir=#{export_src_dir}",
-                                           "export_dir=#{export_dir}",
-                                           "working_dir=#{working_dir}",
-                                           "" ] if true
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "object_id=#{object_id}",
+    #                                        "aptrust_config=#{aptrust_config}",
+    #                                        "aptrust_config_file=#{aptrust_config_file}",
+    #                                        "aptrust_info=#{aptrust_info}",
+    #                                        "ai_access=#{ai_access}",
+    #                                        "ai_creator=#{ai_creator}",
+    #                                        "ai_description=#{ai_description}",
+    #                                        "ai_item_description=#{ai_item_description}",
+    #                                        "ai_storage_option=#{ai_storage_option}",
+    #                                        "ai_title=#{ai_title}",
+    #                                        "bag_info=#{bag_info}",
+    #                                        "bi_date=#{bi_date}",
+    #                                        "bi_description=#{bi_description}",
+    #                                        "bi_id=#{bi_id}",
+    #                                        "bag_id=#{bag_id}",
+    #                                        "bag_id_context=#{bag_id_context}",
+    #                                        "bag_id_local_repository=#{bag_id_local_repository}",
+    #                                        "bag_id_type=#{bag_id_type}",
+    #                                        "bag_max_total_file_size=#{bag_max_total_file_size}",
+    #                                        "export_by_closure=#{export_by_closure}",
+    #                                        "export_copy_src=#{export_copy_src}",
+    #                                        "export_src_dir=#{export_src_dir}",
+    #                                        "export_dir=#{export_dir}",
+    #                                        "working_dir=#{working_dir}",
+    #                                        "" ] if true
 
     @object_id           = object_id
 
@@ -199,6 +241,7 @@ class Aptrust::AptrustUploader
     @bag_id_type             = ::Aptrust.arg_init( bag_id_type, DEFAULT_TYPE )
 
     @bag_max_total_file_size = bag_max_total_file_size
+    @bag_max_total_file_size ||= ::Aptrust::AptrustIntegrationService.bag_max_total_file_size
 
     @cleanup_after_deposit        = cleanup_after_deposit
     @cleanup_bag                  = cleanup_bag
@@ -294,13 +337,13 @@ class Aptrust::AptrustUploader
                              "bag_id=#{id_from( bag: bag )}",
                              "" ] if debug_verbose
     bag_id = id_from( bag: bag )
-    track( status: ::Aptrust::EVENT_EXPORTING, note: bag_id )
+    track_with_sleep( status: ::Aptrust::EVENT_EXPORTING, note: bag_id )
     data_dir = bag.data_dir
     data_files.each do|file|
       next unless File.file? file
       FileUtils.mv( file, data_dir )
     end
-    track( status: ::Aptrust::EVENT_EXPORTED, note: bag_id )
+    track_with_sleep( status: ::Aptrust::EVENT_EXPORTED, note: bag_id )
   end
 
   def bag_id
@@ -378,7 +421,7 @@ class Aptrust::AptrustUploader
   end
 
   def bag_export( bag:, bag_info: )
-    track( status: ::Aptrust::EVENT_BAGGING )
+    track_with_sleep( status: ::Aptrust::EVENT_BAGGING )
     # info = bag_info
     bag.write_bag_info( bag_info ) # Create bagit-info.txt file
     aptrust_info_write( bag: bag )
@@ -391,13 +434,13 @@ class Aptrust::AptrustUploader
                                "bag.complete?=#{bag.complete?}",
                                "bag.consistent?=#{bag.consistent?}",
                                "" ] if debug_verbose
-      track( status: ::Aptrust::EVENT_BAGGED, note: id_from( bag: bag ) )
+      track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: id_from( bag: bag ) )
     end
     # bag.write_bag_info( info ) # this causes it generate an incorrect bag checksum
   end
 
   def bag_export_finalize( bag:, bag_info:, note: nil )
-    track( status: ::Aptrust::EVENT_BAGGING, note: note )
+    track_with_sleep( status: ::Aptrust::EVENT_BAGGING, note: note )
     # info = bag_info
     bag.write_bag_info( bag_info ) # Create bagit-info.txt file
     aptrust_info_write( bag: bag )
@@ -408,7 +451,7 @@ class Aptrust::AptrustUploader
                              "bag.complete?=#{bag.complete?}",
                              "bag.consistent?=#{bag.consistent?}",
                              "" ] if debug_verbose
-    track( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag.bag_dir}" )
+    track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag.bag_dir}" )
   end
 
   def bag_manifest( bag: )
@@ -554,7 +597,7 @@ class Aptrust::AptrustUploader
                              "bag_id=#{id_from( bag: bag )}",
                              "" ] if debug_verbose
     if !allow_deposit?
-      track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
       return false, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -562,7 +605,7 @@ class Aptrust::AptrustUploader
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                              "" ] if debug_verbose
     if debug_assume_upload_succeeds
-      track( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
       return true, ::Aptrust::EVENT_UPLOAD_SKIPPED
     end
     begin
@@ -575,21 +618,21 @@ class Aptrust::AptrustUploader
       # filename = tar_filename( bag: bag )
       # aws_object = bucket.object( File.basename(filename) )
       aws_object = bucket.object( tar_filename( bag: bag ) )
-      track( status: ::Aptrust::EVENT_UPLOADING, note: note )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOADING, note: note )
       filename = File.join( export_dir, tar_filename( bag: bag ) )
       # https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Object.html#upload_file-instance_method
       aws_object.upload_file( filename )
-      track( status: ::Aptrust::EVENT_UPLOADED, note: note )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOADED, note: note )
       return true, ::Aptrust::EVENT_UPLOADED
     rescue Aws::S3::MultipartUploadError => e
-      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
                                "failed in #{e.context} with error #{e}",
                                "" ]
       # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       return false, ::Aptrust::EVENT_FAILED
     rescue Aws::S3::Errors::ServiceError => e
-      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
                                "failed in #{e.context} with error #{e}",
                                "" ]
@@ -708,10 +751,18 @@ class Aptrust::AptrustUploader
                                "clear_status=#{clear_status}",
                                "" ] if debug_verbose
       aptrust_upload_status.clear_statuses if clear_status
-      track( status: ::Aptrust::EVENT_DEPOSITING )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
       export_data( bag: bag )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "most_recent_status=#{most_recent_status}",
+                               "" ] if debug_verbose
       if most_recent_status == ::Aptrust::EVENT_EXPORTED
         files_exported = ::Aptrust::AptrustFileList.from_dir( dir: bag.data_dir )
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "files_exported=#{files_exported}",
+                                 "files_exported.total_file_size=#{files_exported.total_file_size}",
+                                 "bag_max_total_file_size=#{bag_max_total_file_size}",
+                                 "" ] if debug_verbose
         total_file_size = files_exported.total_file_size
         if total_file_size < bag_max_total_file_size
           bag_single_bag( bag: bag )
@@ -719,11 +770,11 @@ class Aptrust::AptrustUploader
           bag_multiple_bags( bag: bag, files_exported: files_exported )
         end
       end
-      track( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
       cleanup( bag: bag )
     rescue StandardError => e
       msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30] if debug_verbose
-      track( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
   end
 
@@ -736,7 +787,7 @@ class Aptrust::AptrustUploader
                                "clear_status=#{clear_status}",
                                "" ] if debug_verbose
       aptrust_upload_status.clear_statuses if clear_status
-      track( status: ::Aptrust::EVENT_DEPOSITING )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
       bag_export( bag: bag, bag_info: bag_info )
       if most_recent_status == ::Aptrust::EVENT_BAGGED
         bag_tar( bag: bag )
@@ -748,11 +799,11 @@ class Aptrust::AptrustUploader
       end
     rescue StandardError => e
       msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30] if debug_verbose
-      track( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     return unless bag_uploaded_succeeded
     begin
-      track( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
       cleanup( bag: bag )
     end
   end
@@ -761,7 +812,7 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
                               "" ] if debug_verbose
-    track( status: ::Aptrust::EVENT_EXPORTING )
+    track_with_sleep( status: ::Aptrust::EVENT_EXPORTING )
     status_note = nil
     data_dir = bag.data_dir
     begin # until true for break
@@ -784,7 +835,7 @@ class Aptrust::AptrustUploader
       status_note = 'no export method defined'
     end until true
     export_data_resolve_errors
-    track( status: status, note: status_note )
+    track_with_sleep( status: status, note: status_note )
   end
 
   def export_data_by_closure( data_dir )
@@ -823,7 +874,7 @@ class Aptrust::AptrustUploader
                              "error=#{error.pretty_inspect}",
                              "" ] if debug_verbose
     note = "#{error&.message}"
-    track( status: ::Aptrust::EVENT_ERROR, note: note )
+    track_with_sleep( status: ::Aptrust::EVENT_ERROR, note: note )
   end
 
   def export_data_resolve_errors
@@ -852,9 +903,9 @@ class Aptrust::AptrustUploader
     parent = File.dirname bag.bag_dir
     Dir.chdir( parent ) do
       tar_src = File.basename bag.bag_dir
-      track( status: ::Aptrust::EVENT_PACKING, note: note )
+      track_with_sleep( status: ::Aptrust::EVENT_PACKING, note: note )
       Minitar.pack( tar_src, File.open( tar_filename( bag: bag ), 'wb') )
-      track( status: ::Aptrust::EVENT_PACKED, note: note )
+      track_with_sleep( status: ::Aptrust::EVENT_PACKED, note: note )
     end
   end
 
@@ -864,7 +915,7 @@ class Aptrust::AptrustUploader
   end
 
   def tar_filename( bag: )
-    rv = File.basename( bag.bag_dir ) + EXT_TAR
+    rv = ::Aptrust::AptrustUploader.tar_filename( bag_dir: bag.bag_dir )
     return rv
   end
 
@@ -877,6 +928,18 @@ class Aptrust::AptrustUploader
                              "status=#{status}",
                              "note=#{note}",
                              "" ] if debug_verbose
+    aptrust_upload_status.track( status: status, note: note )
+    @most_recent_status = status
+  end
+
+  def track_with_sleep( status:, note: nil, sleep_secs: event_sleep_secs )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "status=#{status}",
+                             "note=#{note}",
+                             "sleep_secs=#{sleep_secs}",
+                             "" ] if debug_verbose
+    sleep_secs = event_sleep_secs if sleep_secs.blank?
+    sleep( sleep_secs )
     aptrust_upload_status.track( status: status, note: note )
     @most_recent_status = status
   end
@@ -894,7 +957,7 @@ class Aptrust::AptrustUploader
                              "id=#{id}",
                              "" ], bold_puts: false if debug_verbose
     success = false
-    track( status: ::Aptrust::EVENT_DEPOSITING )
+    track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
     begin
       # add timing
       config = aptrust_config
@@ -913,15 +976,15 @@ class Aptrust::AptrustUploader
       msg_handler.bold_debug [ msg_handler.here ]
       aws_object = bucket.object( File.basename(filename) )
       msg_handler.bold_debug [ msg_handler.here ]
-      track( status: ::Aptrust::EVENT_UPLOADING )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOADING )
       msg_handler.bold_debug [ msg_handler.here ]
       aws_object.upload_file( filename )
       success = true
       msg_handler.bold_debug [ msg_handler.here ]
-      track( status: ::Aptrust::EVENT_UPLOADED )
-      track( status: ::Aptrust::EVENT_DEPOSITED )
+      track_with_sleep( status: ::Aptrust::EVENT_UPLOADED )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED )
     rescue Aws::S3::Errors::ServiceError => e
-      track( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
       msg_handler.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
       Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       success = false
