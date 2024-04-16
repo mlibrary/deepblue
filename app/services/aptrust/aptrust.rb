@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../deepblue/message_handler'
+require_relative '../deepblue/message_handler_null'
+
 module Aptrust
 
     mattr_accessor :aptrust_debug_verbose, default: false

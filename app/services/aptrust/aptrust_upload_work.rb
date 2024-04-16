@@ -19,6 +19,10 @@ class Aptrust::AptrustUploadWork
   attr_accessor :msg_handler
   attr_accessor :noid
 
+  attr_accessor :export_dir
+  attr_accessor :working_dir
+  attr_accessor :zip_data_dir
+
   attr_accessor :aptrust_config
 
   def initialize( bag_max_total_file_size:       nil,
@@ -32,6 +36,7 @@ class Aptrust::AptrustUploadWork
                   export_file_sets_filter_event: nil,
                   noid:                          ,
                   msg_handler:                   nil,
+                  zip_data_dir:                  false,
                   debug_verbose:                 aptrust_upload_work_debug_verbose )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -65,6 +70,10 @@ class Aptrust::AptrustUploadWork
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
 
+    @export_dir = nil
+    @working_dir = nil
+    @zip_data_dir = zip_data_dir
+
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "noid=#{noid}",
                              "bag_max_total_file_size=#{bag_max_total_file_size}",
@@ -76,7 +85,7 @@ class Aptrust::AptrustUploadWork
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
-                             "" ] if @debug_verbose
+                             "" ] + ::Aptrust::AptrustIntegrationService.dump_mattrs if @debug_verbose
   end
 
   def process( work: )
@@ -94,10 +103,16 @@ class Aptrust::AptrustUploadWork
                                                       export_file_sets_filter_date:  export_file_sets_filter_date,
                                                       export_file_sets_filter_event: export_file_sets_filter_event,
                                                       work:                          work,
+                                                      zip_data_dir:                  zip_data_dir,
                                                       msg_handler:                   msg_handler,
                                                       debug_verbose:                 debug_verbose )
 
+    @export_dir = File.absolute_path @export_dir if @export_dir.present?
+    @working_dir = File.absolute_path @working_dir if @working_dir.present?
+    uploader.export_dir = @export_dir if @export_dir.present?
+    uploader.working_dir = @working_dir if @working_dir.present?
     uploader.debug_assume_upload_succeeds = debug_assume_upload_succeeds
+
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              # "uploader.aptrust_config=#{uploader.aptrust_config}",
                              "uploader.bag_id_context=#{uploader.bag_id_context}",

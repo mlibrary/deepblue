@@ -28,7 +28,8 @@ module Aptrust
     mattr_accessor :aptrust_integration_debug_verbose, default: false
 
     mattr_accessor :allow_deposit,             default: true
-    mattr_accessor :deposit_context,           default: 'localhost-'
+    #mattr_accessor :deposit_context,           default: 'localhost-'
+    mattr_accessor :deposit_context,           default: ''
     mattr_accessor :repository,                default: 'umich.edu'
     mattr_accessor :local_repository,          default: 'deepbluedata'
 
@@ -68,6 +69,41 @@ module Aptrust
     mattr_accessor :from_controller_clear_status,                 default: true
     mattr_accessor :from_controller_debug_assume_upload_succeeds, default: true
     mattr_accessor :from_controller_debug_verbose,                default: true
+
+    def self.dump_mattrs
+      return [ "::Aptrust::AptrustIntegrationService.allow_deposit=#{::Aptrust::AptrustIntegrationService.allow_deposit}",
+       "::Aptrust::AptrustIntegrationService.deposit_context=#{::Aptrust::AptrustIntegrationService.deposit_context}",
+       "::Aptrust::AptrustIntegrationService.repository=#{::Aptrust::AptrustIntegrationService.repository}",
+       "::Aptrust::AptrustIntegrationService.local_repository=#{::Aptrust::AptrustIntegrationService.local_repository}",
+
+       "::Aptrust::AptrustIntegrationService.aptrust_info_txt_template=#{::Aptrust::AptrustIntegrationService.aptrust_info_txt_template}",
+
+       "::Aptrust::AptrustIntegrationService.bag_checksum_algorithm=#{::Aptrust::AptrustIntegrationService.bag_checksum_algorithm}",
+       "::Aptrust::AptrustIntegrationService.bag_delete_manifest_sha1=#{::Aptrust::AptrustIntegrationService.bag_delete_manifest_sha1}",
+       "::Aptrust::AptrustIntegrationService.bag_max_total_file_size=#{::Aptrust::AptrustIntegrationService.bag_max_total_file_size}",
+
+       "::Aptrust::AptrustIntegrationService.cleanup_after_deposit=#{::Aptrust::AptrustIntegrationService.cleanup_after_deposit}",
+       "::Aptrust::AptrustIntegrationService.cleanup_bag=#{::Aptrust::AptrustIntegrationService.cleanup_bag}",
+       "::Aptrust::AptrustIntegrationService.cleanup_bag_data=#{::Aptrust::AptrustIntegrationService.cleanup_bag_data}",
+       "::Aptrust::AptrustIntegrationService.clear_status=#{::Aptrust::AptrustIntegrationService.clear_status}",
+
+       "::Aptrust::AptrustIntegrationService.default_access=#{::Aptrust::AptrustIntegrationService.default_access}",
+       "::Aptrust::AptrustIntegrationService.default_creator=#{::Aptrust::AptrustIntegrationService.default_creator}",
+       "::Aptrust::AptrustIntegrationService.default_description=#{::Aptrust::AptrustIntegrationService.default_description}",
+       "::Aptrust::AptrustIntegrationService.default_item_description=#{::Aptrust::AptrustIntegrationService.default_item_description}",
+       "::Aptrust::AptrustIntegrationService.default_storage_option=#{::Aptrust::AptrustIntegrationService.default_storage_option}",
+       "::Aptrust::AptrustIntegrationService.default_title=#{::Aptrust::AptrustIntegrationService.default_title}",
+
+       "::Aptrust::AptrustIntegrationService.dbd_creator=#{::Aptrust::AptrustIntegrationService.dbd_creator}",
+       "::Aptrust::AptrustIntegrationService.dbd_bag_description=#{::Aptrust::AptrustIntegrationService.dbd_bag_description}",
+       "::Aptrust::AptrustIntegrationService.dbd_work_description=#{::Aptrust::AptrustIntegrationService.dbd_work_description}",
+       "::Aptrust::AptrustIntegrationService.dbd_validate_file_checksums=#{::Aptrust::AptrustIntegrationService.dbd_validate_file_checksums}",
+
+       "::Aptrust::AptrustIntegrationService.download_dir=#{::Aptrust::AptrustIntegrationService.download_dir}",
+       "::Aptrust::AptrustIntegrationService.export_dir=#{::Aptrust::AptrustIntegrationService.export_dir}",
+       "::Aptrust::AptrustIntegrationService.working_dir=#{::Aptrust::AptrustIntegrationService.working_dir}",
+       "::Aptrust::AptrustIntegrationService.storage_option=#{::Aptrust::AptrustIntegrationService.storage_option}" ]
+    end
 
   end
 

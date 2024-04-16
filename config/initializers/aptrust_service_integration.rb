@@ -41,33 +41,39 @@ Aptrust::AptrustIntegrationService.setup do |config|
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.deposit_context = ''
     config.download_dir = '/deepbluedata-prep/aptrust_download/'
-    config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    # config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    config.export_dir = '/deepbluedata-prep/aptrust_work/'
     config.working_dir = '/deepbluedata-prep/aptrust_work/'
     config.from_controller_debug_assume_upload_succeeds = false
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
     config.deposit_context = 'testing-'
     config.download_dir = '/deepbluedata-prep/aptrust_download/'
-    config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    # config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    config.export_dir = '/deepbluedata-prep/aptrust_work/'
     config.working_dir = '/deepbluedata-prep/aptrust_work/'
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
     config.deposit_context = 'staging-'
     config.download_dir = '/deepbluedata-prep/aptrust_download/'
-    config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    # config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    config.export_dir = '/deepbluedata-prep/aptrust_work/'
     config.working_dir = '/deepbluedata-prep/aptrust_work/'
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
     config.deposit_context = 'test-'
     config.download_dir = '/deepbluedata-prep/aptrust_download/'
-    config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    # config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    config.export_dir = '/deepbluedata-prep/aptrust_work/'
     config.working_dir = '/deepbluedata-prep/aptrust_work/'
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.deposit_context = 'localhost-'
     config.download_dir = './data/aptrust_download/'
-    config.export_dir = './data/aptrust_export/'
+    # config.export_dir = './data/aptrust_export/'
+    config.export_dir = './data/aptrust_work/'
     config.working_dir = './data/aptrust_work/'
   else
     config.deposit_context = 'unknown-'
     config.download_dir = '/deepbluedata-prep/aptrust_download/'
-    config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    # config.export_dir = '/deepbluedata-prep/aptrust_export/'
+    config.export_dir = '/deepbluedata-prep/aptrust_work/'
     config.working_dir = '/deepbluedata-prep/aptrust_work/'
   end
 

@@ -50,7 +50,9 @@ class Aptrust::AptrustConfig
       @aptrust_api_key           = Settings.aptrust.aptrust_api_key
       @download_dir              = ::Aptrust::AptrustIntegrationService.download_dir   # Settings.aptrust.download_dir
       @export_dir                = ::Aptrust::AptrustIntegrationService.export_dir     # Settings.aptrust.export_dir
+      @export_dir = File.absolute_path @export_dir
       @working_dir               = ::Aptrust::AptrustIntegrationService.working_dir    # Settings.aptrust.working_dir
+      @working_dir = File.absolute_path @working_dir
       @storage_option            = ::Aptrust::AptrustIntegrationService.storage_option # Settings.aptrust.storage_option
     end
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

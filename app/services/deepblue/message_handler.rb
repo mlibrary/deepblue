@@ -430,6 +430,7 @@ module Deepblue
     def puts_to_console( msg )
       return unless @to_console
       puts msg
+      STDOUT.flush
     end
 
     def queue_msg( msg )
