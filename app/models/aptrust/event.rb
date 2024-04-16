@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
+require_relative '../application_record'
+
 class Aptrust::Event < ApplicationRecord
+
+  self.table_name = "aptrust_events"
 
   mattr_accessor :aptrust_event_debug_verbose, default: false
 

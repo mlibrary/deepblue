@@ -100,6 +100,7 @@ aptrust_upload_work_job:
                                                    export_file_sets_filter_date:  export_file_sets_filter_date,
                                                    export_file_sets_filter_event: export_file_sets_filter_event,
                                                    noid:                          id,
+                                                   zip_data_dir:                  false,
                                                    msg_handler:                   msg_handler,
                                                    debug_verbose:                 debug_verbose )
       uploader.run

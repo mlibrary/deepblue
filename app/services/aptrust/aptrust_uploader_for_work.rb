@@ -11,6 +11,7 @@ class Aptrust::WorkTasks
                    cleanup_after_deposit: true,
                    cleanup_bag: true,
                    cleanup_bag_data: true,
+                   zip_data_dir: false,
                    debug_verbose: false )
 
     puts note unless note.nil?
@@ -20,7 +21,8 @@ class Aptrust::WorkTasks
                                                  cleanup_after_deposit: cleanup_after_deposit,
                                                  cleanup_bag: cleanup_bag,
                                                  cleanup_bag_data: cleanup_bag_data,
-                                                 noid: noid )
+                                                 noid: noid,
+                                                 zip_data_dir: zip_data_dir )
     uploader.run;true
   end
 
@@ -30,9 +32,9 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   mattr_accessor :aptrust_uploader_for_work_debug_verbose, default: false
 
-  mattr_accessor :deposit_context,  default: ::Aptrust::AptrustIntegrationService.deposit_context
-  mattr_accessor :local_repository, default: ::Aptrust::AptrustIntegrationService.local_repository
-  mattr_accessor :bag_description,  default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
+  mattr_accessor :the_deposit_context,     default: ::Aptrust::AptrustIntegrationService.deposit_context
+  mattr_accessor :local_repository,        default: ::Aptrust::AptrustIntegrationService.local_repository
+  mattr_accessor :bag_description,         default: ::Aptrust::AptrustIntegrationService.dbd_bag_description
   mattr_accessor :validate_file_checksums, default: ::Aptrust::AptrustIntegrationService.dbd_validate_file_checksums
 
   def self.bag_id_init()
@@ -90,6 +92,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     elsif rv.blank?
       rv = '/deepbluedata-prep/aptrust_export/'
     end
+    rv = File.absolute_path rv
     Dir.mkdir( rv ) unless Dir.exist? rv
     return rv
   end
@@ -111,6 +114,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     elsif rv.blank?
       rv = rv.blank? && '/deepbluedata-prep/aptrust_work/'
     end
+    rv = File.absolute_path rv
     Dir.mkdir( rv ) unless Dir.exist? rv
     return rv
   end
@@ -140,26 +144,53 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   export_file_sets_filter_event: nil,
                   work:                          nil,
                   msg_handler:                   nil,
+                  zip_data_dir:                  false,
                   debug_verbose:                 aptrust_uploader_for_work_debug_verbose )
 
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "aptrust_config=#{aptrust_config}",
+                             "bag_max_total_file_size=#{bag_max_total_file_size}",
+                             "cleanup_after_deposit=#{cleanup_after_deposit}",
+                             "cleanup_bag=#{cleanup_bag}",
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "clear_status=#{clear_status}",
+                             "export_file_sets=#{export_file_sets}",
+                             "export_file_sets_filter_date=#{export_file_sets_filter_date}",
+                             "export_file_sets_filter_event=#{export_file_sets_filter_event}",
+                             "work=#{work}",
+                             "zip_data_dir=#{zip_data_dir}",
+                             "" ] if msg_handler.present? && debug_verbose
     bag_id_type = ::Aptrust::AptrustUploaderForWork.dbd_bag_id_type( work: work )
+    aptrust_info = ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config )
+    export_dir = ::Aptrust::AptrustUploaderForWork.dbd_export_dir
+    working_dir = ::Aptrust::AptrustUploaderForWork.dbd_working_dir
+    bi_description = ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "object_id=#{work.id}",
+                             "bag_id_type=#{bag_id_type}",
+                             "the_deposit_context=#{the_deposit_context}",
+                             "export_dir=#{export_dir}",
+                             "working_dir=#{working_dir}",
+                             "bi_description=#{bi_description}",
+                             "" ] if msg_handler.present? && debug_verbose
     super( object_id:                     work.id,
            msg_handler:                   msg_handler,
            debug_verbose:                 debug_verbose,
-           aptrust_info:                  ::Aptrust::AptrustInfoFromWork.new( work: work, aptrust_config: aptrust_config ),
+           aptrust_info:                  aptrust_info,
            bag_id_type:                   bag_id_type,
-           bag_id_context:                deposit_context,
+           bag_id_context:                the_deposit_context,
            bag_max_total_file_size:       bag_max_total_file_size,
            cleanup_after_deposit:         cleanup_after_deposit,
            cleanup_bag:                   cleanup_bag,
            cleanup_bag_data:              cleanup_bag_data,
            clear_status:                  clear_status,
-           export_dir:                    ::Aptrust::AptrustUploaderForWork.dbd_export_dir,
+           export_dir:                    export_dir,
            export_file_sets:              export_file_sets,
            export_file_sets_filter_date:  export_file_sets_filter_date,
            export_file_sets_filter_event: export_file_sets_filter_event,
-           working_dir:                   ::Aptrust::AptrustUploaderForWork.dbd_working_dir,
-           bi_description:                ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work ) )
+           working_dir:                   working_dir,
+           bi_description:                bi_description,
+           zip_data_dir:                  zip_data_dir )
 
     @work = work
     @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }
