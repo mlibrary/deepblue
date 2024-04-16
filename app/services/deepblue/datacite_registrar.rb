@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './doi_minting_2021_service'
+
 module Deepblue
 
 
@@ -14,12 +15,26 @@ module Deepblue
 
     class_attribute :prefix, :username, :password, :publisher, :mode
 
-    attr_accessor :debug_verbose, :debug_verbose_puts
+    attr_accessor :debug_verbose
+    attr_accessor :debug_verbose_puts
+    attr_accessor :force_doi_minting
+    attr_accessor :msg_handler
 
-    def initialize(builder: Hyrax::Identifier::Builder.new(prefix: self.prefix))
+    def initialize( builder: Hyrax::Identifier::Builder.new(prefix: self.prefix) )
       super
       @debug_verbose = data_cite_registrar_debug_verbose
       @debug_verbose_puts = false
+      @force_doi_minting = false
+      @msg_handler = msg_handler
+    end
+
+    def msg_handler
+      @msg_handler ||= msg_handler_init( nil )
+    end
+
+    def msg_handler_init( msg_handler )
+      return msg_handler if msg_handler.present?
+      return ::Deepblue::MessageHandler.new( to_console: debug_verbose_puts, debug_verbose: debug_verbose )
     end
 
     ##
@@ -27,64 +42,54 @@ module Deepblue
     #
     # @return [#identifier]
     def register!(object:)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "object=#{object}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "object=#{object}",
+                             "" ] if debug_verbose
       doi = Array(object.try(:doi)).first
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "doi=#{doi}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "doi=#{doi}",
+                             "" ] if debug_verbose
 
       # Return the existing DOI or nil if nothing needs to be done
-      should_register = register?(object)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "should_register=#{should_register}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      should_register = register?( curation_concern: object )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "should_register=#{should_register}",
+                             "" ] if debug_verbose
       return Struct.new(:identifier).new(doi) unless should_register
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "doi=#{doi}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "doi=#{doi}",
+                             "" ] if debug_verbose
 
       # Create a draft DOI (if necessary)
       if ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi )
         doi = mint_draft_doi
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "doi=#{doi}",
-                                               "" ], bold_puts: debug_verbose_puts if debug_verbose
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "doi=#{doi}",
+                               "" ] if debug_verbose
       end
       # Submit metadata, register url, and ensure proper status
       submit_to_datacite(curation_concern:object, doi: doi)
       doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "doi=#{doi}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "doi=#{doi}",
+                             "" ] if debug_verbose
       # Return the doi (old or new)
       Struct.new(:identifier).new(doi)
     end
 
-    def msg_handler_init( msg_handler )
-      return msg_handler if msg_handler.present?
-      return ::Deepblue::MessageHandler.new( to_console: false, debug_verbose: debug_verbose )
-    end
-
-    def mint_doi( curation_concern:, msg_handler: nil )
+    def mint_doi( curation_concern:, force_doi_minting: false, msg_handler: nil )
       msg_handler = msg_handler_init( msg_handler )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                   "curation_concern.id=#{curation_concern.id}",
-                                   "" ] if debug_verbose
+                               "curation_concern.id=#{curation_concern.id}",
+                               "force_doi_minting=#{force_doi_minting}",
+                               "" ] if debug_verbose
       doi = curation_concern.doi
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                    "doi=#{doi}",
                                    "" ] if msg_handler.debug_verbose
 
       # Return the existing DOI or nil if nothing needs to be done
-      should_register = register?(curation_concern)
+      should_register = register?( curation_concern: curation_concern )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                    "should_register=#{should_register}",
                                    "" ] if msg_handler.debug_verbose
@@ -94,7 +99,7 @@ module Deepblue
                                    "" ] if msg_handler.debug_verbose
 
       # Create a draft DOI (if necessary)
-      if ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi )
+      if ::Deepblue::DoiBehavior.doi_needs_minting?( doi: doi, force_doi_minting: force_doi_minting )
         doi = mint_draft_doi
         doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
         curation_concern.doi = doi
@@ -102,14 +107,14 @@ module Deepblue
         curation_concern.reload
         msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                      "doi=#{doi}",
-                                     "" ], bold_puts: debug_verbose_puts if msg_handler.debug_verbose
+                                     "" ] if msg_handler.debug_verbose
       end
       # Submit metadata, register url, and ensure proper status
-      submit_to_datacite(curation_concern: curation_concern, doi: doi, put_metadata: true)
+      submit_to_datacite( curation_concern: curation_concern, doi: doi, put_metadata: true )
       doi = "doi:#{doi}" unless doi.start_with?( "doi:" )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                    "doi=#{doi}",
-                                   "doi_findable?(curation_concern.id)=#{doi_findable?( curation_concern )}",
+                                   "doi_findable?( curation_concern.id )=#{doi_findable?( curation_concern )}",
                                    "" ] if msg_handler.debug_verbose
       curation_concern.doi = doi
       curation_concern.save
@@ -120,9 +125,9 @@ module Deepblue
     end
 
     def mint_draft_doi
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
+                                             "" ] if debug_verbose
       client.create_draft_doi
     end
 
@@ -130,29 +135,27 @@ module Deepblue
 
     # Should the curation_concern be submitted for registration (or updating)?
     # @return [boolean]
-    def register?(curation_concern)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern=#{curation_concern.id}",
-                                             "doi_enabled_cc_type?(curation_concern)=#{doi_enabled_cc_type?(curation_concern)}",
-                                             "doi_minting_enabled?=#{doi_minting_enabled?}",
-                                             # "curation_concern.doi_has_status?=#{curation_concern.doi_has_status?}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+    def register?( curation_concern: )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "curation_concern=#{curation_concern.id}",
+                               "force_doi_minting=#{force_doi_minting}",
+                               "doi_enabled_cc_type?(curation_concern)=#{doi_enabled_cc_type?(curation_concern)}",
+                               "doi_minting_enabled?=#{doi_minting_enabled?}",
+                               # "curation_concern.doi_has_status?=#{curation_concern.doi_has_status?}",
+                               "" ] if debug_verbose
       #rv = doi_enabled_cc_type?(curation_concern) && doi_minting_enabled? && curation_concern.doi_has_status?
       return false unless doi_enabled_cc_type?(curation_concern) && doi_minting_enabled?
       doi_findable = doi_findable?( curation_concern )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern=#{curation_concern.id}",
-                                             "doi_findable=#{doi_findable}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "curation_concern=#{curation_concern.id}",
+                               "doi_findable=#{doi_findable}",
+                               "" ] if debug_verbose
       rv = !doi_findable
       # TODO: add more checks here to catch cases when updating is unnecessary
       # TODO: check that required metadata is present if set to registered or findable
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "rv=#{rv}",
+                               "" ] if debug_verbose
       return rv
     end
 
@@ -164,8 +167,8 @@ module Deepblue
 
     def doi_active?( curation_concern )
       debug_verbose ||= data_cite_registrar_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.doi=#{curation_concern.doi}",
                                              "" ] if debug_verbose
@@ -178,21 +181,20 @@ module Deepblue
       json_metadata['data']['attributes']['isActive']
     end
 
-    def doi_findable?(curation_concern)
+    def doi_findable?( curation_concern )
       debug_verbose ||= data_cite_registrar_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.id=#{curation_concern.id}",
-                                             "curation_concern.doi=#{curation_concern.doi}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "curation_concern.id=#{curation_concern.id}",
+                               "curation_concern.doi=#{curation_concern.doi}",
+                               "force_doi_minting=#{force_doi_minting}",
+                               "" ] if debug_verbose
       return false if curation_concern.blank?
       return false if curation_concern.doi.blank?
       return false if ::Deepblue::DoiBehavior.doi_pending?( doi: curation_concern.doi )
       url = client.get_url(curation_concern.doi, raise_error: false)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "url=#{url}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "url=#{url}",
+                               "" ] if debug_verbose
       return !url.blank?
     end
 
@@ -210,8 +212,8 @@ module Deepblue
     end
 
     def client_init
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "username=#{self.username}",
                                              #"password=#{self.password}",
                                              "prefix=#{self.prefix}",
@@ -219,7 +221,7 @@ module Deepblue
                                              "mode=#{mode}",
                                              "debug_verbose=#{debug_verbose}",
                                              "debug_verbose_puts=#{debug_verbose_puts}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       ::Deepblue::DoiMinting2021Service.new(username: self.username,
                                             password: self.password,
                                             prefix: self.prefix,
@@ -245,7 +247,7 @@ module Deepblue
         datacite_xml = cc_to_datacite_xml(curation_concern)
         client.put_metadata( doi, datacite_xml, msg_handler: msg_handler )
       end
-      doi_findable = doi_findable?(curation_concern)
+      doi_findable = doi_findable?( curation_concern )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                  "curation_concern=#{curation_concern.id}",
                                  "doi=#{doi}",
@@ -257,7 +259,7 @@ module Deepblue
       client.register_url(doi_for_register_url(doi),
                           cc_url(curation_concern)) if curation_concern.doi_is_registered? && !doi_findable
 
-      doi_findable = doi_findable?(curation_concern)
+      doi_findable = doi_findable?( curation_concern )
 
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                    "curation_concern=#{curation_concern.id}",
@@ -274,16 +276,16 @@ module Deepblue
     end
 
     def doi_for_register_url(doi)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "doi=#{doi}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       return doi unless doi.to_s.start_with? "doi:"
       rv = doi.sub( 'doi:', '' )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "rv=#{rv}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       return rv
     end
 
@@ -298,30 +300,30 @@ module Deepblue
     end
 
     def cc_to_datacite_xml(curation_concern)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       json = curation_concern.attributes.merge(has_model: curation_concern.has_model.first,
                                                publisher: self.publisher).to_json
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "curation_concern=#{curation_concern.id}",
                                              "json=",
                                              json.pretty_inspect,
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       rv = Bolognese::Metadata.new( input: json, from: 'hyrax_work' ).datacite
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "curation_concern=#{curation_concern.id}",
                                              "rv=#{rv}",
-                                             "" ], bold_puts: debug_verbose_puts if debug_verbose
+                                             "" ] if debug_verbose
       return rv
     end
 
     def doi_hide_cc( curation_concern: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler.bold_debug [ msg_handler.here,
+                                             msg_handler.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "" ] if debug_verbose
       doi_url = doi_for_register_url( curation_concern.doi )

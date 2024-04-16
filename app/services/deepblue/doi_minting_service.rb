@@ -219,6 +219,7 @@ module Deepblue
     def self.doi_mint_job( curation_concern:,
                            current_user: nil,
                            event_note: 'DoiMintingService',
+                           force_doi_minting: false,
                            job_delay: 0,
                            msg_handler: nil,
                            debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose )
@@ -233,6 +234,7 @@ module Deepblue
                                              "current_user=#{current_user}",
                                              "event_note=#{event_note}",
                                              "job_delay=#{job_delay}",
+                                             "force_doi_minting=#{force_doi_minting}",
                                              "" ] if doi_minting_service_debug_verbose
       current_user = current_user.email if current_user.respond_to? :email
       target_url = EmailHelper.curation_concern_url( curation_concern: curation_concern )
@@ -248,6 +250,7 @@ module Deepblue
       # if DoiMintingService.doi_minting_2021_service_enabled
         ::RegisterDoiJob.perform_later( id: curation_concern.id,
                                         current_user: current_user,
+                                        force_doi_minting: force_doi_minting,
                                         debug_verbose: debug_verbose,
                                         registrar: curation_concern.doi_registrar.presence,
                                         registrar_opts: curation_concern.doi_registrar_opts )
@@ -320,6 +323,7 @@ module Deepblue
 
     def self.registrar_mint_doi( curation_concern:,
                                  current_user: nil,
+                                 force_doi_minting: false,
                                  msg_handler: nil,
                                  debug_verbose: ::Deepblue::DoiMintingService.doi_minting_service_debug_verbose,
                                  datacite: nil,
@@ -334,6 +338,7 @@ module Deepblue
                                              "curation_concern&.id=#{curation_concern&.id}",
                                              "curation_concern&.doi=#{curation_concern&.doi}",
                                              "current_user=#{current_user}",
+                                             "force_doi_minting=#{force_doi_minting}",
                                              "registrar=#{registrar}",
                                              "registrar_opts=#{registrar_opts}",
                                              "" ] if debug_verbose
@@ -344,8 +349,11 @@ module Deepblue
         if datacite.blank?
           datacite = ::Deepblue::DataCiteRegistrar.new
           datacite.debug_verbose = debug_verbose
+          datacite.force_doi_minting = force_doi_minting
         end
-        datacite.mint_doi( curation_concern: curation_concern, msg_handler: msg_handler )
+        datacite.mint_doi( curation_concern: curation_concern,
+                           force_doi_minting: force_doi_minting,
+                           msg_handler: msg_handler )
       else
         registrar ||= ::Deepblue::DataCiteRegistrar
         Hyrax::Identifier::Dispatcher.for(registrar.to_sym,

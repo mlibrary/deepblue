@@ -11,6 +11,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
   # @param registrar_opts [Hash]
   def perform( id:,
                current_user: nil,
+               force_doi_minting: false,
                debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
                registrar: nil,
                registrar_opts: {} )
@@ -20,6 +21,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "current_user=#{current_user}",
+                                           "force_doi_minting=#{force_doi_minting}",
                                            "registrar=#{registrar}",
                                            "registrar_opts=#{registrar_opts}",
                                            "" ] if debug_verbose
@@ -32,6 +34,7 @@ class RegisterDoiJob < ::Deepblue::DeepblueJob
                                            "" ] if debug_verbose
     ::Deepblue::DoiMintingService.registrar_mint_doi( curation_concern: model,
                                                       current_user: current_user,
+                                                      force_doi_minting: force_doi_minting,
                                                       debug_verbose: debug_verbose,
                                                       registrar: registrar,
                                                       registrar_opts: registrar_opts,
