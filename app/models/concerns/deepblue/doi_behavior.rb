@@ -33,10 +33,11 @@ module Deepblue
       nil
     end
 
-    def self.doi_needs_minting?( doi: )
+    def self.doi_needs_minting?( doi:, force_doi_minting: false )
       return true if doi.blank?
       return true if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
       if DoiBehavior.doi_pending?( doi: doi )
+        return true if force_doi_minting
         return true if DoiBehavior.doi_pending_timeout?( doi: doi )
       end
       return false
@@ -174,6 +175,7 @@ module Deepblue
         ::Deepblue::DoiMintingService.doi_mint_job( curation_concern: self,
                                                     current_user: current_user,
                                                     event_note: event_note,
+                                                    force_doi_minting: true, # because we just set the doi pending
                                                     job_delay: job_delay,
                                                     debug_verbose: debug_verbose )
         returnMessages << MsgHelper.t( 'data_set.doi_minting_started' )
