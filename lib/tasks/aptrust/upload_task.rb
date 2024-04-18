@@ -30,6 +30,7 @@ module Aptrust
       w = WorkCache.new
       w_all.each do |work|
         w.reset.work = work
+        next unless w&.file_set_ids.present?
         next unless w.file_set_ids.size > 0
         next unless w.published?
         # putsf "Filter w.date_modified=#{w.date_modified}"
@@ -38,7 +39,7 @@ module Aptrust
         # putsf "next unless #{w.date_modified} <= #{test_date_end} = #{w.date_modified <= test_date_end}"
         next unless @test_date_begin <= w.date_modified
         next unless w.date_modified <= @test_date_end
-        next unless ::Aptrust::Status.has_status?( cc: w )
+        next if ::Aptrust::Status.has_status?( cc: w )
         @noids << w.id
       end
     end
@@ -60,8 +61,12 @@ module Aptrust
       @noid_pairs.each_with_index do |pair,index|
         size = pair[:size]
         total_size += size
-        putsf "#{index}: #{pair[:noid]} -- #{readable_sz( size )}" if verbose
-      end if verbose
+        if verbose
+          noid = pair[:noid]
+          w = WorkCache.new( noid: noid )
+          putsf "#{index}: #{noid} -- #{readable_sz( size )} -- #{w.date_modified}"
+        end
+      end
       putsf "Total upload size: #{readable_sz( total_size )}" if verbose
       putsf "test_mode?=#{test_mode?}" if verbose
       @noid_pairs.each { |pair| run_upload( noid: pair[:noid], size: pair[:size] ) } unless test_mode?

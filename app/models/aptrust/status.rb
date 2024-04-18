@@ -27,6 +27,14 @@ class Aptrust::Status < ApplicationRecord
     return status.first.event == event
   end
 
+  def self.status( cc: nil, noid: nil )
+    status = []
+    status = for_curation_concern( cc: cc ) if cc.present?
+    status = for_id( noid: noid ) if noid.present?
+    return '' if status.blank?
+    return status.first.event
+  end
+
   def type
     return "DataSet"
   end
