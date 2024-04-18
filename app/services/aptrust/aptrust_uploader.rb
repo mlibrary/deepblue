@@ -7,7 +7,7 @@ class Aptrust::TarBag
 
   attr_accessor :bag_dir
   attr_accessor :bag_id
-  attr_accessor :file_list
+  # attr_accessor :file_list
   attr_accessor :msg_handler
   attr_accessor :tar_file
   attr_accessor :tar_cmd_out
@@ -24,40 +24,38 @@ class Aptrust::TarBag
     @msg_handler = msg_handler
   end
 
-  def list_files
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "@file_list=#{@file_list}",
-                             "" ] if msg_handler.debug_verbose
-    File.open( @file_list, "w" ) do |out|
-      bag_files.each { |file| basename = File.basename file; out.puts basename }
-      bag_data_files.each { |file| basename = File.basename file; out.puts "data/#{basename}" }
-    end
-  end
-
-  def bag_files
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "" ] + files if msg_handler.debug_verbose
-    return files
-  end
-
-  def bag_data_files
-    data_dir = File.join bag_dir, 'data'
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( data_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "" ] + files if msg_handler.debug_verbose
-    return files
-  end
+  # def list_files
+  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+  #                            "@file_list=#{@file_list}",
+  #                            "" ] if msg_handler.debug_verbose
+  #   File.open( @file_list, "w" ) do |out|
+  #     bag_files.each { |file| basename = File.basename file; out.puts basename }
+  #     bag_data_files.each { |file| basename = File.basename file; out.puts "data/#{basename}" }
+  #   end
+  # end
+  #
+  # def bag_files
+  #   files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+  #                            "" ] + files if msg_handler.debug_verbose
+  #   return files
+  # end
+  #
+  # def bag_data_files
+  #   data_dir = File.join bag_dir, 'data'
+  #   files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( data_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+  #                            "" ] + files if msg_handler.debug_verbose
+  #   return files
+  # end
   
   def run
-    parent_dir = File.dirname bag_dir
-    @file_list = File.join parent_dir, "#{bag_id}.files"
-    list_files
-    run_tar_cmd
-  end
-  
-  def run_tar_cmd
-   @tar_cmd_out = `cd #{bag_dir};tar -cf #{tar_file} -T #{@file_list}`
+    # @file_list = File.join parent_dir, "#{bag_id}.files"
+    # list_files
+    operation_dir = File.dirname bag_dir
+    tar_target_file = File.basename tar_file
+    source_dir_name = File.basename bag_dir
+    @tar_cmd_out = `cd #{operation_dir};tar -cf #{tar_target_file} #{source_dir_name}`
   end
 
 end
