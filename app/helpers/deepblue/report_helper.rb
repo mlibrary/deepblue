@@ -39,6 +39,8 @@ module Deepblue
       return '/deepbluedata-prep/reports/'
     end
 
+    # date: 'now'
+    # date: 'now +/- # minute/hour/day/week/month/year'
     def self.to_datetime( date:, format: nil, msg_handler:, raise_errors: true, msg_postfix: '' )
       return nil if date.blank?
       if format.present?
@@ -52,13 +54,21 @@ module Deepblue
       case date
       when /^now$/
         return DateTime.now
-      when /^now\s+([+-])\s*([0-9]+)\s+(days?|weeks?|months?|years?)$/
+      when /^now\s+([+-])\s*([0-9]+)\s+(minutes?|hours?|days?|weeks?|months?|years?)$/
         plus_minus = Regexp.last_match 1
         number = Regexp.last_match 2
         number = number.to_i
         units = Regexp.last_match 3
         if '-' == plus_minus
           case units
+          when 'minute'
+            return DateTime.now - number.minute
+          when 'minutes'
+            return DateTime.now - number.minutes
+          when 'hour'
+            return DateTime.now - number.hour
+          when 'hours'
+            return DateTime.now - number.hours
           when 'day'
             return DateTime.now - number.day
           when 'days'

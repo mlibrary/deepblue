@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../app/tasks/deepblue/abstract_task'
+require_relative '../../../app/helpers/deepblue/report_helper'
 require_relative '../../../app/services/deepblue/message_handler'
 require_relative '../../../app/services/aptrust/aptrust'
 require_relative '../../../app/services/aptrust/aptrust_config'
@@ -55,14 +56,16 @@ module Aptrust
     def option_date_begin
       putsf "option_date_begin: @options['date_begin']=#{@options['date_begin']}" if verbose
       opt = task_options_value( key: 'date_begin', default_value: nil )
-      opt = DateTime.parse opt if opt.is_a? String
+      # opt = DateTime.parse opt if opt.is_a? String
+      opt = to_datetime( date: opt ) if opt.is_a? String
       return opt
     end
 
     def option_date_end
       putsf "option_date_end: @options['option_date_end']=#{@options['option_date_end']}" if verbose
       opt = task_options_value( key: 'date_end', default_value: nil )
-      opt = DateTime.parse opt if opt.is_a? String
+      # opt = DateTime.parse opt if opt.is_a? String
+      opt = to_datetime( date: opt ) if opt.is_a? String
       return opt
     end
 
@@ -119,6 +122,45 @@ module Aptrust
       @test_mode ||= option_value( key: 'test_mode', default_value: false )
     end
     alias :test_mode? :test_mode
+
+    def to_datetime( date:, format: nil, raise_errors: true, msg_postfix: '' )
+      ::Deepblue::ReportHelper.to_datetime( date: date,
+                                            format: format,
+                                            msg_handler: @msg_handler,
+                                            raise_errors: raise_errors,
+                                            msg_postfix: msg_postfix )
+    end
+
+    def to_integer( num:, raise_errors: true )
+      return nil if num.blank?
+      num = num.to_s
+      case num
+      when /^([0-9_]+)\s*(kb|mb|gb|tb)$/i
+        number = Regexp.last_match 1
+        number = number.to_i
+        unit = Regexp.last_match 2
+        case unit
+        when 'kb'
+          return number * 1024
+        when 'mb'
+          return number * 1024 * 1024
+        when 'gb'
+          return number * 1024 * 1024 * 1024
+        when 'tb'
+          return number * 1024 * 1024 * 1024 * 1024
+        else
+          raise RuntimeError 'Should never get here.'
+        end
+      else
+        begin
+          return num.to.i
+        rescue ArgumentError => e
+          msg_handler.msg_error "Failed parse number string '#{num}'"
+          raise e if raise_errors
+        end
+      end
+    end
+
 
   end
 

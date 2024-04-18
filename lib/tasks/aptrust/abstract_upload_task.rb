@@ -155,7 +155,8 @@ module Aptrust
     def option_max_size
       opt = task_options_value( key: 'max_size', default_value: -1 )
       opt = opt.strip if opt.is_a? String
-      opt = opt.to_i if opt.is_a? String
+      # opt = opt.to_i if opt.is_a? String
+      opt = to_integer( num: opt ) if opt.is_a? String
       putsf "max_size='#{opt}'" if verbose
       return opt
     end
