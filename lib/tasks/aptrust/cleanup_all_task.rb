@@ -15,19 +15,19 @@ module Aptrust
     end
 
     def add_noid_from_filename( file: )
-      putsf "file=#{file}"
+      msg_handler.msg_verbose "file=#{file}"
       if @test_date_begin.present?
         timestamp =  File.mtime file
-        # putsf "timestamp: #{timestamp}"
-        # putsf "@test_date_begin: #{@test_date_begin}"
-        # putsf "@test_date_end: #{@test_date_end}"
-        # putsf "@test_date_begin <= timestamp && timestamp <= @test_date_end=#{@test_date_begin <= timestamp && timestamp <= @test_date_end}"
+        # msg_handler.msg_verbose "timestamp: #{timestamp}"
+        # msg_handler.msg_verbose "@test_date_begin: #{@test_date_begin}"
+        # msg_handler.msg_verbose "@test_date_end: #{@test_date_end}"
+        # msg_handler.msg_verbose "@test_date_begin <= timestamp && timestamp <= @test_date_end=#{@test_date_begin <= timestamp && timestamp <= @test_date_end}"
         return unless @test_date_begin <= timestamp && timestamp <= @test_date_end
       end
       match = @bag_id_regexp.match File.basename file
       return unless match
       noid = match[1]
-      putsf "noid found #{noid}"
+      msg_handler.msg_verbose "noid found #{noid}"
       @cleanup_noids[noid] = true
     end
 
@@ -39,11 +39,11 @@ module Aptrust
     end
 
     def find_noids_from_file_system
-      putsf "working_dir=#{working_dir}"
+      msg_handler.msg_verbose "working_dir=#{working_dir}"
       @bag_id_for_noid = bag_id( noid: 'noid' )
       bag_id_glob = bag_id_for_noid.gsub( 'noid', '*' )
       @bag_id_regexp = bag_id_regexp( bag_id: @bag_id_for_noid )
-      putsf "bag_id_glob=#{bag_id_glob}"
+      msg_handler.msg_verbose "bag_id_glob=#{bag_id_glob}"
       files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( working_dir,
                                                             glob: bag_id_glob,
                                                             dotmatch: false,
@@ -52,15 +52,16 @@ module Aptrust
                                                             test_mode: false )
       test_dates_init if date_begin.present? || date_end.present?
       files.each { |file| add_noid_from_filename( file: file )  }
-      putsf @cleanup_noids.pretty_inspect
+      msg_handler.msg_verbose @cleanup_noids.pretty_inspect
     end
 
     def run
-      puts
-      puts "debug_verbose=#{debug_verbose}"
+      msg_handler.msg_verbose "Starting..."
+      # msg_handler.msg_verbose "debug_verbose=#{debug_verbose}"
       find_noids_from_file_system
       @cleanup_noids.each { |noid,_v| cleanup_by_noid( noid: noid ) }
-      puts "Finished."
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'Aptrust::CleanupAllTask', event: 'CleanupAllTask' )
     end
 
   end

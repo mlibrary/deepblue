@@ -7,6 +7,8 @@ namespace :aptrust do
   # bundle exec rake aptrust:reupload
   # bundle exec rake aptrust:reupload['{"verbose":true\,"test_mode":true}']
   # bundle exec rake aptrust:reupload['{"verbose":true\,"event":"deposit_failed"\,"test_mode":true}']
+  # bundle exec rake aptrust:reupload['{"verbose":true\,"event":"upload_again"\,"test_mode":true}']
+  # bundle exec rake aptrust:reupload['{"verbose":true\,"event":"upload_skipped"\,"test_mode":true}']
   # bundle exec rake aptrust:reupload['{"verbose":true\,"test_mode":true\,"max_size":"1_000_000"}']
   # bundle exec rake aptrust:reupload['{"verbose":true\,"test_mode":true\,"max_uploads":1}']
   # bundle exec rake aptrust:reupload['{"date_end":"2024/03/22 00:00:00"}']

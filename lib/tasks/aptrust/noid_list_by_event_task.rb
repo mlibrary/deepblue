@@ -26,7 +26,7 @@ module Aptrust
     def option_event
       opt = task_options_value( key: 'event', default_value: ::Aptrust::EVENT_FAILED )
       opt.strip! if opt.is_a? String
-      puts "event='#{opt}'" if verbose
+      msg_handler.msg_verbose "event='#{opt}'" if verbose
       return opt
     end
 
@@ -34,7 +34,7 @@ module Aptrust
       opt = task_options_value( key: 'max_size', default_value: -1 )
       opt.strip! if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      puts "max_size='#{opt}'" if verbose
+      msg_handler.msg_verbose "max_size='#{opt}'" if verbose
       return opt
     end
 
@@ -43,10 +43,11 @@ module Aptrust
     end
 
     def run
-      puts
+      msg_handler.msg_verbose "Starting..."
       ids = run_find_ids
       run_list( ids: ids )
-      puts "Finished."
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'Aptrust::NoidListByEventTask', event: 'NoidListByEventTask' )
     end
 
     def run_find_ids
@@ -64,16 +65,16 @@ module Aptrust
 
     def run_list( ids: )
       if ruby_list
-        puts "%w[#{ids.join(' ')}]"
+        msg_handler.msg "%w[#{ids.join(' ')}]"
       else
-        puts "ids.size=#{ids.size}"
+        msg_handler.msg "ids.size=#{ids.size}"
         return if ids.empty?
         first = ids.first
         if first.is_a? String
-          ids.each { |id| puts "#{id}"}
+          ids.each { |id| msg_handler.msg "#{id}"}
         else
           ids.each_with_index do |pair,index|
-            puts "#{index}: #{pair[:id]}: #{readable_sz(pair[:size])}"
+            msg_handler.msg "#{index}: #{pair[:id]}: #{readable_sz(pair[:size])}"
           end
         end
       end

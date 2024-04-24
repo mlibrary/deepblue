@@ -8,6 +8,26 @@ class Aptrust::Status < ApplicationRecord
 
   mattr_accessor :aptrust_status_debug_verbose, default: false
 
+  def self.csv_row( record )
+    rv = if record.blank?
+           [ '', # record.timestamp,
+             '', # record.event,
+             '', # record.event_note,
+             '', # record.noid,
+             '', # record.created_at,
+             '' ] # record.updated_at ]
+         else
+           record = Array( record ).first
+           [ record.timestamp,
+             record.event,
+             record.event_note,
+             record.noid,
+             record.created_at,
+             record.updated_at ]
+         end
+    return rv
+  end
+
   def self.for_curation_concern( cc: )
     return nil unless cc.present?
     where( noid: cc.id )
