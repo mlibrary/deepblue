@@ -102,8 +102,11 @@ module Deepblue
     attr_reader :quiet
     alias :quiet? :quiet
 
-    attr_accessor :debug_verbose, :msg_prefix, :msg_queue, :to_console
-    attr_reader :verbose
+    attr_accessor :debug_verbose
+    attr_accessor :msg_prefix
+    attr_accessor :msg_queue
+    attr_accessor :to_console
+    attr_accessor :verbose
     attr_writer :logger
     attr_accessor :line_buffer
 
@@ -214,7 +217,7 @@ module Deepblue
       else
         @line_buffer += msg
       end
-      return unless flush && @to_console && @msg_queue.nil?
+      return unless flush && @to_console
       STDOUT.print @line_buffer
       STDOUT.flush
       buffer_reset

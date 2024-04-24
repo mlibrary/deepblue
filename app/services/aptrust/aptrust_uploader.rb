@@ -7,7 +7,6 @@ class Aptrust::TarBag
 
   attr_accessor :bag_dir
   attr_accessor :bag_id
-  # attr_accessor :file_list
   attr_accessor :msg_handler
   attr_accessor :tar_file
   attr_accessor :tar_cmd_out
@@ -24,34 +23,7 @@ class Aptrust::TarBag
     @msg_handler = msg_handler
   end
 
-  # def list_files
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "@file_list=#{@file_list}",
-  #                            "" ] if msg_handler.debug_verbose
-  #   File.open( @file_list, "w" ) do |out|
-  #     bag_files.each { |file| basename = File.basename file; out.puts basename }
-  #     bag_data_files.each { |file| basename = File.basename file; out.puts "data/#{basename}" }
-  #   end
-  # end
-  #
-  # def bag_files
-  #   files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "" ] + files if msg_handler.debug_verbose
-  #   return files
-  # end
-  #
-  # def bag_data_files
-  #   data_dir = File.join bag_dir, 'data'
-  #   files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( data_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "" ] + files if msg_handler.debug_verbose
-  #   return files
-  # end
-  
   def run
-    # @file_list = File.join parent_dir, "#{bag_id}.files"
-    # list_files
     operation_dir = File.dirname bag_dir
     tar_target_file = File.basename tar_file
     source_dir_name = File.basename bag_dir
@@ -119,10 +91,12 @@ class Aptrust::AptrustUploader
     File.delete filename
   end
 
-  def self.delete_bag_dir( bag_dir:, msg_handler:, debug_verbose: )
-    if Dir.empty? bag_dir
+  def self.delete_bag_dir( bag_dir:, and_contents: false, msg_handler:, debug_verbose: )
+    if Dir.empty?( bag_dir ) || and_contents
       msg_handler.bold_debug [ "deleting #{bag_dir}", ] if debug_verbose
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir,
+                                                  recursive: true,
+                                                  msg_handler: debug_verbose ? msg_handler : ::Aptrust::NULL_MSG_HANDLER )
     else
       msg_handler.bold_debug [ "can't delete #{bag_dir}", ] if debug_verbose
     end
@@ -166,6 +140,9 @@ class Aptrust::AptrustUploader
 
   attr_accessor :debug_assume_upload_succeeds
 
+  attr_accessor :event_start
+  attr_accessor :event_stop
+  attr_accessor :event_stopped # once stopped, don't continue
   attr_accessor :export_errors
   attr_accessor :export_file_sets
   attr_accessor :export_file_sets_filter_date
@@ -179,8 +156,8 @@ class Aptrust::AptrustUploader
   attr_accessor :msg_handler
   attr_accessor :most_recent_status
   attr_accessor :object_id
+  attr_accessor :skip_event
   attr_accessor :working_dir
-
   attr_accessor :zip_data_dir
 
   attr_accessor :debug_verbose
@@ -216,6 +193,8 @@ class Aptrust::AptrustUploader
                   cleanup_bag_data:       ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:           ::Aptrust::AptrustUploader.clear_status,
 
+                  event_start:                   nil,
+                  event_stop:                    nil,
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
@@ -271,6 +250,13 @@ class Aptrust::AptrustUploader
                              "bag_id_local_repository=#{bag_id_local_repository}",
                              "bag_id_type=#{bag_id_type}",
                              "bag_max_total_file_size=#{bag_max_total_file_size}",
+                             "cleanup_after_deposit=#{cleanup_after_deposit}",
+                             "cleanup_bag=#{cleanup_bag}",
+                             "cleanup_bag_data=#{cleanup_bag_data}",
+                             "clear_status=#{clear_status}",
+                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "event_start=#{event_start}",
+                             "event_stop=#{event_stop}",
                              "export_by_closure=#{export_by_closure}",
                              "export_copy_src=#{export_copy_src}",
                              "export_src_dir=#{export_src_dir}",
@@ -305,7 +291,7 @@ class Aptrust::AptrustUploader
     @bag_id_type             = ::Aptrust.arg_init( bag_id_type, DEFAULT_TYPE )
 
     @bag_max_total_file_size = bag_max_total_file_size
-    @bag_max_total_file_size ||= ::Aptrust::AptrustIntegrationService.bag_max_total_file_size
+    @bag_max_total_file_size = ::Aptrust::AptrustIntegrationService.bag_max_total_file_size if @bag_max_total_file_size.blank?
 
     @cleanup_after_deposit        = cleanup_after_deposit
     @cleanup_bag                  = cleanup_bag
@@ -313,6 +299,9 @@ class Aptrust::AptrustUploader
     @clear_status                 = clear_status
     @debug_assume_upload_succeeds = ::Aptrust.aptrust_debug_assume_upload_succeeds
 
+    @event_start                   = event_start
+    @event_stop                    = event_stop
+    @event_stopped                 = false
     @export_errors                 = nil
     @export_file_sets              = export_file_sets
     @export_file_sets_filter_date  = export_file_sets_filter_date
@@ -347,6 +336,13 @@ class Aptrust::AptrustUploader
                              "@bag_id_local_repository=#{@bag_id_local_repository}",
                              "@bag_id_type=#{@bag_id_type}",
                              "@bag_max_total_file_size=#{@bag_max_total_file_size}",
+                             "@cleanup_after_deposit=#{@cleanup_after_deposit}",
+                             "@cleanup_bag=#{@cleanup_bag}",
+                             "@cleanup_bag_data=#{@cleanup_bag_data}",
+                             "@clear_status=#{@clear_status}",
+                             "@debug_assume_upload_succeeds=#{@debug_assume_upload_succeeds}",
+                             "@event_start=#{@event_start}",
+                             "@event_stop=#{@event_stop}",
                              "@export_by_closure=#{@export_by_closure}",
                              "@export_copy_src=#{@export_copy_src}",
                              "@export_src_dir=#{@export_src_dir}",
@@ -411,6 +407,38 @@ class Aptrust::AptrustUploader
     @aptrust_uploader_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @object_id )
   end
 
+  def bag_bag( bag:, bag_info:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_BAGGED
+      # info = bag_info
+      bag.write_bag_info( bag_info ) # Create bagit-info.txt file
+      aptrust_info_write( bag: bag )
+      bag_manifest( bag: bag )
+      msg_handler.msg_error "bag.complete? return false" unless bag.complete?
+      msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "bag.complete?=#{bag.complete?}",
+                               "bag.consistent?=#{bag.consistent?}",
+                               "" ] if debug_verbose
+      track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag.bag_dir}" )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def bag_bagging( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_BAGGING
+      track_with_sleep( status: ::Aptrust::EVENT_BAGGING, note: note )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
   def bag_data_dir( bag: )
     File.join( bag.bag_dir, "data" )
   end
@@ -436,18 +464,46 @@ class Aptrust::AptrustUploader
     return rv
   end
 
-  def bag_export_data_files( bag:, data_files: )
+  def bag_export( bag:, bag_info: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    track_with_sleep( status: ::Aptrust::EVENT_BAGGING )
+    bag.write_bag_info( bag_info ) # Create bagit-info.txt file
+    aptrust_info_write( bag: bag )
+    exporting( bag: bag )
+    exported( bag: bag )
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_BAGGED
+      break unless most_recent_status == ::Aptrust::EVENT_EXPORTED
+      bag_manifest( bag: bag )
+      msg_handler.msg_error "bag.complete? return false" unless bag.complete?
+      msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "bag.complete?=#{bag.complete?}",
+                               "bag.consistent?=#{bag.consistent?}",
+                               "" ] if debug_verbose
+      track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: id_from( bag: bag ) )
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    bag_id = id_from( bag: bag )
-    track_with_sleep( status: ::Aptrust::EVENT_EXPORTING, note: bag_id )
-    data_dir = bag.data_dir
-    data_files.each do|file|
-      next unless File.file? file
-      FileUtils.mv( file, data_dir )
-    end
-    track_with_sleep( status: ::Aptrust::EVENT_EXPORTED, note: bag_id )
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def bag_export_data_files( bag:, data_files: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      bag_id = id_from( bag: bag )
+      track_with_sleep( status: ::Aptrust::EVENT_EXPORTING, note: bag_id )
+      break if event_stop?
+      data_dir = bag.data_dir
+      data_files.each do|file|
+        next unless File.file? file
+        FileUtils.mv( file, data_dir )
+      end
+      track_with_sleep( status: ::Aptrust::EVENT_EXPORTED, note: bag_id )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def bag_id
@@ -469,8 +525,7 @@ class Aptrust::AptrustUploader
                                      type: bag_id_type,
                                      noid: object_id )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "rv=#{rv}",
-                             "" ] if debug_verbose
+                             "rv=#{rv}" ] if debug_verbose
     return rv
     # rv = bag_id_template
     # rv = rv.gsub( /\%local_repository\%/, bag_id_local_repository )
@@ -482,8 +537,7 @@ class Aptrust::AptrustUploader
 
   def bag_id_context
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "@bag_id_context=#{@bag_id_context}",
-                             "" ] if debug_verbose
+                             "@bag_id_context=#{@bag_id_context}" ] if debug_verbose
     @bag_id_context = bag_id_context_init if @bag_id_context.nil?
     @bag_id_context
   end
@@ -492,8 +546,7 @@ class Aptrust::AptrustUploader
     rv = aptrust_config.context
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "aptrust_config.context=#{aptrust_config.context}",
-                             "rv=#{rv}",
-                             "" ] if debug_verbose
+                             "rv=#{rv}" ] if debug_verbose
     return rv
   end
 
@@ -508,16 +561,6 @@ class Aptrust::AptrustUploader
 
   def bag_id_template
     return ::Aptrust::IDENTIFIER_TEMPLATE
-  end
-
-  def bag_init( bag_id: )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{bag_id}",
-                             "" ] if debug_verbose
-    bag_target_dir = File.join( File.absolute_path( working_dir ), bag_id )
-    Dir.mkdir( bag_target_dir ) unless Dir.exist? bag_target_dir
-    rv = BagIt::Bag.new( bag_target_dir )
-    return rv
   end
 
   def bag_info
@@ -546,162 +589,186 @@ class Aptrust::AptrustUploader
     "#{count} of #{max}"
   end
 
-  def bag_export( bag:, bag_info: )
-    track_with_sleep( status: ::Aptrust::EVENT_BAGGING )
-    # info = bag_info
-    bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-    aptrust_info_write( bag: bag )
-    export_data( bag: bag )
-    if most_recent_status == ::Aptrust::EVENT_EXPORTED
-      bag_manifest( bag: bag )
-      msg_handler.msg_error "bag.complete? return false" unless bag.complete?
-      msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "bag.complete?=#{bag.complete?}",
-                               "bag.consistent?=#{bag.consistent?}",
-                               "" ] if debug_verbose
-      track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: id_from( bag: bag ) )
-    end
-    # bag.write_bag_info( info ) # this causes it generate an incorrect bag checksum
-  end
-
-  def bag_export_finalize( bag:, bag_info:, note: nil )
-    track_with_sleep( status: ::Aptrust::EVENT_BAGGING, note: note )
-    # info = bag_info
-    bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-    aptrust_info_write( bag: bag )
-    bag_manifest( bag: bag )
-    msg_handler.msg_error "bag.complete? return false" unless bag.complete?
-    msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag.complete?=#{bag.complete?}",
-                             "bag.consistent?=#{bag.consistent?}",
-                             "" ] if debug_verbose
-    track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: "bag_dir: #{bag.bag_dir}" )
+  def bag_init( bag_id: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{bag_id}" ] if debug_verbose
+    bag_target_dir = File.join( File.absolute_path( working_dir ), bag_id )
+    Dir.mkdir( bag_target_dir ) unless Dir.exist? bag_target_dir
+    rv = BagIt::Bag.new( bag_target_dir )
+    return rv
   end
 
   def bag_manifest( bag: )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    # Create tagmanifest-info.txt and the data directory maniftest.txt
-    # bag.manifest!(algo: 'md5')
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "aptrust_config.bag_checksum_algorithm=#{aptrust_config.bag_checksum_algorithm}",
-                             "" ] if debug_verbose
-    bag.manifest!( algo: aptrust_config.bag_checksum_algorithm )
-
-    # need to rewrite the tag manifest files to include the aptrust-info.txt file
-    tag_files = bag.tag_files
-    new_tag_files = tag_files | additional_tag_files
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "tag_files=#{tag_files}",
-                             "additional_tag_files=#{additional_tag_files}",
-                             "new_tag_files=#{new_tag_files}",
-                             "( new_tag_files - tag_files )=#{( new_tag_files - tag_files )}",
-                             "" ] if debug_verbose
-    # rewrite tagmanifest-info.txt if necessary
-    bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
-
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "aptrust_config.bag_delete_manifest_sha1=#{aptrust_config.bag_delete_manifest_sha1}",
-                             "" ] if debug_verbose
-    manifest_file = "manifest-#{aptrust_config.bag_checksum_algorithm}.txt"
-    manifest_file = File.join( bag.bag_dir, manifest_file )
-    if 'sha1' == aptrust_config.bag_checksum_algorithm
-      # TODO: create a class to load the manifest-sha1.txt file and support querying for
-      #       checksum consistency with file sets
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      # Create tagmanifest-info.txt and the data directory maniftest.txt
+      # bag.manifest!(algo: 'md5')
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "can validate file set checksums using #{manifest_file}",
-                               "" ] if debug_verbose
-    end
-    if debug_verbose
+                               "aptrust_config.bag_checksum_algorithm=#{aptrust_config.bag_checksum_algorithm}" ] if debug_verbose
+      bag.manifest!( algo: aptrust_config.bag_checksum_algorithm )
+
+      # need to rewrite the tag manifest files to include the aptrust-info.txt file
+      tag_files = bag.tag_files
+      new_tag_files = tag_files | additional_tag_files
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "manifest_file=#{manifest_file}",
+                               "tag_files=#{tag_files}",
+                               "additional_tag_files=#{additional_tag_files}",
+                               "new_tag_files=#{new_tag_files}",
+                               "( new_tag_files - tag_files )=#{( new_tag_files - tag_files )}" ] if debug_verbose
+      # rewrite tagmanifest-info.txt if necessary
+      bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
+
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "aptrust_config.bag_delete_manifest_sha1=#{aptrust_config.bag_delete_manifest_sha1}",
                                "" ] if debug_verbose
-      if File.exist? manifest_file
-        contents = File.open( manifest_file, "r" ) { |io| io.read }
+      manifest_file = "manifest-#{aptrust_config.bag_checksum_algorithm}.txt"
+      manifest_file = File.join( bag.bag_dir, manifest_file )
+      if 'sha1' == aptrust_config.bag_checksum_algorithm
+        # TODO: create a class to load the manifest-sha1.txt file and support querying for
+        #       checksum consistency with file sets
         msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                 "manifest_file contents:",
-                                 "#{contents}",
-                                 "" ] if debug_verbose
+                                 "can validate file set checksums using #{manifest_file}" ] if debug_verbose
       end
-    end
-    if aptrust_config.bag_delete_manifest_sha1
-      # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
-      # "Bag contains illegal tag manifest 'sha1'""
-      # APTrust only wants SHA256, or MD5, not SHA1.
-      # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
-      sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
       if debug_verbose
-        if File.exist?(sha1tag)
-          contents = File.open( sha1tag, "r" ) { |io| io.read }
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "manifest_file=#{manifest_file}" ] if debug_verbose
+        if File.exist? manifest_file
+          contents = File.open( manifest_file, "r" ) { |io| io.read }
           msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                   "sha1tag contents:",
-                                   "#{contents}",
-                                   "" ] if debug_verbose
+                                   "manifest_file contents:",
+                                   "#{contents}" ] if debug_verbose
         end
       end
-      File.delete(sha1tag) if File.exist?(sha1tag)
-    end
-  end
-
-  def bag_multiple_bags( bag:, files_exported: )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    base_bag_id = id_from( bag: bag )
-    partitioned = []
-    files_exported.sort_by_size
-    msg_handler.bold_debug files_exported.files if debug_verbose
-    begin
-      partition = files_exported.list_files_up_to( max_total: bag_max_total_file_size )
-      files_exported.delete_files( files: partition )
-      partitioned << partition
-    end until files_exported.empty?
-    bag_max = partitioned.size
-    lines = ["Multiple bag file distribution:"]
-    partitioned.each_with_index do |partition,index|
-      bag_num = index + 1
-      part_bag_id = "#{base_bag_id}_#{bag_num}"
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "bag_num=#{bag_num}",
-                               "part_bag_id=#{part_bag_id}",
-                               "" ] if debug_verbose
-      msg_handler.bold_debug partition if debug_verbose
-      partition.each do |f|
-        lines << "#{part_bag_id}: #{File.basename f}"
+      if aptrust_config.bag_delete_manifest_sha1
+        # HELIO-4380 demo.aptrust.org doesn't like this file for some reason, gives an ingest error:
+        # "Bag contains illegal tag manifest 'sha1'""
+        # APTrust only wants SHA256, or MD5, not SHA1.
+        # 'tagmanifest-sha1.txt' is a bagit gem default, so we need to remove it manually.
+        sha1tag = File.join( bag.bag_dir, 'tagmanifest-sha1.txt' )
+        if debug_verbose
+          if File.exist?(sha1tag)
+            contents = File.open( sha1tag, "r" ) { |io| io.read }
+            msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                     "sha1tag contents:",
+                                     "#{contents}" ] if debug_verbose
+          end
+        end
+        File.delete(sha1tag) if File.exist?(sha1tag)
       end
-    end
-    export_log_lines( bag, lines )
-    partitioned.each_with_index do |partition,index|
-      bag_num = index + 1
-      part_bag_id = "#{base_bag_id}_#{bag_num}"
-      part_bag = bag_init( bag_id: part_bag_id )
-      part_bag_info = bag_info_for_multiple_bags( bag_group_identifier: base_bag_id,
-                                                  bag_num: bag_num,
-                                                  bag_max: bag_max )
-      bag_export_data_files( bag: part_bag, data_files: partition )
-      bag_export_finalize( bag: part_bag, bag_info: part_bag_info, note: part_bag_id )
-      bag_tar_and_upload( bag: part_bag, note: part_bag_id )
-    end
-  end
-
-  def bag_single_bag( bag: )
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    bag_export_finalize( bag: bag, bag_info: bag_info )
-    bag_tar_and_upload( bag: bag ) if most_recent_status == ::Aptrust::EVENT_BAGGED
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
-  def bag_tar( bag:, note: nil )
+  def bag_pack( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_PACKED
+      if use_external_tar_cmd
+        tar = Aptrust::TarBag.new( bag_dir: bag.bag_dir,
+                                   bag_id: bag_id,
+                                   tar_file: tar_file( bag: bag ),
+                                   msg_handler: msg_handler )
+        tar.run
+      else
+        parent = File.dirname bag.bag_dir
+        Dir.chdir( parent ) do
+          tar_src = File.basename bag.bag_dir
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
+          Minitar.pack( tar_src, File.open( tar_filename( bag: bag ), 'wb') )
+        end
+      end
+      export_tar_file = File.join( export_dir, File.basename( tar_file( bag: bag ) ) )
+      bag_tar_mv( bag: bag, export_tar_file: export_tar_file, note: note )
+      track_with_sleep( status: ::Aptrust::EVENT_PACKED, note: note )
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    tar_bag( bag: bag, note: note )
-    export_tar_file = File.join( export_dir, File.basename( tar_file( bag: bag ) ) )
-    bag_tar_mv( bag: bag, export_tar_file: export_tar_file, note: note )
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def bag_pack_and_upload( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}"  ] if debug_verbose
+    files_exported = ::Aptrust::AptrustFileList.from_dir( dir: bag.data_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "files_exported=#{files_exported}",
+                             "files_exported.total_file_size=#{files_exported.total_file_size}",
+                             "bag_max_total_file_size=#{bag_max_total_file_size}" ] if debug_verbose
+    total_file_size = files_exported.total_file_size
+    if total_file_size < bag_max_total_file_size
+      bag_bagging( bag: bag )
+      bag_bag( bag: bag, bag_info: bag_info )
+      bag_packing( bag: bag, note: note )
+      bag_pack( bag: bag )
+      bag_uploading( bag: bag )
+      bag_upload( bag: bag )
+    else
+      bag_pack_and_upload_multiple_bags( bag: bag, files_exported: files_exported )
+    end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def bag_pack_and_upload_multiple_bags( bag:, files_exported: )
+    # TODO: add support for event_start and event_stop
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      base_bag_id = id_from( bag: bag )
+      partitioned = []
+      files_exported.sort_by_size
+      msg_handler.bold_debug files_exported.files if debug_verbose
+      begin
+        partition = files_exported.list_files_up_to( max_total: bag_max_total_file_size )
+        files_exported.delete_files( files: partition )
+        partitioned << partition
+      end until files_exported.empty?
+      bag_max = partitioned.size
+      lines = ["Multiple bag file distribution:"]
+      partitioned.each_with_index do |partition,index|
+        bag_num = index + 1
+        part_bag_id = "#{base_bag_id}_#{bag_num}"
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "bag_num=#{bag_num}",
+                                 "part_bag_id=#{part_bag_id}" ] if debug_verbose
+        msg_handler.bold_debug partition if debug_verbose
+        partition.each do |f|
+          lines << "#{part_bag_id}: #{File.basename f}"
+        end
+      end
+      export_log_lines( bag, lines )
+      partitioned.each_with_index do |partition,index|
+        bag_num = index + 1
+        part_bag_id = "#{base_bag_id}_#{bag_num}"
+        part_bag = bag_init( bag_id: part_bag_id )
+        part_bag_info = bag_info_for_multiple_bags( bag_group_identifier: base_bag_id,
+                                                    bag_num: bag_num,
+                                                    bag_max: bag_max )
+        bag_export_data_files( bag: part_bag, data_files: partition )
+        bag_bagging( bag: bag, note: part_bag_id )
+        bag_bag( bag: part_bag, bag_info: part_bag_info, note: part_bag_id )
+        bag_packing( bag: bag, note: note )
+        bag_pack( bag: bag, note: part_bag_id )
+        bag_uploading( bag: bag, note: part_bag_id )
+        bag_upload( bag: bag, note: part_bag_id )
+      end
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def bag_packing( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_PACKING
+      track_with_sleep( status: ::Aptrust::EVENT_PACKING, note: note )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def bag_tar_mv( bag:, export_tar_file:, note: nil )
@@ -710,93 +777,92 @@ class Aptrust::AptrustUploader
     FileUtils.mv( tar_file, export_tar_file )
   end
 
-  def bag_tar_and_upload( bag:, note: nil )
+  def bag_upload( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "bag_id=#{id_from( bag: bag )}",
+                               "allow_deposit?=#{allow_deposit?}" ] if debug_verbose
+      if !allow_deposit?
+        track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
+        break
+      end
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "bag_id=#{id_from( bag: bag )}",
+                               "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}" ] if debug_verbose
+      if debug_assume_upload_succeeds
+        track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
+        break
+      end
+      begin
+        # TODO: add timing
+        config = aptrust_config
+        Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id,
+                                                              config.aws_secret_access_key ) )
+        s3 = Aws::S3::Resource.new( region: config.bucket_region )
+        bucket = s3.bucket( config.bucket )
+        aws_object = bucket.object( tar_filename( bag: bag ) )
+        filename = File.join( export_dir, tar_filename( bag: bag ) )
+        # https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Object.html#upload_file-instance_method
+        aws_object.upload_file( filename )
+        track_with_sleep( status: ::Aptrust::EVENT_UPLOADED, note: note )
+      rescue Aws::S3::MultipartUploadError => e
+        track_with_sleep( status: ::Aptrust::EVENT_FAILED, error: true, note: "failed in #{e.context} with error #{e}" )
+        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
+                                 "failed in #{e.context} with error #{e}",
+                                 "" ]
+        # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
+      rescue Aws::S3::Errors::ServiceError => e
+        track_with_sleep( status: ::Aptrust::EVENT_FAILED, error: true, note: "failed in #{e.context} with error #{e}" )
+        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
+                                 "failed in #{e.context} with error #{e}" ]
+      end
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    bag_tar( bag: bag, note: note )
-    bag_uploaded_succeeded = bag_upload( bag: bag, note: note )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}",
-                             "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
-                             "most_recent_status=#{most_recent_status}",
-                             "" ] if debug_verbose
-    return bag_uploaded_succeeded
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
-  def bag_upload( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}",
-                             "" ] if debug_verbose
-    if !allow_deposit?
-      track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'allow_deposit? returned false' )
-      return false, ::Aptrust::EVENT_UPLOAD_SKIPPED
-    end
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}",
-                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
-                             "" ] if debug_verbose
-    if debug_assume_upload_succeeds
-      track_with_sleep( status: ::Aptrust::EVENT_UPLOAD_SKIPPED, note: 'debug_assume_upload_succeeds is true' )
-      return true, ::Aptrust::EVENT_UPLOAD_SKIPPED
-    end
-    begin
-      # TODO: add timing
-      config = aptrust_config
-      Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id,
-                                                            config.aws_secret_access_key ) )
-      s3 = Aws::S3::Resource.new( region: config.bucket_region )
-      bucket = s3.bucket( config.bucket )
-      # filename = tar_filename( bag: bag )
-      # aws_object = bucket.object( File.basename(filename) )
-      aws_object = bucket.object( tar_filename( bag: bag ) )
+  def bag_uploading( bag:, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_UPLOADING
       track_with_sleep( status: ::Aptrust::EVENT_UPLOADING, note: note )
-      filename = File.join( export_dir, tar_filename( bag: bag ) )
-      # https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Object.html#upload_file-instance_method
-      aws_object.upload_file( filename )
-      track_with_sleep( status: ::Aptrust::EVENT_UPLOADED, note: note )
-      return true, ::Aptrust::EVENT_UPLOADED
-    rescue Aws::S3::MultipartUploadError => e
-      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                               "failed in #{e.context} with error #{e}",
-                               "" ]
-      # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
-      return false, ::Aptrust::EVENT_FAILED
-    rescue Aws::S3::Errors::ServiceError => e
-      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
-      msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                               "failed in #{e.context} with error #{e}",
-                               "" ]
-      return false, ::Aptrust::EVENT_FAILED
-    end
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def cleanup_error( e )
     begin
       msg_handler.bold_error ["Aptrust::AptrustService cleanup -- #{object_id} -- error #{e}"] + e.backtrace[0..30]
       ::Aptrust::Status.update_note( noid: object_id, note: 'cleanup error' )
-      # track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
+      # track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, error: true, note: "failed in #{e.backtrace[0]} with error #{e}" )
     rescue StandardError => e2
       msg_handler.bold_error ["Aptrust::AptrustService cleanup -- #{object_id} -- error #{e2}"] + e2.backtrace[0..30]
     end
   end
 
   def cleanup_upload( bag: )
-    begin
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_stop?
       cleanup_tar_file( bag: bag, cleanup_flag: cleanup_after_deposit )
       cleanup_bag_after( bag: bag )
     rescue StandardError => e
       cleanup_error( e )
-    end
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def cleanup_bag_after( bag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "cleanup_after_deposit=#{cleanup_after_deposit}",
                              "cleanup_bag=#{cleanup_bag}",
-                             "cleanup_bag_data=#{cleanup_bag_data}",
-                             "" ] if debug_verbose
+                             "cleanup_bag_data=#{cleanup_bag_data}" ] if debug_verbose
     return unless cleanup_after_deposit
     delete_bag_data( bag: bag ) if cleanup_bag_data
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
@@ -805,8 +871,7 @@ class Aptrust::AptrustUploader
 
   def cleanup_bag_data_files( bag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "cleanup_bag_data=#{cleanup_bag_data}",
-                             "" ] if debug_verbose
+                             "cleanup_bag_data=#{cleanup_bag_data}" ] if debug_verbose
     return [] unless cleanup_bag_data
     files = bag_data_files( bag: bag )
     return files
@@ -814,13 +879,11 @@ class Aptrust::AptrustUploader
 
   def cleanup_tar_file( bag:, cleanup_flag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "cleanup_flag=#{cleanup_flag}",
-                             "" ] if debug_verbose
+                             "cleanup_flag=#{cleanup_flag}" ] if debug_verbose
     return unless cleanup_flag
     filename = File.join( export_dir, tar_filename( bag: bag ) )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "delete filename=#{filename}",
-                             "" ] if debug_verbose
+                             "delete filename=#{filename}" ] if debug_verbose
     return unless File.exist? filename
     File.delete filename
   end
@@ -829,7 +892,7 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "delete_dir=#{delete_dir}", "" ] if debug_verbose
     delete_files_in( dir: bag.bag_dir )
     return unless delete_dir
-    delete_dir( dir: bag.bag_dir )
+    delete_dir( dir: bag.bag_dir, and_contents: true )
   end
 
   def delete_bag_data( bag: )
@@ -840,8 +903,7 @@ class Aptrust::AptrustUploader
     return unless Dir.exist? bag.bag_dir
     files = cleanup_bag_data_files( bag: bag )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "cleanup_bag_data_files files.size=#{files.size}",
-                             "" ] if debug_verbose
+                             "cleanup_bag_data_files files.size=#{files.size}" ] if debug_verbose
     delete_files( bag: bag, files: files )
     delete_dir( dir: bag.data_dir )
   end
@@ -849,20 +911,25 @@ class Aptrust::AptrustUploader
   def delete_bag_data_before( bag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag.bag_dir=#{bag.bag_dir}",
-                             "Dir.exist? bag.bag_dir=#{Dir.exist? bag.bag_dir}",
-                             "" ] if debug_verbose
+                             "Dir.exist? bag.bag_dir=#{Dir.exist? bag.bag_dir}" ] if debug_verbose
     return unless Dir.exist? bag.bag_dir
     files = bag_data_files( bag: bag )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "cleanup_bag_data_files files.size=#{files.size}",
-                             "" ] if debug_verbose
+                             "cleanup_bag_data_files files.size=#{files.size}" ] if debug_verbose
     delete_files( bag: bag, files: files )
   end
 
-  def delete_dir( dir: )
-    if Dir.empty? dir
+  def delete_dir( dir:, and_contents: false )
+    dir_empty = Dir.empty? dir
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "dir=#{dir}",
+                             "and_contents=#{and_contents}",
+                             "Dir.empty? #{dir}=#{dir_empty}" ] if debug_verbose
+    if dir_empty || and_contents
       msg_handler.bold_debug [ "deleting #{dir}", ] if debug_verbose
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir,
+                                                  recursive: true,
+                                                  msg_handler: debug_verbose ? msg_handler : ::Aptrust::NULL_MSG_HANDLER )
     else
       msg_handler.bold_debug [ "can't delete #{dir}", ] if debug_verbose
     end
@@ -890,114 +957,149 @@ class Aptrust::AptrustUploader
   end
 
   def deposit
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{bag_id}",
-                             "" ] if debug_verbose
-    bag = bag_init( bag_id: bag_id )
-    # return if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
     begin
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "bag_id=#{id_from( bag: bag )}",
-                               "clear_status=#{clear_status}",
-                               "" ] if debug_verbose
-      aptrust_upload_status.clear_statuses if clear_status
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
-      export_data( bag: bag )
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "most_recent_status=#{most_recent_status}",
-                               "" ] if debug_verbose
-      if most_recent_status == ::Aptrust::EVENT_EXPORTED
-        files_exported = ::Aptrust::AptrustFileList.from_dir( dir: bag.data_dir )
-        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                 "files_exported=#{files_exported}",
-                                 "files_exported.total_file_size=#{files_exported.total_file_size}",
-                                 "bag_max_total_file_size=#{bag_max_total_file_size}",
-                                 "" ] if debug_verbose
-        total_file_size = files_exported.total_file_size
-        if total_file_size < bag_max_total_file_size
-          bag_single_bag( bag: bag )
-        else
-          bag_multiple_bags( bag: bag, files_exported: files_exported )
-        end
-      end
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
+      bag = bag_init( bag_id: bag_id )
+      depositing( bag: bag )
+      exporting( bag: bag )
+      exported( bag: bag )
+      bag_pack_and_upload( bag: bag )
+      deposited( bag: bag )
+      cleanup_upload( bag: bag )
     rescue StandardError => e
       msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30]
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, error: true, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
-    cleanup_upload( bag: bag )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
-  def deposit_single_bag
-    bag_uploaded_succeeded = false
-    bag = bag_init( bag_id: bag_id )
-    begin
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "bag_id=#{id_from( bag: bag )}",
-                               "clear_status=#{clear_status}",
-                               "" ] if debug_verbose
-      aptrust_upload_status.clear_statuses if clear_status
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
-      bag_export( bag: bag, bag_info: bag_info )
-      if most_recent_status == ::Aptrust::EVENT_BAGGED
-        bag_tar( bag: bag )
-        bag_uploaded_succeeded = bag_upload( bag: bag )
-        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                 "bag_uploaded_succeeded=#{bag_uploaded_succeeded}",
-                                 "most_recent_status=#{most_recent_status}",
-                                 "" ] if debug_verbose
-      end
-    rescue StandardError => e
-      msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30] if debug_verbose
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
-    end
-    return unless bag_uploaded_succeeded
-    begin
+  def deposited( bag: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_stop?
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "@most_recent_status=#{@most_recent_status}"  ] if debug_verbose
       track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
-      cleanup_upload( bag: bag )
-    end
-  end
-
-  def export_data( bag: )
+    end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                              "" ] if debug_verbose
-    track_with_sleep( status: ::Aptrust::EVENT_EXPORTING )
-    status_note = nil
-    data_dir = bag.data_dir
-    data_dir = File.absolute_path data_dir
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def depositing( bag: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
     begin # until true for break
-      unless export_by_closure.nil?
-        export_data_by_closure( data_dir )
-        status = ::Aptrust::EVENT_EXPORTED
-        break
-      end
-      if export_copy_src
-        export_data_by_copy( data_dir )
-        status = ::Aptrust::EVENT_EXPORTED
-        break
-      end
-      if export_move_src
-        export_data_by_move( data_dir )
-        status = ::Aptrust::EVENT_EXPORTED
-        break
-      end
-      status = ::Aptrust::EVENT_EXPORT_FAILED
-      status_note = 'no export method defined'
-    end until true
-    export_data_resolve_errors
-    track_with_sleep( status: status, note: status_note )
-    zip_data( bag: bag )
+      break if event_skip? ::Aptrust::EVENT_DEPOSITING
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
+      aptrust_upload_status.clear_statuses if clear_status
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
+  def event_skip?( event_to_skip )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "event_to_skip=#{event_to_skip}",
+                             "@most_recent_status=#{@most_recent_status}",
+                             "@event_stopped=#{@event_stopped}" ] if debug_verbose
+    begin # until true for break
+      rv = true
+      break if @event_stopped
+      rv = false
+      break if skip_events.empty?
+      rv = skip_events[event_to_skip]
+      break if rv.nil?
+      break unless rv
+      @most_recent_status = event_to_skip
+      rv = true
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "rv=#{rv} for event_to_skip #{event_to_skip}" ] if debug_verbose
+    return rv
+  end
+
+  def event_stop?( event_to_stop = @most_recent_status )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "event_to_stop=#{event_to_stop}",
+                             "@event_stop=#{@event_stop}",
+                             "@event_stopped=#{@event_stopped}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+    begin # until true for break
+      rv = true
+      break if @event_stopped
+      rv = false
+      break unless event_to_stop.present?
+      break unless @event_stop.present?
+      rv = event_to_stop == @event_stop
+      @event_stopped = true if rv
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, "rv=#{rv} for event_to_stop #{event_to_stop}" ] if debug_verbose
+    return rv
+  end
+
+  def exported( bag: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_EXPORTED
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
+      status_note = nil
+      data_dir = bag.data_dir
+      data_dir = File.absolute_path data_dir
+      begin # until true for break
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "export_by_closure.nil?=#{export_by_closure.nil?}" ] if debug_verbose
+        unless export_by_closure.nil?
+          export_data_by_closure( data_dir )
+          status = ::Aptrust::EVENT_EXPORTED
+          zip_data( bag: bag )
+          export_data_resolve_errors
+          break
+        end
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "export_copy_src=#{export_copy_src}" ] if debug_verbose
+        if export_copy_src
+          export_data_by_copy( data_dir )
+          status = ::Aptrust::EVENT_EXPORTED
+          zip_data( bag: bag )
+          export_data_resolve_errors
+          break
+        end
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "export_move_src=#{export_move_src}" ] if debug_verbose
+        if export_move_src
+          export_data_by_move( data_dir )
+          status = ::Aptrust::EVENT_EXPORTED
+          zip_data( bag: bag )
+          export_data_resolve_errors
+          break
+        end
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                 "export failed, no export method defined" ] if debug_verbose
+        status = ::Aptrust::EVENT_EXPORT_FAILED
+        status_note = 'no export method defined'
+      end until true
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "status=#{status}" ] if debug_verbose
+      track_with_sleep( status: status,
+                        error: status == ::Aptrust::EVENT_EXPORT_FAILED,
+                        note: status_note )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def export_data_by_closure( data_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
     return if export_by_closure.nil?
     # @export_by_closure = ->(data_dir) { export_data_work( target_dir: data_dir ) }
     # @export_by_closure = ->(data_dir) { for each file in src_directory copy it to data_dir }
     export_by_closure.call( data_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
   end
 
   def export_data_by_copy( data_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
     return if export_src_dir.nil?
     return unless File.directory? export_src_dir
     # Note: this is a flat copy, i.e. it only copies files that are direct children of export_src_dir
@@ -1006,9 +1108,11 @@ class Aptrust::AptrustUploader
       next unless File.file? file
       FileUtils.cp( file, data_dir, preserve: true )
     end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
   end
 
   def export_data_by_move( data_dir )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
     return if export_src_dir.nil?
     return unless File.directory? export_src_dir
     # Note: this is a flat move, i.e. it only moves files that are direct children of export_src_dir
@@ -1017,6 +1121,7 @@ class Aptrust::AptrustUploader
       next unless File.file? file
       FileUtils.mv( file, data_dir )
     end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
   end
 
   def export_data_resolve_error( error )
@@ -1026,7 +1131,7 @@ class Aptrust::AptrustUploader
                              "error=#{error.pretty_inspect}",
                              "" ] if debug_verbose
     note = "#{error&.message}"
-    track_with_sleep( status: ::Aptrust::EVENT_ERROR, note: note )
+    track_with_sleep( status: ::Aptrust::EVENT_ERROR, error: false, note: note )
   end
 
   def export_data_resolve_errors
@@ -1047,26 +1152,145 @@ class Aptrust::AptrustUploader
     end
   end
 
+  def exporting( bag: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? ::Aptrust::EVENT_EXPORTING
+      track_with_sleep( status: ::Aptrust::EVENT_EXPORTING )
+    end until true # for break
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+  end
+
   def id_from( bag: )
     File.basename bag.bag_dir
   end
 
-  def tar_bag( bag:, note: nil )
-    if use_external_tar_cmd
-      tar = Aptrust::TarBag.new( bag_dir: bag.bag_dir,
-                                 bag_id: bag_id,
-                                 tar_file: tar_file( bag: bag ),
-                                 msg_handler: msg_handler )
-      tar.run
+  def skip_events
+    @skip_events ||= skip_events_init
+  end
+
+  def skip_events_init
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "event_start=#{event_start}" ] if debug_verbose
+    case event_start
+    when ::Aptrust::EVENT_DEPOSITING
+      rv =     { ::Aptrust::EVENT_DEPOSITING => false,
+                 ::Aptrust::EVENT_EXPORTING => false,
+                 ::Aptrust::EVENT_EXPORTED => false,
+                 ::Aptrust::EVENT_BAGGING => false,
+                 ::Aptrust::EVENT_BAGGED => false,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_EXPORTING
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => false,
+                 ::Aptrust::EVENT_EXPORTED => false,
+                 ::Aptrust::EVENT_BAGGING => false,
+                 ::Aptrust::EVENT_BAGGED => false,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_EXPORTED
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => false,
+                 ::Aptrust::EVENT_BAGGING => false,
+                 ::Aptrust::EVENT_BAGGED => false,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_BAGGING
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => false,
+                 ::Aptrust::EVENT_BAGGED => false,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_BAGGED
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => false,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_PACKING
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => true,
+                 ::Aptrust::EVENT_PACKING => false,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_PACKED
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => true,
+                 ::Aptrust::EVENT_PACKING => true,
+                 ::Aptrust::EVENT_PACKED => false,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_UPLOADING
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => true,
+                 ::Aptrust::EVENT_PACKING => true,
+                 ::Aptrust::EVENT_PACKED => true,
+                 ::Aptrust::EVENT_UPLOADING => false,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_UPLOADED
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => true,
+                 ::Aptrust::EVENT_PACKING => true,
+                 ::Aptrust::EVENT_PACKED => true,
+                 ::Aptrust::EVENT_UPLOADING => true,
+                 ::Aptrust::EVENT_UPLOADED => false,
+                 ::Aptrust::EVENT_DEPOSITED => false }
+    when ::Aptrust::EVENT_DEPOSITED
+      rv =     { ::Aptrust::EVENT_DEPOSITING => true,
+                 ::Aptrust::EVENT_EXPORTING => true,
+                 ::Aptrust::EVENT_EXPORTED => true,
+                 ::Aptrust::EVENT_BAGGING => true,
+                 ::Aptrust::EVENT_BAGGED => true,
+                 ::Aptrust::EVENT_PACKING => true,
+                 ::Aptrust::EVENT_PACKED => true,
+                 ::Aptrust::EVENT_UPLOADING => true,
+                 ::Aptrust::EVENT_UPLOADED => true,
+                 ::Aptrust::EVENT_DEPOSITED => false }
     else
-      parent = File.dirname bag.bag_dir
-      Dir.chdir( parent ) do
-        tar_src = File.basename bag.bag_dir
-        track_with_sleep( status: ::Aptrust::EVENT_PACKING, note: note )
-        Minitar.pack( tar_src, File.open( tar_filename( bag: bag ), 'wb') )
-        track_with_sleep( status: ::Aptrust::EVENT_PACKED, note: note )
-      end
+      rv = {}
     end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "skip_events rv=#{rv.pretty_inspect}" ] if debug_verbose
+    return rv
   end
 
   def tar_file( bag: )
@@ -1083,31 +1307,53 @@ class Aptrust::AptrustUploader
     bag.bag_dir
   end
 
-  def track( status:, note: nil )
+  def track( status:, error: false, note: nil )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "status=#{status}",
                              "note=#{note}",
-                             "" ] if debug_verbose
-    status_str = "#{status}"
-    status_str += " -- #{note}" if note.present?
-    msg_handler.msg_verbose "#{@object_id}: #{status_str}"
-    aptrust_upload_status.track( status: status, note: note )
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? status
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
+      status_str = "#{status}"
+      status_str += " -- #{note}" if note.present?
+      msg_handler.msg_verbose "#{@object_id}: #{status_str}"
+      aptrust_upload_status.track( status: status, note: note )
+    end until true # for break
     @most_recent_status = status
+    if error
+      @event_stopped = true # due to error
+    else
+      event_stop? status
+    end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
-  def track_with_sleep( status:, note: nil, sleep_secs: event_sleep_secs )
+  def track_with_sleep( status:, note: nil, error: false, sleep_secs: event_sleep_secs )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "status=#{status}",
                              "note=#{note}",
                              # "sleep_secs=#{sleep_secs}",
-                             "" ] if debug_verbose
-    sleep_secs = event_sleep_secs if sleep_secs.blank?
-    sleep( sleep_secs )
-    status_str = "#{status}"
-    status_str += " -- #{note}" if note.present?
-    msg_handler.msg_verbose "#{@object_id}: #{status_str}"
-    aptrust_upload_status.track( status: status, note: note )
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
+    begin # until true for break
+      break if event_skip? status
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
+      sleep_secs = event_sleep_secs if sleep_secs.blank?
+      sleep( sleep_secs )
+      status_str = "#{status}"
+      status_str += " -- #{note}" if note.present?
+      msg_handler.msg_verbose "#{@object_id}: #{status_str}"
+      aptrust_upload_status.track( status: status, note: note )
+    end until true # for break
     @most_recent_status = status
+    if error
+      @event_stopped = true # due to error
+    else
+      event_stop? status
+    end
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
   def debug_dump_aptrust_integration_service
@@ -1153,6 +1399,7 @@ class Aptrust::AptrustUploader
   end
 
   # TODO: review this for references to static methods
+  # NOTE: this does not support event_start / event_stop
   def upload_legacy( filename:, id: 'uknown' )
     @id ||= object_id
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -1161,6 +1408,7 @@ class Aptrust::AptrustUploader
                              "" ], bold_puts: false if debug_verbose
     success = false
     track_with_sleep( status: ::Aptrust::EVENT_DEPOSITING )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
     begin
       # add timing
       config = aptrust_config
@@ -1168,8 +1416,7 @@ class Aptrust::AptrustUploader
                                "config.bucket=#{config.bucket}",
                                "config.bucket_region=#{config.bucket_region}",
                                "config.aws_access_key_id=#{config.aws_access_key_id}",
-                               "config.aws_secret_access_key=#{config.aws_secret_access_key}",
-                               "" ] if debug_verbose
+                               "config.aws_secret_access_key=#{config.aws_secret_access_key}" ] if debug_verbose
       msg_handler.bold_debug [ msg_handler.here ]
       Aws.config.update( credentials: Aws::Credentials.new( config.aws_access_key_id, config.aws_secret_access_key ) )
       msg_handler.bold_debug [ msg_handler.here ]
@@ -1187,7 +1434,7 @@ class Aptrust::AptrustUploader
       track_with_sleep( status: ::Aptrust::EVENT_UPLOADED )
       track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED )
     rescue Aws::S3::Errors::ServiceError => e
-      track_with_sleep( status: ::Aptrust::EVENT_FAILED, note: "failed in #{e.context} with error #{e}" )
+      track_with_sleep( status: ::Aptrust::EVENT_FAILED, error: true, note: "failed in #{e.context} with error #{e}" )
       msg_handler.bold_error ["Upload of file #{filename} failed in #{e.context} with error #{e}"] + e.backtrace[0..20]
       Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       success = false

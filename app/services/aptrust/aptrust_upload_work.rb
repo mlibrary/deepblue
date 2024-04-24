@@ -13,6 +13,8 @@ class Aptrust::AptrustUploadWork
   attr_accessor :clear_status
   attr_accessor :debug_assume_upload_succeeds
   attr_accessor :debug_verbose
+  attr_accessor :event_start
+  attr_accessor :event_stop
   attr_accessor :export_file_sets
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
@@ -31,6 +33,8 @@ class Aptrust::AptrustUploadWork
                   cleanup_bag_data:              ::Aptrust::AptrustUploader.cleanup_bag_data,
                   clear_status:                  ::Aptrust::AptrustUploader.clear_status,
                   debug_assume_upload_succeeds:  false,
+                  event_start:                   nil,
+                  event_stop:                    nil,
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
@@ -66,6 +70,8 @@ class Aptrust::AptrustUploadWork
     @clear_status                  = clear_status
     @debug_assume_upload_succeeds  = debug_assume_upload_succeeds
 
+    @event_start                   = event_start
+    @event_stop                    = event_stop
     @export_file_sets              = export_file_sets
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
@@ -99,6 +105,8 @@ class Aptrust::AptrustUploadWork
                                                       cleanup_bag:                   cleanup_bag,
                                                       cleanup_bag_data:              cleanup_bag_data,
                                                       clear_status:                  clear_status,
+                                                      event_start:                   event_start,
+                                                      event_stop:                    event_stop,
                                                       export_file_sets:              export_file_sets,
                                                       export_file_sets_filter_date:  export_file_sets_filter_date,
                                                       export_file_sets_filter_event: export_file_sets_filter_event,

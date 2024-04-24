@@ -11,15 +11,15 @@ module Aptrust
     end
 
     def run
-      puts
-      puts "debug_verbose=#{debug_verbose}"
+      msg_handler.msg_verbose
       noids_sort
       if noid_pairs.present?
-        noid_pairs.each { |pair| run_upload( noid: pair[:noid], size: pair[:size] ) }
+        run_pair_uploads
       else
-        noids.each { |noid| run_upload( noid: noid ) }
+        run_noids_upload
       end
-      puts "Finished."
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'Aptrust::UploadByNoid', event: 'UploadByNoid' )
     end
 
   end

@@ -11,10 +11,11 @@ module Aptrust
     end
 
     def run
-      puts
-      puts "debug_verbose=#{debug_verbose}"
+      msg_handler.msg_verbose
+      msg_handler.msg_verbose "Starting..."
       noids.each { |noid| cleanup_by_noid( noid: noid ) }
-      puts "Finished."
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'Aptrust::CleanupByNoidTask', event: 'CleanupByNoidTask' )
     end
 
   end

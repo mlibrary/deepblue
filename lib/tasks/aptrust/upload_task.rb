@@ -8,20 +8,19 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
-      putsf "@options=#{@options.pretty_inspect}" if verbose
+      # msg_handler.msg_verbose "@options=#{@options.pretty_inspect}" if verbose
       @sort = true
-      @max_size = option_max_size
-      @max_uploads = option_max_uploads
     end
 
     def run
       debug_verbose
-      putsf if verbose
-      putsf "Started..." if verbose
+      msg_handler.msg_verbose
+      msg_handler.msg_verbose "Started..."
       run_find
       noids_sort
       run_pair_uploads
-      putsf "Finished." if verbose
+      run_email_targets( subject: 'Aptrust::UploadTask', event: 'UploadTask' )
+      msg_handler.msg_verbose "Finished."
     end
 
     def run_find
@@ -33,43 +32,15 @@ module Aptrust
         next unless w&.file_set_ids.present?
         next unless w.file_set_ids.size > 0
         next unless w.published?
-        # putsf "Filter w.date_modified=#{w.date_modified}"
-        # putsf "Filter #{test_date_begin} < #{w.date_modified} < #{test_date_end} ?"
-        # putsf "next unless #{test_date_begin} <= #{w.date_modified} = #{test_date_begin <= w.date_modified}"
-        # putsf "next unless #{w.date_modified} <= #{test_date_end} = #{w.date_modified <= test_date_end}"
+        # msg_handler.msg_verbose "Filter w.date_modified=#{w.date_modified}"
+        # msg_handler.msg_verbose "Filter #{test_date_begin} < #{w.date_modified} < #{test_date_end} ?"
+        # msg_handler.msg_verbose "next unless #{test_date_begin} <= #{w.date_modified} = #{test_date_begin <= w.date_modified}"
+        # msg_handler.msg_verbose "next unless #{w.date_modified} <= #{test_date_end} = #{w.date_modified <= test_date_end}"
         next unless @test_date_begin <= w.date_modified
         next unless w.date_modified <= @test_date_end
         next if ::Aptrust::Status.has_status?( cc: w )
         @noids << w.id
       end
-    end
-
-    def run_pair_uploads
-      unless noid_pairs.present?
-        putsf "No NOIDs found for date begin: '#{options['date_begin']}' and date end: '#{options['date_end']}'" if verbose
-        return
-      end
-      if max_size > 0
-        putsf "Select noids with size less than #{readable_sz( max_size )}" if verbose
-        @noid_pairs = @noid_pairs.select { |pair| pair[:size] < max_size }
-      end
-      if  max_uploads > 0
-        putsf "Limit uploads to #{max_uploads} at most.}" if verbose
-        @noid_pairs = @noid_pairs[0..(max_uploads-1)] if @noid_pairs.size > max_uploads
-      end
-      total_size = 0
-      @noid_pairs.each_with_index do |pair,index|
-        size = pair[:size]
-        total_size += size
-        if verbose
-          noid = pair[:noid]
-          w = WorkCache.new( noid: noid )
-          putsf "#{index}: #{noid} -- #{readable_sz( size )} -- #{w.date_modified}"
-        end
-      end
-      putsf "Total upload size: #{readable_sz( total_size )}" if verbose
-      putsf "test_mode?=#{test_mode?}" if verbose
-      @noid_pairs.each { |pair| run_upload( noid: pair[:noid], size: pair[:size] ) } unless test_mode?
     end
 
   end

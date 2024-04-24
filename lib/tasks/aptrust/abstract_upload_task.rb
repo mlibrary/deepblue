@@ -7,127 +7,35 @@ require_relative '../../../app/services/aptrust/aptrust_uploader_for_work'
 
 module Aptrust
 
-  class WorkCache
-
-    attr_accessor :noid
-    attr_accessor :work
-    attr_accessor :solr
-
-    def initialize( noid: nil, work: nil, solr: true )
-      @noid = noid
-      @work = work
-      @solr = solr
-      @date_modified = nil
-    end
-
-    def reset
-      @noid = nil
-      @work = nil
-      @date_modified = nil
-      return self
-    end
-
-    def work
-      @work ||= work_init
-    end
-
-    def work_init
-      if @solr
-        rv = ActiveFedora::SolrService.query("id:#{noid}", rows: 1)
-        rv = rv.first
-      else
-        rv = PersistHelper.find @noid
-      end
-      return rv
-    end
-
-    def date_modified
-      if @solr
-        rv = date_modified_solr
-      else
-        rv = work.date_modified
-      end
-      return rv
-    end
-
-    def date_modified_solr
-      @date_modified ||= date_modified_solr_init
-    end
-
-    def date_modified_solr_init
-      rv = work['date_modified_dtsi']
-      rv = DateTime.parse rv
-      return rv
-    end
-
-    def file_set_ids
-      if @solr
-        rv = work['file_set_ids_ssim']
-      else
-        rv = work.file_set_ids
-      end
-      return rv
-    end
-
-    def id
-      if @solr
-        rv = work['id']
-      else
-        rv = work.id
-      end
-      return rv
-    end
-
-    def published?
-      if @solr
-        rv = published_solr?
-      else
-        rv = work.published?
-      end
-      return rv
-    end
-
-    def published_solr?
-      doc = work
-      return false unless doc['visibility_ssi'] == 'open'
-      return false unless doc['workflow_state_name_ssim'] = ["deposited"]
-      return false if doc['suppressed_bsi']
-      return true
-    end
-
-    def total_file_size
-      if @solr
-        rv = work['total_file_size_lts']
-      else
-        rv = work.total_file_size
-      end
-      return rv
-    end
-
-  end
-
   class AbstractUploadTask < ::Aptrust::AbstractTask
 
-    attr_accessor :bag_max_total_file_size # TODO
+    attr_accessor :bag_max_total_file_size
     attr_accessor :cleanup_after_deposit
     attr_accessor :cleanup_bag
     attr_accessor :cleanup_bag_data
     attr_accessor :debug_assume_upload_succeeds
+    attr_accessor :event_start # TODO (if event hasn't occurred, skip)
+    attr_accessor :event_stop # TODO
     attr_accessor :max_size
+    attr_accessor :max_upload_total_size
     attr_accessor :max_uploads
     attr_accessor :noid_pairs
     attr_accessor :sleep_secs
     attr_accessor :sort
-
     attr_accessor :zip_data_dir
-
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      @bag_max_total_file_size = option_integer( key: 'bag_max_total_file_size' )
       @cleanup_after_deposit = option_value( key: 'cleanup_after_deposit', default_value: true )
       @cleanup_bag = option_value( key: 'cleanup_bag', default_value: true )
       @cleanup_bag_data = option_value( key: 'cleanup_bag_data', default_value: true )
       @debug_assume_upload_succeeds = option_value( key: 'debug_assume_upload_succeeds', default_value: false )
+      @event_start = option_value( key: 'event_start' )
+      @event_stop = option_value( key: 'event_stop' )
+      @max_size = option_integer( key: 'max_size', default_value: -1 )
+      @max_upload_total_size = option_integer( key: 'max_upload_total_size', default_value: -1 )
+      @max_uploads = option_max_uploads
       @sleep_secs = option_sleep_secs
       @sort = option_value( key: 'sort', default_value: false )
       @zip_data_dir = option_value( key: 'zip_data_dir', default_value: false )
@@ -142,7 +50,7 @@ module Aptrust
     end
 
     def noids_sort
-      putsf "Sorting noids into noid_pairs" if verbose
+      msg_handler.msg_verbose "Sorting noids into noid_pairs"
       @noid_pairs=[]
       return unless sort?
       return unless noids.present?
@@ -157,7 +65,7 @@ module Aptrust
       opt = opt.strip if opt.is_a? String
       # opt = opt.to_i if opt.is_a? String
       opt = to_integer( num: opt ) if opt.is_a? String
-      putsf "max_size='#{opt}'" if verbose
+      msg_handler.msg_verbose "max_size='#{opt}'"
       return opt
     end
 
@@ -165,7 +73,7 @@ module Aptrust
       opt = task_options_value( key: 'max_uploads', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      putsf "max_uploads='#{opt}'" if verbose
+      msg_handler.msg_verbose "max_uploads='#{opt}'"
       return opt
     end
 
@@ -173,26 +81,71 @@ module Aptrust
       opt = task_options_value( key: 'sleep_secs', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      putsf "sleep_secs=#{opt}" if verbose
+      msg_handler.msg_verbose "sleep_secs=#{opt}"
       return opt
     end
 
+    def run_noids_upload
+      total_size = 0
+      w = WorkCache.new
+      noids.each do |noid|
+        w.reset.noid = noid
+        size = w.total_file_size
+        next if max_upload_total_size > 0 && total_size + size > max_upload_total_size
+        run_upload( noid: noid )
+        total_size += size
+      end
+    end
+
+    def run_pair_uploads
+      unless noid_pairs.present?
+        msg_handler.msg_verbose "No NOIDs found for date begin: '#{options['date_begin']}' and date end: '#{options['date_end']}'"
+        return
+      end
+      if max_size > 0
+        msg_handler.msg_verbose "Select noids with size less than #{readable_sz( max_size )}"
+        @noid_pairs = @noid_pairs.select { |pair| pair[:size] < max_size }
+      end
+      if  max_uploads > 0
+        msg_handler.msg_verbose "Limit uploads to #{max_uploads} at most."
+        @noid_pairs = @noid_pairs[0..(max_uploads-1)] if @noid_pairs.size > max_uploads
+      end
+      total_size = 0
+      @noid_pairs.each_with_index do |pair,index|
+        size = pair[:size]
+        total_size += size
+        msg_handler.msg_verbose "#{index}: #{pair[:noid]} -- #{readable_sz( size )}"
+      end if verbose
+      msg_handler.msg_verbose "Total upload size: #{readable_sz( total_size )}"
+      msg_handler.msg_verbose "test_mode?=#{test_mode?}"
+      return if test_mode?
+      total_size = 0
+      @noid_pairs.each do |pair|
+        size = pair[:size]
+        next if max_upload_total_size > 0 && total_size + size > max_upload_total_size
+        run_upload( noid: pair[:noid], size: size )
+        total_size += size
+      end
+    end
+
     def run_upload( noid:, size: nil )
-      putsf "sleeping for #{sleep_secs}" if 0 < sleep_secs
+      msg_handler.msg_verbose "sleeping for #{sleep_secs}" if 0 < sleep_secs
       sleep( sleep_secs ) if 0 < sleep_secs
       msg = "Uploading: #{noid}"
       msg += " - #{readable_sz(size)}" if size.present?
-      putsf msg
-      ::Aptrust::AptrustIntegrationService.dump_mattrs.each {|mattr| putsf mattr } if debug_verbose
+      msg_handler.msg_verbose msg
+      ::Aptrust::AptrustIntegrationService.dump_mattrs.each { |a| msg_handler.msg_verbose a } if debug_verbose
       msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true,
                                                                 verbose: verbose,
                                                                 debug_verbose: debug_verbose )
       uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
-                                                   # bag_max_total_file_size: 300.megabytes,
+                                                   bag_max_total_file_size: bag_max_total_file_size,
                                                    cleanup_after_deposit: cleanup_after_deposit,
                                                    cleanup_bag: cleanup_bag,
                                                    cleanup_bag_data: cleanup_bag_data,
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
+                                                   event_start: event_start,
+                                                   event_stop: event_stop,
                                                    noid: noid,
                                                    zip_data_dir: zip_data_dir )
       @export_dir = File.absolute_path @export_dir if @export_dir.present?
@@ -200,23 +153,14 @@ module Aptrust
       uploader.export_dir = @export_dir if @export_dir.present?
       uploader.working_dir = @working_dir if @working_dir.present?
 
-      # putsf "uploader=#{uploader.pretty_inspect}"
-      putsf "test_mode?=#{test_mode?}"  if verbose
+      # msg_handler.msg_verbose "uploader=#{uploader.pretty_inspect}"
+      msg_handler.msg_verbose "test_mode?=#{test_mode?}"
       return if test_mode?
       uploader.run
     end
 
     def sort?
       @sort
-    end
-
-    def w_all( solr: true )
-      if solr
-        rv = ActiveFedora::SolrService.query("+(has_model_ssim:DataSet)", rows: 100_000)
-      else
-        rv = DataSet.all
-      end
-      return rv
     end
 
   end

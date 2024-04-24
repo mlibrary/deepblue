@@ -9,6 +9,8 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      export_dir_init
+      working_dir_init
     end
 
     def bag_dir( noid: )
@@ -26,22 +28,21 @@ module Aptrust
       return rv
     end
 
-    def export_dir
-      rv = super
-      rv = aptrust_config.export_dir if rv.blank?
-      rv = File.absolute_path rv
-      return rv
+    def export_dir_init
+      return if @export_dir.present?
+      @export_dir = aptrust_config.export_dir
+      @export_dir = File.absolute_path @export_dir
     end
 
     def cleanup_by_noid( noid: )
       bag_dir = bag_dir( noid: noid )
       msg_handler.msg_verbose "bag_dir: '#{bag_dir}'"
 
-      tar_file_list = File.join bag_dir, '.files'
-      if File.exist? tar_file_list
-        msg_handler.msg_verbose "delete tar file list '#{tar_file_list}'"
-        File.delete tar_file_list unless test_mode?
-      end
+      # tar_file_list = File.join bag_dir, '.files'
+      # if File.exist? tar_file_list
+      #   msg_handler.msg_verbose "delete tar file list '#{tar_file_list}'"
+      #   File.delete tar_file_list unless test_mode?
+      # end
 
       tar_filename = ::Aptrust::AptrustUploader.tar_filename( bag_dir: bag_dir )
       tar_file = File.join working_dir, tar_filename
@@ -62,11 +63,10 @@ module Aptrust
       end
     end
 
-    def working_dir
-      rv = super
-      rv = aptrust_config.working_dir if rv.blank?
-      rv = File.absolute_path rv
-      return rv
+    def working_dir_init
+      return if @working_dir.present?
+      @working_dir = aptrust_config.export_dir
+      @working_dir = File.absolute_path @export_dir
     end
 
   end

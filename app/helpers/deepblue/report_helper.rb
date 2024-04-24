@@ -12,7 +12,7 @@ module Deepblue
     HOSTNAME_SHORT_MAP = { 'deepblue.local' => 'local',
                            'testing.deepblue.lib.umich.edu' => 'testing',
                            'staging.deepblue.lib.umich.edu' => 'staging',
-                           'deepblue.lib.umich.edu' => 'production' }.freeze
+                           'deepblue.lib.umich.edu' => 'production' }.freeze unless const_defined? :HOSTNAME_SHORT_MAP
 
     def self.expand_path_partials( path, task: nil )
       return path unless path.present?
