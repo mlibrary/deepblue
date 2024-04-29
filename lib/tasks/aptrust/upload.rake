@@ -15,7 +15,8 @@ namespace :aptrust do
   # bundle exec rake aptrust:upload['{"date_end":"2024/03/22 00:00:00"\,"max_size":"1_000_000"\,"event":"failed"\,"verbose":true}']
   # bundle exec rake aptrust:upload['{"verbose":true\,"quiet":false}']
   # bundle exec rake aptrust:upload['{"verbose":true\,"debug_verbose":true}']
-  # bundle exec rake aptrust:upload['{"quiet":true}']
+  # bundle exec rake aptrust:upload['{"email_targets":"fritx@umich.edu"}']
+  # bundle exec rake aptrust:upload['{"email_targets":"fritx@umich.edu"\,"email_subject":"%hostname%-%subject% finished at %timestamp%"}']
   desc 'Upload to APTrust by list of noids'
   task :upload, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

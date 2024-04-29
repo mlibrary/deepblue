@@ -6,8 +6,25 @@ module Aptrust
 
   class ReportAllTask < ::Aptrust::AbstractReportTask
 
+    attr_accessor :add_aptrust_status
+    attr_accessor :aptrust_report_status
+
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      @add_aptrust_status = option_value( key: 'add_aptrust_status', default_value: false )
+    end
+
+    def aptrust_report_status
+      @aptrust_report_status ||= aptrust_report_status_init
+    end
+
+    def aptrust_report_status_init
+      rv = AptrustReportStatus.new( msg_handler:    msg_handler,
+                                    aptrust_config: aptrust_config,
+                                    target_file:    nil,
+                                    debug_verbose:  debug_verbose )
+
+      return rv
     end
 
     def run
@@ -30,7 +47,13 @@ module Aptrust
       run_report_file_init
       msg_handler.msg_verbose "report_file=#{report_file}"
       begin
-        csv_out << %w[noid work_modified work_size work_size_hr status status_created_at status_updated_at]
+        header = %w[noid work_modified work_size work_size_hr status status_created_at status_updated_at]
+        if add_aptrust_status
+          header << "aptrust_http_status"
+          header << "aptrust_status"
+          header << "aptrust_outcome"
+        end
+        csv_out << header
         # writer header
         test_dates_init
         w = WorkCache.new
@@ -57,7 +80,7 @@ module Aptrust
 
     def report_line( work: )
       noid = work.id
-      work_modified = work.date_modified.strftime( "%Y/%m/%d %H:%M:%S" )
+      work_modified = datetime_local_time( work.date_modified, format: "%Y/%m/%d %H:%M:%S" )
       work_size = work.total_file_size
       work_size_hr = readable_sz( work_size )
       status_record = ::Aptrust::Status.for_id( noid: noid )
@@ -68,11 +91,24 @@ module Aptrust
       else
         status_record = status_record.first
         status = status_record.event
-        status_created_at = status_record.created_at.strftime( "%Y/%m/%d %H:%M:%S" )
-        status_updated_at = status_record.updated_at.strftime( "%Y/%m/%d %H:%M:%S" )
+        now = datetime_local_time( DateTime.now )
+        status_created_at = datetime_local_time( status_record.created_at, format: "%Y/%m/%d %H:%M:%S" )
+        status_updated_at = datetime_local_time( status_record.updated_at, format: "%Y/%m/%d %H:%M:%S" )
       end
-      status =
-      csv_out << [ noid, work_modified, work_size, work_size_hr, status, status_created_at, status_updated_at ]
+      row = [ noid, work_modified, work_size, work_size_hr, status, status_created_at, status_updated_at ]
+      if add_aptrust_status
+        if status_record.present?
+          aptrust_status = aptrust_report_status.get_record_from_aptrust( status: status_record )
+          row << aptrust_status["http_status"]
+          row << aptrust_status["status"]
+          row << aptrust_status["outcome"]
+        else
+          row << ''
+          row << ''
+          row << ''
+        end
+      end
+      csv_out << row
     end
 
   end

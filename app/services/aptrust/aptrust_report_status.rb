@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require_relative './aptrust'
+require_relative './abstract_aptrust_service'
 
-# TODO: fix this
+# TODO: fix this ??
 class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
 
   mattr_accessor :aptrust_report_status_debug_verbose, default: false
@@ -25,9 +26,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
 
     @target_file = target_file
 
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "target_file=#{target_file}",
-                             "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_file=#{target_file}" ] if debug_verbose
   end
 
   def column_names
@@ -77,13 +76,9 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
   end
 
   def csv_init
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "target_file=#{target_file}",
-                             "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_file=#{target_file}" ] if debug_verbose
     rv = CSV.open( target_file, 'w', {:force_quotes=>true}  )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "rv=#{rv}",
-                             "" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "rv=#{rv}" ] if debug_verbose
     rv << column_names
     return rv
   end
@@ -108,47 +103,33 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
     return rv ? "in bucket" : ""
   end
 
-  def process( status: )
-    begin # until true for break
-      noid = status.noid
-      identifier = identifier( status: status )
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "identifier=#{identifier}",
-                               "noid=#{noid}",
-                               "" ] if debug_verbose
-      object_identifier = "object_identifier=#{aptrust_config.repository}\/#{identifier}"
-      get_arg = "items?#{object_identifier}&action=Ingest"
-      rv = get_response_body( get_arg: get_arg )
-      success = rv[0]
-      http_status = rv[1]
-      body = rv[2]
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "success=#{success}",
-                               "http_status=#{http_status}",
-                               "body.pretty_inspect=#{body.pretty_inspect}",
-                               "" ] if debug_verbose
-      body ||= {}
-      results = body["results"]
-      results ||= []
-      key_values = results.first
-      key_values ||= {}
-      row = []
-      column_names.each do |col|
-        if "noid" == col
-          row << noid
-        elsif "http_status" == col
-          row << http_status
-        elsif "aws_bucket_status" == col
-          row << aws_bucket_status( noid: noid )
-        else
-          row << key_values[col]
-        end
-      end
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                               "row=#{row}",
-                               "" ] if debug_verbose
-      csv << row
-    end until true # for break
+  def get_record_from_aptrust( status: )
+    noid = status.noid
+    identifier = identifier( status: status )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "identifier=#{identifier}",
+                             "noid=#{noid}",
+                             "" ] if debug_verbose
+    object_identifier = "object_identifier=#{aptrust_config.repository}\/#{identifier}"
+    get_arg = "items?#{object_identifier}&action=Ingest"
+    rv = get_response_body( get_arg: get_arg )
+    success = rv[0]
+    http_status = rv[1]
+    body = rv[2]
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "success=#{success}",
+                             "http_status=#{http_status}",
+                             "body.pretty_inspect=#{body.pretty_inspect}",
+                             "" ] if debug_verbose
+    body ||= {}
+    results = body["results"]
+    results ||= []
+    key_values = results.first
+    key_values ||= {}
+    key_values["noid"] = noid
+    key_values["http_status"] = http_status
+    key_values["aws_bucket_status"] = aws_bucket_status( noid: noid )
+    return key_values
   end
 
   def run
@@ -160,7 +141,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
                                  "status.noid=#{status.noid}",
                                  "status.event=#{status.event}",
                                  "" ] if debug_verbose
-        process( status: status )
+        write_rows( status: status )
       end
     rescue Exception => e
       Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
@@ -171,6 +152,28 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
     end until true # for break
     csv.close unless @csv.nil?
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "run", "" ] if debug_verbose
+  end
+
+  def write_rows( status: )
+    begin # until true for break
+      key_values = get_record_from_aptrust( status: status )
+      row = []
+      column_names.each { |name| row << key_values[name] }
+      # column_names.each do |col|
+      #   case col
+      #   when "noid"
+      #     row << noid
+      #   when "http_status"
+      #     row << http_status
+      #   when "aws_bucket_status"
+      #     row << aws_bucket_status( noid: noid )
+      #   else
+      #     row << key_values[col]
+      #   end
+      # end
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "row=#{row}" ] if debug_verbose
+      csv << row
+    end until true # for break
   end
 
 end
