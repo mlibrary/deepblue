@@ -10,7 +10,6 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
-      # msg_handler.msg_verbose "@options=#{@options.pretty_inspect}"
       @sort = true
       @event = option_event
     end

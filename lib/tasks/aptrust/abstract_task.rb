@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../app/tasks/deepblue/abstract_task'
+require_relative '../../../app/helpers/deepblue_helper'
 require_relative '../../../app/helpers/deepblue/email_helper'
 require_relative '../../../app/helpers/deepblue/report_helper'
 require_relative '../../../app/services/deepblue/message_handler'
@@ -116,6 +117,7 @@ module Aptrust
     attr_accessor :aptrust_config_file
     attr_accessor :date_begin
     attr_accessor :date_end
+    attr_accessor :email_subject
     attr_accessor :email_targets
     attr_accessor :export_dir
     attr_accessor :noids
@@ -126,12 +128,14 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
-      msg_handler.verbose = verbose if msg_handler.present?
-      msg_handler.msg_queue = [] if msg_handler.present? && msg_handler.msg_queue.nil?
+      option_email_targets_present = task_options_value( key: 'email_targets', default_value: nil ).present?
+      @msg_handler.verbose = verbose? if @msg_handler.present?
+      @msg_handler.msg_queue = [] if option_email_targets_present && @msg_handler.present? && @msg_handler.msg_queue.nil?
       # @test_mode = option_value( key: 'test_mode', default_value: false ) # see below
       @noids = option_noids
       @date_begin = option_date_begin
       @date_end = option_date_end
+      @email_subject = task_options_value( key: 'email_subject', default_value: '' )
       @email_targets = option_email_targets
       @export_dir = option_path( key: 'export_dir' )
       @working_dir = option_path( key: 'working_dir' )
@@ -154,8 +158,10 @@ module Aptrust
     end
 
     def msg_handler_queue_to_html
-      msg = "<pre>\n#{msg_handler.join("\n")}\n</pre>"
-      return msg
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+      #                                       "msg_handler=#{msg_handler.pretty_inspect}" ] if true
+      html = "<pre>\n#{msg_handler.join("\n")}\n</pre>"
+      return html
     end
 
     def option_date_begin
@@ -234,8 +240,40 @@ module Aptrust
       DeepblueHelper.human_readable_size( size )
     end
 
+    def datetime_local_time( datetime, format: nil )
+      return datetime unless datetime.present?
+      rv = datetime
+      rv = rv.to_datetime if rv.is_a? Time
+      rv = DateTime.parse rv if rv.is_a? String
+      rv = rv.new_offset( Rails.configuration.timezone_offset ) if Rails.configuration.datetime_stamp_display_local_time_zone
+      rv = rv.strftime( format ) if format.present?
+      return rv
+    end
+
+    def run_email_subject( subject: )
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+      #                                       "subject=#{subject}",
+      #                                       "email_subject=#{email_subject}" ] if true
+      return subject unless email_subject.present?
+      new_subject = email_subject
+      # replace subject macro values
+      now = datetime_local_time( DateTime.now )
+      new_subject = new_subject.gsub( /\%subject\%/,       subject ) if subject.present?
+      new_subject = new_subject.gsub( /\%hostname\%/,      ::Deepblue::ReportHelper.hostname_short )
+      new_subject = new_subject.gsub( /\%hostname_full\%/, Rails.configuration.hostname )
+      new_subject = new_subject.gsub( /\%now\%/,           now.to_s )
+      new_subject = new_subject.gsub( /\%date\%/,          now.strftime('%Y-%m-%d') )
+      new_subject = new_subject.gsub( /\%time\%/,          now.strftime('%H:%M:%S') )
+      new_subject = new_subject.gsub( /\%timestamp\%/,     ::DeepblueHelper.display_timestamp( DateTime.now ) )
+      return new_subject
+    end
+
     def run_email_targets( subject:, body: nil, event: '', event_note: '' )
+      subject = run_email_subject( subject: subject )
       body ||= msg_handler_queue_to_html
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+      #                                       "subject=#{subject}",
+      #                                       "body=#{body}" ] if true
       email_targets.each do |email|
         email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                          subject: subject,

@@ -62,7 +62,7 @@ module Deepblue
     end
 
     def initialize_options( options: )
-      puts "options=#{options}" if verbose
+      # puts "options=#{options}" if verbose
       # options = options.merge( { "verbose_filters": true } ) if verbose
       options
     end

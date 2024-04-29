@@ -364,6 +364,15 @@ module Deepblue
                          log: false,
                          content_type: nil )
 
+      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+      #                                       "to=#{to}",
+      #                                       "cc=#{cc}",
+      #                                       "bcc=#{bcc}",
+      #                                       "from=#{from}",
+      #                                       "subject=#{subject}",
+      #                                       "body=#{body}",
+      #                                       "log=#{log}",
+      #                                       "content_type=#{content_type}" ] if true
       subject = subject.join( '' ) if subject.is_a? Array
       body = body.join( "\n" ) if body.is_a? Array
       subject = EmailHelper.clean_str subject if EmailHelper.clean_str_needed? subject
