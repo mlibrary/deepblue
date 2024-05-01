@@ -21,6 +21,7 @@ module Deepblue
     mattr_accessor :new_content_service_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
 
+    CLS_SRC = 'NewContentService' unless const_defined? :CLS_SRC
     DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title unless const_defined? :DEFAULT_DATA_SET_ADMIN_SET_NAME
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :creator_orcid_ordered,
@@ -231,14 +232,14 @@ module Deepblue
         # TODO: probably should lock the work here.
         work.reload
         work.ordered_members << file_set
-        file_set.ingest_attach( called_from: 'NewContentService.add_file_set_to_work', parent_id: work.id )
+        file_set.ingest_attach( called_from: "#{CLS_SRC}.add_file_set_to_work", parent_id: work.id )
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
         work.save!
       rescue Exception => e # rubocop:disable Lint/RescueException
-        # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+        log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
         ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "new_content_service_error",
@@ -605,7 +606,7 @@ module Deepblue
                                                Deepblue::LoggingHelper.called_from,
                                                "doi=#{doi}",
                                                "" ] if new_content_service_debug_verbose
-        doi = nil if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
+        # doi = nil if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
         return doi
       end
 
@@ -646,7 +647,7 @@ module Deepblue
                                       build_mode: mode )
           return file_set
         rescue Exception => e # rubocop:disable Lint/RescueException
-          @msg_handler.msg_error "build_file_set(id: #{id}, path: #{path}) #{e.class}: #{e.message}"
+          log_error "build_file_set(id: #{id}, path: #{path}) #{e.class}: #{e.message}"
           e.backtrace[0..40].each { |m| @msg_handler.msg_error m }
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
@@ -727,7 +728,13 @@ module Deepblue
           update_visibility( curation_concern: file_set, visibility: visibility )
           file_set.date_modified = file_set.date_uploaded if file_set.date_modified.blank?
           file_set.date_modified = DateTime.now if file_set.date_modified.blank?
-          file_set.save!
+          begin
+            file_set.save!
+          rescue Ldp::Gone => e
+            log_msg( "#{build_mode}: WARNING failed with a Ldp::Gone exception." )
+            log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+            return nil
+          end
           # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
           return build_file_set_ingest( file_set: file_set,
                                         path: path,
@@ -735,7 +742,7 @@ module Deepblue
                                         checksum_value: checksum_value,
                                         build_mode: build_mode )
         rescue Exception => e # rubocop:disable Lint/RescueException
-          # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "new_content_service_error",
@@ -816,6 +823,8 @@ module Deepblue
         id_new = MODE_MIGRATE == build_mode ? id : nil
         file_set = new_file_set( id: id_new )
         file_set.apply_depositor_metadata( depositor )
+        file_set.save! # force the creation of the file set id
+        file_set.ingest_begin( called_from: "#{CLS_SRC}.build_file_set_new" )
         upload_file_to_file_set( file_set, file )
         return file_set
       end
@@ -1384,6 +1393,9 @@ module Deepblue
         diff_attr( diffs, work, work_hash, attr_name: :contributor )
         diff_attr( diffs, work, work_hash, attr_name: :creator )
         diff_attr( diffs, work, work_hash, attr_name: :creator_ordered, multi: false )
+        diff_attr( diffs, work, work_hash, attr_name: :creator_orcid )
+        diff_attr( diffs, work, work_hash, attr_name: :creator_orcid_json, multi: false )
+        diff_attr( diffs, work, work_hash, attr_name: :creator_orcid_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :curation_notes_admin )
         diff_attr( diffs, work, work_hash, attr_name: :curation_notes_admin_ordered, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :curation_notes_user )
@@ -1395,6 +1407,7 @@ module Deepblue
         diff_attr_value( diffs, work, attr_name: :date_uploaded, value: build_date( hash: work_hash, key: :date_uploaded ) )
         depositor = build_depositor( hash: work_hash )
         diff_attr_value( diffs, work, attr_name: :depositor, value: depositor )
+        diff_attr( diffs, work, work_hash, attr_name: :depositor_creator, multi: false )
         description = Array( work_hash[:description] )
         description = ["Missing description"] if description.blank?
         description = ["Missing description"] if [nil] == description
@@ -1552,30 +1565,31 @@ module Deepblue
       end
 
       def doi_mint( curation_concern: )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "curation_concern.id=#{curation_concern.id}",
-                                               "" ] if new_content_service_debug_verbose
+        debug_verbose = true || new_content_service_debug_verbose
+        @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
+                                       "curation_concern.id=#{curation_concern.id}" ] if debug_verbose
         # return unless allow_mint_doi
         return unless curation_concern.respond_to? :doi_mint
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "curation_concern.doi=#{curation_concern.doi}",
-                                               "" ] if new_content_service_debug_verbose
+        @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
+                                       "curation_concern.doi=#{curation_concern.doi}" ] if debug_verbose
         return unless ::Deepblue::DoiMintingService::DOI_MINT_NOW == curation_concern.doi
-        curation_concern.doi = nil
-        curation_concern.save!
-        curation_concern.reload
-        curation_concern.doi_mint( current_user: user, event_note: 'NewContentService', job_delay: 60 )
+        # curation_concern.doi = nil
+        # curation_concern.save!
+        # curation_concern.reload
+        job_delay = debug_verbose ? 0 : 60
+        curation_concern.doi_mint( current_user: user,
+                                   event_note: "#{CLS_SRC}",
+                                   job_delay: job_delay,
+                                   msg_handler: @msg_handler,
+                                   debug_verbose: debug_verbose )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
-        # Rails.logger.error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
-        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "new_content_service_error",
-                                               "e=#{e.class.name}",
-                                               "e.message=#{e.message}",
-                                               "e.backtrace:" ] + e.backtrace[0..25]
+        # log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        @msg_handler.bold_error [ @msg_handler.here, @msg_handler.called_from,
+                                   "new_content_service_error",
+                                   "e=#{e.class.name}",
+                                   "e.message=#{e.message}",
+                                   "e.backtrace:" ] + e.backtrace[0..25]
       end
 
       def emails_add_from_hash( emails:, hash: )
@@ -1915,6 +1929,10 @@ module Deepblue
         log_msg( "mode=#{mode}", timestamp_it: true ) if verbose
       end
 
+      # def log_error( msg )
+      #   logger.error msg
+      # end
+
       def log_msg( msg, timestamp_it: true, not_email_line: false )
         return if msg.blank?
         if timestamp_it
@@ -2160,13 +2178,13 @@ module Deepblue
         end
       end
 
-    def new_file_set( id: )
-      if id.present?
-        FileSet.new( id: id ) { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
-      else
-        FileSet.new # { |fs| fs.ingest_begin( called_from: 'NewContentService.new_file_set' ) }
+      def new_file_set( id: )
+        if id.present?
+          FileSet.new( id: id )
+        else
+          FileSet.new
+        end
       end
-    end
 
       def report( first_label:, first_id:, measurements:, total: nil )
         return if measurements.blank?
@@ -2441,6 +2459,7 @@ module Deepblue
         depositor = build_depositor( hash: file_set_hash )
         update_attr_value( updates, file_set, attr_name: :depositor, value: depositor )
         update_attr( updates, file_set, file_set_hash, attr_name: :description_file_set )
+        update_attr( updates, file_set, file_set_hash, attr_name: :ingest_script )
         update_edit_users( updates, file_set, file_set_hash )
         update_read_users( updates, file_set, file_set_hash )
         update_attr( updates, file_set, file_set_hash, attr_name: :label, multi: false )
@@ -2739,6 +2758,10 @@ module Deepblue
         @cfg_hash[:user][:email]
       end
 
+      def user_hash
+        cfg_hash[:user]
+      end
+
       # config needs default user to attribute collections/works/filesets to
       # User needs to have only works or collections
       def validate_config
@@ -2790,6 +2813,11 @@ module Deepblue
 
       def works_from_hash( hash: )
         [hash[:works]]
+      rescue Exception => e
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] + e.backtrace[0..20]
+        raise
       end
 
   end

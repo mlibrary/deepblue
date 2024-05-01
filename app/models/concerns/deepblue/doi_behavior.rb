@@ -140,10 +140,12 @@ module Deepblue
                   enforce_minimum_file_count: true,
                   job_delay: 0,
                   returnMessages: [],
+                  msg_handler: nil,
                   debug_verbose: doi_behavior_debug_verbose )
 
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      msg_handler ||= MessageHandlerNull.new()
+      debug_verbose ||= doi_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{id}",
                                              "class.name=#{self.class.name}",
                                              "doi=#{doi}",
@@ -152,8 +154,7 @@ module Deepblue
                                              "event_note=#{event_note}",
                                              "enforce_minimum_file_count=#{enforce_minimum_file_count}",
                                              "job_delay=#{job_delay}",
-                                             "Settings.datacite.active=#{Settings.datacite.active}",
-                                             "" ] if debug_verbose
+                                             "Settings.datacite.active=#{Settings.datacite.active}" ] if debug_verbose
 
       rv = false
       begin # until true for break
@@ -181,7 +182,11 @@ module Deepblue
         returnMessages << MsgHelper.t( 'data_set.doi_minting_started' )
         rv = true
       end until true # for break
-
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{id}",
+                                             "class.name=#{self.class.name}",
+                                             "doi=#{doi}",
+                                             "rv=#{rv}" ] if debug_verbose
       return rv
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "DoiBehavior.doi_mint for curation_concern.id #{id} -- #{e.class}: #{e.message} at #{e.backtrace[0]}"
