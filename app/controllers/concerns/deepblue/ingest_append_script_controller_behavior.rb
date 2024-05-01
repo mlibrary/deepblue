@@ -657,7 +657,7 @@ module Deepblue
 
     def ingest_script_running_for_this_curation_concern?
       return false if Rails.env.development?
-      debug_verbose = true || ingest_append_scripts_controller_behavior_debug_verbose
+      debug_verbose = ingest_append_scripts_controller_behavior_debug_verbose
       jobs = ::Deepblue::JobsHelper.jobs_running_by_class( klass: IngestAppendScriptMonitorJob )
       keys = ['payload', 'args', 'arguments', 'id' ]
       value = curation_concern.id
