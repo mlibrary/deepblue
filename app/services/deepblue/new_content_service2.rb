@@ -23,6 +23,7 @@ module Deepblue
     mattr_accessor :new_content_service_debug_verbose,
                    default: ::Deepblue::IngestIntegrationService.new_content_service_debug_verbose
 
+    CLS_SRC = 'NewContentService2' unless const_defined? :CLS_SRC
     DEFAULT_DATA_SET_ADMIN_SET_NAME = Rails.configuration.data_set_admin_set_title unless const_defined? :DEFAULT_DATA_SET_ADMIN_SET_NAME
     DEFAULT_DIFF_ATTRS_SKIP = [ :creator_ordered,
                                 :creator_orcid_ordered,
@@ -179,21 +180,26 @@ module Deepblue
       end
     end
 
+    def log_error( msg )
+      @msg_handler.msg_error msg if @msg_handler.present?
+      logger.error msg
+    end
+
     def run
       validate_config
       build_repo_contents
     rescue RestrictedVocabularyError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue ConfigError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue UserNotFoundError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue VisibilityError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue WorkNotFoundError => e
-      logger.error e.message.to_s
+      log_error e.message.to_s
     rescue Exception => e # rubocop:disable Lint/RescueException
-      logger.error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
+      log_error "#{e.class}: #{e.message} at #{e.backtrace[0]}"
     end
 
     protected
@@ -228,7 +234,7 @@ module Deepblue
         # TODO: probably should lock the work here.
         work.reload
         work.ordered_members << file_set
-        file_set.ingest_attach( called_from: 'NewContentService2.add_file_set_to_work', parent_id: work.id )
+        file_set.ingest_attach( called_from: "#{CLS_SRC}.add_file_set_to_work", parent_id: work.id )
         log_provenance_add_child( parent: work, child: file_set )
         work.total_file_size_add_file_set file_set
         work.representative = file_set if work.representative_id.blank?
@@ -602,7 +608,7 @@ module Deepblue
                                                Deepblue::LoggingHelper.called_from,
                                                "doi=#{doi}",
                                                "" ] if new_content_service_debug_verbose
-        doi = nil if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
+        # doi = nil if ::Deepblue::DoiMintingService::DOI_MINT_NOW == doi
         return doi
       end
 
@@ -643,7 +649,8 @@ module Deepblue
                                       build_mode: mode )
           return file_set
         rescue Exception => e # rubocop:disable Lint/RescueException
-          log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          log_error "build_file_set(id: #{id}, path: #{path}) #{e.class}: #{e.message}"
+          e.backtrace[0..40].each { |m| @msg_handler.msg_error m }
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "new_content_service_error",
@@ -651,7 +658,7 @@ module Deepblue
                                                  "file_set.id=#{file_set&.id}",
                                                  "e=#{e.class.name}",
                                                  "e.message=#{e.message}",
-                                                 "e.backtrace:" ] + e.backtrace[0..25]
+                                                 "e.backtrace:" ] + e.backtrace[0..40]
           return file_set
         end
       end
@@ -819,7 +826,7 @@ module Deepblue
         file_set = new_file_set( id: id_new )
         file_set.apply_depositor_metadata( depositor )
         file_set.save! # force the creation of the file set id
-        file_set.ingest_begin( called_from: 'NewContentService2.build_file_set_new' )
+        file_set.ingest_begin( called_from: "#{CLS_SRC}.build_file_set_new" )
         upload_file_to_file_set( file_set, file )
         return file_set
       end
@@ -1560,30 +1567,31 @@ module Deepblue
       end
 
       def doi_mint( curation_concern: )
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "curation_concern.id=#{curation_concern.id}",
-                                               "" ] if new_content_service_debug_verbose
+        debug_verbose = true || new_content_service_debug_verbose
+        @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
+                                       "curation_concern.id=#{curation_concern.id}" ] if debug_verbose
         # return unless allow_mint_doi
         return unless curation_concern.respond_to? :doi_mint
-        ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-                                               Deepblue::LoggingHelper.called_from,
-                                               "curation_concern.doi=#{curation_concern.doi}",
-                                               "" ] if new_content_service_debug_verbose
+        @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
+                                       "curation_concern.doi=#{curation_concern.doi}" ] if debug_verbose
         return unless ::Deepblue::DoiMintingService::DOI_MINT_NOW == curation_concern.doi
         # curation_concern.doi = nil
         # curation_concern.save!
         # curation_concern.reload
-        curation_concern.doi_mint( current_user: user, event_note: 'NewContentService2', job_delay: 60 )
+        job_delay = debug_verbose ? 0 : 60
+        curation_concern.doi_mint( current_user: user,
+                                   event_note: "#{CLS_SRC}",
+                                   job_delay: job_delay,
+                                   msg_handler: @msg_handler,
+                                   debug_verbose: debug_verbose )
       rescue Exception => e # rubocop:disable Lint/RescueException
         # updates << "#{attr_prefix cc_or_fs}: #{attr_name} -- Exception: #{e.class}: #{e.message} at #{e.backtrace[0]}"
-        log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
-        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "new_content_service_error",
-                                               "e=#{e.class.name}",
-                                               "e.message=#{e.message}",
-                                               "e.backtrace:" ] + e.backtrace[0..25]
+        # log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
+        @msg_handler.bold_error [ @msg_handler.here, @msg_handler.called_from,
+                                   "new_content_service_error",
+                                   "e=#{e.class.name}",
+                                   "e.message=#{e.message}",
+                                   "e.backtrace:" ] + e.backtrace[0..25]
       end
 
       def emails_add_from_hash( emails:, hash: )
@@ -1923,9 +1931,9 @@ module Deepblue
         log_msg( "mode=#{mode}", timestamp_it: true ) if verbose
       end
 
-      def log_error( msg )
-        logger.error msg
-      end
+      # def log_error( msg )
+      #   logger.error msg
+      # end
 
       def log_msg( msg, timestamp_it: true, not_email_line: false )
         return if msg.blank?
