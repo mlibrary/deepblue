@@ -19,6 +19,7 @@ module Aptrust
     attr_accessor :max_size
     attr_accessor :max_upload_total_size
     attr_accessor :max_uploads
+    attr_accessor :min_size
     attr_accessor :noid_pairs
     attr_accessor :sleep_secs
     attr_accessor :sort
@@ -34,6 +35,7 @@ module Aptrust
       @event_start = option_value( key: 'event_start' )
       @event_stop = option_value( key: 'event_stop' )
       @max_size = option_integer( key: 'max_size', default_value: -1 )
+      @min_size = option_integer( key: 'min_size', default_value: -1 )
       @max_upload_total_size = option_integer( key: 'max_upload_total_size', default_value: -1 )
       @max_uploads = option_max_uploads
       @sleep_secs = option_sleep_secs
@@ -97,16 +99,34 @@ module Aptrust
       end
     end
 
+    def filter_in_pair_by_size( pair )
+      max_sz = max_size
+      min_sz = min_size
+      return true if max_sz <= 0 && min_sz <= 0
+      return pair[:size] <= max_sz if max_sz > 0 && min_sz <= 0
+      return min_sz <= pair[:size] if min_sz > 0 && max_sz <= 0
+      return min_sz <= pair[:size] && pair[:size] <= max_sz
+    end
+
+    def filter_in_pair_by_size_msg
+      max_sz = max_size
+      min_sz = min_size
+      return '' if max_sz <= 0 && min_sz <= 0
+      return "size <= #{readable_sz( max_sz )}" if max_sz > 0 && min_sz <= 0
+      return "#{readable_sz( min_sz )} <= size" if min_sz > 0 && max_sz <= 0
+      return "#{readable_sz( min_sz )} <= size <= #{readable_sz( max_sz )}"
+    end
+
     def run_pair_uploads
       unless noid_pairs.present?
         msg_handler.msg_verbose "No NOIDs found for date begin: '#{options['date_begin']}' and date end: '#{options['date_end']}'"
         return
       end
-      if max_size > 0
-        msg_handler.msg_verbose "Select noids with size less than #{readable_sz( max_size )}"
-        @noid_pairs = @noid_pairs.select { |pair| pair[:size] < max_size }
+      if max_size > 0 || min_size > 0
+        msg_handler.msg_verbose "Select noids with #{filter_in_pair_by_size_msg}"
+        @noid_pairs = @noid_pairs.select { |pair| filter_in_pair_by_size( pair ) }
       end
-      if  max_uploads > 0
+      if max_uploads > 0
         msg_handler.msg_verbose "Limit uploads to #{max_uploads} at most."
         @noid_pairs = @noid_pairs[0..(max_uploads-1)] if @noid_pairs.size > max_uploads
       end
@@ -138,16 +158,7 @@ module Aptrust
       msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true,
                                                                 verbose: verbose,
                                                                 debug_verbose: debug_verbose )
-      uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
-                                                   bag_max_total_file_size: bag_max_total_file_size,
-                                                   cleanup_after_deposit: cleanup_after_deposit,
-                                                   cleanup_bag: cleanup_bag,
-                                                   cleanup_bag_data: cleanup_bag_data,
-                                                   debug_assume_upload_succeeds: debug_assume_upload_succeeds,
-                                                   event_start: event_start,
-                                                   event_stop: event_stop,
-                                                   noid: noid,
-                                                   zip_data_dir: zip_data_dir )
+      uploader = uploader_for( noid: noid )
       @export_dir = File.absolute_path @export_dir if @export_dir.present?
       @working_dir = File.absolute_path @working_dir if @working_dir.present?
       uploader.export_dir = @export_dir if @export_dir.present?
@@ -161,6 +172,20 @@ module Aptrust
 
     def sort?
       @sort
+    end
+
+    def uploader_for( noid: )
+      uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
+                                                   bag_max_total_file_size: bag_max_total_file_size,
+                                                   cleanup_after_deposit: cleanup_after_deposit,
+                                                   cleanup_bag: cleanup_bag,
+                                                   cleanup_bag_data: cleanup_bag_data,
+                                                   debug_assume_upload_succeeds: debug_assume_upload_succeeds,
+                                                   event_start: event_start,
+                                                   event_stop: event_stop,
+                                                   noid: noid,
+                                                   zip_data_dir: zip_data_dir )
+      return uploader
     end
 
   end

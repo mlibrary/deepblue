@@ -240,7 +240,7 @@ module Hyrax
       end
 
       def member_subcollections
-        verbose = true || hyrax_collections_controller_behavior_debug_verbose
+        verbose =hyrax_collections_controller_behavior_debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "" ] if verbose

@@ -149,7 +149,7 @@ module Hyrax
     end
 
     def depositor_orcid_init
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "current_user.email=#{current_user.email}",

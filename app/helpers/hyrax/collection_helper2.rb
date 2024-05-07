@@ -7,7 +7,7 @@ module Hyrax
     mattr_accessor :hyrax_collection_helper2_debug_verbose, default: false
 
     def self.member_subcollections_docs( results )
-      verbose = true || hyrax_collection_helper2_debug_verbose
+      verbose =hyrax_collection_helper2_debug_verbose
       docs = results.documents
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

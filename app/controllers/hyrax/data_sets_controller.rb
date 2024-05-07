@@ -279,7 +279,7 @@ module Hyrax
 
       # TODO: current_user may not be the depositor
 
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params['depositor_creator_available']=#{params['depositor_creator_available']}",
@@ -308,7 +308,7 @@ module Hyrax
     end
 
     def assign_depositor_get_depositor_orcid
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params['depositor_orcid']=#{params['depositor_orcid']}",
@@ -322,7 +322,7 @@ module Hyrax
     end
 
     def assign_depositor_creator_add( depositor_orcid: )
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
@@ -358,7 +358,7 @@ module Hyrax
     end
 
     def assign_depositor_creator_get_creator_orcid
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",
@@ -380,7 +380,7 @@ module Hyrax
     end
 
     def assign_depositor_creator_remove( depositor_orcid: )
-      debug_verbose = true || data_sets_controller_debug_verbose
+      debug_verbose =data_sets_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[PARAMS_KEY]['creator_orcid']=#{params[PARAMS_KEY]['creator_orcid']}",

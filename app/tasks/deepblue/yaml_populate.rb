@@ -29,7 +29,7 @@ module Deepblue
     attr_accessor :debug_verbose
     attr_accessor :create_zero_length_files
     attr_accessor :export_files
-    attr_accessor :export_files_filter_date
+    attr_accessor :export_files_newer_than_date
     attr_accessor :mode
     attr_accessor :overwrite_export_files
     attr_accessor :target_dir
@@ -42,13 +42,22 @@ module Deepblue
       @debug_verbose            = task_options_value( key: 'debug_verbose',            default_value: DEBUG_VERBOSE )
       @create_zero_length_files = task_options_value( key: 'create_zero_length_files', default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
       @export_files             = task_options_value( key: 'export_files',             default_value: DEFAULT_EXPORT_FILES )
-      @export_files_filter_date = task_options_value( key: 'export_files_filter_date', default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
+      @export_files_newer_than_date = task_options_value( key: 'export_files_newer_than_date', default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
       @mode                     = task_options_value( key: 'mode',                     default_value: DEFAULT_MODE )
       @overwrite_export_files   = task_options_value( key: 'overwrite_export_files',   default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
       @target_dir               = task_options_value( key: 'target_dir',               default_value: DEFAULT_TARGET_DIR )
       @validate_file_checksums  = task_options_value( key: 'validate_file_checksums',  default_value: DEFAULT_VALIDATE_FILE_CHECKSUMS )
       @populate_ids = []
       @populate_stats = []
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "@create_zero_length_files=#{@create_zero_length_files}",
+                               "@export_files=#{@export_files}",
+                               "@export_files_newer_than_date=#{@export_files_newer_than_date}",
+                               "@mode=#{@mode}",
+                               "@overwrite_export_files=#{@overwrite_export_files}",
+                               "@target_dir=#{@target_dir}",
+                               "@validate_file_checksums=#{@validate_file_checksums}",
+                             ] if @debug_verbose
       raise UnknownMode.new( "mode: '#{@mode}'" ) unless ::Deepblue::MetadataHelper::VALID_MODES.include? @mode
     end
 
@@ -167,6 +176,10 @@ module Deepblue
     end
 
     def yaml_bag_work( id:, work: nil )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "id=#{id}",
+                               "work=#{work}",
+                             ] if debug_verbose
       work ||= PersistHelper.find id
       sz = DeepblueHelper.human_readable_size( work.total_file_size )
       msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
@@ -175,15 +188,17 @@ module Deepblue
       log_filename = "w_#{id}.export.log"
       @mode = ::Deepblue::MetadataHelper::MODE_BAG
       service = YamlPopulateService.new( mode:                            @mode,
+                                         msg_handler:                     @msg_handler,
                                          collect_exported_file_set_files: @collect_exported_file_set_files,
                                          create_zero_length_files:        @create_zero_length_files,
                                          overwrite_export_files:          @overwrite_export_files,
                                          validate_file_checksums:         @validate_file_checksums,
                                          debug_verbose:                   @debug_verbose )
-      service.yaml_populate_work( curation_concern: work,
-                                  dir:              @target_dir,
-                                  export_files:     @export_files,
-                                  log_filename:     log_filename )
+      service.yaml_populate_work( curation_concern:         work,
+                                  dir:                      @target_dir,
+                                  export_files:             @export_files,
+                                  export_files_newer_than_date: @export_files_newer_than_date,
+                                  log_filename:             log_filename )
       @populate_ids << id
       @populate_stats << service.yaml_populate_stats
       return service

@@ -6,9 +6,12 @@ module Aptrust
 
   class ReuploadModifiedTask < ::Aptrust::AbstractUploadTask
 
+    attr_accessor :export_all_files
+
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
       @sort = true
+      @export_all_files = option_value( key: 'export_all_files', default_value: false )
     end
 
     def run
@@ -42,6 +45,26 @@ module Aptrust
 
         @noids << w.id
       end
+    end
+
+    def uploader_for( noid: )
+      if export_all_files
+        export_files_sets_filter_date = nil
+      else
+        export_files_sets_filter_date = status_created_at( noid: noid )
+      end
+      uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
+                                                   bag_max_total_file_size: bag_max_total_file_size,
+                                                   cleanup_after_deposit: cleanup_after_deposit,
+                                                   cleanup_bag: cleanup_bag,
+                                                   cleanup_bag_data: cleanup_bag_data,
+                                                   debug_assume_upload_succeeds: debug_assume_upload_succeeds,
+                                                   event_start: event_start,
+                                                   event_stop: event_stop,
+                                                   export_file_sets_filter_date: export_files_sets_filter_date,
+                                                   noid: noid,
+                                                   zip_data_dir: zip_data_dir )
+      return uploader
     end
 
   end

@@ -267,8 +267,10 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def export_data_work( target_dir: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
     path = Pathname.new target_dir
     export_work_files( target_dir: path )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
   end
 
   def export_do_copy?( target_dir, target_file_name ) # TODO: check file size?
@@ -291,13 +293,15 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def export_work_files( target_dir: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
     work.metadata_report( dir: target_dir, filename_pre: 'w_' )
     export_file_sets_filter_date = export_file_sets_filter_date_init
     pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
+                                        msg_handler: msg_handler,
                                         options: { mode:                     'bag',
                                                    collect_exported_file_set_files: true,
                                                    export_files:              export_file_sets,
-                                                   export_files_filter_date:  export_file_sets_filter_date,
+                                                   export_files_newer_than_date:  export_file_sets_filter_date,
                                                    target_dir:                target_dir,
                                                    validate_file_checksums:   validate_file_checksums,
                                                    debug_verbose:             debug_verbose } )
