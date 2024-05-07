@@ -16,6 +16,7 @@ module Deepblue
     attr_accessor :create_zero_length_files
     attr_accessor :debug_verbose
     attr_accessor :mode
+    attr_accessor :msg_handler
     attr_accessor :overwrite_export_files
     attr_accessor :source
     attr_accessor :validate_file_checksums
@@ -32,6 +33,7 @@ module Deepblue
     def initialize( collect_exported_file_set_files: DEFAULT_COLLECT_EXPORTED_FILE_SET_FILES,
                     create_zero_length_files:        DEFAULT_CREATE_ZERO_LENGTH_FILES,
                     mode:                            MetadataHelper::MODE_BUILD,
+                    msg_handler:                     nil,
                     overwrite_export_files:          DEFAULT_OVERWRITE_EXPORT_FILES,
                     source:                          MetadataHelper::DEFAULT_SOURCE,
                     validate_file_checksums:         DEFAULT_VALIDATE_FILE_CHECKSUMS,
@@ -42,9 +44,21 @@ module Deepblue
       @collect_exported_file_set_files = collect_exported_file_set_files
       @create_zero_length_files        = create_zero_length_files
       @mode                            = mode
+      @msg_handler                     = msg_handler
       @overwrite_export_files          = overwrite_export_files
       @source                          = source
       @validate_file_checksums         = validate_file_checksums
+
+      @msg_handler ||= MessageHandlerNull.new
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "@create_zero_length_files=#{@create_zero_length_files}",
+                               "@export_files=#{@export_files}",
+                               "@export_files_newer_than_date=#{@export_files_newer_than_date}",
+                               "@mode=#{@mode}",
+                               "@overwrite_export_files=#{@overwrite_export_files}",
+                               "@target_dir=#{@target_dir}",
+                               "@validate_file_checksums=#{@validate_file_checksums}",
+                             ] if debug_verbose
 
       @exported_file_set_files       = []
       @errors                        = []
@@ -443,7 +457,7 @@ module Deepblue
                                   out: nil,
                                   populate_works: true,
                                   export_files: true,
-                                  export_files_filter_date: nil,
+                                  export_files_newer_than_date: nil,
                                   target_filename: nil,
                                   target_dirname: nil )
 
@@ -466,7 +480,7 @@ module Deepblue
           collection.member_objects.each do |work|
             next unless yaml_is_a_work?( curation_concern: work )
             yaml_work_export_files( work: work,
-                                    export_files_filter_date: export_files_filter_date,
+                                    export_files_newer_than_date: export_files_newer_than_date,
                                     target_dirname: target_dir )
           end
         end
@@ -549,34 +563,35 @@ module Deepblue
                             dir:                      MetadataHelper::DEFAULT_BASE_DIR,
                             out:                      nil,
                             export_files:             true,
-                            export_files_filter_date: nil,
+                            export_files_newer_than_date: nil,
                             target_filename:          nil,
                             target_dirname:           nil,
                             log_filename:             nil )
 
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "curation_concern.nil?=#{curation_concern.nil?}",
-                                             "dir=#{dir}",
-                                             "out.nil?=#{out.nil?}",
-                                             "export_files=#{export_files}",
-                                             "export_files_filter_date=#{export_files_filter_date}",
-                                             "target_filename=#{target_filename}",
-                                             "target_dirname=#{target_dirname}",
-                                             "log_filename=#{log_filename}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "curation_concern.nil?=#{curation_concern.nil?}",
+                               "dir=#{dir}",
+                               "out.nil?=#{out.nil?}",
+                               "export_files=#{export_files}",
+                               "export_files_newer_than_date=#{export_files_newer_than_date}",
+                               "target_filename=#{target_filename}",
+                               "target_dirname=#{target_dirname}",
+                               "log_filename=#{log_filename}",
+                               "" ] if debug_verbose
       target_file = nil
       dir = Pathname.new dir unless dir.is_a? Pathname
       # puts "dir=#{dir}" if debug_verbose
       if out.nil?
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
         curation_concern = yaml_work_find( curation_concern: curation_concern ) if curation_concern.is_a? String
         target_file = yaml_filename_work( pathname_dir: dir, work: curation_concern )
         target_dir = yaml_targetdir_work( pathname_dir: dir, work: curation_concern )
         # Dir.mkdir( target_dir ) if export_files && !Dir.exist?( target_dir )
         if export_files
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
           Dir.mkdir( target_dir ) unless Dir.exist?( target_dir )
           yaml_work_export_files( work: curation_concern,
-                                  export_files_filter_date: export_files_filter_date,
+                                  export_files_newer_than_date: export_files_newer_than_date,
                                   target_dirname: target_dir,
                                   log_filename: log_filename )
         end
@@ -584,17 +599,18 @@ module Deepblue
           yaml_populate_work( curation_concern:         curation_concern,
                               out:                      out2,
                               export_files:             export_files,
-                              export_files_filter_date: export_files_filter_date,
+                              export_files_newer_than_date: export_files_newer_than_date,
                               target_filename:          target_file,
                               target_dirname:           target_dir )
         end
         # if export_files
         #   yaml_work_export_files( work: curation_concern,
-        #                           export_files_filter_date: export_files_filter_date,
+        #                           export_files_newer_than_date: export_files_newer_than_date,
         #                           target_dirname: target_dir,
         #                           log_filename: log_filename )
         # end
       else
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
         log_provenance_migrate( curation_concern: curation_concern ) if MetadataHelper::MODE_MIGRATE == mode
         indent_base = " " * 2
         indent = indent_base * 0
@@ -650,12 +666,11 @@ module Deepblue
     end
 
     def yaml_work_export_file( file_set:, log_file:, target_dir: )
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "file_set=#{file_set.id}",
-                                             "log_file=#{log_file}",
-                                             "target_dir=#{target_dir}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "file_set=#{file_set.id}",
+                               "log_file=#{log_file}",
+                               "target_dir=#{target_dir}",
+                               "" ] if debug_verbose
       bytes_exported = 0
       export_file_name = yaml_export_file_path( target_dirname: target_dir, file_set: file_set )
       exported_file_set_files << export_file_name if collect_exported_file_set_files
@@ -730,16 +745,15 @@ module Deepblue
     end
 
     def yaml_work_export_files( work:,
-                                export_files_filter_date: nil,
+                                export_files_newer_than_date: nil,
                                 target_dirname: nil,
                                 log_filename: nil )
 
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "work.nil?=#{work.nil?}",
-                                             "export_files_filter_date=#{export_files_filter_date}",
-                                             "target_dirname=#{target_dirname}",
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "work.nil?=#{work.nil?}",
+                               "export_files_newer_than_date=#{export_files_newer_than_date}",
+                               "target_dirname=#{target_dirname}",
+                               "" ] if debug_verbose
       log_filename ||= "w_#{work.id}.export.log"
       log_file = target_dirname.join log_filename
       File.open( log_file, 'w' ) { |f| f.write('') } # erase log file
@@ -752,71 +766,15 @@ module Deepblue
       if work.file_sets.count.positive?
         work.file_sets.each do |file_set|
           date_modified = file_set.date_modified
-          next if export_files_filter_date.present? && date_modified >= export_files_filter_date
-          # export_file_name = yaml_export_file_path( target_dirname: target_dirname, file_set: file_set )
-          # exported_file_set_files << export_file_name if collect_exported_file_set_files
-          # write_file = if overwrite_export_files
-          #                true
-          #              else
-          #                !File.exist?( export_file_name )
-          #              end
-          # file = MetadataHelper.file_from_file_set( file_set )
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                   "file_set.id=#{file_set.id}",
+                                   "export_files_newer_than_date=#{export_files_newer_than_date}",
+                                   "date_modified=#{date_modified}",
+                                   "" ] if debug_verbose
+          next if export_files_newer_than_date.present? && date_modified < export_files_newer_than_date
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
           bytes_exported = yaml_work_export_file( file_set: file_set, log_file: log_file, target_dir: target_dirname )
           total_byte_count += bytes_exported
-          # if write_file && file.present?
-          #   source_uri = file.uri.value
-          #   log_lines( log_file, "Starting file export of #{export_what} at #{Time.now}." )
-          #   validate_with_checksum = yaml_validate_file_set_checksum_build( file_set: file_set )
-          #   log_lines_from_export = []
-          #   bytes_copied = ExportFilesHelper.export_file_uri( source_uri: source_uri,
-          #                                                     target_file: export_file_name,
-          #                                                     validate_with_checksum: validate_with_checksum,
-          #                                                     log_lines: log_lines_from_export,
-          #                                                     errors: @errors,
-          #                                                     debug_verbose: debug_verbose )
-          #   log_lines( log_file, log_lines_from_export ) if log_lines_from_export.present?
-          #   total_byte_count += bytes_copied
-          #   log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
-          # elsif write_file && file.nil? && export_file_name.present?
-          #   if create_zero_length_files
-          #     log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
-          #     File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
-          #   else
-          #     log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
-          #   end
-          # elsif write_file && file.nil?
-          #   log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
-          # else
-          #   log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
-          # end
-          # # original = file_set.original_file
-          # # versions = original ? original.versions.all : []
-          # versions = file_set.versions
-          # parent = File.dirname export_file_name
-          # # puts "export_file_name=#{export_file_name}"
-          # filename = File.basename export_file_name
-          # # puts `ls -l #{parent}`
-          # if versions.count > 1
-          #   versions.each_with_index do |ver,index|
-          #     index += 1 # not zero-based
-          #     next if index >= versions.count # skip exporting last version file as it is the current version
-          #     vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
-          #     if vc.empty?
-          #
-          #     else
-          #       vc = vc.first
-          #       v_filename = "v#{index}_#{filename}"
-          #       v_filename = File.join parent, v_filename
-          #       # TODO: check if overwriting, and do the right thing
-          #       log_lines( log_file, "Starting file export of #{v_filename} at #{Time.now}." )
-          #       bytes_copied = ExportFilesHelper.export_file_uri( source_uri: ver.uri,
-          #                                                         target_file: v_filename,
-          #                                                         debug_verbose: debug_verbose )
-          #       total_byte_count += bytes_copied
-          #       log_lines( log_file, "Finished file export of #{v_filename} at #{Time.now}." )
-          #     end
-          #   end
-          # end
         end
       end
       end_time = Time.now

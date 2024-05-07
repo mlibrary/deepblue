@@ -997,7 +997,7 @@ module Deepblue
     end
 
     def check_for_and_run_bulk_file_set_delete
-      debug_verbose = true || deepblue_works_controller_behavior_debug_verbose
+      debug_verbose = deepblue_works_controller_behavior_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if debug_verbose

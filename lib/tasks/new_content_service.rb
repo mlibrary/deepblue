@@ -1565,7 +1565,7 @@ module Deepblue
       end
 
       def doi_mint( curation_concern: )
-        debug_verbose = true || new_content_service_debug_verbose
+        debug_verbose =new_content_service_debug_verbose
         @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
                                        "curation_concern.id=#{curation_concern.id}" ] if debug_verbose
         # return unless allow_mint_doi

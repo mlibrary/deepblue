@@ -293,6 +293,14 @@ module Aptrust
       end
     end
 
+    def status_created_at( noid: )
+      rv = ::Aptrust::Status.for_id( noid: noid )
+      return nil if rv.blank?
+      rv = rv.first
+      rv = rv.created_at
+      return rv
+    end
+
     def test_dates_init
       msg_handler.msg_verbose "Filter date_begin=#{date_begin}"
       msg_handler.msg_verbose "Filter date_end=#{date_end}"
