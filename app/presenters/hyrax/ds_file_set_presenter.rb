@@ -388,8 +388,8 @@ module Hyrax
 
     def description_file_set
       rv = @solr_document.description_file_set
-      return rv.first if rv.present?
-      rv
+      rv = Array( rv ).join( ' ' ) if rv.present?
+      return rv
     end
 
     def download_path_link( main_app:, curation_concern: solr_document )
