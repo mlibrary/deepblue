@@ -14,9 +14,9 @@ module Hyrax
       attr_accessor :contact_form_email
       attr_accessor :contact_form_valid
       attr_accessor :create_timestamp
-      attr_accessor :email_passthrough
+      attr_accessor :email_passthrough # whitelist
       attr_accessor :email_passthrough_entered
-      attr_accessor :email_passthrough_re
+      attr_accessor :email_passthrough_re # whitelist
       attr_accessor :email_passthrough_re_matched
       attr_accessor :email_passthrough_test
       attr_accessor :ngr_details
