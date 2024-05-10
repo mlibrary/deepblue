@@ -36,7 +36,6 @@ RSpec.describe ::Deepblue::DeactivateExpiredEmbargoesService do
                                       to_console: to_console,
                                       verbose: verbose)
         expect(service).to receive(:assets_with_expired_embargoes).and_return []
-        # expect(service).to receive(:data_sets_all).and_return []
         service.run
         # expect(job.timestamp_begin.between?(time_before,time_after)).to eq true
         described_class.deactivate_expired_embargoes_service_debug_verbose = save_debug_verbose
