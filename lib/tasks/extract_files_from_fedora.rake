@@ -30,6 +30,18 @@ module Deepblue
         begin
           file = file_set.files[0]
           target_file_name = TaskHelper.target_file_name( file_set: file_set, files_extracted: files_extracted )
+          # target_file_name = file_set.label
+          # if files_extracted.key? target_file_name
+          #   dup_count = 1
+          #   base_ext = File.extname target_file_name
+          #   base_target_file_name = File.basename target_file_name, base_ext
+          #   target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+          #   while files_extracted.key? target_file_name
+          #     dup_count += 1
+          #     target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+          #   end
+          # end
+          # files_extracted.store( target_file_name, true )
           target_file = "#{tmp}/#{target_file_name}"
           source_uri = file.uri.value
           puts "copy #{target_file} << #{source_uri}"

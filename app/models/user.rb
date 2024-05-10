@@ -9,6 +9,8 @@ class User < ApplicationRecord
 
   # Connects this user object to Role-management behaviors.
   # include Hydra::RoleManagement::UserRoles
+
+  # Connects this user object to Role-management behaviors.
   include Hydra::RoleManagement::UserRoles if Rails.configuration.user_role_management_enabled
 
   # Connects this user object to Hyrax behaviors.
