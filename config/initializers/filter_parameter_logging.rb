@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Be sure to restart your server when you modify this file.
 
 # puts "\n\nRails.application.config.filter_parameters=#{Rails.application.config.filter_parameters}\n\n"

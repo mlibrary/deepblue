@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'resque'
 
 # see config/resque-pool.yml for queue workers

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # These events are triggered by actions within Hyrax Actors
 
 HYRAX_CALLBACKS_DEBUG_VERBOSE = false
