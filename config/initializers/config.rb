@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Initializer for the Config gem.
 Config.setup do |config|
   # Name of the constant exposing loaded settings

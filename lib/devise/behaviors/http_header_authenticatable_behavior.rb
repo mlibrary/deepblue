@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # this class is specific to UMich authentication only
 
 # Default strategy for signing in a user, based on remote user attribute in headers.

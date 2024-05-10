@@ -1,4 +1,7 @@
+# frozen_string_literal: true
+
 require 'iiif_manifest'
+require 'rails_helper'
 
 RSpec.describe Hyrax::FileSetPresenter, clean_repo: true do
   subject(:presenter) { described_class.new(solr_document, ability) }
