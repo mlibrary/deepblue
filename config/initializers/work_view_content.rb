@@ -5,11 +5,10 @@ Deepblue::WorkViewContentService.setup do |config|
   config.static_content_cache_debug_verbose = false
   config.static_content_controller_behavior_verbose = false
   config.static_content_controller_behavior_menu_verbose = false
-  config.work_view_content_service_debug_verbose = false
+  config.work_view_documentation_controller_cc_debug_verbose = false
   config.work_view_content_service_email_templates_debug_verbose = false
   config.work_view_content_service_i18n_templates_debug_verbose = false
   config.work_view_content_service_view_templates_debug_verbose = false
-  config.work_view_documentation_controller_debug_verbose = false
 
   config.documentation_collection_title = "DBDDocumentationCollection"
   config.documentation_work_title_prefix = "DBDDoc-"

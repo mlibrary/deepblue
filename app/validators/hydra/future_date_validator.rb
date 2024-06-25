@@ -1,4 +1,5 @@
 # this monkey overrides Hydra::FutureDateValidator in the gem hydra-access-controls
+# Reviewed: hyrax4 -- hydra-access-controls-12.1.0
 
 module Hydra
 

@@ -334,7 +334,7 @@ module Deepblue
     end
 
     def doi_hide_cc_and_register_provenance( curation_concern )
-      doi_hide_cc( curation_concern )
+      doi_hide_cc( curation_concern: curation_concern )
       #curation_concern.provenance_mint_doi( current_user: current_user, event_note: 'DoiMintingService' )
       attributes, ignore_blank_key_values = curation_concern.attributes_all_for_provenance, USE_BLANK_KEY_VALUES
       # provenance_log_event( attributes: attributes,

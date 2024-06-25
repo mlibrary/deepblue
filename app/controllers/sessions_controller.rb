@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 # this class is specific to UMich authentication only
 class SessionsController < ApplicationController

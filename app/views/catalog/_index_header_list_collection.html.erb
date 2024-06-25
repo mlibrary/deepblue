@@ -1,3 +1,4 @@
+<%# Reviewed: hyrax4 %>
 <div class="search-results-title-row">
   <h2 class="search-result-title"><%= link_to document.title_or_label, [hyrax, document] %></h2><span class="collection-tag">
   <%= Hyrax::CollectionPresenter.new(document, current_ability).collection_type_badge %></span>

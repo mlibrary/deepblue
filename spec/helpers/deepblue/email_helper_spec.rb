@@ -17,8 +17,8 @@ RSpec.describe ::Deepblue::EmailHelper, type: :helper do
     let(:key) { 'hyrax.email.deactivate_embargo.subject' }
     let(:title) { 'The Title' }
     let(:expected_translation) { "Deepblue Data: Embargo deactivated for #{title}" }
-    it { expect(described_class.t( key, title: title )).to eq expected_translation }
-    it { expect(described_class.translate( key, title: title )).to eq expected_translation }
+    it { expect(described_class.t!( key, title: title )).to eq expected_translation }
+    it { expect(described_class.translate!( key, title: title )).to eq expected_translation }
   end
 
   describe 'Clean strings' do

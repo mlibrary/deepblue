@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 class IngestJob < AbstractIngestJob
   # monkey patch

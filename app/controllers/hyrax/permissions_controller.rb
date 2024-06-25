@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -6,6 +8,9 @@ module Hyrax
 
     mattr_accessor :permissions_controller_debug_verbose,
                    default: Rails.configuration.permissions_controller_debug_verbose
+    # Upgrade: hyrax4, heliotrope
+    load_resource class: ActiveFedora::Base, instance_name: :curation_concern
+    # hyrax4 version # load_resource class: Hyrax::Resource, instance_name: :curation_concern
 
     attr_reader :curation_concern
     helper_method :curation_concern

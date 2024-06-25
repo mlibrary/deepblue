@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   module Listeners
@@ -17,52 +18,92 @@ module Hyrax
       ##
       # Re-index the resource.
       #
-      # @param event [Dry::Event]
-      def on_object_metadata_updated(event)
-        log_non_resource(event) && return unless event[:object].is_a?(Valkyrie::Resource)
+      # Called when 'collection.metadata.updated' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
+      def on_collection_metadata_updated(event)
+        return unless resource? event[:collection]
+        Hyrax.index_adapter.save(resource: event[:collection])
+      end
 
+      ##
+      # Re-index the resource.
+      #
+      # Called when 'file.metadata.updated' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
+      def on_file_metadata_updated(event)
+        return unless resource? event[:metadata]
+        Hyrax.index_adapter.save(resource: event[:metadata])
+      end
+
+      ##
+      # Re-index the resource.
+      #
+      # Called when 'object.membership.updated' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
+      def on_object_membership_updated(event)
+        resource = event.to_h.fetch(:object) { Hyrax.query_service.find_by(id: event[:object_id]) }
+        return unless resource?(resource)
+
+        Hyrax.index_adapter.save(resource: resource)
+      rescue Valkyrie::Persistence::ObjectNotFoundError => err
+        Hyrax.logger.error("Tried to index for an #{event.id} event with " \
+                           "payload #{event.payload}, but failed due to error:\n"\
+                           "\t#{err.message}")
+      end
+
+      ##
+      # Re-index the resource.
+      #
+      # Called when 'object.metadata.updated' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
+      def on_object_metadata_updated(event)
+        return unless resource? event[:object]
         Hyrax.index_adapter.save(resource: event[:object])
       end
 
       ##
       # Remove the resource from the index.
       #
-      # @param event [Dry::Event]
+      # Called when 'object.deleted' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
       def on_object_deleted(event)
-        log_non_resource(event.payload) && return unless event.payload[:object].is_a?(Valkyrie::Resource)
+        return unless resource?(event.payload[:object])
+        Hyrax.index_adapter.delete(resource: event[:object])
+      end
 
-        Hyrax.index_adapter.delete(resource: event.payload[:object]) # monkey, fix reference to payload
+      ##
+      # Remove the resource from the index.
+      #
+      # Called when 'collection.deleted' event is published
+      # @param [Dry::Events::Event] event
+      # @return [void]
+      def on_collection_deleted(event)
+        return unless resource?(event.payload[:collection])
+        Hyrax.index_adapter.delete(resource: event[:collection])
       end
 
       private
 
-      def log_non_resource(event)
-        Hyrax.logger.info('Skipping object reindex because the object ' \
-                          "#{event[:object]} was not a Valkyrie::Resource.") if hyrax_listeners_metadata_index_listener_verbose
+      def resource?(resource)
+        return true if resource.is_a? Valkyrie::Resource
+        log_non_resource(resource)
+        false
+      end
+
+      def log_non_resource(resource)
+        generic_type = resource_generic_type(resource)
+        Hyrax.logger.info("Skipping #{generic_type} reindex because the " \
+                          "#{generic_type} #{resource} was not a Valkyrie::Resource.")
+      end
+
+      def resource_generic_type(resource)
+        resource.try(:collection?) ? 'collection' : 'object'
       end
     end
   end
 end
-
-
-# # monkey patch
-# require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/services/hyrax/listeners/metadata_index_listener.rb" )
-# monkey patching this caused problems
-# module Hyrax
-#   module Listeners
-#
-#     class MetadataIndexListener
-#
-#       mattr_accessor :hyrax_listeners_metadata_index_listener_verbose, default: false
-#
-#       private
-#
-#       # monkey override
-#       def log_non_resource(event)
-#         Hyrax.logger.info('Skipping object reindex because the object ' \
-#                           "#{event[:object]} was not a Valkyrie::Resource.") if hyrax_listeners_metadata_index_listener_verbose
-#       end
-#
-#     end
-#   end
-# end

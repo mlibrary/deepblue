@@ -97,23 +97,23 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     context 'when a hash' do
       let(:args) { {x: 'y'} }
       let(:args2) { {x: 'y', a: 'b'} }
-      it { expect( described_class.normalize_args(*args) ).to eq( [[:x,'y']] ) }
-      it { expect( described_class.normalize_args(*args2) ).to eq( [[:x,'y'],[:a,'b']] ) }
+      it { expect( described_class.normalize_args( args: args) ).to eq( {x: 'y'} ) }
+      it { expect( described_class.normalize_args( args: args2) ).to eq( {x: 'y', a: 'b'} ) }
     end
 
     context 'when an array contains an array contains a hash' do
       let(:hash) { {x: 'y'} }
       let(:hash2) { {x: 'y', a: 'b'} }
-      let(:array) { [[:x, 'y']] }
-      let(:array2) { [[:x, 'y'], [:a, 'b']] }
+      let(:array) { [{x: 'y'}] }
+      let(:array2) { [{x: 'y', a: 'b'}] }
       # let(:args) { [array] }
       # let(:args2) { [[array]] }
       # let(:args3) { [array2] }
       # let(:args4) { [[array2]] }
-      it { expect( described_class.normalize_args(*hash) ).to eq( array ) }
-      it { expect( described_class.normalize_args(*hash2) ).to eq( array2 ) }
-      # it { expect( described_class.normalize_args(*args3) ).to eq( hash2 ) }
-      # it { expect( described_class.normalize_args(*args4) ).to eq( hash2 ) }
+      it { expect( described_class.normalize_args( args: array) ).to eq( hash ) }
+      it { expect( described_class.normalize_args( args: array2) ).to eq( hash2 ) }
+      # it { expect( described_class.normalize_args(args: args3) ).to eq( hash2 ) }
+      # it { expect( described_class.normalize_args(args: args4) ).to eq( hash2 ) }
     end
 
     # context 'when an array containing an array that looks like a hash' do
@@ -123,10 +123,10 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
     #   let(:args2) { [[array]] }
     #   let(:args3) { [array2] }
     #   let(:args4) { [[array2]] }
-    #   it { expect( described_class.normalize_args(*args) ).to eq( array ) }
-    #   it { expect( described_class.normalize_args(*args2) ).to eq( array ) }
-    #   it { expect( described_class.normalize_args(*args3) ).to eq( array2 ) }
-    #   it { expect( described_class.normalize_args(*args4) ).to eq( array2 ) }
+    #   it { expect( described_class.normalize_args(args: args) ).to eq( array ) }
+    #   it { expect( described_class.normalize_args(args: args2) ).to eq( array ) }
+    #   it { expect( described_class.normalize_args(args: args3) ).to eq( array2 ) }
+    #   it { expect( described_class.normalize_args(args: args4) ).to eq( array2 ) }
     # end
 
   end
@@ -140,15 +140,15 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
 
     context 'it returns options to the correct values 1' do
       it 'does it' do
-        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with([:x,'y'], debug_verbose: debug_verbose).and_call_original
-        expect( described_class.initialize_options_from(*args, debug_verbose: debug_verbose) ).to eq( args.with_indifferent_access )
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(args: args, debug_verbose: debug_verbose).and_call_original
+        expect( described_class.initialize_options_from( args: args, debug_verbose: debug_verbose) ).to eq( args.with_indifferent_access )
       end
     end
 
     context 'it returns options to the correct values 2' do
       it 'does it' do
-        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with([:x,'y'], [:a,'b'], debug_verbose: debug_verbose).and_call_original
-        expect( described_class.initialize_options_from(*args2, debug_verbose: debug_verbose) ).to eq( args2.with_indifferent_access )
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(args: {x: 'y', a: 'b'}, debug_verbose: debug_verbose).and_call_original
+        expect( described_class.initialize_options_from( args: args2, debug_verbose: debug_verbose) ).to eq( args2.with_indifferent_access )
       end
     end
 

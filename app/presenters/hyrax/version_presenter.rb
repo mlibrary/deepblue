@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -27,8 +28,11 @@ module Hyrax
     end
 
     def committer
-      vc = Hyrax::VersionCommitter.where(version_id: @version.uri)
-      vc.empty? ? nil : vc.first.committer_login
+      # vc = Hyrax::VersionCommitter.find_by(version_id: @version.uri)
+      # vc.empty? ? nil : vc.first.committer_login
+      Hyrax::VersionCommitter
+        .find_by(version_id: @version.uri)
+        &.committer_login
     end
 
     def debug_verbose

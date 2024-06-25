@@ -23,10 +23,9 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
 
   shared_examples 'a file attacher', perform_enqueued: [AttachFilesToWorkJob, IngestJob] do
     let(:job) { described_class.send( :job_or_instantiate,
-                                      data_set,
-                                      [uploaded_file1, uploaded_file2],
-                                      user.user_key,
-                                      {} ) }
+                                      work: data_set,
+                                      uploaded_files: [uploaded_file1, uploaded_file2],
+                                      user_key: user.user_key ) }
 
     it 'attaches files, copies visibility and permissions and updates the uploaded files' do
       ActiveJob::Base.queue_adapter = :test

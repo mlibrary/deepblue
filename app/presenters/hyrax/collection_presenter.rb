@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override Hyrax::CollectionPresenter in Hyrax gem.
 
@@ -58,54 +59,49 @@ module Hyrax
              :stringify_keys,
              :to_s, to: :solr_document
 
-    delegate(*Hyrax::CollectionType.collection_type_settings_methods, to: :collection_type, prefix: :collection_type_is)
+    # hyrax2 # delegate(*Hyrax::CollectionType.collection_type_settings_methods, to: :collection_type, prefix: :collection_type_is)
+    delegate(*Hyrax::CollectionType.settings_attributes, to: :collection_type, prefix: :collection_type_is)
+    alias nestable? collection_type_is_nestable?
 
     def collection_type
       @collection_type ||= Hyrax::CollectionType.find_by_gid!(collection_type_gid)
     end
 
     # Metadata Methods
-    delegate :based_near,
-             :collection_type_gid,
-             :contributor,
-             :create_date,
-             :creator,
-             :curation_notes_admin,
-             :curation_notes_user,
-             :date_created,
+    delegate :title,
              :description,
-             :edit_groups,
-             :edit_people,
-             :embargo_release_date,
-             :identifier,
+             :creator,
+             :contributor,
+             :subject,
+             :publisher,
              :keyword,
              :language,
+             :embargo_release_date,
              :lease_expiration_date,
              :license,
-             :modified_date,
-             :publisher,
-             :referenced_by,
-             :related_url,
+             :date_created,
              :resource_type,
-             :subject,
+             :based_near,
+             :related_url,
+             :identifier,
              :thumbnail_path,
-             :title,
              :title_or_label,
+             :collection_type_gid,
+             :create_date,
+             :modified_date,
              :visibility,
+             :edit_groups,
+             :edit_people,
+             :curation_notes_admin,
+             :curation_notes_user,
+             :referenced_by,
              to: :solr_document
-
-    # def thumbnail_path
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "solr_document.class.name=#{solr_document.class.name}",
-    #                                          "" ] if collection_presenter_debug_verbose
-    #   solr_document.thumbnail_path
-    # end
 
     # Terms is the list of fields displayed by
     # app/views/collections/_show_descriptions.html.erb
     def self.terms
       [:total_items,
+       :alternative_title,
        :size,
        :resource_type,
        :creator,
@@ -119,8 +115,8 @@ module Hyrax
        :language,
        :identifier,
        :based_near,
-       :referenced_by,
-       :related_url ]
+       :related_url,
+       :referenced_by ]
     end
 
     def self.admin_only_terms
@@ -206,7 +202,7 @@ module Hyrax
       number_to_human_size(@solr_document['bytes_lts'])
     end
 
-    # @deprecated to be removed in 4.0.0; this feature was replaced with a
+    # monkey # (at)deprecated to be removed in 4.0.0; this feature was replaced with a
     #   hard-coded null implementation
     # @return [String] 'unknown'
     def size2
@@ -285,11 +281,18 @@ module Hyrax
     alias work_member_ids work_members_of_this_collection_ids
 
     def total_items
-      Hyrax::SolrService.new.count("member_of_collection_ids_ssim:#{id}")
+      field_pairs = { "member_of_collection_ids_ssim" => id.to_s }
+      SolrQueryService.new
+                      .with_field_pairs(field_pairs: field_pairs)
+                      .count
     end
 
     def total_viewable_items
-      ::PersistHelper.where("member_of_collection_ids_ssim:#{id}").accessible_by(current_ability).count
+      field_pairs = { "member_of_collection_ids_ssim" => id.to_s }
+      SolrQueryService.new
+                      .with_field_pairs(field_pairs: field_pairs)
+                      .accessible_by(ability: current_ability)
+                      .count
     end
 
     def total_viewable_works
@@ -298,11 +301,21 @@ module Hyrax
                                              "id=#{id}",
                                              "current_ability=#{current_ability}",
                                              "" ] if collection_presenter_debug_verbose
-      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Work").accessible_by(current_ability).count
+      field_pairs = { "member_of_collection_ids_ssim" => id.to_s }
+      SolrQueryService.new
+                      .with_field_pairs(field_pairs: field_pairs)
+                      .with_generic_type(generic_type: "Work")
+                      .accessible_by(ability: current_ability)
+                      .count
     end
 
     def total_viewable_collections
-      ::PersistHelper.where("member_of_collection_ids_ssim:#{id} AND generic_type_sim:Collection").accessible_by(current_ability).count
+      field_pairs = { "member_of_collection_ids_ssim" => id.to_s }
+      SolrQueryService.new
+                      .with_field_pairs(field_pairs: field_pairs)
+                      .with_generic_type(generic_type: "Collection")
+                      .accessible_by(ability: current_ability)
+                      .count
     end
 
     def collection_type_badge
@@ -312,13 +325,13 @@ module Hyrax
 
     # The total number of parents that this collection belongs to, visible or not.
     def total_parent_collections
-      parent_collections.nil? ? 0 : parent_collections.response['numFound']
+      parent_collections.blank? ? 0 : parent_collections.response['numFound']
     end
 
     # The number of parent collections shown on the current page. This will differ from total_parent_collections
     # due to pagination.
     def parent_collection_count
-      parent_collections.nil? ? 0 : parent_collections.documents.size
+      parent_collections.blank? ? 0 : parent_collections.documents.size
     end
 
     def user_can_nest_collection?
@@ -365,7 +378,15 @@ module Hyrax
       create_work_presenter.first_model
     end
 
+    ##
+    # monkey # (at)deprecated this implementation requires an extra db round trip, had a
+    #   buggy cacheing mechanism, and was largely duplicative of other code.
+    #   all versions of this code are replaced by
+    #   {CollectionsHelper#available_parent_collections_data}.
     def available_parent_collections(scope:)
+      Deprecation.warn("#{self.class}#available_parent_collections is " \
+                       "deprecated. Use available_parent_collections_data " \
+                       "helper instead.")
       return @available_parents if @available_parents.present?
       collection = ::Collection.find(id)
       colls = Hyrax::Collections::NestedCollectionQueryService.available_parent_collections(child: collection, scope: scope, limit_to_id: nil)

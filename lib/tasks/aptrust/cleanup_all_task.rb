@@ -44,7 +44,7 @@ module Aptrust
       bag_id_glob = bag_id_for_noid.gsub( 'noid', '*' )
       @bag_id_regexp = bag_id_regexp( bag_id: @bag_id_for_noid )
       msg_handler.msg_verbose "bag_id_glob=#{bag_id_glob}"
-      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( working_dir,
+      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir_path: working_dir,
                                                             glob: bag_id_glob,
                                                             dotmatch: false,
                                                             include_dirs: true,

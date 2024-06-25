@@ -4,7 +4,7 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
 
   queue_as :doi_minting
 
-  def perform( id,
+  def perform( id:,
                current_user: nil,
                job_delay: 0,
                target_url:,

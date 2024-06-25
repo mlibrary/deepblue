@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+#  Reviewed: hyrax4
 
 module Hyrax
 
@@ -8,7 +9,7 @@ module Hyrax
                    default: ::Hyrax::SingleUseLinkService.single_use_links_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
-    include Blacklight::SearchHelper
+    #include Blacklight::SearchHelper
     class_attribute :show_presenter
     self.show_presenter = Hyrax::SingleUseLinkPresenter
     before_action :authenticate_user!
@@ -134,7 +135,7 @@ module Hyrax
     end
 
     def asset_show_path
-      polymorphic_path([main_app, fetch(params[:id]).last])
+      polymorphic_path([main_app, search_service.fetch(params[:id]).last])
     end
   end
 

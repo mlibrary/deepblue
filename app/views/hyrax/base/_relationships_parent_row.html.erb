@@ -1,0 +1,20 @@
+<%# Update: hyrax4 -- Added app/views/hyrax/base/_relationships_parent_row.html.erb to fix error for directly calling url_for_document %>
+<dt> <%= t(".label", type: type.humanize) %> </dt>
+<dd>
+    <% if items.blank? %>
+      <p><%= t('.empty', type: type.humanize) %></p>
+    <% else %>
+      <ul class="tabular">
+        <% items.each do |item| %>
+          <li class='attribute attribute-title'>
+            puts
+            puts "item.class.name=#{item.class.name}"
+            puts "item=#{item}"
+            puts
+            <%#= Updated: hyrax4 # link_to item.title.first, url_for_document(item) %>
+            <%= link_to item.title.first, search_state.url_for_document(item) %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+  </dd>

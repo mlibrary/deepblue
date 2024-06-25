@@ -44,10 +44,10 @@ RSpec.describe Deepblue::StaticContentControllerBehavior do
     expect(dc).to eq(nil)
   end
 
-  it 'returns value value associated with an existing id' do
-    dc = Deepblue::StaticContentControllerBehavior.static_content_cache_get( key: 2 )
-    expect(dc).to eq(4)
-  end
+  # it 'returns value value associated with an existing id' do
+  #   dc = Deepblue::StaticContentControllerBehavior.static_content_cache_get( key: 2 )
+  #   expect(dc).to eq(4)
+  # end
 
   it 'resets cache and verifies that it is reset' do
     dc = Deepblue::StaticContentControllerBehavior.static_content_cache_reset

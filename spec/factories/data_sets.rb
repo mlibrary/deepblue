@@ -83,6 +83,13 @@ FactoryBot.define do
       end
     end
 
+    factory :work_with_file_and_work do
+      before(:create) do |work, evaluator|
+        work.ordered_members << create(:file_set, user: evaluator.user)
+        work.ordered_members << create(:data_set, user: evaluator.user)
+      end
+    end
+
     # factory :data_set_with_one_child do
     #   before(:create) do |work, evaluator|
     #     work.ordered_members << create(:data_set, user: evaluator.user, title: ['A Contained Work'])

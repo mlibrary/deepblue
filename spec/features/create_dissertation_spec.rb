@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# Skip: hyrax4
 require 'rails_helper'
 include Warden::Test::Helpers
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 class SingleUseLink < ActiveRecord::Base
   include LinkBehavior
@@ -47,7 +48,7 @@ class SingleUseLink < ActiveRecord::Base
       #                                        "::Hyrax::SingleUseLinkService.single_use_link_default_expiration_duration.parts=#{::Hyrax::SingleUseLinkService.single_use_link_default_expiration_duration.parts}",
       #                                        "" ] if ::Hyrax::SingleUseLinkService.single_use_link_service_debug_verbose
       self.expires ||= DateTime.current.advance( seconds: ::Hyrax::SingleUseLinkService.single_use_link_default_expiration_duration )
-      self.download_key ||= generate_download_key
+      self.download_key ||= LinkBehavior.generate_download_key
     end
 
 end

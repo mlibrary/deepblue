@@ -1,8 +1,9 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::StaticController, type: :controller do
+RSpec.describe Hyrax::StaticController, :clean_repo, clean: true, type: :controller do
 
   include Devise::Test::ControllerHelpers
   let(:main_app) { Rails.application.routes.url_helpers }

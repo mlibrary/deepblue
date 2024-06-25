@@ -52,7 +52,7 @@ class IngestScript
   def self.ingest_script_dirs( id: nil, active_only: false )
     path = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
     return [ path ] if id.blank? || active_only
-    return [ path, ::Deepblue::DiskUtilitiesHelper.expand_id_path( id, base_dir: path ) ]
+    return [ path, ::Deepblue::DiskUtilitiesHelper.expand_id_path( id: id, base_dir: path ) ]
   end
 
   def self.ingest_script_file_name( script_id: )
@@ -61,7 +61,7 @@ class IngestScript
 
   def self.ingest_script_path_is( expand_id: false, id: nil )
     path = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
-    path = ::Deepblue::DiskUtilitiesHelper.expand_id_path( id, base_dir: path ) if expand_id
+    path = ::Deepblue::DiskUtilitiesHelper.expand_id_path( id: id, base_dir: path ) if expand_id
     return path
   end
 
@@ -174,7 +174,7 @@ class IngestScript
                                            "" ] if ingest_script_debug_verbose
     @initial_yaml_dir = File.dirname( @initial_yaml_file_path )
     @ingest_base_dir  = ::Deepblue::IngestIntegrationService.ingest_script_tracking_dir_base
-    @ingest_id_dir    = ::Deepblue::DiskUtilitiesHelper.expand_id_path( @curation_concern_id,
+    @ingest_id_dir    = ::Deepblue::DiskUtilitiesHelper.expand_id_path( id: @curation_concern_id,
                                                                         base_dir: @ingest_base_dir )
     if load
       @ingest_mode            = user_section[:mode]

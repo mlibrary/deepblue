@@ -12,6 +12,12 @@ class AnonymousLink < ActiveRecord::Base
                            path:,
                            debug_verbose: ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose )
 
+    # puts [ "", ::Deepblue::LoggingHelper.here,
+    #        ::Deepblue::LoggingHelper.called_from,
+    #                                        "id=#{id}",
+    #                                        "path=#{path}",
+    #                                        "" ].join( "\n" )
+
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
@@ -32,6 +38,13 @@ class AnonymousLink < ActiveRecord::Base
                                            "path=#{path}",
                                            "rv=#{rv}",
                                            "" ] if debug_verbose
+    # puts [ "", ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "rv_mode=#{rv_mode}",
+    #                                        "id=#{id}",
+    #                                        "path=#{path}",
+    #                                        "rv=#{rv}",
+    #                                        "" ].join( "\n" )
     return rv
   end
 
@@ -59,7 +72,7 @@ class AnonymousLink < ActiveRecord::Base
       #                                        "user_id=#{user_id}",
       #                                        "" ] if ::Hyrax::AnonymousLinkService.anonymous_link_service_debug_verbose
       return unless new_record?
-      self.download_key ||= generate_download_key
+      self.download_key ||= LinkBehavior.generate_download_key
     end
 
 end

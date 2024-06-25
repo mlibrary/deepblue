@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Updated: hyrax4
 require 'rails_helper'
 
 RSpec.describe Hyrax::DownloadsController, skip: false do
@@ -18,7 +18,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
     it 'raises an error if the object does not exist' do
       expect do
         get :show, params: { id: '8675309' }
-      end.to raise_error Blacklight::Exceptions::InvalidSolrID
+      end.to raise_error Blacklight::Exceptions::RecordNotFound
     end
 
     context "when user doesn't have access", skip: true do
@@ -131,7 +131,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
               expect(response.headers["Content-Length"]).to eq '4218'
               expect(response.headers['Accept-Ranges']).to eq 'bytes'
               expect(response.headers['Content-Type']).to start_with "image/png"
-              expect(response.headers["Content-Disposition"]).to eq "inline; filename=\"world.png\""
+              expect(response.headers["Content-Disposition"]).to include "inline; filename=\"world.png\""
               expect(response.body).to eq content
               expect(response.status).to eq 206
             end
@@ -158,7 +158,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
           end
         end
 
-        context "that isn't persisted", skip: true do
+        context "that isn't persisted" do
           it "raises an error if the requested file does not exist" do
             expect do
               get :show, params: { id: file_set, file: 'thumbnail' }
@@ -183,5 +183,4 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
 
     it { is_expected.to eq(disposition: 'inline', type: 'image/png') }
   end
-
 end

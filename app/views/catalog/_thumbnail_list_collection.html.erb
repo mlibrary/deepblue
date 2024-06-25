@@ -1,6 +1,8 @@
+<%# Reviewed: hyrax4 -- revisit? %>
 <div class="col-md-2">
   <%# this one is for each collection shown in the search result page %>
-  <% doc = render_thumbnail_tag document %>
+  <%# hyrax2 # doc = render_thumbnail_tag document %>
+  <%= doc = document_presenter(document)&.thumbnail&.thumbnail_tag({}, { suppress_link: true }) %>
   <% if doc.present? %>
   <%= raw doc.gsub!('data-context-href', 'data-reference').gsub!('<img ', '<img alt="collection" ') %>
   <% end %>

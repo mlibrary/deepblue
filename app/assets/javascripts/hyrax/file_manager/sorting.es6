@@ -1,3 +1,4 @@
+// Reviewed: hyrax4
 export default class SortManager {
   constructor(save_manager) {
     this.element = $("#sortable")

@@ -242,7 +242,27 @@ module JobHelper
     job_options_value( key: 'hostnames', default_value: [] )
   end
 
-  def initialize_options_from( *args, id: nil, debug_verbose: job_helper_debug_verbose )
+  # def initialize_options_from_old( *args, id: nil, debug_verbose: job_helper_debug_verbose )
+  #   debug_verbose = debug_verbose || job_helper_debug_verbose
+  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  #                                          ::Deepblue::LoggingHelper.called_from,
+  #                                          "args=#{args}",
+  #                                          "id=#{id}",
+  #                                          "debug_verbose=#{debug_verbose}",
+  #                                          "" ] if debug_verbose
+  #   @options = ::Deepblue::JobTaskHelper.initialize_options_from( args: args, debug_verbose: debug_verbose )
+  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  #                                          ::Deepblue::LoggingHelper.called_from,
+  #                                          "@options=#{@options}",
+  #                                          "" ] if debug_verbose
+  #   initialize_defaults( debug_verbose: debug_verbose )
+  #   by_request_only
+  #   job_start( id: id, restartable: restartable )
+  #   return @options
+  # end
+
+  # Upgrade: ruby3
+  def initialize_options_from( args:, id: nil, debug_verbose: job_helper_debug_verbose )
     debug_verbose = debug_verbose || job_helper_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -250,7 +270,7 @@ module JobHelper
                                            "id=#{id}",
                                            "debug_verbose=#{debug_verbose}",
                                            "" ] if debug_verbose
-    @options = ::Deepblue::JobTaskHelper.initialize_options_from( *args, debug_verbose: debug_verbose )
+    @options = ::Deepblue::JobTaskHelper.initialize_options_from( args: args, debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "@options=#{@options}",

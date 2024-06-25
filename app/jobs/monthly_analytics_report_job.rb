@@ -32,7 +32,7 @@ END_OF_SCHEDULER_ENTRY
   attr_accessor :this_month
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: monthly_analytics_report_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: monthly_analytics_report_job_debug_verbose )
     log( event: "monthly analytics report job", hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     this_month = job_options_value( key: 'this_month', default_value: debug_verbose )

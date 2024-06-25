@@ -3,7 +3,7 @@
     <h4>Apply changes to contents?</h4>
   </div>
   <div class="panel-body">
-      <%= I18n.t("hyrax.upload.change_permissions_message_html",
+      <%= I18n.t!("hyrax.upload.change_permissions_message_html",
         curation_concern_human_readable_type: curation_concern.human_readable_type,
         curation_concern: curation_concern,
         visibility_badge: visibility_badge(curation_concern.visibility)).html_safe %>

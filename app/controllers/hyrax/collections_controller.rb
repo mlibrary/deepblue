@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -28,6 +29,14 @@ module Hyrax
 
     with_themed_layout :decide_layout
     load_and_authorize_resource except: %i[index show create], instance_name: :collection
+    if false # keep this code black hyrax4 for possible use
+    load_and_authorize_resource except: [:index],
+                                instance_name: :collection,
+                                class: Hyrax.config.collection_model
+
+    skip_load_resource only: :create if
+      Hyrax.config.collection_class < ActiveFedora::Base
+    end
 
     rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
     rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue

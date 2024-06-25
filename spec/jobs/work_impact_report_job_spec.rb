@@ -27,7 +27,7 @@ RSpec.describe WorkImpactReportJob, skip: false do
     let(:reporter)    { double("WorkImpactReporter") }
 
     RSpec.shared_examples 'it called work impact report job' do |run_on_server, dbg_verbose|
-      let(:job)         { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)         { described_class.send( :job_or_instantiate, **args ) }
       before do
         described_class.work_impact_report_job_debug_verbose = dbg_verbose
         expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once) if dbg_verbose

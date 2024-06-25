@@ -38,6 +38,11 @@ module DeepBlueDocs
     end
     config.program_args = ARGV.dup
 
+    # BEGIN: Upgrade: Hyrax4
+    config.hyrax_ver = 4.0
+    config.use_bolognese = false
+    # END: Upgrade: Hyrax4
+
     # Chimera configuration goes here
     # config.authentication_method = "generic"
     # config.authentication_method = "iu"

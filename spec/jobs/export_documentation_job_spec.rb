@@ -10,7 +10,7 @@ RSpec.describe ExportDocumentationJob do
 
   RSpec.shared_examples 'export_documentation performs the job' do |job_args, expected_args, debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
-    let(:job)         { described_class.send(:job_or_instantiate, *job_args) }
+    let(:job)         { described_class.send(:job_or_instantiate, **job_args) }
     let(:service)     { ::Deepblue::YamlPopulateFromCollection.allocate }
 
     before do

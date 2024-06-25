@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # hyrax-orcid
 
-require 'bolognese'
+require 'bolognese' if Rails.configuration.use_bolognese
 
 # Inpired by the Hyrax-DOI writer
 # @credit Chris Colvard <chris.colvard@gmail.com>

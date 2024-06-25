@@ -1,6 +1,6 @@
 # .circleci/config.yml
 #
-# Updated: 2021/06/18
+# Updated: 2024/05/14
 #
 # TODO: generalized parameters, that is can parameters be set for everything once
 #
@@ -9,11 +9,11 @@
 # -- parallelism: 4
 # -- parallelism: 1 # ?? for small
 # -- parallelism: 10 # for medium+
-# - ruby_version: old default: '2.5.8'
-# - ruby_version: default: '2.7.3'
+# - ruby_version: old default: '2.7.3'
+# - ruby_version: default: '2.7.4'
 # - bundler_version: default: '2.1.4'
-# - rails_version: old default: '5.3.4.4'
-# - rails_version: default: '5.2.6'
+# - rails_version: old default: '5.2.6'
+# - rails_version: default: '6.0.6.1'
 # - solr core name: deepbluedata-test
 #
 version: 2.1
@@ -23,7 +23,7 @@ version: 2.1
 jobs_orig:
   build:
     docker:
-      - image: 'circleci/ruby:2.7.3-stretch-node'
+      - image: 'circleci/ruby:2.7.4-stretch-node'
     executor: ruby/default
     steps:
       - checkout
@@ -46,7 +46,7 @@ commands:
         type: string
       ruby_version:
         type: string
-        default: '2.7.3'
+        default: '2.7.4'
     steps:
     - restore_cache:
         keys:
@@ -153,13 +153,13 @@ jobs:
     parameters:
       ruby_version:
         type: string
-        default: '2.7.3'
+        default: '2.7.4'
       bundler_version:
         type: string
         default: '2.1.4'
       rails_version:
         type: string
-        default: '5.2.6'
+        default: '6.0.6.1'
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
@@ -184,7 +184,7 @@ jobs:
     parameters:
       ruby_version:
         type: string
-        default: '2.7.3'
+        default: '2.7.4'
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
@@ -198,13 +198,13 @@ jobs:
     parameters:
       ruby_version:
         type: string
-        default: '2.7.3'
+        default: '2.7.4'
       bundler_version:
         type: string
         default: '2.1.4'
       rails_version:
         type: string
-        default: '5.2.6'
+        default: '6.0.6.1'
     executor:
       name: 'ruby'
       ruby_version: << parameters.ruby_version >>
@@ -230,7 +230,7 @@ jobs:
     parameters:
       ruby_version:
         type: string
-        default: '2.7.3'
+        default: '2.7.4'
       bundler_version:
         type: string
         default: '2.1.4'
@@ -284,7 +284,7 @@ executors:
         default: ruby
         type: string
       ruby_version:
-        default: '2.7.3'
+        default: '2.7.4'
         type: string
   ruby_fcrepo_solr:
     description: Box running FCRepo, Solr, and Ruby.
@@ -314,7 +314,7 @@ executors:
         default: ruby
         type: string
       ruby_version:
-        default: '2.7.3'
+        default: '2.7.4'
         type: string
       solr_port:
         default: "8985"
@@ -351,7 +351,7 @@ executors:
         default: ruby
         type: string
       ruby_version:
-        default: '2.7.3'
+        default: '2.7.4'
         type: string
       solr_port:
         default: "8985"
@@ -359,23 +359,23 @@ executors:
 
 workflows:
   version: 2
-  ruby2-4rails5-2:
+  ruby2-7rails6-0:
     jobs:
       - bundle:
-          ruby_version: '2.7.3'
-          rails_version: '5.2.6'
+          ruby_version: '2.7.4'
+          rails_version: '6.0.6.1'
       # - lint:
-      #    ruby_version: '2.7.3'
+      #    ruby_version: '2.7.4'
       #    requires:
       #      - bundle
       - build:
-          ruby_version: '2.7.3'
-          rails_version: '5.2.6'
+          ruby_version: '2.7.4'
+          rails_version: '6.0.6.1'
           requires:
             - bundle
       - test:
-          name: "rails5-2"
-          ruby_version: '2.7.3'
+          name: "rails6-0"
+          ruby_version: '2.7.4'
           requires:
             - build
             # - lint

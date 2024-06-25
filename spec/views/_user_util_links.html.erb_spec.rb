@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe '/_user_util_links.html.erb', type: :view do
@@ -50,8 +53,10 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
 
     it 'shows the number of outstanding messages' do
       render
-      expect( rendered ).to have_selector "a[aria-label='You have no unread notifications'][href='#{hyrax.notifications_path}']"
-      expect( rendered ).to have_selector 'a.notify-number span.label-default.invisible', text: '0'
+      # hyrax2 # expect( rendered ).to have_selector "a[aria-label='You have no unread notifications'][href='#{hyrax.notifications_path}']"
+      # hyrax2 # expect( rendered ).to have_selector 'a.notify-number span.label-default.invisible', text: '0'
+      expect(rendered).to have_selector "a[aria-label='You have no unread notifications'][href='#{hyrax.notifications_path}']"
+      expect(rendered).to have_selector 'a.notify-number.nav-link span.count.badge.invisible.badge-secondary', text: '0'
     end
 
     describe 'translations' do
@@ -123,7 +128,8 @@ RSpec.describe '/_user_util_links.html.erb', type: :view do
     it 'shows the number of outstanding messages' do
       render
       expect( rendered ).to have_selector "a[aria-label='You have no unread notifications'][href='#{hyrax.notifications_path}']"
-      expect( rendered ).to have_selector 'a.notify-number span.label-default.invisible', text: '0'
+      # hyrax2 # expect( rendered ).to have_selector 'a.notify-number span.label-default.invisible', text: '0'
+      expect(rendered).to have_selector 'a.notify-number.nav-link span.count.badge.invisible.badge-secondary', text: '0'
     end
 
     describe 'translations' do

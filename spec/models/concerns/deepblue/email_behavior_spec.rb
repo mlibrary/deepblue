@@ -228,7 +228,7 @@ RSpec.describe ::Deepblue::EmailBehavior do
       expect( ::Deepblue::JiraHelper ).to receive(:jira_add_comment).with( curation_concern: cc_mock,
                                                                            event: event_publish,
                                                                            comment: body1 )
-      expect( ::Deepblue::EmailHelper ).to receive(:t).with( template_key,
+      expect( ::Deepblue::EmailHelper ).to receive(:t!).with( template_key,
                                                            title: cc_title,
                                                            url: cc_url,
                                                            depositor: cc_depositor,
@@ -242,7 +242,7 @@ RSpec.describe ::Deepblue::EmailBehavior do
                           event: event_publish,
                           event_note: event_note,
                           id: cc_mock.for_email_id )
-      expect( ::Deepblue::EmailHelper ).to receive(:t).with( template_key,
+      expect( ::Deepblue::EmailHelper ).to receive(:t!).with( template_key,
                                                            title: cc_title,
                                                            url: cc_url,
                                                            depositor: cc_contact_email,

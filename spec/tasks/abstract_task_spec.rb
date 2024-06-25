@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 require 'rails_helper'
 
@@ -73,7 +74,8 @@ RSpec.describe ::Deepblue::AbstractTask, skip: false do
         expect( task.options.has_key?( :error ) ).to eq true
         expect( task.options[:options_str] ).to eq options_str
         expect( task.msg_handler.msg_queue.size ).to eq 2
-        expect( task.msg_handler.msg_queue[0] ).to match /WARNING: options error 8\d\d: unexpected token at '\{'/
+        # hyrax2 # expect( task.msg_handler.msg_queue[0] ).to match /WARNING: options error 8\d\d: unexpected token at '\{'/
+        expect( task.msg_handler.msg_queue[0] ).to match /WARNING: options error unexpected token at '\{'/
         expect( task.msg_handler.msg_queue[1] ).to eq "options=#{options_str}"
         expect( task.to_console ).to eq false
         expect( task.verbose ).to eq false

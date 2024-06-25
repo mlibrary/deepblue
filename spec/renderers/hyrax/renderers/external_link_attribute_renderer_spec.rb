@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Updated: hyrax4
 require 'rails_helper'
 
 RSpec.describe Hyrax::Renderers::ExternalLinkAttributeRenderer do
@@ -16,7 +16,7 @@ RSpec.describe Hyrax::Renderers::ExternalLinkAttributeRenderer do
        "<td><ul class='tabular'>" \
        "<li class=\"attribute attribute-name\">"\
        "<a href=\"http://example.com\">"\
-       "<span class='glyphicon glyphicon-new-window'></span>&nbsp;"\
+       "<span class='fa fa-external-link'></span>&nbsp;"\
        "http://example.com</a></li>\n" \
        "</ul></td></tr>"
     end

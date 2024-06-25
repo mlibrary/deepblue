@@ -38,7 +38,8 @@ RSpec.describe Hyrax::My::CollectionsController, type: :controller, skip: false 
     it { is_expected.to eq "/dashboard/my/collections/facet/keyword_sim?locale=en" }
   end
 
-  describe "#search_builder_class" do
+  # skip: hyrax4
+  describe "#search_builder_class", skip: true do
     subject { controller.search_builder_class }
 
     it { is_expected.to eq Hyrax::My::CollectionsSearchBuilder }

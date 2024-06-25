@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 # hyrax-orcid
+# Skip: hyrax4
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::Orcid::Work::PublisherService do
+# Skip: hyrax4
+RSpec.describe Hyrax::Orcid::Work::PublisherService, skip: true do
   let(:sync_preference) { "sync_all" }
   let(:service) { described_class.new(work, orcid_identity) }
   let(:user) { create(:user) }

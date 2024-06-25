@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
+# Reviewed: hyrax4
 
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/presenters/hyrax/presents_attributes.rb" )
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -38,7 +39,8 @@ module Hyrax
           :well_formed,
           :last_modified,
           # :original_checksum, # TODO: revisit this...
-          :mime_type
+          :mime_type,
+          :alpha_channels
         ]
       end
 
@@ -87,7 +89,7 @@ module Hyrax
     end
 
     def label_for_term( term )
-      MsgHelper.t( "show.file_set.labels.#{term}", raise: true )
+      MsgHelper.t!( "show.file_set.labels.#{term}", raise: true )
     rescue I18n::MissingTranslationData => e
       term.to_s.titleize
     end

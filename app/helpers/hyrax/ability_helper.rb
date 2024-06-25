@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
+
 module Hyrax
   module AbilityHelper
 
@@ -12,11 +15,9 @@ module Hyrax
       case variant
       when :restrict
         options.delete_at(0)
-        options.delete_at(0)
         options.reverse!
       when :loosen
-        options.delete_at(1)
-        options.delete_at(1)
+        options.delete_at(2)
       end
       options.map { |value| [visibility_text(value), value] }
     end

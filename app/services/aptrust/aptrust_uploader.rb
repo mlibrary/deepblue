@@ -68,7 +68,7 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_dir=#{bag_dir}",
                              "" ] if debug_verbose
-    files_deleted = ::Deepblue::DiskUtilitiesHelper.delete_files_in_dir( bag_dir,
+    files_deleted = ::Deepblue::DiskUtilitiesHelper.delete_files_in_dir( dir_path: bag_dir,
                                                                          delete_subdirs: true,
                                                                          msg_handler: msg_handler )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -94,7 +94,7 @@ class Aptrust::AptrustUploader
   def self.delete_bag_dir( bag_dir:, and_contents: false, msg_handler:, debug_verbose: )
     if Dir.empty?( bag_dir ) || and_contents
       msg_handler.bold_debug [ "deleting #{bag_dir}", ] if debug_verbose
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir,
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir_path: dir,
                                                   recursive: true,
                                                   msg_handler: debug_verbose ? msg_handler : ::Aptrust::NULL_MSG_HANDLER )
     else
@@ -452,7 +452,7 @@ class Aptrust::AptrustUploader
   def bag_data_files( bag: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
     return [] unless Dir.exist? bag.bag_dir
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.data_dir,
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir_path: bag.data_dir,
                                                           dotmatch: true,
                                                           msg_handler: ::Aptrust::NULL_MSG_HANDLER )
     return files
@@ -933,7 +933,7 @@ class Aptrust::AptrustUploader
                              "Dir.empty? #{dir}=#{dir_empty}" ] if debug_verbose
     if dir_empty || and_contents
       msg_handler.bold_debug [ "deleting #{dir}", ] if debug_verbose
-      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir,
+      ::Deepblue::DiskUtilitiesHelper.delete_dir( dir_path:dir,
                                                   recursive: true,
                                                   msg_handler: debug_verbose ? msg_handler : ::Aptrust::NULL_MSG_HANDLER )
     else
@@ -945,8 +945,8 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files.size=#{files.size}", "" ] if debug_verbose
     if files.present?
       files.each { |f| msg_handler.bold_debug [ "delete file #{f}" ] if debug_verbose }
-      ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
-      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( bag.bag_dir,
+      ::Deepblue::DiskUtilitiesHelper.delete_files( files: files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+      files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir_path: bag.bag_dir,
                                                             dotmatch: true,
                                                             msg_handler: ::Aptrust::NULL_MSG_HANDLER )
       files.each { |f| msg_handler.bold_debug [ "after delete #{f}" ] if debug_verbose }
@@ -955,11 +955,11 @@ class Aptrust::AptrustUploader
 
   def delete_files_in( dir: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "dir=#{dir}", "" ] if debug_verbose
-    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir,
+    files = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir_path: dir,
                                                           dotmatch: true,
                                                           msg_handler: ::Aptrust::NULL_MSG_HANDLER )
     files.each { |f| msg_handler.bold_debug [ "delete file #{f}" ] if debug_verbose }
-    ::Deepblue::DiskUtilitiesHelper.delete_files( *files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    ::Deepblue::DiskUtilitiesHelper.delete_files( files: files, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
   end
 
   def deposit

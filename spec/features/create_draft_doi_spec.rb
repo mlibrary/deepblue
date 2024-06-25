@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Skip: hyrax4
 require 'rails_helper'
 
 RSpec.describe 'creating a draft DOI', :datacite_api, :js, skip: true do

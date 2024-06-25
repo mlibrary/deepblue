@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Reviewed: hyrax4
 FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "user#{n}@example.com" }
@@ -9,10 +9,6 @@ FactoryBot.define do
       # Allow for custom groups when a user is instantiated.
       # @example create(:user, groups: 'avacado')
       groups { [] }
-    end
-
-    trait :guest do
-      guest { true }
     end
 
     # hyrax-orcid begin
@@ -26,6 +22,7 @@ FactoryBot.define do
     # TODO: Register the groups for the given user key such that we can remove the following from other specs:
     #   `allow(::User.group_service).to receive(:byname).and_return(user.user_key => ['admin'])``
     after(:build) do |user, evaluator|
+      # hyrax4 # User.group_service.add(user: user, groups: evaluator.groups)
       # In case we have the instance but it has not been persisted
       ::RSpec::Mocks.allow_message(user, :groups).and_return(Array.wrap(evaluator.groups))
       # Given that we are stubbing the class, we need to allow for the original to be called
@@ -64,6 +61,9 @@ FactoryBot.define do
     end
   end
 
+  trait :guest do
+    guest { true }
+  end
 end
 
 class MockFile

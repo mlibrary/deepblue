@@ -19,7 +19,7 @@ RSpec.describe JobWorkersController do
   let(:themed_layout) { 'dashboard' }
   let(:admin)     { create(:admin) }
   let(:user)      { create(:user) }
-  let(:access_denied) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
+  let(:access_denied) { I18n.t!(:"unauthorized.default", default: 'You are not authorized to access this page.') }
 
   describe "#show" do
     before do

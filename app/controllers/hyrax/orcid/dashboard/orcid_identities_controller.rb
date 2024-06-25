@@ -27,7 +27,7 @@ module Hyrax
             current_user.orcid_identity_from_authorization(authorization_body)
             flash[:notice] = I18n.t("hyrax.orcid.preferences.create.success")
           else
-            flash[:error] = I18n.t("hyrax.orcid.preferences.create.failure", error: authorization_body.dig("error"))
+            flash[:error] = I18n.t!("hyrax.orcid.preferences.create.failure", error: authorization_body.dig("error"))
           end
 
           redirect_to hyrax.dashboard_profile_path(current_user)

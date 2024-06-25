@@ -29,7 +29,7 @@ END_OF_SCHEDULER_ENTRY
   EVENT = "user stat importer"
 
   def perform( *args )
-    initialize_options_from( *args, id: id, debug_verbose: user_stat_importer_job_debug_verbose )
+    initialize_options_from( args: args, id: id, debug_verbose: user_stat_importer_job_debug_verbose )
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     test = job_options_value( key: 'test', default_value: true )

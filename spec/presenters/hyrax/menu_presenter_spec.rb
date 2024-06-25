@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::MenuPresenter, skip: false do
@@ -58,7 +61,7 @@ RSpec.describe Hyrax::MenuPresenter, skip: false do
         expect(rendered).to have_content "Some content"
         expect(rendered).to have_selector "span.fa.fa-cog"
         expect(rendered).to have_selector "a.collapse-toggle[href='#mySection']"
-        expect(rendered).to have_selector "ul#mySection.in"
+        expect(rendered).to have_selector "ul#mySection.show"
       end
     end
   end

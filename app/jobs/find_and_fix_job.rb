@@ -47,7 +47,7 @@ find_and_fix_job:
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if find_and_fix_job_debug_verbose
-    initialized = initialize_from_args( *args, debug_verbose: debug_verbose )
+    initialized = initialize_from_args( args: args, debug_verbose: debug_verbose )
     msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
                              ::Deepblue::LoggingHelper.called_from,
                              "initialized=#{initialized}",

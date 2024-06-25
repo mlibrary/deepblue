@@ -16,7 +16,7 @@ class HeartbeatJob < ::Deepblue::DeepblueJob
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if heartbeat_job_debug_verbose
-    initialize_options_from( *args, debug_verbose: heartbeat_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: heartbeat_job_debug_verbose )
     # NOTE: the point of this job is to write to the log
     log( event: "heartbeat" )
     job_finished

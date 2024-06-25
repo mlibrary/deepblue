@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -34,7 +35,7 @@ module Hyrax
         I18n.t('hyrax.contact_form.issue_types.browsing'),
         I18n.t('hyrax.contact_form.issue_types.reporting'),
         I18n.t('hyrax.contact_form.issue_types.general'),
-        I18n.t( 'hyrax.contact_form.issue_types.size', max_upload_size: Rails.configuration.upload_max_file_size_str )
+        I18n.t!( 'hyrax.contact_form.issue_types.size', max_upload_size: Rails.configuration.upload_max_file_size_str )
       ]
     end
 
