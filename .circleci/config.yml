@@ -25,7 +25,7 @@ version: 2.1
 jobs_orig:
   build:
     docker:
-      - image: 'cimg/ruby:3.0'
+      - image: 'cimg/ruby:3.0-browsers'
     executor: ruby/default
     steps:
       - checkout
