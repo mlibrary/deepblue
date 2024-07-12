@@ -250,7 +250,6 @@ gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
 gem 'bootstrap', '~> 4.0'
-gem 'font-awesome-sass', '>= 6.0'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
 
 # markdown gems
