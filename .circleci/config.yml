@@ -13,7 +13,7 @@
 # - ruby_version: old default: '2.7.3'
 # - ruby_version: default: '3.0.6'
 # - bundler_version: old default: '2.1.12'
-# - bundler_version: default: '2.1.12'
+# - bundler_version: default: '2.4.8'
 # - rails_version: old default: '5.2.6'
 # - rails_version: default: '6.0.5'
 # - solr core name: deepbluedata-test
@@ -40,7 +40,7 @@ commands:
     parameters:
       bundler_version:
         type: string
-        default: '2.1.12'
+        default: '2.4.8'
       cache_version:
         type: string
         default: "1"
@@ -158,7 +158,7 @@ jobs:
         default: '3.0.6'
       bundler_version:
         type: string
-        default: '2.1.12'
+        default: '2.4.8'
       rails_version:
         type: string
         default: '6.0.5'
@@ -203,7 +203,7 @@ jobs:
         default: '3.0.6'
       bundler_version:
         type: string
-        default: '2.1.12'
+        default: '2.4.8'
       rails_version:
         type: string
         default: '6.0.5'
@@ -235,7 +235,7 @@ jobs:
         default: '3.0.6'
       bundler_version:
         type: string
-        default: '2.1.12'
+        default: '2.4.8'
     executor:
       name: 'ruby_fcrepo_solr_redis'
       ruby_version: << parameters.ruby_version >>
