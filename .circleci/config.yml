@@ -25,7 +25,7 @@ version: 2.1
 jobs_orig:
   build:
     docker:
-      - image: 'cimg/ruby:3.0-browsers'
+      - image: 'cimg/ruby:3.0.6-browsers'
     executor: ruby/default
     steps:
       - checkout
@@ -272,7 +272,7 @@ executors:
   ruby:
     description: Box just Ruby
     docker:
-      - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-browsers
     environment:
       BUNDLE_JOBS: 4
       BUNDLE_PATH: vendor/bundle
@@ -291,7 +291,7 @@ executors:
   ruby_fcrepo_solr:
     description: Box running FCRepo, Solr, and Ruby.
     docker:
-      - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-browsers
       - environment:
           CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
             -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
@@ -324,7 +324,7 @@ executors:
   ruby_fcrepo_solr_redis:
     description: Box running FCRepo, Solr, Ruby, and Redis.
     docker:
-      - image: circleci/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node-browsers-legacy
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-browsers
       - environment:
           CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
             -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
