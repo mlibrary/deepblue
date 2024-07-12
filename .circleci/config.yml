@@ -361,7 +361,7 @@ executors:
 
 workflows:
   version: 2
-  ruby2-4rails5-2:
+  ruby3-0rails6-0:
     jobs:
       - bundle:
           ruby_version: '3.0.6'
@@ -376,7 +376,7 @@ workflows:
           requires:
             - bundle
       - test:
-          name: "rails5-2"
+          name: "rails3-0"
           ruby_version: '3.0.6'
           requires:
             - build
