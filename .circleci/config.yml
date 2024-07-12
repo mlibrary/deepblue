@@ -25,7 +25,7 @@ version: 2.1
 jobs_orig:
   build:
     docker:
-      - image: 'cimg/ruby:3.0.6-node'
+      - image: 'cimg/ruby:3.0.6'
     executor: ruby/default
     steps:
       - checkout
