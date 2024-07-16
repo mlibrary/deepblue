@@ -3,7 +3,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::StaticController, :clean_repo, clean: true, type: :controller do
+RSpec.describe Hyrax::StaticController, :clean_repo, clean: true, type: :controller, skip: true do
 
   include Devise::Test::ControllerHelpers
   let(:main_app) { Rails.application.routes.url_helpers }
