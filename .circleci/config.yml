@@ -65,7 +65,8 @@ commands:
             gem install bundler -v << parameters.bundler_version >>
           name: Update bundler
       - run:
-          command: bundle check || bundle install
+          command: |
+            bundle check || bundle install || cat /home/circleci/project/vendor/bundle/ruby/3.0.0/extensions/x86_64-linux/3.0.0/nokogiri-1.16.5/mkmf.log
           name: Install dependencies
       - save_cache:
           key: v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
