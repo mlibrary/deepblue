@@ -61,7 +61,7 @@ commands:
           name: Restore bundle from cache
       - run:
           command: |
-            sudo apt-get install libxslt-dev libxml2-dev
+            sudo apt update && sudo apt-get install libxslt-dev libxml2-dev
           name: Install xslt xml2
       - run:
           command: |
