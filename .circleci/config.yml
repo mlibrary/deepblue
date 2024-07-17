@@ -60,19 +60,19 @@ commands:
               "Gemfile.lock" }}-<< parameters.ruby_version >>
           name: Restore bundle from cache
       - run:
+          name: Install xslt xml2
           command: |
             sudo apt update && sudo apt-get install libxslt-dev libxml2-dev
-          name: Install xslt xml2
       - run:
+          name: Update bundler
           command: |
             echo 'export BUNDLER_VERSION=<< parameters.bundler_version >>' >> $BASH_ENV
             gem install bundler -v << parameters.bundler_version >>
-          name: Update bundler
       - run:
+          name: Install dependencies
 #          command: |
 #            bundle check || bundle install || cat /home/circleci/project/vendor/bundle/ruby/3.0.0/extensions/x86_64-linux/3.0.0/nokogiri-1.16.5/mkmf.log
           command: bundle check || bundle install
-          name: Install dependencies
       - save_cache:
           key: v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
             "Gemfile.lock" }}-<< parameters.ruby_version >>
@@ -96,12 +96,15 @@ commands:
     description: Install java
     steps:
       - run:
+          name: Install openjdk
           command: |
             sudo apt update && sudo apt-get install openjdk-17-jre
             export JAVA_HOME=/usr/lib/jvm/openjdk-17-jdk
             export PATH=$PATH:$JAVA_HOME/bin
-            java --version || true
-#  install_fits:
+      - run:
+          name: java --version
+          command: java --version || true
+  #  install_fits:
 #    description: Installs fix utility
 #    steps:
 #      - run:
@@ -127,25 +130,25 @@ commands:
         type: string
     steps:
       - run:
+          name: Wait for Solr
           command: dockerize -wait tcp://localhost:<< parameters.solr_port >> -timeout
             1m
-          name: Wait for Solr
       - run:
+          name: Load config into solr
           command: |
             cd << parameters.solr_config_path >>
             zip -1 -r solr_config.zip ./*
             curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
             curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
-          name: Load config into solr
   migrate_database:
     description: Migrate the database
     steps:
       - run:
+          name: Migrate database
           command: |
             bundle exec rake db:drop
             bundle exec rake db:create RAILS_ENV=test
             bundle exec rake db:migrate RAILS_ENV=test
-          name: Migrate database
   #  precompile_assets:
   #    description: Precompile the assets and create soft link public directory.
   #    steps:
@@ -162,13 +165,13 @@ commands:
     description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
     steps:
       - run:
+          name: Run rspec in parallel
           command: |
             mkdir /tmp/test-results
             # the full glory of deprecation messages
             # bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
             # eliminate the noise by directing error to /dev/null
             COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings) 2>/dev/null
-          name: Run rspec in parallel
       - store_test_results:
           path: /tmp/test-results
       - store_artifacts:
