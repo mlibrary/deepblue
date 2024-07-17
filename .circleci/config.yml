@@ -289,6 +289,9 @@ jobs:
       - migrate_database
       # - precompile_assets
       - parallel_rspec
+      - run:
+          name: Which Java
+          command: java --version
 
 
 executors:
