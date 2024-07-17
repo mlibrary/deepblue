@@ -92,6 +92,15 @@ commands:
           name: Save code cache
           paths:
             - .git
+  install_java:
+    description: Install java
+    steps:
+      - run:
+          command: |
+            sudo apt-get install openjdk-13-jre
+            export JAVA_HOME=/usr/lib/jvm/openjdk-13-jdk
+            export PATH=$PATH:$JAVA_HOME/bin
+            java --version || true
 #  install_fits:
 #    description: Installs fix utility
 #    steps:
@@ -279,6 +288,7 @@ jobs:
             env
       - attach_workspace:
           at: ~/
+      - install_java
       - install_solr_core:
           solr_config_path: ./solr/config
       # Rerun bundler in case this is a different ruby version than bundle and build steps
