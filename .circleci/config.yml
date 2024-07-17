@@ -275,6 +275,8 @@ jobs:
             chmod a+x ~/fits/fits.sh
             ln -s ~/fits/fits.sh ~/fits/fits
             rm "fits-1.4.1.zip"
+            java --version || true
+            env
       - attach_workspace:
           at: ~/
       - install_solr_core:
@@ -288,10 +290,6 @@ jobs:
       - migrate_database
       # - precompile_assets
       - parallel_rspec
-      - run:
-          name: Which Java
-          command: java --version
-
 
 executors:
   ruby:
