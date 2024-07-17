@@ -92,6 +92,18 @@ commands:
           name: Save code cache
           paths:
             - .git
+#  install_fits:
+#    description: Installs fix utility
+#    steps:
+#      - run:
+#          command: |
+#            mkdir -p /app/fits
+#            cd /app/fits
+#            wget https://github.com/harvard-lts/fits/releases/download/1.6.0/fits-1.6.0.zip -O fits.zip
+#            unzip fits.zip
+#            rm fits.zip tools/mediainfo/linux/libmediainfo.so.0 tools/mediainfo/linux/libzen.so.0
+#            chmod a+x /app/fits/fits.sh
+#            sed -i 's/\(<tool.*TikaTool.*>\)/<!--\1-->/' /app/fits/xml/fits.xml
   install_solr_core:
     description: Installs a solr core into a running Solr docker container.
     parameters:
@@ -263,6 +275,7 @@ jobs:
             chmod a+x ~/fits/fits.sh
             ln -s ~/fits/fits.sh ~/fits/fits
             rm "fits-1.4.1.zip"
+            which java
       - attach_workspace:
           at: ~/
       - install_solr_core:
