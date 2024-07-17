@@ -275,7 +275,6 @@ jobs:
             chmod a+x ~/fits/fits.sh
             ln -s ~/fits/fits.sh ~/fits/fits
             rm "fits-1.4.1.zip"
-            which java
       - attach_workspace:
           at: ~/
       - install_solr_core:
