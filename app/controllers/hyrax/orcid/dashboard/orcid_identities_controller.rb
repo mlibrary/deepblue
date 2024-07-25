@@ -17,6 +17,7 @@ module Hyrax
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "params=#{params}",
                                                  "params[:code]=#{params[:code]}",
+                                                 "params=#{params.pretty_inspect}",
                                                  "" ] if orcid_identities_controller_debug_verbose
           request_authorization
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -38,10 +39,25 @@ module Hyrax
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "params[:id]=#{params[:id]}",
                                                  "current_user.orcid_identity=#{current_user.orcid_identity}",
+                                                 "params=#{params.pretty_inspect}",
                                                  "" ] if orcid_identities_controller_debug_verbose
-          if current_user.orcid_identity.update(permitted_preference_params)
-            flash[:notice] = I18n.t("hyrax.orcid.preferences.update.success")
-          else
+          begin
+            orcid_identity = current_user.orcid_identity
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "orcid_identity=#{orcid_identity.pretty_inspect}",
+                                                   "" ] if orcid_identities_controller_debug_verbose
+            if orcid_identity.update(permitted_preference_params)
+              flash[:notice] = I18n.t("hyrax.orcid.preferences.update.success")
+            else
+              flash[:error] = I18n.t("hyrax.orcid.preferences.update.failure")
+            end
+          rescue Exception => e
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "e=#{e}",
+                                                   "params=#{params.pretty_inspect}",
+                                                   "" ] + e.backtrace if orcid_identities_controller_debug_verbose
             flash[:error] = I18n.t("hyrax.orcid.preferences.update.failure")
           end
 
@@ -53,6 +69,7 @@ module Hyrax
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "params[:id]=#{params[:id]}",
                                                  "current_user.orcid_identity=#{current_user.orcid_identity}",
+                                                 "params=#{params.pretty_inspect}",
                                                  "" ] if orcid_identities_controller_debug_verbose
           # This is pretty ugly, but for a has_one relation we can't do a find_by! from User
           raise ActiveRecord::RecordNotFound unless current_user.orcid_identity&.id == params["id"].to_i
@@ -66,7 +83,16 @@ module Hyrax
         protected
 
           def permitted_preference_params
-            params.require(:orcid_identity).permit(:work_sync_preference, profile_sync_preference: {})
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "params=#{params.pretty_inspect}",
+                                                   "" ] if orcid_identities_controller_debug_verbose
+            rv = params.require(:orcid_identity).permit(:work_sync_preference, profile_sync_preference: {})
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "rv=#{rv.pretty_inspect}",
+                                                   "" ] if orcid_identities_controller_debug_verbose
+            return rv
           end
 
           def request_authorization
