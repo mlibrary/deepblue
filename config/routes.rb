@@ -7,6 +7,13 @@ resque_web_constraint = lambda do |request|
   rv
 end
 
+Hyrax::Engine.routes.draw do
+
+  get 'contact', to: redirect('https://teamdynamix.umich.edu/TDClient/88/Portal/Requests/TicketRequests/NewForm?ID=90boDMPMEIE_&RequestorType=Service')
+  post 'contact', to: redirect('https://teamdynamix.umich.edu/TDClient/88/Portal/Requests/TicketRequests/NewForm?ID=90boDMPMEIE_&RequestorType=Service')
+
+end
+
 Rails.application.routes.draw do
   concern :oai_provider, BlacklightOaiProvider::Routes.new
 
