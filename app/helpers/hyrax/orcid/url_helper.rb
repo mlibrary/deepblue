@@ -28,6 +28,10 @@ module Hyrax
         "https://#{orcid_domain}/oauth/token"
       end
 
+      def orcid_oauth_uri( rest: )
+        "https://#{orcid_domain}/oauth/#{rest}"
+      end
+
       # TODO: Test me
       # Ensure production/dev domains have correct domain
       def orcid_api_uri(orcid_id, endpoint, put_code = nil)

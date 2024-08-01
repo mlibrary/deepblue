@@ -78,7 +78,8 @@ RSpec.describe Bolognese::Writers::Orcid::XmlWriter do
   let(:work) { model_class.new(attributes) }
   let(:input) { work.attributes.merge(has_model: work.has_model.first).to_json }
   let(:meta) { Bolognese::Metadata.new(input: input, from: "hyrax_json_work") }
-  let(:type) { "other" }
+  # let(:type) { "other" }
+  let(:type) { "data-set" }
   let(:put_code) { nil }
   let(:hyrax_orcid_xml) { meta.hyrax_orcid_xml(type, put_code) }
   let(:doc) { Nokogiri::XML(hyrax_orcid_xml) }
