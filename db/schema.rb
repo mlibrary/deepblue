@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_03_04_140913) do
+ActiveRecord::Schema.define(version: 2024_07_25_094010) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -385,9 +385,9 @@ ActiveRecord::Schema.define(version: 2024_03_04_140913) do
     t.integer "expires_in"
     t.string "scope"
     t.integer "work_sync_preference", default: 0
-    t.json "profile_sync_preference", default: {}
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "profile_sync_preference"
     t.index ["access_token"], name: "index_orcid_identities_on_access_token"
     t.index ["orcid_id"], name: "index_orcid_identities_on_orcid_id"
     t.index ["user_id"], name: "index_orcid_identities_on_user_id"

@@ -7,37 +7,6 @@ require 'rails_helper'
 
 
 RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: true do
-  # let(:description) { "Swedish comic about the adventures of the residents of Moominvalley." }
-  # let(:creator1_first_name) { "Sebastian" }
-  # let(:creator1_last_name) { "Hageneuer" }
-  # # let(:creator1) do
-  # #   {
-  # #     "creator_name" => "#{creator1_first_name} #{creator1_last_name}"
-  # #   }
-  # # end
-  # let(:creator1) { "#{creator1_first_name} #{creator1_last_name}" }
-  # let(:creator1_orcid ) { "0000-1234-5109-3702" }
-  # let(:creator2_first_name) { "Johnny" }
-  # let(:creator2_last_name) { "Testing" }
-  # let(:creator2_orcid_num) { "0000-0001-5109-3701" }
-  # # let(:creator2) do
-  # #   {
-  # #     "creator_name" => "#{creator2_first_name} #{creator2_last_name}",
-  # #     "creator_orcid" => "https://orcid.org/#{creator2_orcid}"
-  # #   }
-  # # end
-  # let(:creator2) { "#{creator2_first_name} #{creator2_last_name}" }
-  # let(:creator2_orcid) { "https://orcid.org/#{creator2_orcid_num}" }
-  # # let(:contributor1_first_name) { "Jannet" }
-  # # let(:contributor1_last_name) { "Gnitset" }
-  # # let(:contributor1_orcid) { "0000-1234-5109-3702" }
-  # # let(:contributor1_role) { "Other" }
-  # # let(:contributor1) do
-  # #   {
-  # #     "contributor_name" => "#{contributor1_first_name} #{contributor1_last_name}",
-  # #     "contributor_orcid" => "https://orcid.org/#{contributor1_orcid}"
-  # #   }
-  # # end
   # let(:date_created) { "#{created_year}-08-19" }
   # let(:doi) { "10.18130/v3-k4an-w022" }
   # let(:isbn) { "9781770460621" }
@@ -80,7 +49,8 @@ RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: true do
   # let(:work) { model_class.new(attributes) }
   # let(:input) { work.attributes.merge(has_model: work.has_model.first).to_json }
   # let(:meta) { Bolognese::Metadata.new(input: input, from: "hyrax_json_work") }
-  # let(:type) { "other" }
+  # # let(:type) { "other" }
+  # let(:type) { "data-set" }
   # let(:put_code) { nil }
   # let(:hyrax_orcid_xml) { meta.hyrax_orcid_xml(type, put_code) }
   # let(:doc) { Nokogiri::XML(hyrax_orcid_xml) }
@@ -115,8 +85,7 @@ RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: true do
   #   end
   # end
   #
-  # # Skip: hyrax4
-  # describe "#hyrax_orcid_xml", skip: true do
+  # describe "#hyrax_orcid_xml" do
   #   context "when `put_code` is provided" do
   #     let(:put_code) { "987654321" }
   #
@@ -125,7 +94,7 @@ RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: true do
   #     end
   #   end
   #
-  #   context "when type is `other`", skip: true do # TODO: fix
+  #   context "when type is `other`", skip: false do # TODO: fix
   #     before do
   #       work.save
   #     end

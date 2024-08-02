@@ -28,7 +28,8 @@ RSpec.describe Hyrax::Orcid::Work::PublisherService, skip: true do
   let(:api_version) { Hyrax::Orcid::UrlHelper::ORCID_API_VERSION }
   let(:input) { work.attributes.merge(has_model: work.has_model.first).to_json }
   let(:meta) { Bolognese::Metadata.new(input: input, from: "hyrax_json_work") }
-  let(:type) { "other" }
+  # let(:type) { "other" }
+  let(:type) { "data-set" }
   let(:put_code) { "123456" }
   let(:xml) { meta.hyrax_orcid_xml(type, put_code) }
   let(:orcid_work) { create(:orcid_work, orcid_identity: orcid_identity, work_uuid: work.id, put_code: put_code) }

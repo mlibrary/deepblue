@@ -24,7 +24,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.works_report_job_debug_verbose                 = false
 
   config.allowed_job_tasks             = [ '-T', 'tmp:clean' ].freeze
-  config.allowed_job_task_matching     = [ /blacklight:delete_old_searches\[\d+\]/ ].freeze
+  config.allowed_job_task_matching     = [ /aptrust\:[a-z_]+/, /blacklight\:delete_old_searches\[\d+\]/ ].freeze
   config.job_failure_email_subscribers = [ 'fritx@umich.edu' ]
 
 end
