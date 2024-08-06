@@ -30,7 +30,7 @@ RSpec.describe DeactivateExpiredEmbargoesJob do
   describe 'job calls service' do
 
     RSpec.shared_examples 'DeactivateExpiredEmbargoesJob' do |run_the_job, debug_verbose_count|
-      let(:job)           { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)           { described_class.send( :job_or_instantiate, **args ) }
       let(:dbg_verbose)   { debug_verbose_count > 0 }
       let(:service)       { double('service') }
       let(:options)       { args }

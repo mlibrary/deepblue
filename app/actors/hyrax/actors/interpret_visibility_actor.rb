@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   module Actors
@@ -106,8 +107,6 @@ module Hyrax
           end
       end
 
-      # @param [Hyrax::Actors::Environment] env
-      # @return [Boolean] true if create was successful
       # @param [Hyrax::Actors::Environment] env
       # @return [Boolean] true if create was successful
       def create(env)

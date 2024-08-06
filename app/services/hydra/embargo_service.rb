@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4 -- hydra-access-controls-12.1.0
 
 module Hydra
 

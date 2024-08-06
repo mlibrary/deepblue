@@ -1,4 +1,4 @@
-<% if Rails.configuration.enable_google_analytics_3 %>
+<% if Rails.configuration.hyrax_ver < 4.0 && Rails.configuration.enable_google_analytics_3 %>
 <!-- Old Google Analytics enabled -->
 <%
 if Hyrax.config.google_analytics_id?
@@ -11,14 +11,15 @@ tracking_id = Hyrax.config.google_analytics_id
     // This allows us to look at GA data live from locahost
     _gaq.push(['_setDomainName', 'none']);
   <% end %>
-  _gaq.push(['_trackPageview']);
 
   (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
+  window.analytics = _gaq;
 </script>
+<meta name="analytics-provider" content="google">
 <% end %>
 <% end %>
 <% if Rails.configuration.enable_google_analytics_4 %>

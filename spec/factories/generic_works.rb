@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Reviewed: hyrax4
 FactoryBot.define do
   factory :generic_work, aliases: [:private_generic_work], class: GenericWork do
     trait :public do

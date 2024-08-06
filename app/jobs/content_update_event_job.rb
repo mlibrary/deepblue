@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 # Log content update to activity streams
 class ContentUpdateEventJob < ContentEventJob
   def action

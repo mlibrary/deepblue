@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Updated: hyrax4 (.dassie)
 Hyrax.config do |config|
 
   config.register_curation_concern :data_set
@@ -7,6 +7,9 @@ Hyrax.config do |config|
   # config.register_curation_concern :generic_work
   # Injected via `rails g hyrax:work TestWork`
   config.register_curation_concern :test_work
+
+  # config.analytics = ActiveModel::Type::Boolean.new.cast(ENV.fetch('HYRAX_ANALYTICS', 'false'))
+  config.analytics = false
 
   # Register roles that are expected by your implementation.
   # @see Hyrax::RoleRegistry for additional details.
@@ -66,15 +69,18 @@ Hyrax.config do |config|
   # Requires a Google Analytics id and OAuth2 keyfile.  See README for more info
   config.analytics = true
 
-  # Google Analytics tracking ID to gather usage statistics
-  # config.google_analytics_id = Rails.application.secrets.analytics_id
-  path = "#{Rails.application.config.paths["config"].existent.first}/analytics_id.yml"
-  if File.exist? path
-    Settings.analytics_id ||= Rails.application.config_for(:analytics_id)
-    config.google_analytics_id = Settings.analytics_id['analytics_id']
-  else
-    config.google_analytics_id = nil
-  end
+  # BEGIN: Upgrade: Hyrax4
+  # # Google Analytics tracking ID to gather usage statistics
+  # # config.google_analytics_id = Rails.application.secrets.analytics_id
+  # puts "File.exist? path=#{File.exist? path}"
+  # if File.exist? path
+  #   Settings.analytics_id ||= Rails.application.config_for(:analytics_id)
+  #   puts "Settings.analytics_id=#{Settings.analytics_id}"
+  #   config.google_analytics_id = Settings.analytics_id['analytics_id']
+  # else
+  #   config.google_analytics_id = nil
+  # end
+  # END: Upgrade: Hyrax4
 
   # Date you wish to start collecting Google Analytic statistics for
   # Leaving it blank will set the start date to when ever the file was uploaded by
@@ -365,6 +371,22 @@ Hyrax.config do |config|
   # override the path used for branding
   # the rest of the code assumes that the this path is symlinked to public/branding
   config.instance_variable_set( :@branding_path, Rails.root.join( 'data', 'branding' ) )
+
+  # The default method used for Solr queries. Values are :get or :post.
+  # Post is suggested to prevent issues with URL length.
+  config.solr_default_method = :post
+
+  ##
+  # To index to the Valkyrie core, uncomment the following lines.
+  # config.query_index_from_valkyrie = true
+  # config.index_adapter = :solr_index
+
+  ##
+  # NOTE: To Valkyrie works, use Monograph which is_a Hyrax::Work is_a Valkyrie::Resource
+  # To use Valkyrie models, uncomment the following lines.
+  # config.collection_model = 'Hyrax::PcdmCollection' # collection without basic metadata
+  # config.collection_model = 'CollectionResource'    # collection with basic metadata
+  # config.admin_set_model = 'Hyrax::AdministrativeSet'
 
 end
 

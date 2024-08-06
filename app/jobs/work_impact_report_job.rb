@@ -34,7 +34,7 @@ END_OF_SCHEDULER_ENTRY
   EVENT = "work impact report"
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: work_impact_report_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: work_impact_report_job_debug_verbose )
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event: EVENT, hostname_allowed: hostname_allowed? )
     return unless hostname_allowed?
     reporter = ::Deepblue::WorkImpactReporter.new( msg_handler: msg_handler, options: options )

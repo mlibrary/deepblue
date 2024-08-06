@@ -1,3 +1,4 @@
+// Reviewed: hyrax4
 (function( $ ){
 
   $.fn.userSearch = function() {

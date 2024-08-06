@@ -35,7 +35,7 @@ END_OF_SCHEDULER_ENTRY
   EVENT = "clean blacklight query cache"
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: clean_blacklight_query_cache_job_debug_verbose )
     increment_day_span = job_options_value( key: 'increment_day_span', default_value: 15 )
     max_day_spans = job_options_value( key: 'max_day_spans', default_value: 0 )
     start_day_span = job_options_value( key: 'start_day_span', default_value: 30 )

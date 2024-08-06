@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -29,9 +30,10 @@ module Hyrax
       # Required for search builder (FIXME)
       alias collection model
 
+      # TODO: hyrax4 # self.model_class = Hyrax.config.collection_class
       self.model_class = ::Collection
 
-      self.membership_service_class = Collections::CollectionMemberService
+      self.membership_service_class = Collections::CollectionMemberSearchService
 
       delegate :blacklight_config, to: Hyrax::CollectionsController
 
@@ -162,6 +164,11 @@ module Hyrax
         collection_member_service.available_member_subcollections.documents
       end
 
+      ##
+      # monkey # (at)deprecated this implementation requires an extra db round trip, had a
+      #   buggy cacheing mechanism, and was largely duplicative of other code.
+      #   all versions of this code are replaced by
+      #   {CollectionsHelper#available_parent_collections_data}.
       def available_parent_collections(scope:)
         return @available_parents if @available_parents.present?
 

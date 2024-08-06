@@ -1,9 +1,9 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override Hyrax::WorkShowPresenter
 
 module Hyrax
-
   class WorkShowPresenter
 
     mattr_accessor :work_show_presenter_debug_verbose, default: Rails.configuration.work_show_presenter_debug_verbose
@@ -34,10 +34,11 @@ module Hyrax
     attr_writer :member_presenter_factory
     attr_accessor :solr_document, :current_ability, :request
 
-    class_attribute :collection_presenter_class
+    class_attribute :collection_presenter_class, :presenter_factory_class
 
     # modify this attribute to use an alternate presenter class for the collections
     self.collection_presenter_class = CollectionPresenter
+    self.presenter_factory_class = MemberPresenterFactory
 
     # Methods used by blacklight helpers
     delegate :has?, :first, :fetch, :export_formats, :export_as, to: :solr_document
@@ -50,7 +51,10 @@ module Hyrax
              :resource_type,
              :keyword,
              :itemtype,
-             :admin_set, to: :solr_document
+             :admin_set,
+             :rights_notes,
+             :access_right,
+             :abstract, to: :solr_document
 
     delegate  :authoremail,
               :creator_orcid,
@@ -89,7 +93,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if work_show_presenter_debug_verbose
-      @solr_document = solr_document
+      @solr_document = Hyrax::SolrDocument::OrderedMembers.decorate(solr_document)
       @current_ability = current_ability
       @request = request
     end
@@ -131,6 +135,7 @@ module Hyrax
              :read_me_file_set_id,
              :rights_license,
              :rights_statement,
+             :thumbnail_id, :representative_id,
              :rendering_ids,
              :representative_id,
              :subject,
@@ -140,6 +145,38 @@ module Hyrax
 
     attr_accessor :cc_anonymous_link
     attr_accessor :cc_single_use_link
+
+    def workflow
+      @workflow ||= WorkflowPresenter.new(solr_document, current_ability)
+      # @workflow ||= workflow_init
+    end
+
+    def workflow_init
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if work_show_presenter_debug_verbose
+      rv = WorkflowPresenter.new(solr_document, current_ability)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if work_show_presenter_debug_verbose
+      return rv
+    end
+
+    def inspect_work
+      @inspect_workflow ||= InspectWorkPresenter.new(solr_document, current_ability)
+      # @inspect_workflow ||= inspect_work_init
+    end
+
+    def inspect_work_init
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if work_show_presenter_debug_verbose
+      rv = InspectWorkPresenter.new(solr_document, current_ability)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if work_show_presenter_debug_verbose
+      return rv
+    end
 
     # def analytics_subscribed?
     #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -544,14 +581,6 @@ module Hyrax
       return false
     end
 
-    def date_modified
-      solr_document.date_modified.try(:to_formatted_s, :standard)
-    end
-
-    def date_uploaded
-      solr_document.date_uploaded.try(:to_formatted_s, :standard)
-    end
-
     # @return [String] a download URL, if work has representative media, or a blank string
     def download_url
       return '' if representative_presenter.nil?
@@ -583,12 +612,21 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if work_show_presenter_debug_verbose
-      rv = MemberPresenterFactory.new( solr_document, current_ability, request )
+      # version for hyrax4
+      # @member_presenter_factory ||=
+      #   if solr_document.hydra_model < Valkyrie::Resource
+      #     PcdmMemberPresenterFactory.new(solr_document, current_ability)
+      #   else
+      #     self.class
+      #         .presenter_factory_class
+      #         .new(solr_document, current_ability, request)
+      #   end
+      @member_presenter_factory ||= MemberPresenterFactory.new( solr_document, current_ability, request )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "rv.class.name=#{rv.class.name}",
+                                             "@member_presenter_factory.class.name=#{@member_presenter_factory.class.name}",
                                              "" ] if work_show_presenter_debug_verbose
-      return rv
+      return @member_presenter_factory
     end
 
     def members_debug_verbose
@@ -607,19 +645,8 @@ module Hyrax
       @work_show_member_presenters ||= member_presenters_init( ids, presenter_class )
     end
 
-    # @param [Array<String>] ids a list of ids to build presenters for
-    # @return [Array<presenter_class>] presenters for the array of ids (not filtered by class)
-    def member_presenters_for( an_array_of_ids )
-      # monkey -- add debug
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "an_array_of_ids=#{an_array_of_ids}",
-                                             "" ] if work_show_presenter_debug_verbose
-      member_presenters( an_array_of_ids )
-    end
-
     # ##
-    # # @deprecated use `#member_presenters(ids)` instead
+    # # monkey # (at)deprecated use `#member_presenters(ids)` instead
     # #
     # # @param [Array<String>] ids a list of ids to build presenters for
     # # @return [Array<presenter_class>] presenters for the array of ids (not filtered by class)
@@ -821,38 +848,6 @@ module Hyrax
       tombstone.present?
     end
 
-    def workflow
-      # @workflow ||= WorkflowPresenter.new(solr_document, current_ability)
-      @workflow ||= workflow_init
-    end
-
-    def workflow_init
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if work_show_presenter_debug_verbose
-      rv = WorkflowPresenter.new(solr_document, current_ability)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if work_show_presenter_debug_verbose
-      return rv
-    end
-
-    def inspect_work
-      # @inspect_workflow ||= InspectWorkPresenter.new(solr_document, current_ability)
-      @inspect_workflow ||= inspect_work_init
-    end
-
-    def inspect_work_init
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if work_show_presenter_debug_verbose
-      rv = InspectWorkPresenter.new(solr_document, current_ability)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if work_show_presenter_debug_verbose
-      return rv
-    end
-
     # @return [Boolean] render a IIIF viewer
     def iiif_viewer?
       representative_id.present? &&
@@ -882,12 +877,34 @@ module Hyrax
       :universal_viewer
     end
 
+    # @return FileSetPresenter presenter for the representative FileSets
+    def representative_presenter
+      return nil if representative_id.blank?
+      @representative_presenter ||=
+        begin
+          result = member_presenters([representative_id]).first
+          return nil if result.try(:id) == id
+          result.try(:representative_presenter) || result
+        rescue Hyrax::ObjectNotFoundError
+          Hyrax.logger.warn "Unable to find representative_id #{representative_id} for work #{id}"
+          return nil
+        end
+    end
+
     # Get presenters for the collections this work is a member of via the member_of_collections association.
     # @return [Array<CollectionPresenter>] presenters
     def member_of_collection_presenters
       PresenterFactory.build_for(ids: member_of_authorized_parent_collections,
                                  presenter_class: collection_presenter_class,
                                  presenter_args: presenter_factory_arguments)
+    end
+
+    def date_modified
+      solr_document.date_modified.try(:to_formatted_s, :standard)
+    end
+
+    def date_uploaded
+      solr_document.date_uploaded.try(:to_formatted_s, :standard)
     end
 
     def link_name( truncate: true )
@@ -923,6 +940,11 @@ module Hyrax
       graph.dump(:ttl)
     end
 
+    ##
+    # monkey # (at)deprecated use `::Ability.can?(:edit, presenter)`. Hyrax views calling
+    #   presenter {#editor} methods will continue to call them until Hyrax
+    #   4.0.0. The deprecation time horizon for the presenter methods themselves
+    #   is 5.0.0.
     def editor?
       return false if anonymous_show?
       current_ability.can?(:edit, solr_document)
@@ -940,9 +962,9 @@ module Hyrax
     def grouped_presenters(filtered_by: nil, except: nil)
       # TODO: we probably need to retain collection_presenters (as parent_presenters)
       #       and join this with member_of_collection_presenters
-      grouped = member_of_collection_presenters.group_by(&:model_name).transform_keys { |key| key.to_s.underscore }
-      grouped.select! { |obj| obj.downcase == filtered_by } unless filtered_by.nil?
-      grouped.except!(*except) unless except.nil?
+      grouped = member_of_collection_presenters.group_by(&:model_name).transform_keys(&:human)
+      grouped.select! { |obj| obj.casecmp(filtered_by).zero? } unless filtered_by.nil?
+      grouped.reject! { |obj| except.map(&:downcase).include? obj.downcase } unless except.nil?
       grouped
     end
 
@@ -973,20 +995,24 @@ module Hyrax
       paginated_item_list(page_array: authorized_item_ids)
     end
 
-
-    # IIIF metadata for inclusion in the manifest
-    #  Called by the `iiif_manifest` gem to add metadata
+    ##
+    # monkey # (at)deprecated use `#member_presenters(ids)` instead
     #
-    # @return [Array] array of metadata hashes
-    def manifest_metadata
-      metadata = []
-      Hyrax.config.iiif_metadata_fields.each do |field|
-        metadata << {
-          'label' => I18n.t("simple_form.labels.defaults.#{field}"),
-          'value' => Array.wrap(send(field).map { |f| Loofah.fragment(f.to_s).scrub!(:whitewash).to_s })
-        }
-      end
-      metadata
+    # @param [Array<String>] ids a list of ids to build presenters for
+    # @return [Array<presenter_class>] presenters for the array of ids (not filtered by class)
+    def member_presenters_for( an_array_of_ids )
+      Deprecation.warn("Use `#member_presenters` instead.")
+      # monkey -- add debug
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "an_array_of_ids=#{an_array_of_ids}",
+                                             "" ] if work_show_presenter_debug_verbose
+      member_presenters( an_array_of_ids )
+    end
+
+    # @return [Integer] total number of pages of viewable items
+    def total_pages
+      (total_items.to_f / rows_from_params.to_f).ceil
     end
 
     def manifest_url
@@ -1000,23 +1026,58 @@ module Hyrax
     def sequence_rendering
       renderings = []
       if solr_document.rendering_ids.present?
-        solr_document.rendering_ids.each do |file_set_id|
+        solr_document.rendering_ids.each_with_object([]) do |file_set_id, renderings|
           renderings << manifest_helper.build_rendering(file_set_id)
         end
       end
       renderings.flatten
     end
 
-    # determine if the user can add this work to a collection
-    # @param collections <Collections> list of collections to which this user can deposit
-    # @return true if the user can deposit to at least one collection OR if the user can create a collection; otherwise, false
+    # IIIF metadata for inclusion in the manifest
+    #  Called by the `iiif_manifest` gem to add metadata
+    #
+    # @return [Array] array of metadata hashes
+    def manifest_metadata
+      metadata = []
+      Hyrax.config.iiif_metadata_fields.each_with_object([]) do |field, metadata|
+        metadata << {
+          'label' => I18n.t("simple_form.labels.defaults.#{field}"),
+          'value' => Array.wrap(send(field).map { |f| Loofah.fragment(f.to_s).scrub!(:whitewash).to_s })
+        }
+      end
+      metadata
+    end
+
+    ##
+    # @return [Integer]
+    def member_count
+      @member_count ||= member_presenters.count
+    end
+
+    ##
+    # Given a set of collections, which the caller asserts the current ability
+    # can deposit to, decide whether to display actions to add this work to a
+    # collection.
+    #
+    # By default, this returns `true` if any collections are passed in OR the
+    # current ability can create a collection.
+    #
+    # @param collections [Enumerable<::Collection>, nil] list of collections to
+    #   which the current ability can deposit
+    #
+    # @return [Boolean] a flag indicating whether to display collection deposit
+    #   options.
     def show_deposit_for?(collections:)
+      # update for hyrax4
+      # collections.present? ||
+      #   current_ability.can?(:create_any, Hyrax.config.collection_class)
       collections.present? || current_ability.can?(:create_any, Collection)
     end
 
-    # @return [Integer] total number of pages of viewable items
-    def total_pages
-      (total_items.to_f / rows_from_params.to_f).ceil
+    ##
+    # @return [Array<Class>]
+    def valid_child_concerns
+      Hyrax::ChildTypes.for(parent: solr_document.hydra_model).to_a
     end
 
     def zip_download_enabled?
@@ -1035,8 +1096,7 @@ module Hyrax
 
       # list of item ids to display is based on ordered_ids
       def authorized_item_ids(filter_unreadable: Flipflop.hide_private_items?)
-      @member_item_list_ids ||=
-        filter_unreadable ? ordered_ids.reject { |id| !current_ability.can?(:read, id) } : ordered_ids
+        @member_item_list_ids ||= filter_unreadable ? ordered_ids.reject { |id| !current_ability.can?(:read, id) } : ordered_ids
       end
 
       # Uses kaminari to paginate an array to avoid need for solr documents for items here
@@ -1075,6 +1135,17 @@ module Hyrax
       def presenter_factory_arguments
         [current_ability, request]
       end
+
+    def member_presenter_factory_hyrax4
+      @member_presenter_factory ||=
+        if solr_document.hydra_model < Valkyrie::Resource
+          PcdmMemberPresenterFactory.new(solr_document, current_ability)
+        else
+          self.class
+              .presenter_factory_class
+              .new(solr_document, current_ability, request)
+        end
+    end
 
       def graph
       GraphExporter.new(solr_document, hostname: request.host).fetch

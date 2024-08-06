@@ -116,7 +116,7 @@ module Ldp
     end
 
     ##
-    # @deprecated use {#graph} instead
+    # monkey # (at)deprecated use {#graph} instead
     def each_statement(&block)
       reader do |reader|
         reader.each_statement(&block)

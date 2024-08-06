@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -13,7 +14,7 @@ module Hyrax
         configure_blacklight do |config|
           config.search_builder_class = Hyrax::My::WorksSearchBuilder
           config.add_facet_field "admin_set_sim", limit: 5
-          config.add_facet_field "member_of_collections_ssim", limit: 5
+          config.add_facet_field "member_of_collections_ssim", limit: 1
         end
       end
       configure_facets
@@ -58,7 +59,9 @@ module Hyrax
       private
 
       def collections_service
-        Hyrax::CollectionsService.new(self)
+        cloned = clone
+        cloned.params = {}
+        Hyrax::CollectionsService.new(cloned)
       end
 
       def search_action_url(*args)

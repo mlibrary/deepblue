@@ -34,7 +34,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
       context do
 
         context 'with valid arguments' do
-          let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+          let(:job)       { described_class.send( :job_or_instantiate, **args ) }
           let(:task)      { false }
           let(:verbose)   { false }
 
@@ -61,7 +61,7 @@ RSpec.describe UpdateCondensedEventsJob, skip: false do
         end
 
         # context 'without valid hostnames' do
-        #   let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+        #   let(:job)       { described_class.send( :job_or_instantiate, **args ) }
         #   let(:hostnames) { [  ] }
         #   let(:args)      { { hostnames: hostnames, quiet: true } }
         #   let(:options)   { { 'hostnames' => hostnames, 'quiet' => true } }

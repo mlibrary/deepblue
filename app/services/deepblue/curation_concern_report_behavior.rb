@@ -81,7 +81,8 @@ module Deepblue
         end
       else
         begin
-          e = PowerConverter.convert( curation_concern, to: :sipity_entity )
+          # hyrax2 # e = PowerConverter.convert( curation_concern, to: :sipity_entity )
+          e = Sipity::Entity(curation_concern)
           if e.present? && 'deposited' == e.workflow_state_name
             'published'
           else

@@ -54,9 +54,11 @@ class ServerAfterInitializeService
     ::Deepblue::ThreadedVarService.threaded_var_autoload( debug_verbose: debug_verbose_work_view_conent_service )
     puts "Finished threaded var loading." if debug_verbose
 
-    require 'bolognese' # support for hyrax-doi minting
-    Bolognese::Metadata.prepend Bolognese::Readers::HyraxWorkReader
-    Bolognese::Metadata.prepend Bolognese::Writers::HyraxWorkWriter
+    if Rails.configuration.use_bolognese # Update: hyrax4 # support for hyrax-doi minting
+      require 'bolognese'
+      Bolognese::Metadata.prepend Bolognese::Readers::HyraxWorkReader
+      Bolognese::Metadata.prepend Bolognese::Writers::HyraxWorkWriter
+    end
 
     puts "Before scheduler_autostart" if debug_verbose
     ::Deepblue::SchedulerIntegrationService.scheduler_autostart( debug_verbose: debug_verbose )
@@ -65,8 +67,8 @@ class ServerAfterInitializeService
     puts "::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories=" + ::Deepblue::IngestIntegrationService.ingest_append_ui_allowed_base_directories.pretty_inspect
 
     puts ">>>>> Begin Google Analytics config <<<<<"
-    puts "Rails.configuration.enable_google_analytics_3=#{Rails.configuration.enable_google_analytics_3}"
-    puts "Hyrax.config.google_analytics_id=#{Hyrax.config.google_analytics_id}"
+    # Upgrade: hyrax4 # puts "Rails.configuration.enable_google_analytics_3=#{Rails.configuration.enable_google_analytics_3}"
+    # Upgrade: hyrax4 # puts "Hyrax.config.google_analytics_id=#{Hyrax.config.google_analytics_id}"
     puts "Hyrax.config.analytic_start_date=#{Hyrax.config.analytic_start_date}"
     puts "Rails.configuration.enable_google_analytics_4=#{Rails.configuration.enable_google_analytics_4}"
     puts "Rails.configuration.google_tag_manager_id=#{Rails.configuration.google_tag_manager_id}"

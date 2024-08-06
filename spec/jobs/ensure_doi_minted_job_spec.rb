@@ -13,7 +13,7 @@ RSpec.describe EnsureDoiMintedJob do
     let(:id)          { 'workid' }
     let(:current_user) { 'test@umich.edu' }
     let(:args)        { {} }
-    let(:job)         { described_class.send(:job_or_instantiate, id, current_user, *args) }
+    let(:job)         { described_class.send(:job_or_instantiate, id: id, current_user: current_user, **args) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original

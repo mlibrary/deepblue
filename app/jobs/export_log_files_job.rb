@@ -32,7 +32,7 @@ END_OF_SCHEDULER_ENTRY
   queue_as :default
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: export_log_files_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: export_log_files_job_debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     ::Deepblue::ExportFilesHelper.export_log_files( msg_handler: msg_handler,

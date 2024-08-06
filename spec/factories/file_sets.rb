@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Update: hyrax4
 FactoryBot.define do
 
   factory :file_set do
@@ -25,6 +25,17 @@ FactoryBot.define do
       read_groups { ["registered"] }
     end
 
+    trait :image do
+      content { File.open(Hyrax::Engine.root + 'spec/fixtures/world.png') }
+    end
+
+    trait :with_original_file do
+      after(:create) do |file_set, _evaluator|
+        Hydra::Works::AddFileToFileSet
+          .call(file_set, File.open(Hyrax::Engine.root + 'spec/fixtures/world.png'), :original_file)
+      end
+    end
+
     factory :file_with_work do
       after(:build) do |file, _evaluator|
         file.title ||= ['testfile']
@@ -39,6 +50,7 @@ FactoryBot.define do
         work.ordered_members << file
         work.save
         # work.members << file
+        work
       end
     end
 

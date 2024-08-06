@@ -1,4 +1,5 @@
-<ul id="user_utility_links" class="nav navbar-nav navbar-right">
+<%# Update: hyrax4 -- revisit? %>
+<ul id="user_utility_links" class="navbar-nav navbar-dark">
   <!-- About, Help, Contact Us -->
   <li <%= 'class=active' if current_page?(hyrax.about_path) %>>
     <%= link_to t(:'hyrax.controls.about'),
@@ -16,10 +17,10 @@
 
   <%= render 'shared/locale_picker' if available_translations.size > 1 %>
   <% if user_signed_in? %>
-    <li>
+    <li class="nav-item">
       <%= render_notifications(user: current_user) %>
     </li>
-    <li class="dropdown">
+    <li class="nav-item dropdown">
       <%= link_to hyrax.dashboard_path, # hyrax.dashboard_profile_path(current_user),
                   role: 'button',
                   data: {toggle: 'dropdown'},
@@ -104,14 +105,14 @@
       </ul>
     </li><!-- /.btn-group -->
   <% else %>
-    <li>
+    <li class="nav-item">
       <% if Rails.configuration.authentication_method == "iu" %>
         <%= link_to main_app.new_user_session_path do %>
           <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Login To CAS
         <% end %>
       <% else %>
-        <%= link_to main_app.new_user_session_path do %>
-          <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> <%= t("hyrax.toolbar.profile.login") %>
+        <%= link_to main_app.new_user_session_path, class: 'nav-link' do %>
+          <span class="fa fa-sign-in" aria-hidden="true"></span> <%= t("hyrax.toolbar.profile.login") %>
         <% end %>
       <% end %>
     </li>

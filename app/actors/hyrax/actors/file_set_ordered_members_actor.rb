@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   module Actors
@@ -18,12 +19,6 @@ module Hyrax
                                                "file_set_params=#{file_set_params}",
                                                "" ] if file_set_ordered_ordered_members_actor_debug_verbose
         file_set.visibility = work.visibility unless assign_visibility?(file_set_params)
-        # if work.responds_to? :link_file_set
-        #   work.link_file_set( file_set: file_set )
-        # else
-        #   work.representative = file_set if work.representative_id.blank?
-        #   work.thumbnail = file_set if work.thumbnail_id.blank?
-        # end
         work.representative = file_set if work.representative_id.blank?
         work.thumbnail = file_set if work.thumbnail_id.blank?
       end

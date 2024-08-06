@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Update: hyrax4
 FactoryBot.define do
   factory :permission_template, class: Hyrax::PermissionTemplate do
     # Given that there is a one to one strong relation between permission_template and admin_set,
@@ -17,18 +17,20 @@ FactoryBot.define do
     before(:create) do |permission_template, evaluator|
       if evaluator.with_admin_set
         source_id = permission_template.source_id
-        admin_set =
-          if source_id.present?
-            begin
-              AdminSet.find(source_id)
-            rescue Hyrax::ObjectNotFoundError
-              create(:admin_set, id: source_id)
-            rescue ActiveFedora::ObjectNotFoundError
-              create(:admin_set, id: source_id)
-            end
-          else
-            create(:admin_set)
-          end
+        admin_set = SourceFinder.find_or_create_admin_set(source_id)
+        # Commented out: hyrax2
+        # admin_set =
+        #   if source_id.present?
+        #     begin
+        #       AdminSet.find(source_id)
+        #     rescue Hyrax::ObjectNotFoundError
+        #       create(:admin_set, id: source_id)
+        #     rescue ActiveFedora::ObjectNotFoundError
+        #       create(:admin_set, id: source_id)
+        #     end
+        #   else
+        #     create(:admin_set)
+        #   end
         permission_template.source_id = admin_set.id
       elsif evaluator.with_collection
         source_id = permission_template.source_id
@@ -51,7 +53,7 @@ FactoryBot.define do
     after(:create) do |permission_template, evaluator|
       if evaluator.with_workflows
         Hyrax::Workflow::WorkflowImporter.load_workflow_for(permission_template: permission_template)
-        Sipity::Workflow.activate!(permission_template: permission_template, workflow_id: permission_template.available_workflows.pluck(:id).first)
+        Sipity::Workflow.activate!(permission_template: permission_template, workflow_id: permission_template.available_workflows.pick(:id))
       end
       if evaluator.with_active_workflow
         workflow = create(:workflow, active: true, permission_template: permission_template)
@@ -87,6 +89,38 @@ FactoryBot.define do
                           permission_template: permission_template_id,
                           agent_type: agent_type,
                           agent_id: agent_id)
+      end
+    end
+  end
+
+  class SourceFinder
+    def self.find_or_create_admin_set(source_id)
+      Hyrax.config.use_valkyrie? ? find_or_create_admin_set_valkyrie(source_id) : find_or_create_admin_set_active_fedora(source_id)
+    end
+
+    def self.find_or_create_admin_set_active_fedora(source_id)
+      if source_id.present?
+        begin
+          AdminSet.find(source_id)
+        rescue ActiveFedora::ObjectNotFoundError
+          FactoryBot.create(:admin_set, id: source_id)
+        end
+      else
+        FactoryBot.create(:admin_set)
+      end
+    end
+
+    def self.find_or_create_admin_set_valkyrie(source_id)
+      if source_id.present?
+        begin
+          Hyrax.query_service.find_by(id: source_id)
+        rescue Valkyrie::Persistence::ObjectNotFoundError
+          # Creating an Administrative set with a pre-determined id will not work for all adapters
+          # so we're letting the adapter assign the id
+          FactoryBot.valkyrie_create(:hyrax_admin_set)
+        end
+      else
+        FactoryBot.valkyrie_create(:hyrax_admin_set)
       end
     end
   end

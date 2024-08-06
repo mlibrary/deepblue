@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey replace the original from Hyrax gem: "app/controllers/hyrax/download_controller.rb"
 
@@ -13,6 +14,7 @@ module Hyrax
 
     include Hydra::Controller::DownloadBehavior
     include Hyrax::LocalFileDownloadsControllerBehavior
+    include Hyrax::WorkflowsHelper # Provides #workflow_restriction?
     include IrusAnalytics::Controller::AnalyticsBehaviour
 
     after_action :report_irus_analytics_request, only: %i[show]

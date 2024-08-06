@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -9,8 +10,28 @@ module Hyrax
     mattr_accessor :version_list_presenter_debug_verbose,
                    default: Rails.configuration.version_list_presenter_debug_verbose
 
+    ##
+    # @param version_list [Array<#created>]
     def initialize(version_list)
       @raw_list = version_list
+    end
+
+    ##
+    # @param [Object] an object representing the File Set
+    #
+    # @return [Enumerable<Hyrax::VersionPresenter>] an enumerable of presenters
+    #   for the relevant file versions.
+    #
+    # @raise [ArgumentError] if we can't build an enu
+    def self.for(file_set:)
+      original_file = if file_set.respond_to?(:original_file)
+                        file_set.original_file
+                      else
+                        Hyrax::FileSetFileService.new(file_set: file_set).original_file
+                      end
+      new(Hyrax::VersioningService.new(resource: original_file).versions)
+    rescue NoMethodError
+      raise ArgumentError
     end
 
     delegate :each, to: :wrapped_list

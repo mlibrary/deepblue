@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 class Collection < ActiveFedora::Base
 

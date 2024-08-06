@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# diff to v3.1
+# Reviewed: hyrax4
 module Hyrax
 
   module EmbargoesControllerBehavior
@@ -70,12 +70,19 @@ module Hyrax
     end
 
     def edit
+      @curation_concern = Hyrax::Forms::WorkEmbargoForm.new(curation_concern).prepopulate! if
+        Hyrax.config.use_valkyrie?
       add_breadcrumb t(:'hyrax.controls.home'), root_path
       add_breadcrumb t(:'hyrax.dashboard.breadcrumbs.admin'), hyrax.dashboard_path
       add_breadcrumb t(:'hyrax.embargoes.index.manage_embargoes'), hyrax.embargoes_path
       add_breadcrumb t(:'hyrax.embargoes.edit.embargo_update'), '#'
     end
 
-  end
+    private
 
+    def embargo_history(concern)
+      concern.try(:embargo_history) ||
+        concern.try(:embargo)&.embargo_history
+    end
+  end
 end

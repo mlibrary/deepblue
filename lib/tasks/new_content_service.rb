@@ -1501,7 +1501,7 @@ module Deepblue
                                                "" ] if new_content_service_debug_verbose
         return if @emails_after.blank?
         lines = []
-        lines << EmailHelper.t( "hyrax.new_content_service.notify_after_part_1_html",
+        lines << EmailHelper.t!( "hyrax.new_content_service.notify_after_part_1_html",
                                  mode: mode,
                                  path_to_yaml_file: path_to_yaml_file )
         if ( @ingest_urls.present? )
@@ -1550,7 +1550,7 @@ module Deepblue
         event = "New Content Service - Before"
         id = ""
         template = "hyrax.new_content_service.notify_before_html"
-        body = EmailHelper.t( template, mode: mode, path_to_yaml_file: path_to_yaml_file )
+        body = EmailHelper.t!( template, mode: mode, path_to_yaml_file: path_to_yaml_file )
         subject = EmailHelper.t( "#{template}_subject" )
         @emails_before.each_pair do |email_to,_value|
           # send the email

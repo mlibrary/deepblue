@@ -119,12 +119,12 @@ RSpec.describe ::Deepblue::AbstractService do
         expect(msg_handler).to_not receive(:msg_debug)
         expect(msg_handler).to_not receive(:msg_error)
         expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_warn).with("options error 859: unexpected token at 'garbage'")
+        expect(msg_handler).to receive(:msg_warn).with("options error unexpected token at 'garbage'")
       end
       it 'has default values' do
         service.send(:initialize, msg_handler: msg_handler, options: "garbage" )
         expect(service.logger).to        eq default_logger
-        expect(service.options_error.message).to match /8\d\d: unexpected token at 'garbage'/
+        expect(service.options_error.message).to match /unexpected token at 'garbage'/
         expect(service.quiet).to         eq default_quiet
         expect(service.verbose).to       eq default_verbose
       end

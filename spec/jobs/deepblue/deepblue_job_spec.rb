@@ -3,7 +3,7 @@ require 'rails_helper'
 class MockDeepblueJob < ::Deepblue::DeepblueJob
 
   def perform(*args)
-    initialize_options_from(*args)
+    initialize_options_from( args: args )
   end
 
 end
@@ -53,7 +53,7 @@ RSpec.describe ::Deepblue::DeepblueJob do
   describe '.initialize_no_args_hash' do
 
     let(:args) { {} }
-    let(:job) { MockDeepblueJob.send( :job_or_instantiate, *args ) }
+    let(:job) { MockDeepblueJob.send( :job_or_instantiate, **args ) }
     it 'does it' do
       expect( job ).to receive(:job_status_init).and_call_original
       expect( job ).to receive(:email_targets_init).and_call_original
@@ -67,7 +67,7 @@ RSpec.describe ::Deepblue::DeepblueJob do
 
   end
 
-  describe '.initialize_options_from' do
+  describe '.initialize_options_from OLD', skip: true do
     let(:debug_verbose) { false }
     let(:args)  { {x: 'y'} }
     let(:args2) { {x: 'y', a: 'b'} }
@@ -109,6 +109,56 @@ RSpec.describe ::Deepblue::DeepblueJob do
                                                                                     debug_verbose: debug_verbose).and_call_original
         expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with(*init2,
                                                                            debug_verbose: debug_verbose).and_call_original
+        job.perform_now
+        expect( job.options ).to eq( args2.with_indifferent_access )
+      end
+    end
+
+  end
+
+  # Upgrade: ruby3
+  describe '.initialize_options_from' do
+    let(:debug_verbose) { false }
+    let(:args)  { {x: 'y'} }
+    let(:args2) { {x: 'y', a: 'b'} }
+    let(:init)  { [{ x: 'y' }] }
+    let(:init2) { [{x: 'y', a: 'b'}] }
+
+    it 'it calls initialize options from with the right args 1' do
+      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from)
+                                             .with( args: init, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args)
+                                             .with( args: init, debug_verbose: debug_verbose).and_call_original
+      MockDeepblueJob.perform_now(**args)
+    end
+
+    it 'it calls initialize options from with the right args 1' do
+      expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from)
+                                             .with( args: init2, debug_verbose: debug_verbose).and_call_original
+      expect(::Deepblue::JobTaskHelper).to receive(:normalize_args)
+                                             .with( args: init2, debug_verbose: debug_verbose).and_call_original
+      MockDeepblueJob.perform_now(**args2)
+    end
+
+    context 'it sets options to the correct values 1' do
+      let(:job) { MockDeepblueJob.send( :job_or_instantiate, **args ) }
+      it 'does it' do
+        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with( args: init,
+                                                                                      debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with( args: init,
+                                                                             debug_verbose: debug_verbose).and_call_original
+        job.perform_now
+        expect( job.options ).to eq( args.with_indifferent_access )
+      end
+    end
+
+    context 'it sets options to the correct values 2' do
+      let(:job) { MockDeepblueJob.send( :job_or_instantiate, **args2 ) }
+      it 'does it' do
+        expect(::Deepblue::JobTaskHelper).to receive(:initialize_options_from).with( args: init2,
+                                                                                      debug_verbose: debug_verbose).and_call_original
+        expect(::Deepblue::JobTaskHelper).to receive(:normalize_args).with( args: init2,
+                                                                             debug_verbose: debug_verbose).and_call_original
         job.perform_now
         expect( job.options ).to eq( args2.with_indifferent_access )
       end

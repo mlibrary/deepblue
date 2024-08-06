@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
 FactoryBot.define do
   factory :single_use_link do
     factory :show_link do

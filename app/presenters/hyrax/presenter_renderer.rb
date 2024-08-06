@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey patch
 
@@ -31,7 +32,7 @@ module Hyrax
     end
 
     ##
-    # @deprecated
+    # monkey # (at)deprecated
     def fields(terms, &_block)
       Deprecation.warn("Fields is deprecated for removal in Hyrax 4.0.0. use #value and #label directly instead.")
       @view_context.safe_join(terms.map { |term| yield self, term })

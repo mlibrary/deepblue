@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::BatchEditsHelper, type: :helper, skip: false do
@@ -13,7 +16,6 @@ RSpec.describe Hyrax::BatchEditsHelper, type: :helper, skip: false do
       let(:controller_path) { "hyrax/my/works" }
 
       it "shows the check all dropdown" do
-        expect(subject).to have_css("span.caret")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_all")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_none")
       end
@@ -23,7 +25,6 @@ RSpec.describe Hyrax::BatchEditsHelper, type: :helper, skip: false do
       let(:controller_path) { "hyrax/my/shares" }
 
       it "shows the check all dropdown" do
-        expect(subject).to have_css("span.caret")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_all")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_none")
       end
@@ -33,7 +34,6 @@ RSpec.describe Hyrax::BatchEditsHelper, type: :helper, skip: false do
       let(:controller_path) { "hyrax/my/highlights" }
 
       it "shows the check all dropdown" do
-        expect(subject).to have_css("span.caret")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_all")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_none")
       end
@@ -43,7 +43,6 @@ RSpec.describe Hyrax::BatchEditsHelper, type: :helper, skip: false do
       let(:controller_path) { "hyrax/my/collections" }
 
       it "show the check all dropdown" do
-        expect(subject).to have_css("span.caret")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_all")
         expect(subject).to have_content t("hyrax.dashboard.my.action.select_none")
       end

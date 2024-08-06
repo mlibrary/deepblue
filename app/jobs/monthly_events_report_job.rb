@@ -36,7 +36,7 @@ END_OF_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if monthly_events_report_job_debug_verbose
-    initialize_options_from( *args, debug_verbose: monthly_events_report_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: monthly_events_report_job_debug_verbose )
     allowed = hostname_allowed?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

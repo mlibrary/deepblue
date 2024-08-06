@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Updated: hyrax4
 require 'rails_helper'
 
 RSpec.describe ::Hyrax::My::WorksController, type: :controller, skip: false do
@@ -36,7 +36,7 @@ RSpec.describe ::Hyrax::My::WorksController, type: :controller, skip: false do
   end
 
   describe "#search_builder_class" do
-    subject { controller.search_builder_class }
+    subject { controller.blacklight_config.search_builder_class }
 
     it { is_expected.to eq Hyrax::My::WorksSearchBuilder }
   end

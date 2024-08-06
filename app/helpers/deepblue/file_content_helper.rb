@@ -29,13 +29,20 @@ module Deepblue
     mattr_accessor :read_me_file_set_ext_as_html, default: [ ".md" ].freeze
     mattr_accessor :read_me_max_find_file_sets, default: 40
 
-
-    def self.t( key, **options )
-      I18n.t( key, options )
+    def self.t( key )
+      I18n.t( key )
     end
 
-    def self.translate( key, **options )
-      I18n.translate( key, options )
+    def self.translate( key )
+      I18n.translate( key )
+    end
+
+    def self.t!( key, **options )
+      I18n.t!( key, **options )
+    end
+
+    def self.translate!( key, **options )
+      I18n.translate!( key, **options )
     end
 
     def self.can_assign_as_read_me?( id1:, id2:, file_size: )

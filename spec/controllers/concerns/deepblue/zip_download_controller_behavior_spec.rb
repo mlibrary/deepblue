@@ -61,7 +61,8 @@ RSpec.describe Deepblue::ZipDownloadControllerBehavior, skip: false do
       before do
         ::Deepblue::DiskUtilitiesHelper.delete_files_glob_regexp( base_dir: tmp_dir,
                                                                   msg_handler: ::Deepblue::MessageHandlerNull.new )
-        File.delete target_file.to_s if File.exist? target_file.to_s
+        pre_delete = File.exist? target_file.to_s
+        File.delete target_file.to_s if pre_delete
         if debug_verbose
           expect(::Deepblue::LoggingHelper).to receive(:bold_debug).at_least(:once)
         else

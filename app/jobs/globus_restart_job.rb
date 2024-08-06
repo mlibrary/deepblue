@@ -13,7 +13,7 @@ class GlobusRestartJob < GlobusJob
       globus_unlock
     end
     user_email = nil
-    ::GlobusCopyJob.perform_later( concern_id, user_email: user_email, log_prefix: log_prefix )
+    ::GlobusCopyJob.perform_later( concern_id: concern_id, user_email: user_email, log_prefix: log_prefix )
   end
 
 end

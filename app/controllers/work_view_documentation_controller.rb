@@ -3,7 +3,7 @@
 class WorkViewDocumentationController < ApplicationController
 
   mattr_accessor :work_view_documentation_controller_debug_verbose,
-                 default: ::Deepblue::WorkViewContentService.work_view_documentation_controller_debug_verbose
+                 default: ::Deepblue::WorkViewContentService.work_view_documentation_controller_cc_debug_verbose
 
   include ActiveSupport::Concern
   include Blacklight::Base

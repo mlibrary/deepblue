@@ -8,7 +8,7 @@ module Hyrax
                    default: ::Hyrax::AnonymousLinkService.anonymous_links_controller_debug_verbose
 
     include ActionView::Helpers::TranslationHelper
-    include Blacklight::SearchHelper
+    #include Blacklight::SearchHelper
     class_attribute :show_presenter
     self.show_presenter = Hyrax::AnonymousLinkPresenter
     before_action :authenticate_user!
@@ -123,7 +123,10 @@ module Hyrax
       end
 
       def asset_show_path
-        polymorphic_path([main_app, fetch(params[:id]).last])
+        # hyrax2 # polymorphic_path([main_app, params.fetch(params[:id]).last])
+        curation_concern = ::PersistHelper.find_solr( params.fetch(:id) )
+        rv = polymorphic_path(curation_concern)
+        return rv
       end
 
   end

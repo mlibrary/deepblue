@@ -59,7 +59,7 @@ module Aptrust
       # recursively delete bag_dir
       if Dir.exists? bag_dir
         msg_handler.msg_verbose "delete bag_dir '#{bag_dir}'"
-        ::Deepblue::DiskUtilitiesHelper.delete_dir( bag_dir, msg_handler: msg_handler, recursive: true ) unless test_mode?
+        ::Deepblue::DiskUtilitiesHelper.delete_dir( dir_path: bag_dir, msg_handler: msg_handler, recursive: true ) unless test_mode?
       end
     end
 

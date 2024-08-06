@@ -106,7 +106,7 @@
   <% @presenter.email_template_keys.each do |key| %>
     <h3><%= key %></h3>
     <% options = ::Deepblue::EmailHelper.template_default_options( curation_concern: nil ) %>
-    <% text = I18n.t( key, **options ) %>
+    <% text = I18n.t!( key, **options ) %>
     <% text = text.split("\n") %>
     <% height = text.size > 5 ? text.size : 5 %>
 <textarea class='monospace-textarea'  rows="<%=height%>" cols="85" readonly>

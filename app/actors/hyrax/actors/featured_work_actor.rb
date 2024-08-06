@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   module Actors

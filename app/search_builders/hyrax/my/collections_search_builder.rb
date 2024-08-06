@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -25,5 +26,15 @@ class Hyrax::My::CollectionsSearchBuilder < ::Hyrax::CollectionSearchBuilder
   # @return [Array<Class>] a list of classes to include
   def models
     [::AdminSet, ::Collection]
+  end
+
+  private
+
+  def query_for_my_collections
+    query_service = Hyrax::SolrQueryService.new
+    query_service.with_field_pairs(field_pairs: { depositor_ssim: current_user_key }, type: 'terms')
+    query_service.with_field_pairs(field_pairs: { has_model_ssim: Hyrax.config.admin_set_model,
+                                                  creator_ssim: current_user_key }, type: 'terms')
+    query_service.build(join_with: 'OR')
   end
 end

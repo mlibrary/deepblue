@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -55,9 +56,9 @@ module Hyrax
       # @option recipients [Array<Hyrax::User>] :to a list of users to which to send the notification
       # @option recipients [Array<Hyrax::User>] :cc a list of users to which to copy on the notification
       def initialize(entity, comment, user, recipients)
-        @work_id = entity.proxy_for_global_id.sub(/.*\//, '')
+        @work_id = entity.proxy_for.id
         @title = entity.proxy_for.title.first
-        @comment = comment.respond_to?(:comment) ? comment.comment.to_s : ''
+        @comment = comment&.comment.to_s
         # Convert to hash with indifferent access to allow both string and symbol keys
         @recipients = recipients.with_indifferent_access
         @user = user
@@ -65,13 +66,20 @@ module Hyrax
       end
 
       def call
-        curation_concern_notifications( user, message, subject )
         users_to_notify.uniq.each do |recipient|
           Hyrax::MessengerService.deliver( user, recipient, message, subject )
         end
       end
 
       private
+
+      def subject
+        raise NotImplementedError, "Implement #subject in a child class"
+      end
+
+      def message
+        "#{title} (#{link_to work_id, document_path}) was advanced in the workflow by #{user.user_key} and is awaiting approval #{comment}"
+      end
 
       # @return [Object] the document (work) the the Abstract WorkFlow is creating a notification for
         def document
@@ -82,18 +90,6 @@ module Hyrax
           key = document.model_name.singular_route_key
           url_to_work = Rails.application.routes.url_helpers.send( key + "_path", document.id )
           url_to_work
-        end
-
-        def curation_concern_notifications( user, message, subject )
-          # override to log provenance
-        end
-
-        def message
-          "#{title} (#{link_to work_id, document_path}) was advanced in the workflow by #{user.user_key} and is awaiting approval #{comment}"
-        end
-
-        def subject
-          raise NotImplementedError, "Implement #subject in a child class"
         end
 
         def users_to_notify

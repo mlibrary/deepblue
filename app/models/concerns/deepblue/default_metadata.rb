@@ -333,10 +333,10 @@ module Deepblue
       end
 
       # already defined property in hyrax v3
-      # # 26 description null - part of basic metadata
-      # property :description, predicate: ::RDF::Vocab::DC11.description do |index|
-      #   index.as :stored_searchable
-      # end
+      # 26 description null - part of basic metadata
+      property :description, predicate: ::RDF::Vocab::DC11.description do |index|
+        index.as :stored_searchable
+      end
 
       # 27  description  abstract
       # already defined property predicate in hyrax v3 --> abstract

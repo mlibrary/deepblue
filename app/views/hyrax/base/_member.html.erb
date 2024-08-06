@@ -1,3 +1,5 @@
+<%# Reviewed: heliotrope %>
+<%# Reviewed: hyrax4 -- revisit? %>
 <% if @presenter.tombstone.present? %>
   <tr class="<%= dom_class(member) %> attributes">
     <td class="attribute thumbnail"><center>-</center></td>
@@ -18,9 +20,10 @@
                                             ""]
     %>
     <td class="thumbnail">
-      <% thumbnail_tag = render_thumbnail_tag( member.solr_document,
+      <%# hyrax2 # thumbnail_tag = render_thumbnail_tag( member.solr_document,
                                                member.member_thumbnail_image_options( member ),
                                                member.member_thumbnail_url_options( member ) ) %>
+      <%= thumbnail_tag = document_presenter(member).thumbnail.thumbnail_tag(alt: 'file details') %>
       <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member, tag: thumbnail_tag ) %>
     </td>
     <%# if can?(:download, member.id) %>

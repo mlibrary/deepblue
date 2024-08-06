@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -48,10 +49,13 @@ module Hyrax
       super(access)
     end
 
-    # If no sort parameter is passed, it will sort
-    # by relevance.
+    # Sort results by title if no query was supplied.
+    # This overrides the default 'relevance' sort.
     def add_sorting_to_solr(solr_parameters)
-      solr_parameters[:sort] = sort unless sort.blank?
+      # former hyrax2 # solr_parameters[:sort] = sort unless sort.blank?
+      return if solr_parameters[:q]
+      solr_parameters[:sort] ||= sort
+      solr_parameters[:sort] ||= "#{sort_field} asc"
     end
 
     # If :deposit access is requested, check to see which collections the user has

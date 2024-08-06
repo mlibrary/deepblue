@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 # Converts UploadedFiles into FileSets and attaches them to works.
 class AttachFilesToWorkWithOrderedMembersJob < AttachFilesToWorkJob
   attr_reader :ordered_members, :uploaded_files

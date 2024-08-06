@@ -43,7 +43,7 @@ module Deepblue
 
     def self.jobs_running_msg
       jobs = jobs_running
-      return MsgHelper.t( 'hyrax.jobs.running', job_count: jobs.size, now: MsgHelper.display_now  )
+      return MsgHelper.t!( 'hyrax.jobs.running', job_count: jobs.size, now: MsgHelper.display_now  )
     end
 
     def self.jobs_running_by( key:, value: )

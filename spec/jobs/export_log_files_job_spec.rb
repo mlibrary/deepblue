@@ -11,7 +11,7 @@ RSpec.describe ExportLogFilesJob do
   RSpec.shared_examples 'it performs the job' do |debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }
     let(:args)        { {} }
-    let(:job)         { described_class.send(:job_or_instantiate, *args) }
+    let(:job)         { described_class.send(:job_or_instantiate, **args) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original

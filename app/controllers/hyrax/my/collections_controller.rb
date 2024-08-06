@@ -1,9 +1,8 @@
 # frozen_string_literal: true
+# Updated: hyrax4
 
 module Hyrax
-
   module My
-
     class CollectionsController < MyController
 
       mattr_accessor :hyrax_my_collections_controller_debug_verbose, default: false
@@ -14,7 +13,8 @@ module Hyrax
       configure_blacklight do |config|
         config.search_builder_class = Hyrax::My::CollectionsSearchBuilder
       end
-
+      attr_accessor :search_builder_class
+      @search_builder_class = Hyrax::My::CollectionsSearchBuilder
       # Define collection specific filter facets.
       def self.configure_facets
         configure_blacklight do |config|
@@ -22,6 +22,7 @@ module Hyrax
           config.add_facet_field Hyrax.config.collection_type_index_field,
                                  helper_method: :collection_type_label, limit: 5,
                                  pivot: ['has_model_ssim', Hyrax.config.collection_type_index_field],
+                                 skip_item: ->(item) { item.value == "Collection" }, # Added: hyrax4
                                  label: I18n.t('hyrax.dashboard.my.heading.collection_type')
           # This causes AdminSets to also be shown with the Collection Type label
           config.add_facet_field 'has_model_ssim',
@@ -213,7 +214,5 @@ module Hyrax
         @managed_collection_count = Hyrax::Collections::ManagedCollectionsService.managed_collections_count(scope: self)
       end
     end
-
   end
-
 end

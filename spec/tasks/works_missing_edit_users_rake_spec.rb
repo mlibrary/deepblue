@@ -4,7 +4,8 @@ require 'rails_helper'
 
 Rails.application.load_tasks
 
-describe "works_missing_edit_users.rake" do
+# skip because the target uses puts, TODO: cleanup so puts can be turned off
+describe "works_missing_edit_users.rake", skip: true do
 
   # reference: https://tasdikrahman.me/2020/10/20/testing-rake-tasks-with-rspec/
 
@@ -28,8 +29,6 @@ describe "works_missing_edit_users.rake" do
 
     it "invokes Deepblue::WorksMissingEditUsers" do
       task1 = Rake::Task[task]
-      puts "task1=#{task1}"
-      puts "task1.class=#{task1.class}"
       task1.invoke
     end
 

@@ -1,9 +1,32 @@
 # frozen_string_literal: true
+# Updated: hyrax4
 
 module Hyrax
-
   ##
-  # Provides Hyrax's engine level user/group permissions.
+  # Provides Hyrax's engine level user/group authorizations.
+  #
+  # Authorization (allow or deny) of the following actions is managed by the
+  # rules defined here:
+  #
+  #   - read:
+  #   - show:
+  #   - edit:
+  #   - update:
+  #   - create:
+  #   - discover:
+  #   - manage:
+  #   - download:
+  #   - destroy:
+  #   - collect:
+  #   - toggle_trophy:
+  #   - transfer:
+  #   - accept:
+  #   - reject:
+  #   - manage_any:
+  #   - create_any:
+  #   - view_admin_show_any:
+  #   - review:
+  #   - create_collection_type:
   #
   # @note This is intended as a mixin layered over
   #   +Blacklight::AccessControls::Ability+ and +Hydra::AccessControls+. Its
@@ -107,7 +130,7 @@ module Hyrax
           test_download(id)
         end
 
-        can :download, SolrDocument do |obj|
+      can :download, ::SolrDocument do |obj|
           cache.put(obj.id, obj)
           test_download(obj.id)
         end
@@ -173,7 +196,7 @@ module Hyrax
           end
         end
 
-        can :create, ProxyDepositRequest if Flipflop.proxy_deposit? && registered_user?
+        can :create, ProxyDepositRequest if (Flipflop.proxy_deposit? || Flipflop.transfer_works?) && registered_user?
 
         can :accept, ProxyDepositRequest, receiving_user_id: current_user.id, status: 'pending'
         can :reject, ProxyDepositRequest, receiving_user_id: current_user.id, status: 'pending'
@@ -305,7 +328,8 @@ module Hyrax
       def trophy_abilities
         can [:create, :destroy], Trophy do |t|
           # doc = ActiveFedora::Base.search_by_id(t.work_id, fl: 'depositor_ssim')
-          doc = ::PersistHelper.search_by_id(t.work_id, fl: 'depositor_ssim')
+          # hyrax2 # doc = ::PersistHelper.search_by_id(t.work_id, fl: 'depositor_ssim')
+          doc = Hyrax::SolrService.search_by_id(t.work_id, fl: 'depositor_ssim')
           current_user.user_key == doc.fetch('depositor_ssim').first
         end
       end
@@ -402,10 +426,12 @@ module Hyrax
                                                "current_user.user_key=#{current_user.user_key}",
                                                "document_id=#{document_id}",
                                                "" ] if hyrax_ability_debug_verbose
-        Hyrax::WorkRelation.new.search_with_conditions(
-          id: document_id,
-          DepositSearchBuilder.depositor_field => current_user.user_key
-        ).any?
+        # hyrax2 # Hyrax::WorkRelation.new.search_with_conditions(
+        # hyrax2 #   id: document_id,
+        # hyrax2 #   DepositSearchBuilder.depositor_field => current_user.user_key
+        # hyrax2 # ).any?
+        doc = Hyrax::SolrService.search_by_id(document_id, fl: 'depositor_ssim')
+        current_user.user_key == doc['depositor_ssim']&.first
       end
 
       def curation_concerns_models
@@ -429,12 +455,13 @@ module Hyrax
 
       def extract_subjects(subject)
         case subject
+        when Hyrax::WorkShowPresenter, FileSetPresenter, Hyrax::CollectionPresenter
+          extract_subjects(subject.solr_document)
         when Draper::Decorator
-          super(subject.model)
+          extract_subjects(subject.model)
         else
           super
         end
       end
-
   end
 end

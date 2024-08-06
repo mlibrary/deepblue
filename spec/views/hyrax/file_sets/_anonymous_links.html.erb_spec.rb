@@ -33,7 +33,7 @@ RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
     end
     
     it "renders a table with links" do
-      expect( rendered ).to have_text I18n.t('hyrax.anonymous_links.link_message', link_type: "View" )
+      expect( rendered ).to have_text I18n.t!('hyrax.anonymous_links.link_message', link_type: "View" )
     end
 
   end

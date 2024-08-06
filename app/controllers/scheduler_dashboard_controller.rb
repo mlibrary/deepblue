@@ -219,8 +219,8 @@ class SchedulerDashboardController < ApplicationController
   end
 
   def scheduler_active_status
-    return MsgHelper.t( 'hyrax.scheduler.can_run', hostname: Rails.configuration.hostname ) if scheduler_active
-    MsgHelper.t( 'hyrax.scheduler.can_not_run_html', hostname: Rails.configuration.hostname )
+    return MsgHelper.t!( 'hyrax.scheduler.can_run', hostname: Rails.configuration.hostname ) if scheduler_active
+    MsgHelper.t!( 'hyrax.scheduler.can_not_run_html', hostname: Rails.configuration.hostname )
   end
 
   def scheduler_job_subscribe( subscription_service_id: )

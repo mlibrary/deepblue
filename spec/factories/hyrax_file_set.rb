@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Update: hyrax4
 ##
 # Use this factory for generic Hyrax/HydraWorks FileSets in valkyrie.
 FactoryBot.define do
@@ -10,6 +10,11 @@ FactoryBot.define do
       extracted_text     { nil }
       thumbnail          { nil }
       visibility_setting { nil }
+      edit_users         { [] }
+      edit_groups        { [] }
+      read_users         { [] }
+      read_groups        { [] }
+      with_index         { true }
     end
 
     after(:build) do |file_set, evaluator|
@@ -22,6 +27,11 @@ FactoryBot.define do
       file_set.original_file_id = evaluator.original_file.id if evaluator.original_file
       file_set.extracted_text_id = evaluator.extracted_text.id if evaluator.extracted_text
       file_set.thumbnail_id = evaluator.thumbnail.id if evaluator.thumbnail
+
+      file_set.permission_manager.edit_groups = evaluator.edit_groups
+      file_set.permission_manager.edit_users  = evaluator.edit_users
+      file_set.permission_manager.read_users  = evaluator.read_users
+      file_set.permission_manager.read_users  = evaluator.read_groups
     end
 
     after(:create) do |file_set, evaluator|
@@ -30,6 +40,15 @@ FactoryBot.define do
         writer.assign_access_for(visibility: evaluator.visibility_setting)
         writer.permission_manager.acl.save
       end
+
+      file_set.permission_manager.edit_groups = evaluator.edit_groups
+      file_set.permission_manager.edit_users  = evaluator.edit_users
+      file_set.permission_manager.read_users  = evaluator.read_users
+      file_set.permission_manager.read_users  = evaluator.read_groups
+
+      file_set.permission_manager.acl.save
+
+      Hyrax.index_adapter.save(resource: file_set) if evaluator.with_index
     end
 
     trait :public do

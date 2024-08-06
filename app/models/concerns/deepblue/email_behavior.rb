@@ -158,7 +158,7 @@ module Deepblue
                                            "cc_url=#{cc_url}",
                                            "cc_depositor=#{cc_depositor}",
                                            "" ] if email_behavior_debug_verbose
-      body = EmailHelper.t( email_template_key( cc_type: cc_type, event: 'created', was_draft: was_draft ),
+      body = EmailHelper.t!( email_template_key( cc_type: cc_type, event: 'created', was_draft: was_draft ),
                             title: EmailHelper.escape_html( cc_title ),
                             url: cc_url,
                             depositor: cc_depositor,
@@ -240,7 +240,7 @@ module Deepblue
                                            "template_key=#{template_key}",
                                            "" ] if email_behavior_debug_verbose
       # for the work's authoremail
-      body = EmailHelper.t( template_key,
+      body = EmailHelper.t!( template_key,
                             title: cc_title,
                             url: cc_url,
                             depositor: cc_depositor,
@@ -257,7 +257,7 @@ module Deepblue
                           id: for_email_id )
       ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_MINT_DOI, comment: body )
       return if cc_contact_email.blank? || cc_depositor == cc_contact_email
-      body = EmailHelper.t( template_key,
+      body = EmailHelper.t!( template_key,
                             title: cc_title,
                             doi: cc_doi,
                             url: cc_url,
@@ -266,7 +266,7 @@ module Deepblue
       email_notification( to: cc_contact_email,
                           from: EmailHelper.notification_email_from,
                           content_type: ::Deepblue::EmailHelper::TEXT_HTML,
-                          subject: ::Deepblue::EmailHelper.t( "hyrax.email.subject.#{cc_type}_doi_minted" ),
+                          subject: ::Deepblue::EmailHelper.t!( "hyrax.email.subject.#{cc_type}_doi_minted" ),
                           body: body,
                           current_user: current_user,
                           event: EVENT_MINT_DOI,
@@ -322,7 +322,7 @@ module Deepblue
                                            "template_key=#{template_key}",
                                            "" ] if email_behavior_debug_verbose
       # for the work's authoremail
-      body = EmailHelper.t( template_key,
+      body = EmailHelper.t!( template_key,
                             title: cc_title,
                             url: cc_url,
                             depositor: cc_depositor,
@@ -338,7 +338,7 @@ module Deepblue
                           id: for_email_id )
       ::Deepblue::JiraHelper.jira_add_comment( curation_concern: self, event: EVENT_PUBLISH, comment: body )
       return if cc_contact_email.blank? || cc_depositor == cc_contact_email
-      body = EmailHelper.t( template_key,
+      body = EmailHelper.t!( template_key,
                             title: cc_title,
                             url: cc_url,
                             depositor: cc_contact_email,

@@ -44,7 +44,7 @@ class GeneratorService
   end
 
   def initial_check_including( target_path, str, label )
-    generator.say_status "info", I18n.t('irus_analytics.rails.generator_service.say.looking_for', label: label), :blue
+    generator.say_status "info", I18n.t!('irus_analytics.rails.generator_service.say.looking_for', label: label), :blue
     line = first_line_including( target_path, str )
     generator.say_status "info", "First line including, line='#{line}'", :blue if debug_verbose
     return false if line.blank?

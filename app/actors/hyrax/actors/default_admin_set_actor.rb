@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   module Actors
@@ -47,15 +48,17 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "env.attributes[:admin_set_id]=#{env.attributes[:admin_set_id]}",
                                                "" ] if default_admin_set_actor_debug_verbose
-        # begin new hyrax v3 code
-        # # These logical hoops copy the prior behavior of the code;
-        # # With a small logical caveat.  If the given curation_concern
-        # # has an admin_set_id, we now verify that that admin set is
-        # # well formed.
-        # given_admin_set_id = env.attributes[:admin_set_id].presence || env.curation_concern.admin_set_id.presence
-        # admin_set_id = ensure_well_formed_admin_set_service.call(admin_set_id: given_admin_set_id)
-        # env.attributes[:admin_set_id] = given_admin_set_id || admin_set_id
-        # end new hyrax v3 code
+        # begin new hyrax4 code
+        if false
+        # These logical hoops copy the prior behavior of the code;
+        # With a small logical caveat.  If the given curation_concern
+        # has an admin_set_id, we now verify that that admin set is
+        # well formed.
+        given_admin_set_id = env.attributes[:admin_set_id].presence || env.curation_concern.admin_set_id.presence
+        admin_set_id = ensure_well_formed_admin_set_service.call(admin_set_id: given_admin_set_id)
+        env.attributes[:admin_set_id] = given_admin_set_id || admin_set_id
+        end
+        # end new hyrax4 code
 
         if env.attributes[:admin_set_id].present?
           ensure_permission_template!(admin_set_id: env.attributes[:admin_set_id])

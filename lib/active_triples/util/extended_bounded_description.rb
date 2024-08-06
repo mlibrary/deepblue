@@ -1,3 +1,4 @@
+# Update: hyrax4 -- active-triples-1.2.0
 module ActiveTriples
   ##
   # Bounds the scope of an `RDF::Queryable` to a subgraph defined from a source
@@ -55,7 +56,7 @@ module ActiveTriples
       ancestors = @ancestors.dup
 
       if block_given?
-        statements = source_graph.query(subject: starting_node).each
+        statements = source_graph.query([starting_node, nil, nil]).each
         statements.each_statement { |st| yield st }
 
         ancestors << starting_node
@@ -64,6 +65,7 @@ module ActiveTriples
         ebd_to_process = []
         statements.each_object do |object|
           next if object.literal?  || ancestors.include?(object)
+          # begin monkey -- unroll into individual statements
           ebd_to_process << ExtendedBoundedDescription.new(source_graph, object, ancestors)
           # ExtendedBoundedDescription
           #   .new(source_graph, object, ancestors).each do |statement|
@@ -75,6 +77,7 @@ module ActiveTriples
           ebd.each { |statement| statements << statement }
         end
         statements.each { |statement| yield statement }
+        # end monkey
       end
       enum_statement
     end

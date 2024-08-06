@@ -99,7 +99,7 @@ class GlobusDashboardController < ApplicationController
   end
 
   def globus_copy_job( concern_id, user_email: nil )
-    ::GlobusCopyJob.perform_later( concern_id,
+    ::GlobusCopyJob.perform_later( concern_id: concern_id,
          user_email: user_email,
          delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
     globus_ui_delay

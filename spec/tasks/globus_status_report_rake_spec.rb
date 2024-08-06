@@ -18,7 +18,7 @@ describe "globus errors report rake" do
     let(:options)  { {} }
     let(:quiet)    { false }
     let(:reporter) { ::Deepblue::GlobusReporter.allocate }
-    let(:msg_handler) { ::Deepblue::MessageHandler.msg_handler_for( task: true, to_console: false ) }
+    let(:msg_handler) { ::Deepblue::MessageHandler.msg_handler_for( task: false, to_console: false, verbose: false ) }
     let(:invoked)  { ::Deepblue::GlobusStatusReport.new( msg_handler: msg_handler, options: options ) }
     let(:globus_status) { double(::Deepblue::GlobusStatus) }
     let(:globus_reporter) { double(::Deepblue::GlobusReporter) }

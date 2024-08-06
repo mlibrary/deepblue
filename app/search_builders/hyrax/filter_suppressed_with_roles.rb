@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -54,7 +55,7 @@ module Hyrax
       def user_has_active_workflow_role?(current_work:)
         Hyrax::Workflow::PermissionQuery.scope_permitted_workflow_actions_available_for_current_state(user: current_ability.current_user,
                                                                                                       entity: current_work).any?
-      rescue PowerConverter::ConversionError
+      rescue Sipity::ConversionError
         # The current_work doesn't have a sipity workflow entity
         false
       end

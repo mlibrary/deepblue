@@ -44,7 +44,7 @@ END_OF_SCHEDULER_ENTRY
 
   def perform( *args )
     debug_verbose = rake_task_job_debug_verbose
-    initialized = initialize_from_args( *args, debug_verbose: debug_verbose )
+    initialized = initialize_from_args( args: args, debug_verbose: debug_verbose )
     @is_quiet = job_options_value( key: 'is_quiet', default_value: false )
     msg_handler.quiet = @is_quiet
     @rake_task = job_options_value( key: 'rake_task', default_value: "" )

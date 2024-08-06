@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
+# Reviewed: hyrax4
 
 # A generic job for sending events about repository objects to a user and their followers.
 #

@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'rails_helper'
 
 RSpec.describe Hyrax::WorkflowActionsController, type: :controller, skip: false do
@@ -15,14 +16,15 @@ RSpec.describe Hyrax::WorkflowActionsController, type: :controller, skip: false 
     end
   end
 
-  let(:user) { create(:user) }
   let(:data_set) { stub_model(DataSet, id: '123') }
-  let(:form) { instance_double(Hyrax::Forms::WorkflowActionForm) }
+  let(:user) { FactoryBot.create(:user) }
+  # let(:data_set) { FactoryBot.valkyrie_create(:data_set) }
+  let(:form) { instance_double(described_class::DEFAULT_FORM_CLASS, errors: {}) }
 
   before do
     allow(ActiveFedora::Base).to receive(:find).with(data_set.to_param).and_return(data_set)
     allow(data_set).to receive(:persisted?).and_return(true)
-    allow(Hyrax::Forms::WorkflowActionForm).to receive(:new).and_return(form)
+    allow(described_class::DEFAULT_FORM_CLASS).to receive(:new).and_return(form)
   end
 
   describe '#update' do

@@ -1,4 +1,5 @@
 # don't freeze, it causes errors
+# Reviewed: hyrax4 -- hydra-access-controls-12.1.0
 
 require File.join(Gem::Specification.find_by_name("hydra-access-controls").full_gem_path, "app/models/concerns/hydra/access_controls/embargoable.rb")
 
@@ -18,9 +19,9 @@ module Hydra
         # embargo.deactivate! whipes out work.visibility_after_embargo before it can be applied, so save it and apply it
         vis_after = visibility_after_embargo
         vis_after = visibility_after_embargo_default if vis_after.nil?
-        provenance_unembargo( current_user: Deepblue::ProvenanceHelper.system_as_current_user,
+        provenance_unembargo( current_user: ::Deepblue::ProvenanceHelper.system_as_current_user,
                               embargo_visibility: visibility,
-                              embargo_visibility_after: vis_after )
+                              embargo_visibility_after: vis_after ) if respond_to? :provenance_uembargo
         # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
         #                                      Deepblue::LoggingHelper.called_from,
         #                                      "before",

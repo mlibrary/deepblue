@@ -78,7 +78,7 @@ describe GlobusCopyJob, "GlobusJob globus_enabled: :true", globus_enabled: :true
       it "calls globus block." do
         File.open( file1.path, 'w' ) { |f| f << "File01" << "\n" }
         File.open( file2.path, 'w' ) { |f| f << "File02" << "\n" }
-        described_class.perform_now( "id321", user_email: user_email )
+        described_class.perform_now( concern_id: "id321", user_email: user_email )
         # expect( Rails.logger ).to have_received( :debug ).with( 'bogus so we can look at the logger output' )
         file = './data/globus/prep/.test.error.DeepBlueData_id321'
         if File.exist? file

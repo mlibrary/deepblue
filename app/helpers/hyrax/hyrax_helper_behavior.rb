@@ -1,5 +1,7 @@
 # coding: utf-8
 # frozen_string_literal: true
+# Upgrade: Hyrax4
+# Reviewed: hyrax4
 module Hyrax
   module HyraxHelperBehavior
     include Hyrax::CitationsBehavior
@@ -8,7 +10,6 @@ module Hyrax
     include Hyrax::TitleHelper
     include Hyrax::FileSetHelper
     include Hyrax::AbilityHelper
-    include Hyrax::UrlHelper
     include Hyrax::EmbargoHelper
     include Hyrax::LeaseHelper
     include Hyrax::CollectionsHelper
@@ -19,6 +20,7 @@ module Hyrax
     include Hyrax::PermissionLevelsHelper
     include Hyrax::WorkFormHelper
     include Hyrax::WorkflowsHelper
+    include Hyrax::FacetsHelper
 
     ##
     # @return [Array<String>] the list of all user groups
@@ -67,15 +69,16 @@ module Hyrax
     def render_notifications(user:)
       mailbox = UserMailbox.new(user)
       unread_notifications = mailbox.unread_count
-      notifications_path = ::Deepblue::RouteHelper.relative_url( Hyrax::Engine.routes.url_helpers.notifications_path )
-      link_to( notifications_path,
+      #Hyrax2# notifications_path = ::Deepblue::RouteHelper.relative_url( Hyrax::Engine.routes.url_helpers.notifications_path )
+      #Hyrax2# link_to( notifications_path,
+      link_to(hyrax.notifications_path,
               'aria-label' => mailbox.label(params[:locale]),
-              class: 'notify-number') do
+              class: 'notify-number nav-link') do
         capture do
           concat tag.span('', class: 'fa fa-bell')
           concat "\n"
           concat tag.span(unread_notifications,
-                          class: count_classes_for(unread_notifications))
+                             class: count_classes_for(unread_notifications))
         end
       end
     end
@@ -196,7 +199,8 @@ module Hyrax
       # this block is only executed when a link is inserted;
       # if we pass text containing no links, it just returns text.
       auto_link(html_escape(text)) do |value|
-        "<span class='glyphicon glyphicon-new-window'></span>#{('&nbsp;' + value) if show_link}"
+        #Hyrax2# "<span class='glyphicon glyphicon-new-window'></span>#{('&nbsp;' + value) if show_link}"
+        "<span class='fa fa-external-link'></span>#{('&nbsp;' + value) if show_link}"
       end
     end
 
@@ -299,11 +303,35 @@ module Hyrax
     end
 
     def collection_title_by_id(id)
-      solr_docs = controller.repository.find(id).docs
+      solr_docs = controller.blacklight_config.repository.find(id).docs
       return nil if solr_docs.empty?
       solr_field = solr_docs.first["title_tesim"]
       return nil if solr_field.nil?
       solr_field.first
+    end
+
+    ##
+    # @param [Object] an object that might have a thumbnail
+    #
+    # @return [String] a label for the object's thumbnail
+    def thumbnail_label_for(object:)
+      object.try(:thumbnail_title).presence ||
+        ""
+    end
+
+    ##
+    # @param value [Object] the thing we'll attempt to cast to a formatted date.
+    # @param format [String] the `DateTime.strftime` format string
+    # @return [String]
+    #
+    # @see https://github.com/samvera/hyrax/issues/5818
+    # @see https://ruby-doc.org/core-3.0.1/Time.html#method-i-strftime
+    def cast_to_date_time_format(value, format:)
+      return value.strftime(format).to_s if value.respond_to?(:strftime)
+
+      (Time.zone.parse(value)&.strftime(format) || value).to_s
+    rescue ArgumentError, TypeError
+      value.to_s
     end
 
     private
@@ -313,9 +341,9 @@ module Hyrax
     end
 
     def count_classes_for(unread_count)
-      classes = unread_count.zero? ? 'invisible label-default' : 'label-danger'
+      classes = unread_count.zero? ? 'invisible badge-secondary' : 'badge-danger'
 
-      "count label #{classes}"
+      "count badge #{classes}"
     end
 
     def search_action_for_dashboard

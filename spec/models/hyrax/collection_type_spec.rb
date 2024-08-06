@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Update: hyrax4
 require 'rails_helper'
 
 RSpec.describe Hyrax::CollectionType, type: :model do
@@ -7,21 +7,7 @@ RSpec.describe Hyrax::CollectionType, type: :model do
 
   shared_context 'with a collection' do
     let(:collection_type) { FactoryBot.create(:collection_type) }
-    let!(:collection) { FactoryBot.valkyrie_create(:hyrax_collection, collection_type_gid: collection_type.to_global_id) }
-  end
-
-  describe '.collection_type_settings_methods' do
-    it 'lists collection settings methods' do # deprecated
-      expect(described_class.collection_type_settings_methods)
-        .to include(:nestable?, :discoverable?, :brandable?)
-    end
-  end
-
-  describe '#collection_type_settings_methods' do
-    it 'lists collection settings methods' do # deprecated
-      expect(collection_type.collection_type_settings_methods)
-        .to include(:nestable?, :discoverable?, :brandable?)
-    end
+    let!(:collection) { FactoryBot.valkyrie_create(:hyrax_collection, collection_type_gid: collection_type.to_global_id.to_s) }
   end
 
   describe '.settings_attributes' do
@@ -131,6 +117,14 @@ RSpec.describe Hyrax::CollectionType, type: :model do
     end
   end
 
+  describe '.for' do
+    include_context 'with a collection'
+
+    it 'returns the collection type for the collection' do
+      expect(described_class.for(collection: collection)).to eq collection_type
+    end
+  end
+
   describe '.find_by_gid' do
     let(:collection_type) { FactoryBot.create(:collection_type) }
 
@@ -173,20 +167,32 @@ RSpec.describe Hyrax::CollectionType, type: :model do
   end
 
   describe "collections" do
-    let!(:collection) { FactoryBot.create(:collection_lw, collection_type_gid: collection_type.gid.to_s) }
     let(:collection_type) { FactoryBot.create(:collection_type) }
 
-    it 'returns collections of this collection type' do
-      expect(collection_type.collections.to_a).to include collection
-    end
-
     it 'returns empty array if gid is nil' do
+      valkyrie_create(:hyrax_collection, collection_type_gid: collection_type.to_global_id.to_s)
       expect(Collection.count).not_to be_zero
       expect(build(:collection_type).collections).to eq []
     end
+
+    context 'when use_valkyrie is true' do
+      let!(:pcdm_collection) { valkyrie_create(:hyrax_collection, collection_type_gid: collection_type.to_global_id.to_s) }
+
+      it 'returns pcdm collections of this collection type' do
+        expect(collection_type.collections(use_valkyrie: true).to_a).to include pcdm_collection
+      end
+    end
+
+    context 'when use_valkyrie is false' do
+      let!(:collection) { FactoryBot.create(:collection_lw, collection_type_gid: collection_type.to_global_id.to_s) }
+
+      it 'returns collections of this collection type' do
+        expect(collection_type.collections(use_valkyrie: false).to_a).to include collection
+      end
+    end
   end
 
-  describe "collections?", :clean_repo do
+  describe "collections.any?", :clean_repo do
     let(:collection_type) { FactoryBot.create(:collection_type) }
 
     it 'returns true if there are any collections of this collection type' do

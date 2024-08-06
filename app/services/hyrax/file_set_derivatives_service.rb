@@ -1,64 +1,8 @@
 # frozen_string_literal: true
-
-# require File.join(Gem::Specification.find_by_name("hyrax").full_gem_path, "app/services/hyrax/file_set_derivatives_service.rb")
-#
-# module Hyrax
-#
-#   # monkey patch Hyrax::FileSetDerivativesService
-#
-#   class FileSetDerivativesService
-#
-#     FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE = false
-#
-#     alias_method :monkey_create_derivatives, :create_derivatives
-#     alias_method :monkey_create_pdf_derivatives, :create_pdf_derivatives
-#     alias_method :monkey_create_office_document_derivatives, :create_office_document_derivatives
-#
-#     def create_derivatives(filename)
-#       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-#                                              Deepblue::LoggingHelper.called_from,
-#                                              "About to call create_derivatives(#{filename})",
-#                                              "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
-#       monkey_create_derivatives(filename)
-#       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-#                                              Deepblue::LoggingHelper.called_from,
-#                                              "Returned from call create_derivatives(#{filename})",
-#                                              "" ] if FILE_SET_DERIVATIVES_SERVICE_DEBUG_VERBOSE
-#     rescue Exception => e # rubocop:disable Lint/RescueException
-#       # TODO: remove this in favor of higher catch (or make it configurable)
-#       Rails.logger.error "create_derivatives error #{filename} - #{e.class}: #{e.message}" + caller_locations(0,10).join("\n")
-#       raise
-#     end
-#
-#     def create_pdf_derivatives(filename)
-#       monkey_create_pdf_derivatives(filename)
-#     end
-#
-#     def create_office_document_derivatives(filename)
-#       monkey_create_office_document_derivatives(filename)
-#     end
-#
-#     ## This has problems:
-#     # mp_create_derivatives = instance_method(:create_derivatives)
-#     #
-#     # define_method(:create_derivatives) do |filename|
-#     #   create_derivatives_with_rescue(filename)
-#     # end
-#     #
-#     # def create_derivatives_with_rescue(filename)
-#     #   Rails.logger.warn "About to call create_derivatives(" + filename + ")"
-#     #   mp_create_derivatives.bind(self).(filename)
-#     #   Rails.logger.warn "Returned from call create_derivatives(" + filename + ")"
-#     # rescue Exception => e # rubocop:disable Lint/RescueException
-#     #   Rails.logger.error "create_derivatives(" + filename + ") exception: " + e
-#     # end
-#
-#   end
-#
-# end
+# Reviewed: hyrax4
 
 # monkey
-#
+
 module Hyrax
   # Responsible for creating and cleaning up the derivatives of a file_set
   class FileSetDerivativesService
@@ -72,6 +16,15 @@ module Hyrax
     # @param file_set [Hyrax::FileSet] At least for this class, it must have #uri and #mime_type
     def initialize(file_set)
       @file_set = file_set
+    end
+
+    def uri
+      # If given a FileMetadata object, use its parent ID.
+      if file_set.respond_to?(:file_set_id)
+        file_set.file_set_id.to_s
+      else
+        file_set.uri
+      end
     end
 
     def cleanup_derivatives
@@ -121,11 +74,21 @@ module Hyrax
     # The destination_name parameter has to match up with the file parameter
     # passed to the DownloadsController
     def derivative_url(destination_name)
-      path = derivative_path_factory.derivative_path_for_reference(file_set, destination_name)
+      path = derivative_path_factory.derivative_path_for_reference(derivative_url_target, destination_name)
       URI("file://#{path}").to_s
     end
 
     private
+
+    # If given a FileMetadata object pass the file_set_id for derivative URL
+    # creation.
+    def derivative_url_target
+      if file_set.try(:file_set_id)
+        file_set.file_set_id.to_s
+      else
+        file_set
+      end
+    end
 
     def supported_mime_types
       file_set.class.pdf_mime_types +

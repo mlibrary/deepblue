@@ -1,3 +1,5 @@
+# Reviewed: hyrax4 -- hydra-access-controls-12.1.0
+
 module Hydra
   module AccessControls
     module Permissions
@@ -242,11 +244,11 @@ module Hydra
       #  => ['one', 'two']  ## 'two' was not eligible to be removed
       #
       def set_read_groups(groups, eligible_groups)
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "groups=#{groups}",
-                                               "eligible_groups=#{eligible_groups}",
-                                               "" ] if hydra_access_controls_permissions_debug_verbose
+        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+        #                                        ::Deepblue::LoggingHelper.called_from,
+        #                                        "groups=#{groups}",
+        #                                        "eligible_groups=#{eligible_groups}",
+        #                                        "" ] if hydra_access_controls_permissions_debug_verbose
         set_entities(:read, :group, groups, eligible_groups)
       end
 

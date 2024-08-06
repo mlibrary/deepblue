@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# diff to v3.1
+# Reviewed: hyrax4
 module Hyrax
   module Breadcrumbs
     extend ActiveSupport::Concern

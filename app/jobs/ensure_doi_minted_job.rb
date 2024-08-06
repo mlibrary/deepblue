@@ -9,7 +9,7 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
 
   EVENT = "ensure doi minted"
 
-  def perform( id, current_user, *args )
+  def perform( id:, current_user:, **args )
     debug_verbose = ensure_doi_minted_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -17,7 +17,7 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
                                            "current_user=#{current_user}",
                                            "args=#{args}",
                                            "" ] if debug_verbose
-    initialize_options_from( *args, id: id, debug_verbose: debug_verbose )
+    initialize_options_from( args: args, id: id, debug_verbose: debug_verbose )
     allowed = hostname_allowed?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

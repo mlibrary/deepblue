@@ -23,7 +23,7 @@ module Hydra::Derivatives::Processors
       File.basename(source_path)
     end
 
-    # @deprecated Please use a PersistOutputFileService class to save an object
+    # monkey # (at)deprecated Please use a PersistOutputFileService class to save an object
     def output_file
       raise NotImplementedError, "Processor is an abstract class. Utilize an implementation of a PersistOutputFileService class in #{self.class.name}"
     end

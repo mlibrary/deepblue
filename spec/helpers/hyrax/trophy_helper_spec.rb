@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::TrophyHelper, type: :helper, skip: false do
@@ -5,7 +8,7 @@ RSpec.describe Hyrax::TrophyHelper, type: :helper, skip: false do
     let(:user) { create(:user) }
     let(:id) { '9999' }
 
-    let(:text_attributes) { '[data-add-text="Highlight Work on Profile"][data-remove-text="Unhighlight Work"]' }
+    let(:text_attributes) { '[data-add-text="Highlight work on profile"][data-remove-text="Unhighlight work"]' }
     let(:url_attribute) { "[data-url=\"/works/#{id}/trophy\"]" }
 
     context "when there is no trophy" do
@@ -13,7 +16,7 @@ RSpec.describe Hyrax::TrophyHelper, type: :helper, skip: false do
         out = helper.display_trophy_link(user, id) { |text| "foo #{text} bar" }
         node = Capybara::Node::Simple.new(out)
         expect(node).to have_selector("a.trophy-class.trophy-off#{text_attributes}#{url_attribute}")
-        expect(node).to have_link 'foo Highlight Work on Profile bar', href: '#'
+        expect(node).to have_link 'foo Highlight work on profile bar', href: '#'
       end
     end
 
@@ -26,7 +29,7 @@ RSpec.describe Hyrax::TrophyHelper, type: :helper, skip: false do
         out = helper.display_trophy_link(user, id) { |text| "foo #{text} bar" }
         node = Capybara::Node::Simple.new(out)
         expect(node).to have_selector("a.trophy-class.trophy-on#{text_attributes}#{url_attribute}")
-        expect(node).to have_link 'foo Unhighlight Work bar', href: '#'
+        expect(node).to have_link 'foo Unhighlight work bar', href: '#'
       end
 
       it "allows removerow to be passed" do

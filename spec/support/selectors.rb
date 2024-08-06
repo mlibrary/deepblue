@@ -1,8 +1,23 @@
+# frozen_string_literal: true
 module Selectors
   module Dashboard
     def db_item_actions_toggle(item)
       within "#document_#{item.id}" do
         find '.dropdown-toggle'
+      end
+    end
+
+    # For use with javascript user selector that allows for searching for an existing user
+    # and granting them permission to an object.
+    # @param [User] user to select
+    # @param [String] role granting the user permission (e.g. 'Manager' | 'Depositor' | 'Viewer')
+    def select_user_for_admin_set(user, role = 'Depositor')
+      first('a.select2-choice').click
+      find('.select2-input').set(user.user_key)
+      first('div.select2-result-label').click
+      within('form.add-users') do
+        select(role)
+        click_button('Add')
       end
     end
 
@@ -40,7 +55,7 @@ module Selectors
     # For use with javascript collection selector that allows for searching for an existing collection from add to collection modal.
     # Does not save the selection.  The calling test is expected to click Save and validate the collection membership was added to the work.
     # @param [Collection] collection to select
-    def select_member_of_collection(collection)
+    def select_member_of_collection(collection) # rubocop:disable Metrics/MethodLength
       find('#s2id_member_of_collection_ids').click
       find('.select2-input').set(collection.title.first)
       # Crude way of waiting for the AJAX response

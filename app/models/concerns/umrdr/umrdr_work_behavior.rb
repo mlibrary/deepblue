@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Updated: hyrax4
 
 module Umrdr
 
@@ -7,6 +8,14 @@ module Umrdr
     mattr_accessor :umrdr_work_behavior_debug_verbose, default: Rails.configuration.umrdr_work_behavior_debug_verbose
 
     extend ActiveSupport::Concern
+
+    # Add this (comes from former app/models/concerns/hyrax/with_file_sets.rb)
+    def copy_visibility_to_files
+      file_sets.each do |fs|
+        fs.visibility = visibility
+        fs.save!
+      end
+    end
 
     def globus_complete?
       ::Deepblue::GlobusService.globus_copy_complete? id

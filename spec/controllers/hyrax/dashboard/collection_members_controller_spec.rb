@@ -7,7 +7,7 @@ RSpec.describe Hyrax::Dashboard::CollectionMembersController, :clean_repo, skip:
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user)  { create(:user) }
+  let(:user) { FactoryBot.create(:user) }
   let(:other) { create(:user) }
 
   let(:work_1_own) { create(:work, id: 'work-1-own', title: ['First of the Assets'], user: user) }
@@ -35,72 +35,131 @@ RSpec.describe Hyrax::Dashboard::CollectionMembersController, :clean_repo, skip:
                                    user: other, with_permission_template: true)
   end
 
+  before { sign_in(user) }
+
   describe '#update_members' do
+    let(:owned_work_1) { FactoryBot.create(:work, user: user) }
+    let(:owned_work_2) { FactoryBot.create(:work, user: user) }
+    let(:owned_work_3) { FactoryBot.create(:work, user: user) }
+    let(:private_work) { FactoryBot.valkyrie_create(:hyrax_work) }
+
+    let(:queries) { Hyrax.custom_queries }
+
+    let(:editable_work) do
+      FactoryBot.valkyrie_create(:hyrax_work, edit_users: [user])
+    end
+
+    let(:readable_work) do
+      FactoryBot.valkyrie_create(:hyrax_work, read_users: [user])
+    end
+
+    let(:owned_collection) do
+      FactoryBot.create(:private_collection_lw,
+                        user: user,
+                        with_permission_template: true)
+    end
+
+    let(:managed_collection) do
+      FactoryBot.create(:private_collection_lw,
+                        with_permission_template: { manage_users: [user] })
+    end
+
+    let(:depositable_collection) do
+      FactoryBot.create(:private_collection_lw,
+                        with_permission_template: { deposit_users: [user] })
+    end
+
+    let(:viewable_collection) do
+      FactoryBot.valkyrie_create(:hyrax_collection, read_users: [user])
+    end
+
+    let(:private_collection) do
+      FactoryBot.valkyrie_create(:hyrax_collection, with_permission_template: true)
+    end
+
+    let(:parameters) do
+      { id: collection,
+        collection: { members: 'add' },
+        batch_document_ids: members_to_add.map(&:id) }
+    end
+
     context 'when user created the collection' do
+      let(:collection) { owned_collection }
+
       before do
-        sign_in user
-        [work_1_own, work_2_own].each do |asset|
-          asset.member_of_collections << coll_1_own
+        [owned_work_1, owned_work_2].each do |asset|
+          asset.member_of_collections << collection
           asset.save!
         end
       end
 
       context 'and user created the work' do
+        let(:members_to_add) { [owned_work_3] }
+
         it 'adds members to the collection' do
-          expect do
-            post :update_members, params: { id: coll_1_own,
-                                            collection: { members: 'add' },
-                                            batch_document_ids: [work_3_own.id] }
-          end.to change { coll_1_own.reload.member_objects.size }.by(1)
-          expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(coll_1_own, locale: 'en')
-          expect(coll_1_own.member_objects).to match_array [work_1_own, work_2_own, work_3_own]
+          expect { post(:update_members, params: parameters) }
+            .to change { queries.find_members_of(collection: collection.valkyrie_resource).map(&:id) }
+            .from(contain_exactly(owned_work_1.id, owned_work_2.id))
+            .to contain_exactly(owned_work_1.id, owned_work_2.id, owned_work_3.id)
+        end
+
+        it 'redirects to dashboard collection show' do
+          post :update_members, params: parameters
+
+          expect(response)
+            .to redirect_to routes.url_helpers.dashboard_collection_path(collection, locale: 'en')
         end
       end
 
       context 'and user has edit access to works' do
+        let(:members_to_add) { [editable_work] }
+
         it 'adds members to the collection' do
-          expect do
-            post :update_members, params: { id: coll_1_own,
-                                            collection: { members: 'add' },
-                                            batch_document_ids: [work_4_edit.id] }
-          end.to change { coll_1_own.reload.member_objects.size }.by(1)
-          expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(coll_1_own, locale: 'en')
-          expect(coll_1_own.member_objects).to match_array [work_1_own, work_2_own, work_4_edit]
+          expect { post(:update_members, params: parameters) }
+            .to change { queries.find_members_of(collection: collection.valkyrie_resource).map(&:id) }
+            .from(contain_exactly(owned_work_1.id, owned_work_2.id))
+            .to contain_exactly(owned_work_1.id, owned_work_2.id, editable_work.id)
         end
       end
 
       context 'and user has read access to works' do
+        let(:members_to_add) { [readable_work] }
+
         it 'adds members to the collection' do
-          expect do
-            post :update_members, params: { id: coll_1_own,
-                                            collection: { members: 'add' },
-                                            batch_document_ids: [work_5_read.id] }
-          end.to change { coll_1_own.reload.member_objects.size }.by(1)
-          expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(coll_1_own, locale: 'en')
-          expect(coll_1_own.member_objects).to match_array [work_1_own, work_2_own, work_5_read]
+          expect { post(:update_members, params: parameters) }
+            .to change { queries.find_members_of(collection: collection.valkyrie_resource).map(&:id) }
+            .from(contain_exactly(owned_work_1.id, owned_work_2.id))
+            .to contain_exactly(owned_work_1.id, owned_work_2.id, readable_work.id)
         end
       end
 
-      context 'and user has no access to a work' do
+      context 'and user has no access to a some works' do
+        let(:members_to_add) { [owned_work_3, private_work] }
+
         it 'adds only members with read access' do
-          expect do
-            post :update_members, params: { id: coll_1_own,
-                                            collection: { members: 'add' },
-                                            batch_document_ids: [work_3_own.id, work_6_noaccess.id] }
-          end.to change { coll_1_own.reload.member_objects.size }.by(1)
-          expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(coll_1_own, locale: 'en')
-          expect(coll_1_own.member_objects).to match_array [work_1_own, work_2_own, work_3_own]
+          expect { post :update_members, params: parameters }
+            .to change { queries.find_members_of(collection: collection.valkyrie_resource).map(&:id) }
+                  .from(contain_exactly(owned_work_1.id, owned_work_2.id))
+                  .to contain_exactly(owned_work_1.id, owned_work_2.id, owned_work_3.id)
+        end
+      end
+
+      context 'and user has no access to selected works' do
+        let(:members_to_add) { [private_work] }
+
+        it 'does not change membership' do
+          expect { post(:update_members, params: parameters) }
+            .not_to change { queries.find_members_of(collection: collection.valkyrie_resource).count }
+
+          expect(flash[:alert])
+            .to eq 'You do not have sufficient privileges to any of the selected members'
         end
 
-        it 'displays error message if none of the members have read access' do
-          expect do
-            post :update_members, params: { id: coll_1_own,
-                                            collection: { members: 'add' },
-                                            batch_document_ids: [work_6_noaccess.id] }
-          end.to change { coll_1_own.reload.member_objects.size }.by(0)
-          expect(flash[:alert]).to eq 'You do not have sufficient privileges to any of the selected members'
-          expect(response).to redirect_to routes.url_helpers.dashboard_collections_path(locale: 'en')
-          expect(coll_1_own.member_objects).to match_array [work_1_own, work_2_own]
+        it 'flashes an error' do
+          post :update_members, params: parameters
+
+          expect(flash[:alert])
+            .to eq 'You do not have sufficient privileges to any of the selected members'
         end
       end
 

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
 
@@ -60,10 +61,6 @@ module Hyrax
         current_version = file_set.latest_version
         prior_revision_id = current_version.label
         prior_create_date = current_version.created
-        # Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
-        #                                      Deepblue::LoggingHelper.called_from,
-        #                                      "repository_file=#{repository_file}",
-        #                                      "file_set.latest_version_create_datetime=#{prior_create_date}" ]
         repository_file.restore_version(revision_id)
         # return false unless file_set.save
         unless file_set.save
@@ -90,7 +87,7 @@ module Hyrax
                                             prior_create_date: prior_create_date,
                                             prior_revision_id: prior_revision_id,
                                             revision_id: revision_id )
-        Hyrax::VersioningService.create( repository_file, user )
+        create_version(repository_file, user)
         CharacterizeJob.perform_later( file_set, repository_file.id, current_user: user )
       end
 
@@ -102,6 +99,15 @@ module Hyrax
       end
 
       private
+
+      ##
+      # Wraps the verisoning service with erro handling. if the service's
+      # create handler isn't implemented, we want to accept that quietly here.
+      def create_version(content, user)
+        Hyrax::VersioningService.create(content, user)
+      rescue NotImplementedError
+        :no_op
+      end
 
         def log_error( msg )
           job_status.reload if job_status.present?

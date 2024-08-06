@@ -17,10 +17,10 @@ RSpec.describe DoiMintingJob do
     let(:job_delay)   { 0 }
     let(:target_url)  { nil }
     let(:job)         { described_class.send( :job_or_instantiate,
-                                             data_set.id,
-                                             current_user: user,
-                                             job_delay: job_delay,
-                                             target_url: target_url ) }
+                                              id: data_set.id,
+                                              current_user: user,
+                                              job_delay: job_delay,
+                                              target_url: target_url ) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original

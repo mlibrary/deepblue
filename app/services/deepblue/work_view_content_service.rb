@@ -27,7 +27,7 @@ module Deepblue
     mattr_accessor :interpolation_helper_debug_verbose, default: false
     mattr_accessor :static_content_controller_behavior_verbose, default: false
     mattr_accessor :static_content_cache_debug_verbose, default: false
-    mattr_accessor :work_view_documentation_controller_debug_verbose, default: false
+    mattr_accessor :work_view_documentation_controller_cc_debug_verbose, default: false
     mattr_accessor :work_view_content_service_debug_verbose, default: false
     mattr_accessor :work_view_content_service_email_templates_debug_verbose, default: false
     mattr_accessor :work_view_content_service_i18n_templates_debug_verbose, default: false
@@ -166,7 +166,7 @@ module Deepblue
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "key=#{key}",
-                                                 I18n.t( key, **options ),
+                                                 I18n.t!( key, **options ),
                                                  "" ] if debug_verbose
         end
       end

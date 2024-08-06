@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 # monkey add method ahoy_matey lib/ahoy/tracker.rb
 # https://github.com/ankane/ahoy/blob/master/lib/ahoy/tracker.rb
@@ -13,6 +14,7 @@ module Ahoy
 
     mattr_accessor :ahoy_tracker_debug_verbose, default: ::Deepblue::AnalyticsIntegrationService.ahoy_tracker_debug_verbose
 
+    # can't use keyword arguments here
     def track( name, properties = {}, options = {} )
       cc_id = find_cc_id( name, properties )
       track_with_id( name, cc_id, properties, options )
@@ -25,6 +27,8 @@ module Ahoy
       return cc_id
     end
 
+    # can't use keyword arguments here
+    # this replaces the original track(name,properties,options)
     def track_with_id( name, cc_id = nil, properties = {}, options = {} )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

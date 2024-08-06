@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 require 'rails_helper'
 
@@ -51,7 +52,12 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
       expect(titles).not_to include('Test Private Document')
     end
 
-    it "includes only DataSet objects in recent documents" do
+    it "includes only Work objects in recent documents" do
+      get :index
+      expect(assigns(:recent_documents).all?(&:work?)).to eq true
+    end
+
+    it "includes only DataSet objects in recent documents 2" do
       get :index
       assigns(:recent_documents).each do |doc|
         expect(doc['has_model_ssim']).to eql ["DataSet"]
@@ -66,8 +72,8 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
         old_to_solr = gw3.method(:to_solr)
         allow(gw3).to receive(:to_solr) do
           old_to_solr.call.merge(
-            'system_create_dtsi' => 1.day.ago.iso8601,
-            'date_uploaded_dtsi' => 1.day.ago.iso8601
+            "system_create_dtsi" => 1.day.ago.iso8601,
+            "date_uploaded_dtsi" => 1.day.ago.iso8601
           )
         end
         gw3.save

@@ -9,12 +9,20 @@ module Deepblue
     TEXT_HTML = 'text/html'.freeze unless const_defined? :TEXT_HTML
     UTF8 = 'UTF-8'.freeze unless const_defined? :UTF8
 
-    def self.t( key, **options )
-      I18n.t( key, options )
+    def self.t( key )
+      I18n.t( key ) # Update: hyrax4
     end
 
-    def self.translate( key, **options )
-      I18n.translate( key, options )
+    def self.t!( key, **options )
+      I18n.t!( key, **options )
+    end
+
+    def self.translate( key )
+      I18n.translate!( key )
+    end
+
+    def self.translate!( key, **options )
+      I18n.translate!( key, **options  )
     end
 
     # CLEAN_STR_REPLACEMENT_CHAR = "?"

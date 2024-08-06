@@ -1,4 +1,5 @@
-# frozen_string_literal: true
+# Reviewed: hyrax4
+# monkey -- hydra-works-2.1.0
 
 module Hydra::Works
 

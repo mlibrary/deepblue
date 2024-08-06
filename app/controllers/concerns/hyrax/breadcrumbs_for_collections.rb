@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 module Hyrax
   module BreadcrumbsForCollections
     extend ActiveSupport::Concern
@@ -11,6 +12,7 @@ module Hyrax
     def add_breadcrumb_for_controller
       add_breadcrumb I18n.t('hyrax.dashboard.my.collections'), hyrax.my_collections_path if current_ability.admin?
       add_breadcrumb I18n.t('hyrax.dashboard.my.collections'), hyrax.dashboard_collections_path unless current_ability.admin?
+      # add_breadcrumb I18n.t('hyrax.dashboard.my.collections'), hyrax.my_collections_path
     end
 
     def add_breadcrumb_for_action

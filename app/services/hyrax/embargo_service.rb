@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -76,6 +77,10 @@ module Hyrax
         builder = ::Hyrax::My::DeactivatedEmbargoSearchBuilder.new(self)
         builder.current_user_key = current_user_key
         presenters(builder)
+      end
+
+      def search_state_class
+        nil
       end
 
       private

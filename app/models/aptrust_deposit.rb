@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 class AptrustDeposit < ApplicationRecord
   include Filterable

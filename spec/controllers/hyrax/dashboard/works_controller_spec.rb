@@ -1,10 +1,10 @@
 # frozen_string_literal: true
-
+# Updated: hyrax4
 require 'rails_helper'
 
 RSpec.describe ::Hyrax::Dashboard::WorksController, type: :controller, skip: false do
   describe "#search_builder_class" do
-    subject { controller.search_builder_class }
+    subject { controller.blacklight_config.search_builder_class }
 
     it { is_expected.to eq Hyrax::Dashboard::WorksSearchBuilder }
   end

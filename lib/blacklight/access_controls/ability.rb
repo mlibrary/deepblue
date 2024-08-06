@@ -1,6 +1,10 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 require 'cancan'
+
+# monkey override to blacklight/access_controls/ability.rb
+# this adds a debug_verbose flag and guards Rails.logger.debug from being called unless the flag is true
 
 module Blacklight
   module AccessControls
@@ -18,7 +22,7 @@ module Blacklight
         # permission methods to ability_logic, like so:
         # self.ability_logic += [:setup_my_permissions]
         class_attribute :ability_logic
-        self.ability_logic = %i(discover_permissions read_permissions download_permissions)
+        self.ability_logic = %i[discover_permissions read_permissions download_permissions]
       end
 
       def initialize(user, options = {})
@@ -65,6 +69,7 @@ module Blacklight
       end
 
       def read_permissions
+        # Loading an object from your datastore might be slow (e.g. Fedora), so assume that if a string is passed, it's an object id
         can :read, String do |id|
           test_read(id)
         end

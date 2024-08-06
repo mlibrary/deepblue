@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -23,7 +24,9 @@ module Hyrax
                                              "blacklight_params[:id] == nil=#{blacklight_params[:id] == nil}",
                                              "depositor_or_editor?=#{depositor_or_editor?}",
                                              "" ] if filter_suppressed_debug_verbose
-      if current_ability.admin?
+      if current_ability.blank?
+        solr_parameters[:fq] ||= []
+      elsif current_ability.admin?
          solr_parameters[:fq] ||= []
       elsif ( blacklight_params[:id] == nil )
         solr_parameters[:fq] ||= []

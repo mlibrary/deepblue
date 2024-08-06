@@ -46,9 +46,14 @@ class User < ApplicationRecord
     devise :database_authenticatable, :registerable,
            :recoverable, :rememberable, :trackable, :validatable
   end
-  if Blacklight::Utils.needs_attr_accessible?
-    attr_accessible :email, :password, :password_confirmation
-  end
+  # BEGIN Upgrade: hyrax4
+  # Upgrade: hyrax4 -- Blacklight::Utils is not defined
+  # if Blacklight::Utils.needs_attr_accessible?
+  #   attr_accessible :email, :password, :password_confirmation
+  # end
+  alias_attribute :user_key, :email
+  # END Upgrade: hyrax4
+
   # Connects this user object to Blacklights Bookmarks.
   include Blacklight::User
   # Include default devise modules. Others available are:

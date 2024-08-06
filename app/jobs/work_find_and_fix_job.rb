@@ -9,8 +9,8 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
 
   EVENT = "work find and fix"
 
-  def perform( id, *args )
-    initialize_options_from( *args, id: id, debug_verbose: work_find_and_fix_job_debug_verbose )
+  def perform( id:, **args )
+    initialize_options_from( args: args, id: id, debug_verbose: work_find_and_fix_job_debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?
     ::Deepblue::FindAndFixService.work_find_and_fix( id: id, msg_handler: msg_handler )

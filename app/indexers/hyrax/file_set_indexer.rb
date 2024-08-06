@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 module Hyrax
   # monkey
@@ -8,7 +9,7 @@ module Hyrax
     include Hyrax::IndexesBasicMetadata
     STORED_LONG = Solrizer::Descriptor.new(:long, :stored)
 
-    def generate_solr_document
+    def generate_solr_document # rubocop:disable Metrics/AbcSize, Metrics/MethodLength
       super.tap do |solr_doc|
         solr_doc['hasRelatedMediaFragment_ssim'] = object.representative_id
         solr_doc['hasRelatedImage_ssim'] = object.thumbnail_id
@@ -27,7 +28,7 @@ module Hyrax
         solr_doc['mime_type_ssi']  = object.mime_type
         # Index the Fedora-generated SHA1 digest to create a linkage between
         # files on disk (in fcrepo.binary-store-path) and objects in the repository.
-        solr_doc['digest_ssim'] = digest_from_content
+        solr_doc['digest_ssim']             = [digest_from_content]
         solr_doc['page_count_tesim']        = object.page_count
         solr_doc['file_title_tesim']        = object.file_title
         solr_doc['duration_tesim']          = object.duration
@@ -35,6 +36,9 @@ module Hyrax
         # solr_doc['original_checksum_tesim'] = object.original_checksum
         solr_doc['checksum_value_tesim'] = object.checksum_value
         solr_doc['checksum_algorithm_tesim'] = object.checksum_algorithm
+        solr_doc['alpha_channels_ssi']      = object.alpha_channels
+        solr_doc['original_file_id_ssi']    = original_file_id
+        solr_doc['generic_type_si'] = 'FileSet'
       end
     end
 

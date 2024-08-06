@@ -1,15 +1,35 @@
-<div class="col-md-10">
+<%# Reviewed: hyrax4 %>
+<div class="col-md-9 col-lg-6">
   <div class="metadata">
-    <dl class="dl-horizontal">
+    <dl>
     <% doc_presenter = index_presenter(document) %>
     <% index_fields(document).each do |field_name, field| -%>
-      <% if should_render_index_field? document, field %>
-          <dt><%= render_index_field_label document, field: field_name %></dt>
-          <% if field_name == "description_tesim" %>
-            <dd><span class="more"><%= doc_presenter.field_value field %></span></dd>
-          <% else %>
-            <dd><span><%= doc_presenter.field_value field %></span></dd>
-          <% end %>
+      <% if dep_should_render_index_field? document, field %>
+          <div class="row">
+            <%
+  # Updated: hyrax4
+  # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+  #                                        ::Deepblue::LoggingHelper.called_from,
+  #                                        "doc_presenter=#{doc_presenter.class.name}",
+  #                                        "field_name=#{field_name}",
+  #                                        "field=#{field}",
+  #                                        "doc_presenter.field_value field=#{doc_presenter.field_value field}",
+  #                                        "" ] # + caller_locations(0,30)
+  # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+  # ::Deepblue::LoggingHelper.bold_debug [ "" ]
+            %>
+            <dt class="col-5 text-right"
+                data-solr-field-name="<%= field_name %>">
+              <%= dep_render_index_field_label( document, field: field_name ) %>
+            </dt>
+            <% if field_name == "description_tesim" %>
+              <dd><span class="more"><%= doc_presenter.field_value field %></span></dd>
+            <% else %>
+              <dd><span><%= doc_presenter.field_value field %></span></dd>
+            <% end %>
+          </div>
       <% end %>
     <% end %>
     </dl>
@@ -17,7 +37,7 @@
 </div>
 <% if document.collection? %>
   <% collection_presenter = Hyrax::CollectionPresenter.new(document, current_ability) %>
-<div class="col-md-12">
+<div class="col-md-12 col-lg-3">
   <div class="collection-counts-wrapper">
     <% if collection_presenter.total_viewable_collections.positive? %>
       <div class="collection-counts-item">

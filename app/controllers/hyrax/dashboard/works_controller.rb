@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Reviewed: hyrax4
 # monkey override definition
 module Hyrax
   module Dashboard

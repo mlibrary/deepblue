@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Updated: hyrax4
 
 module Hyrax
 
@@ -46,7 +47,7 @@ module Hyrax
       curation_concern = ::PersistHelper.find asset.id
       id = curation_concern.id
       title = curation_concern.title.join
-      subject = ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )
+      subject = ::Deepblue::EmailHelper.t!( "hyrax.email.about_to_expire_embargo.subject", expiration_days: expiration_days, title: title )
       visibility = visibility_on_embargo_deactivation( curation_concern: curation_concern )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       email = curation_concern.authoremail
@@ -54,13 +55,13 @@ module Hyrax
       msg_handler.msg_verbose msg
       msg_handler.bold_debug msg
       body = []
-      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.for_html",
+      body << ::Deepblue::EmailHelper.t!( "hyrax.email.about_to_expire_embargo.for_html",
                                          expiration_days: expiration_days,
                                          embargo_release_date: embargo_release_date,
                                          title: title,
                                          id: id )
-      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.visibility_html", visibility: visibility )
-      body << ::Deepblue::EmailHelper.t( "hyrax.email.about_to_expire_embargo.visit_html", title: title, url: url )
+      body << ::Deepblue::EmailHelper.t!( "hyrax.email.about_to_expire_embargo.visibility_html", visibility: visibility )
+      body << ::Deepblue::EmailHelper.t!( "hyrax.email.about_to_expire_embargo.visit_html", title: title, url: url )
       body = body.join( '' )
       event_note = "#{expiration_days} days"
       event_note += " test_mode" if test_mode
@@ -146,14 +147,14 @@ module Hyrax
     def deactivate_embargo_email( curation_concern:, test_mode:, verbose: false )
       id = curation_concern.id
       title = curation_concern.title.join
-      subject = ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.subject", title: title )
+      subject = ::Deepblue::EmailHelper.t!( "hyrax.email.deactivate_embargo.subject", title: title )
       url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       body = []
-      body << ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.for_html",
+      body << ::Deepblue::EmailHelper.t!( "hyrax.email.deactivate_embargo.for_html",
                                          title: title,
                                          id: id,
                                          visibility: curation_concern.visibility )
-      body << ::Deepblue::EmailHelper.t( "hyrax.email.deactivate_embargo.visit_html", title: title, url: url )
+      body << ::Deepblue::EmailHelper.t!( "hyrax.email.deactivate_embargo.visit_html", title: title, url: url )
       body = body.join( '' )
       event_note = ''
       event_note = "test_mode" if test_mode
@@ -266,6 +267,15 @@ module Hyrax
       curation_concern.to_solr["visibility_after_embargo_ssim"]
     end
 
+    ##
+    # @since 3.5.0
+    #
+    # @param [#embargo_history, #embargo] resource
+    #
+    # @return [Array]
+    def embargo_history(resource)
+      resource.try(:embargo_history) ||
+        Array(resource.embargo&.embargo_history)
+    end
   end
-
 end

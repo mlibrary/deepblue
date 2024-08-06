@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 
 module LinkBehavior
 
-  def generate_download_key
+  def self.generate_download_key
     (Digest::SHA2.new << rand(1_000_000_000).to_s).to_s
   end
 

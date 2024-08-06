@@ -1,23 +1,25 @@
-//= require jquery-ui/core
-//= require jquery-ui/widget
-//= require jquery-ui/widgets/menu
-//= require jquery-ui/widgets/autocomplete
-//= require jquery-ui/position
-//= require jquery-ui/effect
-//= require jquery-ui/effects/effect-highlight
-//= require jquery-ui/widgets/sortable
+// Reviewed: hyrax4
+//= require jquery-ui
+// require jquery-ui/core
+// require jquery-ui/widget
+// require jquery-ui/widgets/menu
+// require jquery-ui/widgets/autocomplete
+// require jquery-ui/position
+// require jquery-ui/effect
+// require jquery-ui/effects/effect-highlight
+// require jquery-ui/widgets/sortable
 
-//= require bootstrap/alert
-//= require bootstrap/button
-//= require bootstrap/collapse
-//= require bootstrap/dropdown
-//= require bootstrap/modal
-//= require bootstrap/tooltip
+// require bootstrap/alert
+// require bootstrap/button
+// require bootstrap/collapse
+// require bootstrap/dropdown
+// require bootstrap/modal
+// require bootstrap/tooltip
 // Popover requires that tooltip be loaded first
-//= require bootstrap/popover
-//= require bootstrap/tab
+// require bootstrap/popover
+// require bootstrap/tab
 // Affix is used for the file manager
-//= require bootstrap/affix
+// require bootstrap/affix
 
 //= require select2
 //= require fixedsticky
@@ -56,7 +58,7 @@
 //= require hyrax/search
 //= require hyrax/content_blocks
 //= require hyrax/nav_safety
-//= require hyrax/ga_events
+//= require hyrax/analytics_events
 //= require hyrax/select_submit
 //= require hyrax/tabs
 //= require hyrax/user_search
@@ -107,6 +109,7 @@
 //= require hyrax/i18n_helper
 //= require hyrax/collapse
 //= require hyrax/skip_to_content
+//= require hyrax/reports-buttons
 
 // this needs to be after batch_select so that the form ids get setup correctly
 //= require hyrax/batch_edit

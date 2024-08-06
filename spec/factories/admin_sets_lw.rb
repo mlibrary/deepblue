@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 FactoryBot.define do
   # Tests that create a Fedora Object are very slow.  This factory lets you control which parts of the object ecosystem
   # get built.
@@ -88,11 +91,16 @@ FactoryBot.define do
           }
         end
         with_solr_document { true }
+        with_persisted_default_id { true }
       end
       id { AdminSet::DEFAULT_ID }
       title { AdminSet::DEFAULT_TITLE }
-    end
 
+      after(:create) do |admin_set, evaluator|
+        Hyrax::DefaultAdministrativeSet.update(default_admin_set_id: admin_set.id) if
+          evaluator.with_persisted_default_id
+      end
+    end
 
     factory :draft_data_set_adminset, class: AdminSet do
       # transient do

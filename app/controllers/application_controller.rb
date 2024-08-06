@@ -1,6 +1,8 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 class ApplicationController < ActionController::Base
+
 
   mattr_accessor :application_controller_debug_verbose,
                  default: Rails.configuration.application_controller_debug_verbose
@@ -18,7 +20,7 @@ class ApplicationController < ActionController::Base
   helper Openseadragon::OpenseadragonHelper
   # Adds a few additional behaviors into the application controller
   include Blacklight::Controller
-  skip_after_action :discard_flash_if_xhr
+  # Upgrade: hyrax4 # skip_after_action :discard_flash_if_xhr
   include Hydra::Controller::ControllerBehavior
 
   # Behavior for devise.  Use remote user field in http header for auth.
@@ -27,6 +29,7 @@ class ApplicationController < ActionController::Base
   # Adds Hyrax behaviors into the application controller
   include Hyrax::Controller
   include Hyrax::ThemedLayoutController
+
   with_themed_layout '1_column'
 
   after_action :track_action
@@ -162,6 +165,11 @@ class ApplicationController < ActionController::Base
                                            "[AUTHN] Warden after_authentication (clearing flash): #{user}",
                                            "" ] if application_controller_debug_verbose
     auth.request.flash.clear
+  end
+
+  # Added: hyrax4
+  def repository
+    config.repository
   end
 
 end

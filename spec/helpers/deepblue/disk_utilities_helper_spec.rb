@@ -36,7 +36,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns 0' do
-              expect( described_class.delete_dir( nonexistent_dir, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_dir( dir_path: nonexistent_dir, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -53,7 +53,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               Dir.delete base_dir if Dir.exist? base_dir
             end
             it 'returns 0' do
-              expect( described_class.delete_dir( not_a_dir, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_dir( dir_path: not_a_dir, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -62,7 +62,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( Dir.exist? base_dir ).to eq true }
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns an empty array' do
-              expect( described_class.delete_dir( base_dir, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq 1
             end
           end
 
@@ -81,7 +81,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               Dir.delete base_dir if Dir.exist? base_dir
             end
             it 'deletes the files and directory' do
-              expect( described_class.delete_dir( base_dir, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq 1
               expect( Dir.exist? base_dir ).to eq false
             end
           end
@@ -102,9 +102,9 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             it 'returns correct arrays' do
               subdirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
-              expect( described_class.delete_dir( base_dir, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq 0
               subdirs.each { |dir| expect( Dir.exist? dir ).to eq true }
-              expect( described_class.delete_dir( base_dir, recursive: true, msg_handler: msg_handler ) ).to eq 3
+              expect( described_class.delete_dir( dir_path: base_dir, recursive: true, msg_handler: msg_handler ) ).to eq 3
               subdirs.each { |dir| expect( Dir.exist? dir ).to eq false }
               expect( Dir.exist? base_dir ).to eq false
             end
@@ -133,7 +133,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             it 'returns correct arrays' do
               subdirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
               files = filenames.map { |filename| File.join( base_dir, filename ) }.sort
-              expect( described_class.delete_dir( base_dir, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq 0
               subdirs.each { |dir| expect( Dir.exist? dir ).to eq true }
               files.each { |file| expect( File.exist? file ).to eq false }
             end
@@ -162,7 +162,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             it 'returns correct arrays' do
               subdirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
               files = filenames.map { |filename| File.join( base_dir, filename ) }.sort
-              expect( described_class.delete_dir( base_dir, recursive: true, msg_handler: msg_handler ) ).to eq 3
+              expect( described_class.delete_dir( dir_path: base_dir, recursive: true, msg_handler: msg_handler ) ).to eq 3
               subdirs.each { |dir| expect( Dir.exist? dir ).to eq false }
               files.each { |file| expect( File.exist? file ).to eq false }
             end
@@ -180,7 +180,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             it 'deletes it' do
               expect( File ).to receive( :file? ).with( file1 ).and_call_original
               expect( File ).to receive( :delete ).with( file1 ).and_call_original
-              expect( described_class.delete_file( file1, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_file( file_path: file1, msg_handler: msg_handler ) ).to eq 1
               expect( File.exist? file1 ).to eq false
             end
           end
@@ -190,7 +190,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( Dir.exist? dir1 ).to eq true }
             after { Dir.delete dir1 if Dir.exist? dir1 }
             it 'does not deletes it' do
-              expect( described_class.delete_file( dir1, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_file( file_path: dir1, msg_handler: msg_handler ) ).to eq 0
               expect( Dir.exist? dir1 ).to eq true
             end
           end
@@ -206,7 +206,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               expect( File ).to receive( :file? ).with( file1 ).and_call_original
               expect( File ).to_not receive( :delete ).with( file1 ).and_call_original
               expect( File.exist? file1 ).to eq false
-              expect( described_class.delete_file( file1, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_file( file_path: file1, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -221,14 +221,14 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
           context 'empty array' do
             let(:files) { [] }
             it 'it returns 0' do
-              expect( described_class.delete_files( files, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_files( files: files, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
           context 'nil' do
             let(:files) { nil }
             it 'it returns 0' do
-              expect( described_class.delete_files( files, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_files( files: files, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -238,9 +238,9 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( File.exist? file1 ).to eq true }
             after { File.delete file1 if File.exist? file1 }
             it 'deletes it' do
-              expect( described_class ).to receive( :delete_file ).with( file1,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file1,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class.delete_files( files, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_files( files: files, msg_handler: msg_handler ) ).to eq 1
             end
           end
 
@@ -250,9 +250,9 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( File.exist? file1 ).to eq true }
             after { File.delete file1 if File.exist? file1 }
             it 'deletes it' do
-              expect( described_class ).to receive( :delete_file ).with( file1,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file1,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class.delete_files( *files, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_files( files: files, msg_handler: msg_handler ) ).to eq 1
             end
           end
 
@@ -268,11 +268,11 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               File.delete file2 if File.exist? file2
             end
             it 'deletes them' do
-              expect( described_class ).to receive( :delete_file ).with( file1,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file1,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class ).to receive( :delete_file ).with( file2,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file2,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class.delete_files( file1, file2, msg_handler: msg_handler ) ).to eq 2
+              expect( described_class.delete_files( files: [ file1, file2 ], msg_handler: msg_handler ) ).to eq 2
             end
           end
 
@@ -289,11 +289,11 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               File.delete file2 if File.exist? file2
             end
             it 'deletes them' do
-              expect( described_class ).to receive( :delete_file ).with( file1,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file1,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class ).to receive( :delete_file ).with( file2,
+              expect( described_class ).to receive( :delete_file ).with( file_path: file2,
                                                                          msg_handler: msg_handler ).and_call_original
-              expect( described_class.delete_files( *files, msg_handler: msg_handler ) ).to eq 2
+              expect( described_class.delete_files( files: files, msg_handler: msg_handler ) ).to eq 2
             end
           end
 
@@ -310,10 +310,10 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( File.exist? file1 ).to eq true }
             after { File.delete file1 if File.exist? file1 }
             it 'deletes it' do
-              expect( described_class ).to receive( :delete_files ).with( file1,
+              expect( described_class ).to receive( :delete_files ).with( files: file1,
                                                                           msg_handler: msg_handler,
                                                                           test_mode: test_mode ).and_call_original
-              expect( described_class.delete_files_older_than( file1, days_old: 0, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_files_older_than( files: file1, days_old: 0, msg_handler: msg_handler ) ).to eq 1
             end
           end
 
@@ -329,7 +329,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               File.delete file2 if File.exist? file2
             end
             it 'deletes them' do
-              expect( described_class.delete_files_older_than( file1, file2, days_old: 0, msg_handler: msg_handler ) ).to eq 2
+              expect( described_class.delete_files_older_than( files: [file1, file2], days_old: 0, msg_handler: msg_handler ) ).to eq 2
             end
           end
 
@@ -339,7 +339,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( File.exist? file1 ).to eq true }
             after { File.delete file1 if File.exist? file1 }
             it 'deletes it' do
-              expect( described_class.delete_files_older_than( files, days_old: 1, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_files_older_than( files: files, days_old: 1, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -355,7 +355,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               File.delete file2 if File.exist? file2
             end
             it 'deletes them' do
-              expect( described_class.delete_files_older_than( file1, file2, days_old: 1, msg_handler: msg_handler ) ).to eq 0
+              expect( described_class.delete_files_older_than( files: [file1, file2], days_old: 1, msg_handler: msg_handler ) ).to eq 0
             end
           end
 
@@ -374,7 +374,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               File.delete file2 if File.exist? file2
             end
             it 'deletes only one of them' do
-              expect( described_class.delete_files_older_than( file1, file2, days_old: days_old - 1, msg_handler: msg_handler ) ).to eq 1
+              expect( described_class.delete_files_older_than( files: [file1, file2], days_old: days_old - 1, msg_handler: msg_handler ) ).to eq 1
               expect( File.exist? file1 ).to eq true
               expect( File.exist? file2 ).to eq false
             end
@@ -392,7 +392,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns an empty array' do
-              expect( described_class.dirs_in_dir( nonexistent_dir, msg_handler: msg_handler ) ).to eq []
+              expect( described_class.dirs_in_dir( dir_path: nonexistent_dir, msg_handler: msg_handler ) ).to eq []
             end
           end
 
@@ -401,7 +401,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( Dir.exist? base_dir ).to eq true }
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns an empty array' do
-              expect( described_class.dirs_in_dir( base_dir, msg_handler: msg_handler ) ).to eq []
+              expect( described_class.dirs_in_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq []
             end
           end
 
@@ -420,7 +420,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               Dir.delete base_dir if Dir.exist? base_dir
             end
             it 'returns correct arrays' do
-              expect( described_class.dirs_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq []
+              expect( described_class.dirs_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq []
             end
           end
 
@@ -440,7 +440,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             it 'returns correct arrays' do
               expected_dirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
-              expect( described_class.dirs_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq expected_dirs
+              expect( described_class.dirs_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq expected_dirs
             end
           end
 
@@ -467,7 +467,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             it 'returns correct arrays' do
               expected_dirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
               expected_files = filenames.map { |filename| File.join( base_dir, filename ) }.sort
-              expect( described_class.dirs_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq expected_dirs
+              expect( described_class.dirs_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq expected_dirs
             end
           end
 
@@ -484,7 +484,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns an empty array' do
-              expect( described_class.files_in_dir( nonexistent_dir, msg_handler: msg_handler ) ).to eq []
+              expect( described_class.files_in_dir( dir_path: nonexistent_dir, msg_handler: msg_handler ) ).to eq []
             end
           end
 
@@ -493,7 +493,7 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             before { expect( Dir.exist? base_dir ).to eq true }
             after { Dir.delete base_dir if Dir.exist? base_dir }
             it 'returns an empty array' do
-              expect( described_class.files_in_dir( base_dir, msg_handler: msg_handler ) ).to eq []
+              expect( described_class.files_in_dir( dir_path: base_dir, msg_handler: msg_handler ) ).to eq []
             end
           end
 
@@ -513,9 +513,9 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
             end
             it 'returns correct arrays' do
               expected_files = filenames.map { |filename| File.join( base_dir, filename ) }.sort
-              expect( described_class.files_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq expected_files
-              expect( described_class.files_in_dir( base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq expected_files
-              expect( described_class.files_in_dir( base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_files
+              expect( described_class.files_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq expected_files
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq expected_files
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_files
             end
           end
 
@@ -534,10 +534,10 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               Dir.delete base_dir if Dir.exist? base_dir
             end
             it 'returns correct arrays' do
-              expect( described_class.files_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq []
-              expect( described_class.files_in_dir( base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq []
+              expect( described_class.files_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq []
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq []
               expected_dirs = dirnames.map { |dirname| File.join( base_dir, dirname ) }.sort
-              expect( described_class.files_in_dir( base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_dirs
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_dirs
             end
           end
 
@@ -566,9 +566,9 @@ RSpec.describe ::Deepblue::DiskUtilitiesHelper do
               expected_files = filenames.map { |filename| File.join( base_dir, filename ) }.sort
               expected_all = expected_dirs + expected_files
               expected_all.sort
-              expect( described_class.files_in_dir( base_dir, msg_handler: msg_handler ).sort ).to eq expected_files
-              expect( described_class.files_in_dir( base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq expected_files
-              expect( described_class.files_in_dir( base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_all
+              expect( described_class.files_in_dir( dir_path: base_dir, msg_handler: msg_handler ).sort ).to eq expected_files
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: false, msg_handler: msg_handler ).sort ).to eq expected_files
+              expect( described_class.files_in_dir( dir_path: base_dir, include_dirs: true, msg_handler: msg_handler ).sort ).to eq expected_all
             end
           end
 

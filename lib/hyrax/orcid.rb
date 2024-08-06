@@ -5,7 +5,7 @@
 # require "hyrax/orcid/engine"
 # require "hyrax/orcid/errors"
 # require "flipflop"
-# require "bolognese"
+# require 'bolognese' if Rails.configuration.use_bolognese
 #
 # module Hyrax
 #   module Orcid

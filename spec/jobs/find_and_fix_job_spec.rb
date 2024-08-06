@@ -24,7 +24,7 @@ RSpec.describe FindAndFixJob, skip: false do
     let(:task) { false }
     let(:verbose) { false }
     let(:options) { args }
-    let(:job)     { described_class.send( :job_or_instantiate, *args ) }
+    let(:job)     { described_class.send( :job_or_instantiate, **args ) }
 
     RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_on_server, dbg_verbose|
       before do

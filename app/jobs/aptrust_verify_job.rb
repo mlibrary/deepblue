@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 require "abstract_rake_task_job"
 
@@ -48,7 +49,7 @@ aptrust_verify_job:
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if aptrust_verify_job_debug_verbose
-    initialized = initialize_from_args( *args, debug_verbose: aptrust_verify_job_debug_verbose )
+    initialized = initialize_from_args( args: args, debug_verbose: aptrust_verify_job_debug_verbose )
     msg_handler.bold_debug [ msg_handler.here,
                              msg_handler.called_from,
                              "initialized=#{initialized}",

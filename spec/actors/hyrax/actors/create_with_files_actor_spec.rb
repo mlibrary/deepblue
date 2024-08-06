@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: false do
@@ -20,6 +21,7 @@ RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: false do
   let(:uploaded_file2) { create(:uploaded_file, user: user) }
   let(:uploaded_file_ids) { [uploaded_file1.id, uploaded_file2.id] }
   let(:attributes) { { uploaded_files: uploaded_file_ids } }
+  let(:args) { {} }
 
   subject(:middleware) do
     stack = ActionDispatch::MiddlewareStack.new.tap do |middleware|
@@ -45,10 +47,10 @@ RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: false do
 
       context "when uploaded_file_ids belong to me" do
         it "attaches files" do
-          expect(AttachFilesToWorkJob).to receive(:perform_later).with(work,
-                                                                       [uploaded_file1, uploaded_file2],
-                                                                       user.email,
-                                                                       {})
+          expect(AttachFilesToWorkJob).to receive(:perform_later).with(work: work,
+                                                                       uploaded_files: [uploaded_file1, uploaded_file2],
+                                                                       user_key: user.email,
+                                                                       **args )
           expect(middleware.public_send(mode, env)).to be true
         end
       end

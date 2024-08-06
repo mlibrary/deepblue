@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::ContentBlockHelper, type: :helper, skip: false do
@@ -6,7 +9,7 @@ RSpec.describe Hyrax::ContentBlockHelper, type: :helper, skip: false do
   describe '#displayable_content_block' do
     let(:options) { {} }
 
-    subject { helper.displayable_content_block(content_block, options) }
+    subject { helper.displayable_content_block(content_block, **options) }
 
     it 'is defined' do
       expect(helper).to respond_to(:displayable_content_block)

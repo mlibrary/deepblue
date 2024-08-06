@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 require_relative './environment_attributes'
 
@@ -25,7 +26,7 @@ module Hyrax
       #   @return [Object]
       # @!attribute [rw] current_ability
       #   @return [Hyrax::Ability]
-      attr_accessor :curation_concern, :current_ability, :attributes
+      attr_accessor :attributes, :curation_concern, :current_ability
 
       # @return [User] the user from the current_ability
       def user

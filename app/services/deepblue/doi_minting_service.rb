@@ -255,7 +255,7 @@ module Deepblue
                                         registrar: curation_concern.doi_registrar.presence,
                                         registrar_opts: curation_concern.doi_registrar_opts )
       # else
-      #   ::DoiMintingJob.perform_later( curation_concern.id,
+      #   ::DoiMintingJob.perform_later( id: curation_concern.id,
       #                                  current_user: current_user,
       #                                  job_delay: job_delay,
       #                                  target_url: target_url,

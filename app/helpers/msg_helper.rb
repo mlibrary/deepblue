@@ -101,6 +101,14 @@ module MsgHelper
     curation_concern.subject_discipline.join( field_sep )
   end
 
+  def self.t( key )
+    I18n.t( key ) # Update: hyrax4
+  end
+
+  def self.t!( key, **options )
+    I18n.t!( key, **options )
+  end
+
   def self.title( curation_concern, field_sep: FIELD_SEP )
     curation_concern.title.join( field_sep )
   end

@@ -12,7 +12,7 @@ module Deepblue
     end
 
     # returns count of dirs deleted (0 or 1)
-    def self.delete_dir( dir_path, msg_handler:, recursive: false, test_mode: false )
+    def self.delete_dir( dir_path:, msg_handler:, recursive: false, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -25,12 +25,12 @@ module Deepblue
       dir_exist = Dir.exist? dir_path
       add_msg( msg_handler: msg_handler, prefix: '!Dir.exist? ', path: dir_path ) if !dir_exist && msg_handler.verbose
       return dirs_deleted unless dir_exist
-      files = files_in_dir( dir_path, msg_handler: msg_handler, test_mode: test_mode )
-      delete_files( *files, msg_handler: msg_handler, test_mode: test_mode )
+      files = files_in_dir( dir_path: dir_path, msg_handler: msg_handler, test_mode: test_mode )
+      delete_files( files: files, msg_handler: msg_handler, test_mode: test_mode )
       if recursive
-        dirs = dirs_in_dir( dir_path, msg_handler: msg_handler, test_mode: test_mode )
+        dirs = dirs_in_dir( dir_path: dir_path, msg_handler: msg_handler, test_mode: test_mode )
         dirs.each do |dir|
-          dirs_deleted += delete_dir( dir, recursive: true, msg_handler: msg_handler, test_mode: test_mode )
+          dirs_deleted += delete_dir( dir_path: dir, recursive: true, msg_handler: msg_handler, test_mode: test_mode )
         end
       end
       begin
@@ -45,7 +45,7 @@ module Deepblue
     end
 
     # returns count of dirs deleted
-    def self.delete_dirs( *dirs, recursive: false, msg_handler:, test_mode: false )
+    def self.delete_dirs( dirs:, recursive: false, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -53,9 +53,10 @@ module Deepblue
                                              "recursive=#{recursive}",
                                              "test_mode=#{test_mode}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
+      dirs = Array( dirs )
       deleted_count = 0
       dirs.each do |dir|
-        deleted_count += delete_dir( dir, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode )
+        deleted_count += delete_dir( dir_path: dir, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode )
       end
       deleted_count
     end
@@ -82,14 +83,14 @@ module Deepblue
                                              "test_mode=#{test_mode}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
       base_dir = base_dir.to_s
-      dirs = dirs_in_dir( base_dir, glob: glob, dotmatch: dotmatch, msg_handler: msg_handler, test_mode: test_mode )
+      dirs = dirs_in_dir( dir_path: base_dir, glob: glob, dotmatch: dotmatch, msg_handler: msg_handler, test_mode: test_mode )
       if filename_regexp.present?
         dirs = dirs.select do |dir|
           dir = File.basename dir
           dir =~ filename_regexp
         end
       end
-      delete_dirs_older_than( *dirs,
+      delete_dirs_older_than( dirs: dirs,
                               days_old: days_old,
                               msg_handler: msg_handler,
                               recursive: recursive,
@@ -97,7 +98,7 @@ module Deepblue
     end
 
     # returns count of dirs deleted
-    def self.delete_dirs_older_than( *dirs, days_old:, msg_handler:, recursive: false, test_mode: false )
+    def self.delete_dirs_older_than( dirs:, days_old:, msg_handler:, recursive: false, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -106,7 +107,8 @@ module Deepblue
                                              "recursive=#{recursive}",
                                              "test_mode=#{test_mode}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
-      return delete_dirs( *files, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode ) if days_old <= 0
+      return delete_dirs( dirs: dirs, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode ) if days_old <= 0
+      dirs = Array( dirs )
       older_than = DateTime.now - days_old.days
       dirs = dirs.select do |dir|
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -116,11 +118,11 @@ module Deepblue
                                                "" ], bold_puts: msg_handler.to_console if debug_verbose
         File.mtime( dir ) < older_than
       end
-      delete_dirs( *dirs, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode )
+      delete_dirs( dirs: dirs, msg_handler: msg_handler, recursive: recursive, test_mode: test_mode )
     end
 
     # returns count of files deleted (0 or 1)
-    def self.delete_file( file_path, msg_handler:, test_mode: false )
+    def self.delete_file( file_path:, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -142,16 +144,17 @@ module Deepblue
     end
 
     # returns count of files deleted (0 or 1)
-    def self.delete_files( *files, msg_handler:, test_mode: false )
+    def self.delete_files( files:, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "files=#{files}",
                                              "test_mode=#{test_mode}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
+      files = Array( files )
       deleted_count = 0
       files.each do |file|
-        deleted_count += delete_file( file, msg_handler: msg_handler )
+        deleted_count += delete_file( file_path: file, msg_handler: msg_handler )
       end
       deleted_count
     end
@@ -187,11 +190,11 @@ module Deepblue
           file =~ filename_regexp
         end
       end
-      delete_files_older_than( *files, days_old: days_old, msg_handler: msg_handler, test_mode: test_mode )
+      delete_files_older_than( files: files, days_old: days_old, msg_handler: msg_handler, test_mode: test_mode )
     end
 
     # returns count of files deleted
-    def self.delete_files_in_dir( dir_path, delete_subdirs: false, msg_handler:, test_mode: false )
+    def self.delete_files_in_dir( dir_path:, delete_subdirs: false, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -201,18 +204,18 @@ module Deepblue
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
       dir_path = dir_path.to_s
       return 0 unless Dir.exist? dir_path
-      files = files_in_dir( dir_path, msg_handler: msg_handler, test_mode: test_mode )
+      files = files_in_dir( dir_path: dir_path, msg_handler: msg_handler, test_mode: test_mode )
       deleted_count = 0
-      deleted_count += delete_files( *files, msg_handler: msg_handler, test_mode: test_mode )
+      deleted_count += delete_files( files: files, msg_handler: msg_handler, test_mode: test_mode )
       if delete_subdirs
-        dirs = files_in_dir( dir_path, include_dirs: true, msg_handler: msg_handler, test_mode: test_mode )
-        deleted_count += delete_dirs( *dirs, msg_handler: msg_handler, test_mode: test_mode )
+        dirs = files_in_dir( dir_path: dir_path, include_dirs: true, msg_handler: msg_handler, test_mode: test_mode )
+        deleted_count += delete_dirs( dirs: dirs, msg_handler: msg_handler, test_mode: test_mode )
       end
       return deleted_count
     end
 
     # returns count of files deleted
-    def self.delete_files_older_than( *files, days_old:, msg_handler:, test_mode: false )
+    def self.delete_files_older_than( files:, days_old:, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -220,14 +223,15 @@ module Deepblue
                                              "days_old=#{days_old}",
                                              "test_mode=#{test_mode}",
                                              "" ], bold_puts: msg_handler.to_console if debug_verbose
-      return delete_files( *files, msg_handler: msg_handler, test_mode: test_mode ) if days_old <= 0
+      return delete_files( files: files, msg_handler: msg_handler, test_mode: test_mode ) if days_old <= 0
+      files = Array( files )
       older_than = DateTime.now - days_old.days
       files = files.select { |file| File.mtime( file ) < older_than }
-      delete_files( *files, msg_handler: msg_handler, test_mode: test_mode )
+      delete_files( files: files, msg_handler: msg_handler, test_mode: test_mode )
     end
 
     # returns array of files
-    def self.dirs_in_dir( dir_path, glob: '*', dotmatch: false, msg_handler:, test_mode: false )
+    def self.dirs_in_dir( dir_path:, glob: '*', dotmatch: false, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -254,7 +258,7 @@ module Deepblue
       return dirs
     end
 
-    def self.expand_id_path( id, base_dir: nil )
+    def self.expand_id_path( id:, base_dir: nil )
       arr = id.split('').each_slice(2).map(&:join)
       rv = File.join arr
       return rv unless base_dir.present?
@@ -263,7 +267,7 @@ module Deepblue
     end
 
     # returns array of files
-    def self.files_in_dir( dir_path, glob: '*', dotmatch: false, include_dirs: false, msg_handler:, test_mode: false )
+    def self.files_in_dir( dir_path:, glob: '*', dotmatch: false, include_dirs: false, msg_handler:, test_mode: false )
       debug_verbose = msg_handler.debug_verbose || disk_utilities_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 class ResolrizeJob < ::Deepblue::DeepblueJob
 
@@ -33,7 +34,7 @@ END_OF_SCHEDULER_ENTRY
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "" ] if resolrize_job_debug_verbose
-    initialize_options_from( *args, debug_verbose: resolrize_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: resolrize_job_debug_verbose )
     return job_finished unless hostname_allowed?
     msg_handler.msg "Start processing at #{DateTime.now}"
     log( event: "resolrize job", hostname_allowed: hostname_allowed? )

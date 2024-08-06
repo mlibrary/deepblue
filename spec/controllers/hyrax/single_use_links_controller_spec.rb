@@ -155,7 +155,7 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
     RSpec.shared_examples 'it requires login' do
       let(:flash_msg) { "You need to sign in or sign up before continuing." }
       # let(:flash_msg) { I18n.t('devise.failure.unauthenticated') }
-      # let(:flash_msg) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
+      # let(:flash_msg) { I18n.t!(:"unauthorized.default", default: 'You are not authorized to access this page.') }
       it 'requires login' do
         expect(response).to_not be_nil
         # expect(response).to fail_redirect_and_flash(main_app.new_user_session_path, flash_msg)

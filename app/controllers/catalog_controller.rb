@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
+# Reviewed: hyrax4 -- .dassie
 
 class CatalogController < ApplicationController
   include Hydra::Catalog
@@ -11,12 +13,12 @@ class CatalogController < ApplicationController
   # This filter applies the hydra access controls
   before_action :enforce_show_permissions, only: :show
 
-  def self.modified_field
-    solr_name('system_modified', :stored_sortable, type: :date)
+  def self.uploaded_field
+    "system_create_dtsi"
   end
 
-  def self.uploaded_field
-    solr_name('system_create', :stored_sortable, type: :date)
+  def self.modified_field
+    "system_modified_dtsi"
   end
 
   def self.configure_facet_fields( config )
@@ -47,79 +49,75 @@ class CatalogController < ApplicationController
     @@facet_solr_name_to_name[facet_solr_name]
   end
 
-  configure_blacklight do |config|
+  configure_blacklight do |config| # rubocop:disable Metrics/BlockLength
+    config.view.gallery(document_component: Blacklight::Gallery::DocumentComponent)
+    config.view.masonry(document_component: Blacklight::Gallery::DocumentComponent)
+    config.view.slideshow(document_component: Blacklight::Gallery::SlideshowComponent)
 
-    # Oai Configuration
-    config.oai = {
-      provider: {
-        repository_name: 'Deep Blue Data',
-        repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
-        record_prefix: 'oai:deepbluedata',
-        admin_email: 'researchdataservices@umich.edu',
-        sample_id: '9s1616317'
-      },
-      document: {
-        limit: 50,
-        set_model: AdminsetSet,
-        set_fields: [{ label: 'admin_set', solr_field: 'admin_set_sim' }]
-      }
-    }
-
-
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "config.class.name=#{config.class.name}",
-    #                                        "" ] if catalog_controller_debug_verbose
-
-    config.view.gallery.partials = %i[index_header index]
-    config.view.masonry.partials = [:index]
-    config.view.slideshow.partials = [:index]
+    config.show.tile_source_field = :content_metadata_image_iiif_info_ssm
+    config.show.partials.insert(1, :openseadragon)
+    # which of thesee? # config.search_builder_class = ::SearchBuilder
+    config.search_builder_class = Hyrax::CatalogSearchBuilder
 
     # set maximum results per page to support bootstrap page sorting
     # in dashboard.
     # config.max_per_page = 1000000
 
-    config.show.tile_source_field = :content_metadata_image_iiif_info_ssm
-    config.show.partials.insert(1, :openseadragon)
-    config.search_builder_class = Hyrax::CatalogSearchBuilder
-
     # Show gallery view
-    config.view.gallery.partials = %i[index_header index]
-    config.view.slideshow.partials = [:index]
+    # hyrax2 # config.view.gallery.partials = %i[index_header index]
+    # hyrax2 # config.view.slideshow.partials = [:index]
 
     ## Default parameters to send to solr for all search-like requests. See also SolrHelper#solr_search_params
     config.default_solr_params = {
-        qt: "search",
-        rows: 10,
-        # qf: "title_tesim description_tesim creator_tesim keyword_tesim"
-        qf: "title_tesim name_tesim creator_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim referenced_by_tesim all_text_timv"
+      qt: "search",
+      rows: 10,
+      qf: "title_tesim name_tesim creator_tesim caption_tesim description_tesim grantnumber_tesim methodology_tesim subject_tesim keyword_tesim referenced_by_tesim all_text_timv"
     }
 
     # solr field configuration for document/show views
-    config.index.title_field = solr_name("title", :stored_searchable)
-    config.index.display_type_field = solr_name("has_model", :symbol)
+    config.index.title_field = "title_tesim"
+    config.index.display_type_field = "has_model_ssim"
     config.index.thumbnail_field = 'thumbnail_path_ss'
 
-    # # solr fields that will be treated as facets by the blacklight application
-    # #   The ordering of the field names is the order of the display
-    # #config.add_facet_field solr_name("human_readable_type", :facetable), label: "Type", limit: 5
-    # config.add_facet_field solr_name("resource_type", :facetable), label: "Resource Type", limit: 5
-    # config.add_facet_field solr_name("creator", :facetable), limit: 5
-    # #config.add_facet_field solr_name("contributor", :facetable), label: "Contributor", limit: 5
-    # #config.add_facet_field solr_name("keyword", :facetable), limit: 5
-    # #config.add_facet_field solr_name("subject", :facetable), limit: 5
-    # config.add_facet_field solr_name("subject_discipline", :facetable), label: "Discipline", limit: 5
-    # config.add_facet_field solr_name("language", :facetable), limit: 5
-    # #config.add_facet_field solr_name("based_near_label", :facetable), limit: 5
-    # #config.add_facet_field solr_name("publisher", :facetable), limit: 5
-    # #config.add_facet_field solr_name("file_format", :facetable), limit: 5
-    # #config.add_facet_field solr_name('member_of_collections', :symbol), limit: 5, label: 'Collections'
+    # solr field configuration for document/show views
+    # config.show.title_field = solr_name("title", :stored_searchable)
+    # config.show.display_type_field = solr_name("has_model", :symbol)
 
-    configure_facet_fields( config )
+    # hyrax2 # configure_facet_fields( config )
 
     # The generic_type isn't displayed on the facet list
     # It's used to give a label to the filter that comes from the user profile
-    config.add_facet_field solr_name("generic_type", :facetable), if: false
+    # hyrax2 # config.add_facet_field solr_name('generic_type', :facetable), if: false
+
+    config.add_results_document_tool(:bookmark, partial: 'bookmark_control', if: :render_bookmarks_control?)
+    config.add_results_collection_tool(:sort_widget)
+    config.add_results_collection_tool(:per_page_widget)
+    config.add_results_collection_tool(:view_type_group)
+    config.add_show_tools_partial(:bookmark, partial: 'bookmark_control', if: :render_bookmarks_control?)
+    config.add_show_tools_partial(:email, callback: :email_action, validator: :validate_email_params)
+    config.add_show_tools_partial(:sms, if: :render_sms_action?, callback: :sms_action, validator: :validate_sms_params)
+    config.add_show_tools_partial(:citation)
+    config.add_nav_action(:bookmark, partial: 'blacklight/nav/bookmark', if: :render_bookmarks_control?)
+    config.add_nav_action(:search_history, partial: 'blacklight/nav/search_history')
+
+    # solr fields that will be treated as facets by the blacklight application
+    #   The ordering of the field names is the order of the display
+    config.add_facet_field "human_readable_type_sim", label: "Type", limit: 5
+    config.add_facet_field "resource_type_sim", label: "Resource Type", limit: 5
+    config.add_facet_field "creator_sim", limit: 5
+    config.add_facet_field "contributor_sim", label: "Contributor", limit: 5
+    config.add_facet_field "keyword_sim", limit: 5
+    config.add_facet_field "subject_sim", limit: 5
+    config.add_facet_field "language_sim", limit: 5
+    config.add_facet_field "based_near_label_sim", limit: 5
+    config.add_facet_field "publisher_sim", limit: 5
+    config.add_facet_field "file_format_sim", limit: 5
+    config.add_facet_field "member_of_collection_ids_ssim", limit: 5, label: 'Collections', helper_method: :collection_title_by_id
+
+    # The generic_type and depositor are not displayed on the facet list
+    # They are used to give a label to the filters that comes from the user profile
+    config.add_facet_field "generic_type_sim", if: false
+    config.add_facet_field "depositor_ssim", label: "Depositor", if: false
 
     # Have BL send all facet field names to Solr, which has been the default
     # previously. Simply remove these lines if you'd rather use Solr request
@@ -128,71 +126,60 @@ class CatalogController < ApplicationController
 
     # solr fields to be displayed in the index (search results) view
     #   The ordering of the field names is the order of the display
-    config.add_index_field solr_name("title", :stored_searchable), label: "Title", itemprop: 'name', if: false
-    config.add_index_field solr_name("creator", :stored_searchable), itemprop: 'creator', link_to_search: solr_name("creator", :facetable)
-    config.add_index_field solr_name("description", :stored_searchable), itemprop: 'description', helper_method: :iconify_auto_link
-    config.add_index_field solr_name("keyword", :stored_searchable), itemprop: 'keywords', link_to_search: solr_name("keyword", :facetable)
-    config.add_index_field solr_name("referenced_by", :stored_searchable), itemprop: 'referenced_by', label: "Citation to related publication", helper_method: :iconify_auto_link
-    config.add_index_field solr_name("subject_discipline", :stored_searchable), itemprop: 'subject_discipline', label: "Discipline", link_to_search: solr_name("subject_discipline", :facetable)
-
-    # This was the default that came with hyrax.
-    #config.add_index_field solr_name("title", :stored_searchable), label: "Title", itemprop: 'name', if: false
-    #config.add_index_field solr_name("description", :stored_searchable), itemprop: 'description', helper_method: :iconify_auto_link
-    #config.add_index_field solr_name("keyword", :stored_searchable), itemprop: 'keywords', link_to_search: solr_name("keyword", :facetable)
-    #config.add_index_field solr_name("subject", :stored_searchable), itemprop: 'about', link_to_search: solr_name("subject", :facetable)
-    #config.add_index_field solr_name("subject_discipline", :stored_searchable), label: "Discipline", link_to_search: solr_name("subject_discipline", :facetable)
-    #config.add_index_field solr_name("creator", :stored_searchable), itemprop: 'creator', link_to_search: solr_name("creator", :facetable)
-    #config.add_index_field solr_name("contributor", :stored_searchable), itemprop: 'contributor', link_to_search: solr_name("contributor", :facetable)
-    #config.add_index_field solr_name("proxy_depositor", :symbol), label: "Depositor", helper_method: :link_to_profile
-    #config.add_index_field solr_name("depositor"), label: "Owner", helper_method: :link_to_profile
-    #config.add_index_field solr_name("publisher", :stored_searchable), itemprop: 'publisher', link_to_search: solr_name("publisher", :facetable)
-    #config.add_index_field solr_name("based_near_label", :stored_searchable), itemprop: 'contentLocation', link_to_search: solr_name("based_near_label", :facetable)
-    #config.add_index_field solr_name("language", :stored_searchable), itemprop: 'inLanguage', link_to_search: solr_name("language", :facetable)
-    #config.add_index_field solr_name("date_uploaded", :stored_sortable, type: :date), itemprop: 'datePublished', helper_method: :human_readable_date
-    #config.add_index_field solr_name("date_modified", :stored_sortable, type: :date), itemprop: 'dateModified', helper_method: :human_readable_date
-    #config.add_index_field solr_name("date_created", :stored_searchable), itemprop: 'dateCreated', helper_method: :human_readable_date
-    #config.add_index_field solr_name("rights_license", :stored_searchable), helper_method: :rights_license_links
-    #config.add_index_field solr_name("rights_statement", :stored_searchable), helper_method: :rights_statement_links
-    #config.add_index_field solr_name("license", :stored_searchable), helper_method: :license_links
-    #config.add_index_field "total_file_size_lts", label: "Total File Size", helper_method: :human_readable_file_size
-    #config.add_index_field solr_name("resource_type", :stored_searchable), label: "Resource Type", link_to_search: solr_name("resource_type", :facetable)
-    #config.add_index_field solr_name("file_format", :stored_searchable), link_to_search: solr_name("file_format", :facetable)
-    #config.add_index_field solr_name("identifier", :stored_searchable), helper_method: :index_field_link, field_name: 'identifier'
-    #config.add_index_field solr_name("embargo_release_date", :stored_sortable, type: :date), label: "Embargo release date", helper_method: :human_readable_date
-    #config.add_index_field solr_name("lease_expiration_date", :stored_sortable, type: :date), label: "Lease expiration date", helper_method: :human_readable_date
-
-    #To be able to sort by title
-    config.add_index_field solr_name("title", :stored_sortable, type: :string), label: "Title"
+    # hyrax2 # config.add_index_field solr_name("title", :stored_sortable, type: :string), label: "Title" #To be able to sort by title
+    config.add_index_field "title_tesim", label: "Title", itemprop: 'name', if: false
+    config.add_index_field "description_tesim", itemprop: 'description', helper_method: :iconify_auto_link
+    config.add_index_field "keyword_tesim", itemprop: 'keywords', link_to_facet: "keyword_sim"
+    config.add_index_field "subject_tesim", itemprop: 'about', link_to_facet: "subject_sim"
+    config.add_index_field "creator_tesim", itemprop: 'creator', link_to_facet: "creator_sim"
+    config.add_index_field "contributor_tesim", itemprop: 'contributor', link_to_facet: "contributor_sim"
+    config.add_index_field "proxy_depositor_ssim", label: "Depositor", helper_method: :link_to_profile
+    config.add_index_field "depositor_tesim", label: "Owner", helper_method: :link_to_profile
+    config.add_index_field "publisher_tesim", itemprop: 'publisher', link_to_facet: "publisher_sim"
+    config.add_index_field "based_near_label_tesim", itemprop: 'contentLocation', link_to_facet: "based_near_label_sim"
+    config.add_index_field "language_tesim", itemprop: 'inLanguage', link_to_facet: "language_sim"
+    config.add_index_field "date_uploaded_dtsi", itemprop: 'datePublished', helper_method: :human_readable_date
+    config.add_index_field "date_modified_dtsi", itemprop: 'dateModified', helper_method: :human_readable_date
+    config.add_index_field "date_created_tesim", itemprop: 'dateCreated'
+    config.add_index_field "rights_statement_tesim", helper_method: :rights_statement_links
+    config.add_index_field "license_tesim", helper_method: :license_links
+    config.add_index_field "resource_type_tesim", label: "Resource Type", link_to_facet: "resource_type_sim"
+    config.add_index_field "file_format_tesim", link_to_facet: "file_format_sim"
+    config.add_index_field "identifier_tesim", helper_method: :index_field_link, field_name: 'identifier'
+    config.add_index_field Hydra.config.permissions.embargo.release_date, label: "Embargo release date", helper_method: :human_readable_date
+    config.add_index_field Hydra.config.permissions.lease.expiration_date, label: "Lease expiration date", helper_method: :human_readable_date
+    config.add_index_field solr_name('referenced_by', :stored_searchable), itemprop: 'referenced_by', label: "Citation to related publication", helper_method: :iconify_auto_link
+    config.add_index_field solr_name('subject_discipline', :stored_searchable), itemprop: 'subject_discipline', label: "Discipline", link_to_search: solr_name("subject_discipline", :facetable)
 
     # solr fields to be displayed in the show (single result) view
     #   The ordering of the field names is the order of the display
-    config.add_show_field solr_name("title", :stored_searchable)
-    config.add_show_field solr_name("description", :stored_searchable)
-    config.add_show_field solr_name("keyword", :stored_searchable)
-    config.add_show_field solr_name("subject", :stored_searchable)
-    config.add_show_field solr_name("subject_discipline", :stored_searchable)
-    config.add_show_field solr_name("creator", :stored_searchable)
-    config.add_show_field solr_name("creator_orcid", :stored_searchable)
-    config.add_show_field solr_name("depositor_creator", :stored_searchable)
-    config.add_show_field solr_name("contributor", :stored_searchable)
-    config.add_show_field solr_name("publisher", :stored_searchable)
-    config.add_show_field solr_name("based_near_label", :stored_searchable)
-    config.add_show_field solr_name("language", :stored_searchable)
-    config.add_show_field solr_name("date_created", :stored_searchable)
-    config.add_show_field solr_name("date_modified", :stored_searchable)
-    config.add_show_field solr_name("date_published", :stored_searchable), label: "Published"
-    config.add_show_field "date_published_dtsim"
-    config.add_show_field solr_name("date_uploaded", :stored_searchable)
-    config.add_show_field solr_name("rights_license", :stored_searchable)
-    config.add_show_field solr_name("rights_statement", :stored_searchable)
-    config.add_show_field solr_name("license", :stored_searchable)
-    config.add_show_field "total_file_size_lts"
-    config.add_show_field solr_name("resource_type", :stored_searchable), label: "Resource Type"
-    config.add_show_field solr_name("format", :stored_searchable)
-    config.add_show_field solr_name("identifier", :stored_searchable)
-    config.add_show_field solr_name("referenced_by", :stored_searchable), label: "Citation to related publication"
+    config.add_show_field "title_tesim"
+    config.add_show_field "description_tesim"
+    config.add_show_field "keyword_tesim"
+    config.add_show_field "subject_tesim"
+    config.add_show_field solr_name('subject_discipline', :stored_searchable)
+    config.add_show_field "creator_tesim"
+    config.add_show_field solr_name('creator_orcid', :stored_searchable)
+    config.add_show_field "contributor_tesim"
+    config.add_show_field solr_name('depositor_creator', :stored_searchable)
+    config.add_show_field "publisher_tesim"
+    config.add_show_field "based_near_label_tesim"
+    config.add_show_field "language_tesim"
+    config.add_show_field "date_uploaded_tesim"
+    config.add_show_field "date_modified_tesim"
+    config.add_show_field "date_created_tesim"
+    config.add_show_field "rights_statement_tesim"
+    config.add_show_field "license_tesim"
+    config.add_show_field "resource_type_tesim", label: "Resource Type"
+    config.add_show_field "format_tesim"
+    config.add_show_field "identifier_tesim"
+    config.add_show_field solr_name('date_published', :stored_searchable), label: "Published"
+    config.add_show_field 'date_published_dtsim'
+    config.add_show_field solr_name('rights_license', :stored_searchable)
+    config.add_show_field 'total_file_size_lts'
+    config.add_show_field solr_name('referenced_by', :stored_searchable), label: "Citation to related publication"
 
-    config.add_show_field solr_name("date_coverage", :stored_searchable), label: "Date Coverage"
+    config.add_show_field solr_name('date_coverage', :stored_searchable), label: "Date Coverage"
 
     # "fielded" search configuration. Used by pulldown among other places.
     # For supported keys in hash, see rdoc for Blacklight::SearchFields
@@ -213,10 +200,10 @@ class CatalogController < ApplicationController
     # since we aren't specifying it otherwise.
     config.add_search_field('all_fields', label: 'All Fields') do |field|
       all_names = config.show_fields.values.map(&:field).join(" ")
-      title_name = solr_name("title", :stored_searchable)
+      title_name = "title_tesim"
       field.solr_parameters = {
-          qf: "#{all_names} file_format_tesim all_text_timv",
-          pf: title_name.to_s
+        qf: "#{all_names} file_format_tesim all_text_timv",
+        pf: title_name.to_s
       }
     end
 
@@ -225,16 +212,6 @@ class CatalogController < ApplicationController
     # of Solr search fields.
     # creator, title, description, publisher, date_created,
     # subject, language, resource_type, format, identifier, based_near,
-
-    config.add_search_field('based_near') do |field|
-      field.label = "Location"
-      solr_name = solr_name("based_near_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
     config.add_search_field('contributor') do |field|
       # solr_parameters hash are sent to Solr as ordinary url query params.
 
@@ -242,23 +219,103 @@ class CatalogController < ApplicationController
       # syntax, as eg {! qf=$title_qf }. This is neccesary to use
       # Solr parameter de-referencing like $title_qf.
       # See: http://wiki.apache.org/solr/LocalParams
-      solr_name = solr_name("contributor", :stored_searchable)
+      solr_name = "contributor_tesim"
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('creator') do |field|
-      solr_name = solr_name("creator", :stored_searchable)
+      solr_name = "creator_tesim"
+      # hyrax2 # solr_name = solr_name('creator_full_name', :stored_searchable, type: :string)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('title') do |field|
+      solr_name = "title_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('creator_orcid') do |field|
-      solr_name = solr_name("creator_orcid", :stored_searchable)
+      solr_name = solr_name('creator_orcid', :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('description') do |field|
+      field.label = "Abstract or Summary"
+      solr_name = "description_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('description_file_set') do |field|
+      field.label = "Description (file set)"
+      solr_name = solr_name("description_file_set", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('doi') do |field|
+      field.label = "Doi"
+      solr_name = solr_name("doi_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('fundedby') do |field|
+      field.label = "Funded By"
+      solr_name = solr_name("fundedby_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('access_deepblue') do |field|
+      field.label = MsgHelper.t( 'simple_form.labels.data_set.access_deepblue' )
+      solr_name = solr_name("access_deepblue_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('fundedby_other') do |field|
+      field.label = "Funded By Other"
+      solr_name = solr_name("fundedby_other_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('grantnumber') do |field|
+      field.label = "Grant number"
+      solr_name = solr_name("grantnumber_label", :stored_searchable)
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('publisher') do |field|
+      solr_name = "publisher_tesim"
       field.solr_local_parameters = {
         qf: solr_name,
         pf: solr_name
@@ -266,18 +323,75 @@ class CatalogController < ApplicationController
     end
 
     config.add_search_field('date_created') do |field|
-      solr_name = solr_name("created", :stored_searchable)
+      solr_name = "created_tesim"
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('subject') do |field|
+      solr_name = "subject_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('language') do |field|
+      solr_name = "language_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('resource_type') do |field|
+      solr_name = "resource_type_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('format') do |field|
+      solr_name = "format_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('identifier') do |field|
+      solr_name = "id_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('based_near') do |field|
+      field.label = "Location"
+      solr_name = "based_near_label_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
+      }
+    end
+
+    config.add_search_field('keyword') do |field|
+      solr_name = "keyword_tesim"
+      field.solr_local_parameters = {
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('depositor') do |field|
-      solr_name = solr_name("depositor", :symbol)
+      solr_name = "depositor_ssim"
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
@@ -289,106 +403,19 @@ class CatalogController < ApplicationController
       }
     end
 
-    config.add_search_field('description') do |field|
-      field.label = "Abstract or Summary"
-      solr_name = solr_name("description", :stored_searchable)
+    config.add_search_field('rights_statement') do |field|
+      solr_name = "rights_statement_tesim"
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('description_file_set') do |field|
-      field.label = "Description (file set)"
-      solr_name = solr_name("description_file_set", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('doi') do |field|
-      field.label = "Doi"
-      solr_name = solr_name("doi_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('format') do |field|
-      solr_name = solr_name("format", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('fundedby') do |field|
-      field.label = "Funded By"
-      solr_name = solr_name("fundedby_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('access_deepblue') do |field|
-      field.label = MsgHelper.t( 'simple_form.labels.data_set.access_deepblue' )
-      solr_name = solr_name("access_deepblue_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('fundedby_other') do |field|
-      field.label = "Funded By Other"
-      solr_name = solr_name("fundedby_other_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('grantnumber') do |field|
-      field.label = "Grant number"
-      solr_name = solr_name("grantnumber_label", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('identifier') do |field|
-      solr_name = solr_name("id", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('keyword') do |field|
-      solr_name = solr_name("keyword", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('language') do |field|
-      solr_name = solr_name("language", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('license') do |field|
-      solr_name = solr_name("license", :stored_searchable)
+      solr_name = "license_tesim"
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
@@ -396,8 +423,8 @@ class CatalogController < ApplicationController
       field.label = "Methodology"
       solr_name = solr_name("methodology_label", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
@@ -405,16 +432,8 @@ class CatalogController < ApplicationController
       field.label = "Prior Identifier"
       solr_name = solr_name("prior_identifier", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('publisher') do |field|
-      solr_name = solr_name("publisher", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
@@ -427,67 +446,35 @@ class CatalogController < ApplicationController
       }
     end
 
-    config.add_search_field('resource_type') do |field|
-      solr_name = solr_name("resource_type", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
     config.add_search_field('rights_license') do |field|
       solr_name = solr_name("rights_license", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('rights_license_other') do |field|
       solr_name = solr_name("rights_license_other", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('rights_statement') do |field|
-      solr_name = solr_name("rights_statement", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('subject') do |field|
-      solr_name = solr_name("subject", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('subject_discipline') do |field|
       solr_name = solr_name("subject_discipline", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
-      }
-    end
-
-    config.add_search_field('title') do |field|
-      solr_name = solr_name("title", :stored_searchable)
-      field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
     config.add_search_field('total_file_size') do |field|
       solr_name = solr_name("total_file_size", :stored_searchable)
       field.solr_local_parameters = {
-          qf: solr_name,
-          pf: solr_name
+        qf: solr_name,
+        pf: solr_name
       }
     end
 
@@ -496,7 +483,11 @@ class CatalogController < ApplicationController
     # whether the sort is ascending or descending (it must be asc or desc
     # except in the relevancy case).
     # label is key, solr field is value
-    config.add_sort_field "score desc, #{modified_field} desc", label: "relevance"
+    config.add_sort_field "score desc, #{uploaded_field} desc", label: "relevance"
+    # config.add_sort_field "#{uploaded_field} desc", label: "date uploaded \u25BC"
+    # config.add_sort_field "#{uploaded_field} asc", label: "date uploaded \u25B2"
+    # config.add_sort_field "#{modified_field} desc", label: "date modified \u25BC"
+    # config.add_sort_field "#{modified_field} asc", label: "date modified \u25B2"
     config.add_sort_field "#{uploaded_field} desc", label: "date created \u25BC"
     config.add_sort_field "#{uploaded_field} asc", label: "date created \u25B2"
     config.add_sort_field "#{modified_field} desc", label: "last modified \u25BC"
@@ -509,6 +500,23 @@ class CatalogController < ApplicationController
     # If there are more than this many search results, no spelling ("did you
     # mean") suggestion is offered.
     config.spell_max = 5
+
+    # Oai Configuration
+    config.oai = {
+      provider: {
+        repository_name: 'Deep Blue Data',
+        repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
+        record_prefix: 'oai:deepbluedata',
+        admin_email: 'researchdataservices@umich.edu',
+        sample_id: '9s1616317'
+      },
+      document: {
+        limit: 50,
+        set_model: AdminsetSet,
+        set_fields: [{ label: 'admin_set', solr_field: 'admin_set_sim' }]
+      }
+    }
+
   end
 
   # def facet
@@ -531,113 +539,4 @@ class CatalogController < ApplicationController
   def render_bookmarks_control?
     false
   end
-
-  # get search results from the solr index
-  def index
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "" ] if catalog_controller_debug_verbose
-    (@response, @document_list) = search_results(index_params)
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "@document_list.size=#{@document_list.size}",
-                                           "@document_list.map(&:id)=#{@document_list.map(&:id)}",
-                                           "" ] if catalog_controller_debug_verbose
-
-    respond_to do |format|
-      format.html { store_preferred_view }
-      format.rss  { render :layout => false }
-      format.atom { render :layout => false }
-      format.json do
-        @presenter = ::Deepblue::SearchResultJsonPresenter.new( @response,
-                                                                @document_list,
-                                                                facets_from_request,
-                                                                blacklight_config )
-      end
-      additional_response_formats(format)
-      document_export_formats(format)
-    end
-  end
-
-  def index_params
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "params.class.name=#{params.class.name}",
-                                           "params=#{params}",
-                                           "" ] if catalog_controller_debug_verbose
-    respond_to do |format|
-      format.html { return params }
-      format.rss  { return params }
-      format.atom { return params }
-      format.json { return index_params_json }
-    end
-  end
-
-  def index_params_json
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "params.class.name=#{params.class.name}",
-                                           "params=#{params}",
-                                           "@@facet_solr_name_to_name=#{@@facet_solr_name_to_name}",
-                                           "" ] if catalog_controller_debug_verbose
-    f = params["f"]
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "params=#{params}",
-                                           "f=#{f}",
-                                           "" ] if catalog_controller_debug_verbose
-    p2 = params.deep_dup
-    if f.present? && catalog_controller_allow_search_fix_for_json
-      need_fix = false
-      f.each_pair do |k,_v|
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "k=#{k}",
-                                               "CatalogController.facet_solr_name_to_name(k)=#{CatalogController.facet_solr_name_to_name(k)}",
-                                               "" ] if catalog_controller_debug_verbose
-        need_fix = true if CatalogController.facet_solr_name_to_name(k).blank?
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "params=#{params}",
-                                             "need_fix=#{need_fix}",
-                                             "" ] if catalog_controller_debug_verbose
-      if need_fix
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "params=#{params}",
-                                               "fixing...",
-                                               "" ] if catalog_controller_debug_verbose
-        old_params = params
-        params = old_params.to_unsafe_hash
-        new_f = {}
-        f.each_pair do |k,v|
-          fix_name = CatalogController.facet_solr_name_to_name(k)
-          if fix_name.present?
-            new_f[k] = v
-          else
-            new_f[CatalogController.solr_name(k, :facetable)] = v
-          end
-        end
-        params["f"] = new_f
-      else
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "params=#{params}",
-                                               "skipped fixing",
-                                               "" ] if catalog_controller_debug_verbose
-      end
-    end
-    # no idea how params becomes nil here, but....
-    params = p2 if params.nil?
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
-                                           "params=#{params}",
-                                           "p2=#{p2}",
-                                           "search_builder_class.name=#{search_builder_class.name}",
-                                           "" ] if catalog_controller_debug_verbose
-    return params
-  end
-
-
 end

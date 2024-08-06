@@ -34,7 +34,7 @@ END_OF_SCHEDULER_ENTRY
   attr_accessor :echo_to_stdout, :hostnames, :options, :quiet, :verbose
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: works_report_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: works_report_job_debug_verbose )
     # timestamp_begin
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
     #                                        ::Deepblue::LoggingHelper.called_from,

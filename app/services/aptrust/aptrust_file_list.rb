@@ -28,7 +28,7 @@ class Aptrust::AptrustFileList
   end
 
   def add_from( dir: )
-    list = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir, dotmatch: true, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
+    list = ::Deepblue::DiskUtilitiesHelper.files_in_dir( dir_path: dir, dotmatch: true, msg_handler: ::Aptrust::NULL_MSG_HANDLER )
     list.each { |f| add( file: f ) }
     return self
   end

@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 module Hyrax
 
   require 'csv'
@@ -13,7 +15,9 @@ module Hyrax
     # Flipflop.enabled?(:analytics_redesign)
 
     def work
-      @stats = Hyrax::WorkUsage.new(params[:id])
+      @document = ::SolrDocument.find(params[:id])
+      @pageviews = ::Hyrax::Analytics.daily_events_for_id(@document.id, 'work-view')
+      @downloads = ::Hyrax::Analytics.daily_events_for_id(@document.id, 'file-set-in-work-download')
     end
 
     # To download csv files.

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 # monkey
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/controllers/hyrax/dashboard/collections_controller.rb" )
 
@@ -9,7 +10,7 @@ module Hyrax
     # monkey patch Hyrax::Dashboard::CollectionsController
 
     ## Shows a list of all collections to the admins
-    class CollectionsController < ::Hyrax::My::CollectionsController
+    class CollectionsController < Hyrax::My::CollectionsController
       include Blacklight::AccessControls::Catalog
       include Blacklight::Base
 
@@ -32,6 +33,7 @@ module Hyrax
       rescue_from ::ActiveFedora::ObjectNotFoundError, with: :unknown_id_rescue
       rescue_from ::Hyrax::ObjectNotFoundError, with: :unknown_id_rescue
 
+      # begin monkey
       def unknown_id_rescue(e)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                "current_ability.admin?=#{current_ability.admin?}",
@@ -51,6 +53,7 @@ module Hyrax
               end
         redirect_to url, alert: "<br/>Unknown ID: #{e.message}<br/><br/>"
       end
+      # end monkey
 
       EVENT_NOTE = 'Hyrax::Dashboard::CollectionsController' unless const_defined? :EVENT_NOTE
       PARAMS_KEY = 'collection' unless const_defined? :PARAMS_KEY
@@ -59,39 +62,6 @@ module Hyrax
 
       alias_method :monkey_after_create, :after_create
       alias_method :monkey_destroy, :destroy
-
-      def after_create
-        monkey_after_create
-        workflow_create
-      end
-
-      def destroy
-        respond_to do |wants|
-          wants.html do
-            destroy_rest
-          end
-          wants.json do
-            unless Rails.configuration.rest_api_allow_mutate
-              return render_json_response( response_type: :bad_request, message: "Method not allowed." )
-            end
-            destroy_rest
-          end
-        end
-      end
-
-      def destroy_rest
-        workflow_destroy
-        monkey_destroy
-      end
-
-      def doi_redirect_after( msg )
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "override doi_redirect_after",
-                                               "" ] if doi_controller_behavior_debug_verbose
-        # redirect_to [main_app, curation_concern], notice: msg
-        redirect_to url_for(action: 'show'), notice: msg
-      end
 
       def show
         ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -112,6 +82,20 @@ module Hyrax
         end
       end
 
+      def after_create
+        monkey_after_create
+        workflow_create
+      end
+
+      def doi_redirect_after( msg )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "override doi_redirect_after",
+                                               "" ] if doi_controller_behavior_debug_verbose
+        # redirect_to [main_app, curation_concern], notice: msg
+        redirect_to url_for(action: 'show'), notice: msg
+      end
+
       def show_rest
         if @collection.collection_type.brandable?
           banner_info = collection_banner_info( id: @collection.id )
@@ -121,9 +105,18 @@ module Hyrax
         query_collection_members
       end
 
+
+      def update
+        case @collection
+        when ActiveFedora::Base
+          update_active_fedora_collection
+        else
+          update_valkyrie_collection
+        end
+      end
       # This method was monkey patched becuase we wanted the users to go back to
       # the collection page, rather than stay in Edit collection page as hyrax does.
-      def update
+      def update2
         unless params[:update_collection].nil?
           process_banner_input
           process_logo_input
@@ -142,6 +135,41 @@ module Hyrax
       end
 
       ## end monkey patch overrides
+
+      def destroy
+        case @collection
+        when Valkyrie::Resource
+          valkyrie_destroy
+        else
+          if @collection.destroy
+            after_destroy(params[:id])
+          else
+            after_destroy_error(params[:id])
+          end
+        end
+        # begin monkey
+        # hyrax2 -- comment out for now
+        # respond_to do |wants|
+        #   wants.html do
+        #     destroy_rest
+        #   end
+        #   wants.json do
+        #     unless Rails.configuration.rest_api_allow_mutate
+        #       return render_json_response( response_type: :bad_request, message: "Method not allowed." )
+        #     end
+        #     destroy_rest
+        #   end
+        # end
+        # end monkey
+      rescue StandardError => err
+        Hyrax.logger.error(err)
+        after_destroy_error(params[:id])
+      end
+
+      def destroy_rest
+        workflow_destroy
+        monkey_destroy
+      end
 
       before_action :provenance_log_update_before, only: [:update]
       after_action :provenance_log_update_after, only: [:update]
@@ -162,12 +190,6 @@ module Hyrax
 
       def params_key
         PARAMS_KEY
-      end
-
-      def presenter
-        @presenter ||= begin
-                         presenter_class.new(curation_concern, current_ability)
-                       end
       end
 
       ## begin monkey patch banner
@@ -228,10 +250,9 @@ module Hyrax
       def process_logo_records(uploaded_file_ids)
         public_files = []
         uploaded_file_ids.each_with_index do |ufi, i|
-          # If user has chosen a new logo, the ufi will be an integer
-          # If the logo was previously chosen, the ufil will be a path
-          # ufi.match(/\D/) will return a nil, fi ufi is an integer
-          # if it is a path, you want to update the, else create a new rec
+          # If the user has chosen a new logo, the ufi will be an integer
+          # If the logo was previously chosen, the ufi will be a path
+          # If it is a path, update the rec, else create a new rec
           if ! ufi.match(/\D/).nil?
             update_logo_info(ufi, params["alttext"][i], verify_linkurl(params["linkurl"][i]))
             public_files << ufi
@@ -245,6 +266,10 @@ module Hyrax
 
       ## end monkey patch banner
 
+      def presenter
+        @presenter ||= presenter_class.new(curation_concern, current_ability)
+      end
+
       ### begin monkey
       def member_subcollections
         verbose = true # || hyrax_collections_controller_behavior_debug_verbose
@@ -253,8 +278,12 @@ module Hyrax
                                                "" ] if verbose
         results = collection_member_service.available_member_subcollections
         @subcollection_solr_response = results
-        @subcollection_docs = ::Hyrax::CollectionHelper2.member_subcollections_docs( results )
+        @subcollection_docs = results.documents
         @subcollection_count = @presenter.nil? ? 0 : @subcollection_count = @presenter.subcollection_count = results.total
+        # hyrax2 -- commented out
+        # @subcollection_solr_response = results
+        # @subcollection_docs = ::Hyrax::CollectionHelper2.member_subcollections_docs( results )
+        # @subcollection_count = @presenter.nil? ? 0 : @subcollection_count = @presenter.subcollection_count = results.total
       end
       ### end monkey
 

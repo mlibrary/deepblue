@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 # Controller for managing Roles
 class RolesController < ApplicationController

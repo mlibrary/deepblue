@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -19,7 +20,7 @@ module Hyrax
 
     def state_label
       return unless state
-      I18n.t("hyrax.workflow.state.#{state}", default: state.humanize)
+      I18n.t!("hyrax.workflow.state.#{state}", default: state.humanize)
     end
 
     # Returns an array of tuples (key, label) appropriate for a radio group
@@ -36,19 +37,19 @@ module Hyrax
 
     def badge
       return unless state
-      tag.span(state_label, class: "state state-#{state} label label-primary")
+      tag.span(state_label, class: "state state-#{state} badge badge-primary")
     end
 
     private
 
-      def action_label(action)
-        I18n.t("hyrax.workflow.#{action.workflow.name}.#{action.name}", default: action.name.titleize)
-      end
+    def action_label(action)
+      I18n.t!("hyrax.workflow.#{action.workflow.name}.#{action.name}", default: action.name.titleize)
+    end
 
-      def sipity_entity
+    def sipity_entity
       Sipity::Entity(solr_document)
-      rescue PowerConverter::ConversionError
-        nil
-      end
+    rescue Sipity::ConversionError
+      nil
+    end
   end
 end
