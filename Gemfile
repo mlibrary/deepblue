@@ -140,8 +140,7 @@ gem 'solrizer',    '>= 4.1.0'  # because solrizer is no longer included in Hyrax
 # gem 'rdf-rdfa',    '< 3.1.1'   # need to look into latest version of this
 # gem 'rdf-vocab',   '<= 3.1.4'  # need to look into latest version of this
 gem 'libxml-ruby', '~> 3.1.0'
-# gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javascript
-gem 'browse-everything'
+gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javascript
 
 gem 'dropbox_api' # , '0.1.18' # pin this as it breaks on later versions causing browse everything with dropbox to fail
 
@@ -229,8 +228,7 @@ gem 'mysql2'
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
 # gem 'nokogiri',       '>= 1.13.10'
-# gem 'nokogiri',       '~> 1.4'
-gem 'nokogiri'
+gem 'nokogiri',       '~> 1.4'
 # gem "okcomputer", "~> 1.18.4"
 gem "okcomputer", ">= 1.18.4"
 
@@ -252,6 +250,7 @@ gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
 gem 'bootstrap', '~> 4.0'
+gem 'font-awesome-sass', '>= 6.0'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
 
 # markdown gems

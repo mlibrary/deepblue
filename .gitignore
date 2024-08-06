@@ -83,7 +83,7 @@ coverage/*
 ./coverage/.*
 
 ## spec
-spec/examples.txt
+./spec/examples.txt
 
 # Ignore LibreOffice lock files
 .~lock*
