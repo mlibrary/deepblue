@@ -116,7 +116,8 @@ Shoulda::Matchers.configure do |config|
 end
 
 def coverage_needed?
-  ENV['COVERAGE'] || ENV['TRAVIS'] || ENV['COVERALLS_REPO_TOKEN']
+  # ENV['COVERAGE'] || ENV['TRAVIS'] || ENV['COVERALLS_REPO_TOKEN']
+  false
 end
 
 if coverage_needed?
