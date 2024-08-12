@@ -20,7 +20,14 @@ Bolognese::Metadata.prepend Bolognese::Readers::Orcid::HyraxWorkReader
   ORCID_INTEGRATION_SERVICE_SETUP_DEBUG_VERBOSE = true
 
   # :sandbox or :production
-  config.environment = :sandbox
+  case Rails.configuration.hostname
+  when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+    config.environment = :production
+  when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+    config.environment = :sandbox
+  else
+    config.environment = :sandbox
+  end
 
   config.bolognese = {
     # The work reader method, excluding the _reader suffix
