@@ -45,6 +45,7 @@ module Hyrax
 
           def linkify_external_ids(entry)
             ids = external_ids(entry)
+            return "" unless ids.present?
             url = ids.dig("external-id-url", "value")
 
             link = h.link_to_if url, ids["external-id-value"], url
