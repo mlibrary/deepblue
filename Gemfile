@@ -64,9 +64,11 @@ gem 'rails-html-sanitizer'
 # Use sqlite3 as the database for Active Record
 gem 'sqlite3', '~> 1.5.0'
 # Use Puma as the app server
-gem 'puma', '~> 5.6.7'
+# gem 'puma', '~> 5.6.7'
+gem 'puma', '>= 5.6.7'
 # Use SCSS for stylesheets
 # gem 'sass-rails', '~> 5.0'
+# gem 'sass-rails', '~> 6.0'
 gem 'sass-rails', '~> 6.0'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
@@ -77,7 +79,8 @@ gem 'coffee-rails', '~> 5.0'
 # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
 gem 'turbolinks', '~> 5'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
-gem 'jbuilder', '~> 2.5'
+# gem 'jbuilder', '~> 2.5'
+gem 'jbuilder', '>= 2.5'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '< 5.0'
 gem 'redis'
@@ -100,7 +103,8 @@ gem 'rack', '> 1', '< 3'
 ##############################################################################
 # see: https://github.com/tipr/bagit
 gem 'bagit'
-gem 'minitar', '~>0.8'
+#gem 'minitar', '~> 0.8'
+gem 'minitar', '>= 0.8'
 gem 'aws-sdk-s3', '~> 1'
 gem 'typhoeus', '~> 1.1'
 
@@ -109,7 +113,7 @@ group :development, :test do
   # gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   # Adds support for Capybara system testing and selenium driver
   # This is picky, fiddly stuff requiring rails/capybara/etc versions to be in sync
-  gem 'capybara', '~> 3.29'
+  gem 'capybara', '>= 3.29'
   gem 'webdrivers', '~> 5.0'
 end
 
@@ -133,21 +137,25 @@ gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
 
 # To have OAI
 # gem 'blacklight_oai_provider', '6.0.0.pre1'
-gem 'blacklight_oai_provider', "~> 7.0.2"
+# gem 'blacklight_oai_provider', "~> 7.0.2"
+gem 'blacklight_oai_provider', ">= 7.0.2"
 
 gem 'solrizer',    '>= 4.1.0'  # because solrizer is no longer included in Hyrax 3
 # gem 'linkeddata',  '<= 3.1.1'  # need to look into latest version of this
 # gem 'rdf-rdfa',    '< 3.1.1'   # need to look into latest version of this
 # gem 'rdf-vocab',   '<= 3.1.4'  # need to look into latest version of this
-gem 'libxml-ruby', '~> 3.1.0'
-gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javascript
+# gem 'libxml-ruby', '~> 3.1.0'
+gem 'libxml-ruby', '>= 3.1.0'
+# gem 'browse-everything', '<= 1.1.2' # version 1.2.0 breaks pull down menu javascript
+gem 'browse-everything', '>= 1.3' # version 1.2.0 breaks pull down menu javascript
 
 gem 'dropbox_api' # , '0.1.18' # pin this as it breaks on later versions causing browse everything with dropbox to fail
 
 gem 'config'
 
 gem 'devise', '>= 4.7.1'
-gem 'devise-guests', '~> 0.7'
+# gem 'devise-guests', '~> 0.7'
+gem 'devise-guests', '>= 0.7'
 
 # Bundler could not find compatible versions for gem "faraday":
 #   In Gemfile:
@@ -175,7 +183,8 @@ gem 'font-awesome-sass', '>= 6.0'
 # gem 'hyrax',       '3.1'     # hyrax v3.1 update
 gem 'hyrax', '4.0'
 
-gem 'blacklight-gallery', '~> 4.0'
+# gem 'blacklight-gallery', '~> 4.0'
+gem 'blacklight-gallery', '>= 4.0'
 
 # # gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics'
 # # gem 'irus_analytics', git: 'https://github.com/mlibrary/irus_analytics', tag: 'v0.0.4'
@@ -194,6 +203,7 @@ gem 'redis-rails'
 gem 'json', '>= 2.1.0'
 # gem 'bolognese', '~> 1.8', '>= 1.8.6'
 # gem 'bolognese', '>= 2.0.0'
+# gem 'bolognese', '> 2.2.0'
 # gem 'bolognese'
 # gem 'maremma', '~> 5.0'
 # gem 'maremma', git: 'https://github.com/mlibrary/maremma'
@@ -228,7 +238,9 @@ gem 'mysql2'
 # Begin security vulnerability mitigation
 # bundle update --source gem-name
 # gem 'nokogiri',       '>= 1.13.10'
-gem 'nokogiri',       '~> 1.4'
+# gem 'nokogiri',       '~> 1.4'
+gem 'nokogiri',       '>= 1.4'
+# gem 'nokogiri',  '~> 1.6.1'
 # gem "okcomputer", "~> 1.18.4"
 gem "okcomputer", ">= 1.18.4"
 
@@ -249,7 +261,8 @@ gem 'sprockets',      '>= 3.7.2'
 gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
-gem 'bootstrap', '~> 4.0'
+# gem 'bootstrap', '~> 4.0'
+gem 'bootstrap', '>= 4.0'
 gem 'font-awesome-sass', '>= 6.0'
 gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
 
@@ -258,7 +271,8 @@ gem 'twitter-typeahead-rails', '0.11.1.pre.corejavascript'
 gem 'reverse_markdown'
 
 # gem 'redcarpet', '~> 3.3.4'
-gem 'redcarpet', '~> 3.5.1'
+# gem 'redcarpet', '~> 3.5.1'
+gem 'redcarpet', '>= 3.5.1'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -269,7 +283,8 @@ group :development, :test do
 end
 
 gem 'clamav-client'
-gem 'down', '~> 4.4'
+# gem 'down', '~> 4.4'
+gem 'down', '>= 4.4'
 
 group :development do
   # Access an IRB console on exception pages or by using <%= console %> anywhere in the code.
