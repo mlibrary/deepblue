@@ -181,7 +181,7 @@ END_BODY
       timestamp_end = DateTime.now if timestamp_end.blank?
       backtrace = exception&.backtrace
       if backtrace.is_a? Array
-        backtrace = backtrace[0..30] if bactrace.size > 30
+        backtrace = backtrace[0..30] if backtrace.size > 30
       else
         backtrace = []
       end

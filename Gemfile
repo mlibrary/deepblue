@@ -203,11 +203,13 @@ gem 'redis-rails'
 gem 'json', '>= 2.1.0'
 # gem 'bolognese', '~> 1.8', '>= 1.8.6'
 # gem 'bolognese', '>= 2.0.0'
-# gem 'bolognese', '> 2.2.0'
-# gem 'bolognese'
+gem 'bolognese'
 # gem 'maremma', '~> 5.0'
 # gem 'maremma', git: 'https://github.com/mlibrary/maremma'
 # gem 'bolognese', git: 'https://github.com/mlibrary/bolognese'
+
+gem 'public_suffix', '>= 2.0.2', '< 2.1'
+# gem 'postrank-uri', '~> 1.0', '>= 1.0.18'
 
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
@@ -245,7 +247,8 @@ gem 'nokogiri',       '>= 1.4'
 gem "okcomputer", ">= 1.18.4"
 
 gem 'activerecord',   '>= 5.2.8.1'
-gem 'addressable',    '>= 2.8.0'
+# gem 'addressable',    '>= 2.8.0'
+gem 'addressable', '>= 2.8.0', '<= 2.8.1'
 # gem 'bootstrap-sass', '~> 3.4.1'
 # gem 'carrierwave',    '~> 1.3.2'
 gem 'carrierwave',    '>= 1.3.2'
