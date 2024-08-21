@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# Skip: hyrax4
+# Skip: Webdrivers::VersionError: Unable to find latest point release version for 127.0.6533...
 require 'rails_helper'
 
 RSpec.describe 'creating a draft DOI', :datacite_api, :js, skip: true do

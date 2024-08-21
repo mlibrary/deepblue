@@ -1,9 +1,9 @@
-# Skip: hyrax4
+# Skip: hyrax4 - try it
 require 'rails_helper'
 include Warden::Test::Helpers
 
 # This tests the Hyrax::WorksControllerBehavior module
-RSpec.describe Hyrax::DataSetsController, skip: true do
+RSpec.describe Hyrax::DataSetsController, skip: false do
 
   include Devise::Test::ControllerHelpers
   let(:main_app) { Rails.application.routes.url_helpers }
@@ -21,7 +21,7 @@ RSpec.describe Hyrax::DataSetsController, skip: true do
 
     subject { response }
 
-    describe "unauthorized" do
+    describe "unauthorized", skip: true do
       before do
         sign_out user
         resource_request
@@ -29,7 +29,7 @@ RSpec.describe Hyrax::DataSetsController, skip: true do
       it { is_expected.to respond_unauthorized }
     end
 
-    describe "forbidden" do
+    describe "forbidden", skip: true do
       before do
         sign_in create(:user)
         resource_request
@@ -66,7 +66,7 @@ RSpec.describe Hyrax::DataSetsController, skip: true do
       end
     end
 
-    describe 'found' do
+    describe 'found', skip: true do
       before do
         allow(controller).to receive(:skip_send_irus_analytics?).with(any_args).and_return true
         resource_request

@@ -1,9 +1,8 @@
 # frozen_string_literal: true
-# Skip: hyrax4
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: true do
+RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
   let(:sync_preference) { "sync_notify" }
   let(:strategy) { described_class.new(work, orcid_identity) }
   let(:user) { create(:user) }

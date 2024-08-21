@@ -40,7 +40,7 @@ module DeepBlueDocs
 
     # BEGIN: Upgrade: Hyrax4
     config.hyrax_ver = 4.0
-    config.use_bolognese = false
+    config.use_bolognese = true # Skip: hyrax4 - try it
     # END: Upgrade: Hyrax4
 
     # Chimera configuration goes here

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 # hyrax-orcid
 # Update: hyrax4
-# Skip: hyrax4
+# Skip: hyrax4 - having problems with variables, such as creator1
 
 require 'rails_helper'
 
