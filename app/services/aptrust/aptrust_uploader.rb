@@ -755,7 +755,7 @@ class Aptrust::AptrustUploader
         bag_export_data_files( bag: part_bag, data_files: partition )
         bag_bagging( bag: bag, note: part_bag_id )
         bag_bag( bag: part_bag, bag_info: part_bag_info, note: part_bag_id )
-        bag_packing( bag: bag, note: note )
+        bag_packing( bag: bag, note: part_bag_id )
         bag_pack( bag: bag, note: part_bag_id )
         bag_uploading( bag: bag, note: part_bag_id )
         bag_upload( bag: bag, note: part_bag_id )

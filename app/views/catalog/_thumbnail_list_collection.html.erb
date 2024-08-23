@@ -4,6 +4,6 @@
   <%# hyrax2 # doc = render_thumbnail_tag document %>
   <%= doc = document_presenter(document)&.thumbnail&.thumbnail_tag({}, { suppress_link: true }) %>
   <% if doc.present? %>
-  <%= raw doc.gsub!('data-context-href', 'data-reference').gsub!('<img ', '<img alt="collection" ') %>
+  <%= raw doc.gsub!('data-context-href', 'data-reference')&.gsub!('<img ', '<img alt="collection" ') %>
   <% end %>
 </div>

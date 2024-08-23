@@ -2,6 +2,7 @@
 # monkey #
 require 'blacklight/deprecations/search_state_normalization'
 require 'blacklight/search_state/filter_field'
+require_relative '../controllers/concerns/blacklight/search_fields'
 
 module Blacklight
   # This class encapsulates the search state as represented by the query
@@ -34,15 +35,15 @@ module Blacklight
     alias to_h to_hash
 
     def to_unsafe_h
-      Deprecation.warn(self.class, 'Use SearchState#to_h instead of SearchState#to_unsafe_h')
+      # Deprecation.warn(self.class, 'Use SearchState#to_h instead of SearchState#to_unsafe_h')
       to_hash
     end
 
     def method_missing(method_name, *arguments, &block)
       if @params.respond_to?(method_name)
-        Deprecation.warn(self.class, "Calling `#{method_name}` on Blacklight::SearchState " \
-          'is deprecated and will be removed in Blacklight 8. Call #to_h first if you ' \
-          ' need to use hash methods (or, preferably, use your own SearchState implementation)')
+        # Deprecation.warn(self.class, "Calling `#{method_name}` on Blacklight::SearchState " \
+        #   'is deprecated and will be removed in Blacklight 8. Call #to_h first if you ' \
+        #   ' need to use hash methods (or, preferably, use your own SearchState implementation)')
         @params.public_send(method_name, *arguments, &block)
       else
         super
@@ -55,10 +56,10 @@ module Blacklight
 
     # Tiny shim to make it easier to migrate raw params access to using this class
     delegate :[], to: :params
-    deprecation_deprecate :[]
+    # deprecation_deprecate :[]
 
     def has_constraints?
-      Deprecation.silence(Blacklight::SearchState) do
+      begin # Deprecation.silence(Blacklight::SearchState) do
         !(query_param.blank? && filter_params.blank? && filters.blank? && clause_params.blank?)
       end
     end
@@ -74,7 +75,7 @@ module Blacklight
     def filter_params
       params[:f] || {}
     end
-    deprecation_deprecate filter_params: 'Use #filters instead'
+    # deprecation_deprecate filter_params: 'Use #filters instead'
 
     # @return [Blacklight::SearchState]
     def reset(params = nil)
@@ -141,7 +142,7 @@ module Blacklight
     # Change the action to 'index' to send them back to
     # catalog/index with their new facet choice.
     def add_facet_params_and_redirect(field, item)
-      new_params = Deprecation.silence(self.class) do
+      new_params = begin # Deprecation.silence(self.class) do
         add_facet_params(field, item).to_h.with_indifferent_access
       end
 

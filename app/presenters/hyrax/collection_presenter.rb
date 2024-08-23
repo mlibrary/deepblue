@@ -64,7 +64,16 @@ module Hyrax
     alias nestable? collection_type_is_nestable?
 
     def collection_type
-      @collection_type ||= Hyrax::CollectionType.find_by_gid!(collection_type_gid)
+      @collection_type ||= collection_type_init
+    end
+
+    def collection_type_init
+      Hyrax::CollectionType.find_by_gid!(collection_type_gid)
+    rescue ActiveRecord::RecordNotFound
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "Failed to find collection_type_gid: #{collection_type_gid}" ]
+      nil
     end
 
     # Metadata Methods
@@ -319,8 +328,11 @@ module Hyrax
     end
 
     def collection_type_badge
-      # collection_type.title
-      content_tag(:span, collection_type.title, class: "label", style: "background-color: " + collection_type.badge_color + ";")
+      title = collection_type&.title
+      title ||= "UNKNOWN"
+      badge_color = collection_type&.badge_color
+      badge_color = "pink"
+      content_tag(:span, title, class: "label", style: "background-color: " + badge_color + ";")
     end
 
     # The total number of parents that this collection belongs to, visible or not.

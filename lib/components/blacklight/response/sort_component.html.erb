@@ -1,0 +1,9 @@
+<%# Added: hyrax4 %>
+<%# monkey - copied up from blacklight gem because the blacklight helpers were not being found %>
+
+<%= helpers.render(Blacklight::System::DropdownComponent.new(
+      param: @param,
+      choices: @choices,
+      id: @id,
+      search_state: @search_state,
+      selected: @selected)) %>

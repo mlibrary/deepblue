@@ -183,6 +183,9 @@ gem 'font-awesome-sass', '>= 6.0'
 # gem 'hyrax',       '3.1'     # hyrax v3.1 update
 gem 'hyrax', '4.0'
 
+gem 'blacklight'
+gem 'deprecation'
+
 # gem 'blacklight-gallery', '~> 4.0'
 gem 'blacklight-gallery', '>= 4.0'
 

@@ -1,9 +1,11 @@
 # frozen_string_literal: true
-#require_relative "../../lib/helpers/blacklight/blacklight_helper_behavior"
+require_relative "../../lib/helpers/blacklight/blacklight_helper_behavior"
+require_relative "../../lib/helpers/blacklight/catalog_helper_behavior"
 
 module BlacklightDepHelper
 
-  include Blacklight::BlacklightHelperBehavior
+  include ::Blacklight::BlacklightHelperBehavior
+  include ::Blacklight::CatalogHelperBehavior
 
   def dep_document_has_value? document, field_config
     document.has?(field_config.field) ||

@@ -1,3 +1,4 @@
+<%# Updated: hyrax4 %>
 <!DOCTYPE html>
 <html lang="<%= t("hyrax.document_language", default: '') %>" prefix="og:http://ogp.me/ns#">
   <head>
@@ -16,7 +17,7 @@
     <div class="skip-to-content">
       <%= link_to "Skip to Content", "#skip-to-content", data: { turbolinks: false } %>
     </div>
-    <%= render '/masthead' %>
+    <%= render '/masthead', placement_class: nil %>
     <%= content_for(:navbar) %>
     <%= content_for(:precontainer_content) %>
     <div id="content-wrapper" class="container" role="main">
@@ -24,7 +25,7 @@
       <%= render_breadcrumbs builder: Hyrax::BootstrapBreadcrumbsBuilder %>
       <% if content_for?(:page_header) %>
         <div class="row">
-          <div class="col-xs-12 main-header">
+          <div class="col-12 main-header">
             <%= yield(:page_header) %>
           </div>
         </div>

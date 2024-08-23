@@ -1,30 +1,19 @@
-<%# Reviewed: heliotrope %>
-<%# Reviewed: hyrax4 %>
+<%# Updated: hyrax4 %>
 <%= render '/ie_announcement' if  users_browser() == 'msie' %>
 <%= render '/masthead_announcement' %>
 
 <m-universal-header></m-universal-header>
-<header class="site-header">
-  <nav id="masthead" class="navbar navbar-inverse navbar-static-top">
+<header aria-label="header" class="top-header">
+  <nav id="masthead" class="navbar navbar-expand-lg navbar-dark bg-dark justify-content-between <%= placement_class %>" role="navigation" aria-label="masthead">
     <div class="container">
-      <!-- Brand and toggle get grouped for better mobile display -->
-      <div class="col-sm-6">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#top-navbar-collapse" aria-expanded="false">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <%= render '/logo' %>
-      </div>
-
-      <div class="col-sm-6">
-        <div class="collapse navbar-collapse" id="top-navbar-collapse">
-          <%= render '/user_util_links' %>
-        </div>
+      <%= render '/logo' %>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#top-navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="top-navbar-collapse">
+        <%= render '/user_util_links' %>
       </div>
     </div>
   </nav>
-
 </header>
 <%= render '/subheader' %>
