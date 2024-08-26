@@ -3,6 +3,11 @@
 # monkey - copied up from blacklight gem because the blacklight helpers were not being found
 require_relative './configuration_helper_behavior' # monkey - add
 
+require_relative './url_helper_behavior'
+require_relative './hash_as_hidden_fields_helper_behavior'
+require_relative './layout_helper_behavior'
+require_relative './icon_helper_behavior'
+
 # Methods added to this helper will be available to all templates in the hosting application
 module Blacklight::BlacklightHelperBehavior
   # extend Deprecation

@@ -1,8 +1,14 @@
 # frozen_string_literal: true
 # Added: hyrax4
 # monkey - copied up from blacklight gem because the blacklight helpers were not being found
-#
+
+require_relative './configuration_helper_behavior'
+require_relative './component_helper_behavior'
 require_relative './facets_helper_behavior'
+require_relative './render_constraints_helper_behavior'
+require_relative './render_partials_helper_behavior'
+require_relative './search_history_constraints_helper_behavior'
+require_relative './suggest_helper_behavior'
 
 # Helper methods for catalog-like controllers
 module Blacklight::CatalogHelperBehavior

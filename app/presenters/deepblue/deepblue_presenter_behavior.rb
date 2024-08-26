@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/helpers/blacklight/catalog_helper_behavior.rb'
+
 module Deepblue
 
   module DeepbluePresenterBehavior

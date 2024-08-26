@@ -104,18 +104,25 @@ module Blacklight::FacetsHelperBehavior
     options = options.dup
 
     begin # Deprecation.silence(Blacklight::FacetsHelperBehavior) do
-      options[:partial] ||= facet_partial_name(display_facet)
+      if options[:partial].blank?
+        options[:partial] = facet_partial_name(display_facet)
+        # debug upgrade: hyrax 4 # puts "options[:partial]=#{options[:partial]}"
+        options[:partial] =  "catalog/#{options[:partial]}" unless options[:partial].starts_with?( "catalog/" )
+      end
     end
+    # debug upgrade: hyrax 4 # puts "options[:partial]=#{options[:partial]}"
 
-    options[:layout] ||= "facet_layout" unless options.key?(:layout)
+    # debug upgrade: hyrax 4 # puts "options[:layout]=#{options[:layout]}"
+    options[:layout] ||= "catalog/facet_layout" unless options.key?(:layout)
+    # debug upgrade: hyrax 4 # puts "options[:layout]=#{options[:layout]}"
     options[:locals] ||= {}
     options[:locals][:field_name] ||= display_facet.name
     options[:locals][:facet_field] ||= field_config
     options[:locals][:display_facet] ||= display_facet
 
-    puts "render_facet_partial..."
+    # debug upgrade: hyrax 4 # puts "render_facet_partial..."
     m = method :render
-    puts "m=#{m.pretty_inspect}"
+    # debug upgrade: hyrax 4 # puts "m=#{m.pretty_inspect}"
     render(options)
   rescue Exception => e
     puts "e=#{e.pretty_inspect}"

@@ -10,7 +10,7 @@
 # (render_search_to_s(_*))
 module Blacklight::SearchHistoryConstraintsHelperBehavior
   # extend Deprecation
-  self.deprecation_horizon = '8.0'
+  # self.deprecation_horizon = '8.0'
 
   # Simpler textual version of constraints, used on Search History page.
   # Theoretically can may be DRY'd up with results page render_constraints,

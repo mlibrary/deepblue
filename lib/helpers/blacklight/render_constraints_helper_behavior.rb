@@ -10,7 +10,7 @@
 # search results page (render_constraints(_*))
 module Blacklight::RenderConstraintsHelperBehavior
   # extend Deprecation
-  self.deprecation_horizon = 'blacklight 8.0'
+  # self.deprecation_horizon = 'blacklight 8.0'
 
   ##
   # Check if the query has any constraints defined (a query, facet, etc)
