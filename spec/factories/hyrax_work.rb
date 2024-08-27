@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Update: hyrax4
 ##
 # Use this factory for generic Hyrax/HydraWorks Works in valkyrie.
 FactoryBot.define do
@@ -18,6 +18,7 @@ FactoryBot.define do
       read_users         { [] }
       members            { nil }
       visibility_setting { nil }
+      with_index         { true }
     end
 
     after(:build) do |work, evaluator|
@@ -46,6 +47,8 @@ FactoryBot.define do
       work.permission_manager.read_users  = evaluator.read_users
 
       work.permission_manager.acl.save
+
+      Hyrax.index_adapter.save(resource: work) if evaluator.with_index
     end
 
     trait :public do
@@ -90,6 +93,30 @@ FactoryBot.define do
       end
     end
 
+    trait :with_thumbnail do
+      thumbnail_id do
+        file_set = members.find(&:file_set?) ||
+                   valkyrie_create(:hyrax_file_set)
+        file_set.id
+      end
+    end
+
+    trait :with_representative do
+      representative_id do
+        file_set = members.find(&:file_set?) ||
+                   valkyrie_create(:hyrax_file_set)
+        file_set.id
+      end
+    end
+
+    trait :with_renderings do
+      rendering_ids do
+        file_set = members.find(&:file_set?) ||
+                   valkyrie_create(:hyrax_file_set)
+        file_set.id
+      end
+    end
+
     trait :as_collection_member do
       member_of_collection_ids { [valkyrie_create(:hyrax_collection).id] }
     end
@@ -103,6 +130,12 @@ FactoryBot.define do
     end
 
     factory :monograph, class: 'Monograph' do
+      factory :comet_in_moominland do
+        title { 'Comet in Moominland' }
+        creator { 'Tove Jansson' }
+        record_info { 'An example monograph with enough metadata fill in required fields.' }
+      end
+
       trait :with_member_works do
         transient do
           members { [valkyrie_create(:monograph), valkyrie_create(:monograph)] }

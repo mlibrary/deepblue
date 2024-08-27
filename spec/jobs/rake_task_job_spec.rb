@@ -26,7 +26,7 @@ RSpec.describe RakeTaskJob, skip: false do
                         'hostnames' => hostnames,
                         'verbose' => verbose } }
     let(:options)   { args }
-    let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+    let(:job)       { described_class.send( :job_or_instantiate, **args ) }
 
     RSpec.shared_examples 'it called initialize_from_args during perform job' do |run_the_job|
       before do
@@ -128,7 +128,7 @@ RSpec.describe RakeTaskJob, skip: false do
       let(:args)      { { 'rake_task' => rake_task,
                           'hostnames' => hostnames,
                           'verbose' => verbose } }
-      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)       { described_class.send( :job_or_instantiate, **args ) }
 
       before do
         expect(job).to_not receive(:exec_rake_task)
@@ -147,7 +147,7 @@ RSpec.describe RakeTaskJob, skip: false do
       let(:args)      { { 'rake_task' => rake_task,
                           'hostnames' => hostnames,
                           'verbose' => verbose } }
-      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)       { described_class.send( :job_or_instantiate, **args ) }
 
       before do
         expect(job).to receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" ).and_return ''
@@ -166,7 +166,7 @@ RSpec.describe RakeTaskJob, skip: false do
       let(:args)      { { 'rake_task' => rake_task,
                           'hostnames' => hostnames,
                           'verbose' => verbose } }
-      let(:job)       { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)       { described_class.send( :job_or_instantiate, **args ) }
 
       before do
         expect(job).to receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" ).and_return ''
@@ -187,7 +187,7 @@ RSpec.describe RakeTaskJob, skip: false do
       let(:hostnames)       { args['hostnames'] }
       let(:rake_task)       { args['rake_task'] }
       let(:options)         { args.with_indifferent_access }
-      let(:job)             { described_class.send( :job_or_instantiate, *args ) }
+      let(:job)             { described_class.send( :job_or_instantiate, **args ) }
 
       before do
         expect(job).to_not receive(:exec_rake_task).with( "bundle exec rake #{rake_task}" )

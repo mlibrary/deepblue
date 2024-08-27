@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 class SolrDocument
 
@@ -10,7 +11,7 @@ class SolrDocument
 
   # include BlacklightOaiProvider::SolrDocumentBehavior
 
-  include Blacklight::Gallery::OpenseadragonSolrDocument
+  # include Blacklight::Gallery::OpenseadragonSolrDocument # try commenting this out for hyrax4
 
   # Adds Hyrax behaviors to the SolrDocument.
   include Hyrax::SolrDocumentBehavior

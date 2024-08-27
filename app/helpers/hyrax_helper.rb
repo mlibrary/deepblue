@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: heliotrope
 
 module HyraxHelper
   include ::BlacklightHelper
@@ -64,7 +65,7 @@ module HyraxHelper
         arg
       end
     end
-    I18n.t(key, scope: new_scope)
+    I18n.t!(key, scope: new_scope)
   end
 
 end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # Primarily for jobs like IngestJob to revivify an equivalent FileActor to one that existed on
 # the caller's side of an asynchronous Job invocation.  This involves providing slots
@@ -151,7 +152,7 @@ class JobIoWrapper < ApplicationRecord
 
     def extracted_original_name
       eon = uploaded_file.uploader.filename if uploaded_file
-      eon ||= File.basename(path) if path.present? # note: uploader.filename is `nil` with uncached remote files (e.g. AWSFile)
+      eon ||= File.basename(path) if path.present? # NOTE: uploader.filename is `nil` with uncached remote files (e.g. AWSFile)
       eon
     end
 

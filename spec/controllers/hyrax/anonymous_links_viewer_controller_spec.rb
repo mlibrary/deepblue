@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
+RSpec.describe Hyrax::AnonymousLinksViewerController, clean_repo: true, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
@@ -19,10 +21,10 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
   describe 'retrieval links' do
 
     RSpec.shared_examples 'shared retrieval links' do |dbg_verbose|
-      let(:user) { build(:user) }
-      let(:file) do
-        create(:file_set, label: 'world.png', user: user)
-      end
+      # let(:user) { build(:user) }
+      # let(:file) do
+      #   FactoryBot.create(:file_set, label: 'world.png', user: user)
+      # end
 
       before do
         described_class.anonymous_links_viewer_controller_debug_verbose = dbg_verbose
@@ -38,32 +40,48 @@ RSpec.describe Hyrax::AnonymousLinksViewerController, skip: false do
 
         let(:user) { build(:user) }
         let(:file) do
-          create(:file_set, label: 'world.png', user: user)
+          fs = FactoryBot.create(:file_set, label: 'world.png', user: user)
+          # puts "fs.class.name=#{fs.class.name}"
+          # puts "fs.id=#{fs.id}"
+          fs.save!
+          fs
+        end
+
+        before do
+          # objects.each { |obj| Hyrax::SolrService.add(obj.to_solr) }
+          Hyrax::SolrService.add(file.to_solr)
+          Hyrax::SolrService.commit
         end
 
         describe "retrieval links", skip: false do
           let :show_link do
-            AnonymousLink.create item_id: file.id,
-                                 path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file, locale: 'en')
+            AnonymousLink.find_or_create( id: file.id,
+                                 path: Rails.application.routes.url_helpers.hyrax_file_set_path(id: file, locale: 'en') )
           end
 
           let :download_link do
             Hydra::Works::AddFileToFileSet.call_enhanced_version( file,
                                                                   File.open(fixture_path + '/world.png'),
                                                                   :original_file )
-            AnonymousLink.create item_id: file.id, path: hyrax.download_path(id: file, locale: 'en')
+            AnonymousLink.find_or_create id: file.id, path: hyrax.download_path(id: file, locale: 'en')
           end
 
           let(:show_link_hash) { show_link.download_key }
           let(:download_link_hash) { download_link.download_key }
 
+          # before do
+          #   puts ::Deepblue::LoggingHelper.here
+          #   puts "file.class.name=#{file.class.name}"
+          #   puts "file.id=#{file.id}"
+          # end
+
           describe "GET 'download'" do
             let(:expected_content) { ActiveFedora::Base.find(file.id).original_file.content }
 
             it "downloads the file and deletes the link from the database" do
-              expect(controller).to receive(:send_file_headers!).with( filename: 'world.png',
+              expect(controller).to receive(:send_file_headers!).with( { filename: 'world.png',
                                                                        disposition: 'attachment',
-                                                                       type: 'image/png')
+                                                                       type: 'image/png' } )
               get :download, params: { id: download_link_hash }
               expect(response.body).to eq expected_content
               expect(response).to be_successful

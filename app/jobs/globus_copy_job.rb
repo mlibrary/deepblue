@@ -8,7 +8,7 @@ class GlobusCopyJob < GlobusJob
   # @param [boolean, false] generate_error
   # @param [integer, 0 ] delay_per_file_seconds
   # @param [String, nil ] user_email
-  def perform( concern_id,
+  def perform( concern_id:,
                log_prefix: "Globus: ",
                generate_error: ::Deepblue::GlobusIntegrationService.globus_default_generate_error_on_copy,
                delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_default_delay_per_file_seconds_on_copy,
@@ -82,7 +82,7 @@ class GlobusCopyJob < GlobusJob
     def globus_copy_job_complete_lines( curation_concern )
       lines = []
       options = ::Deepblue::EmailHelper.template_default_options( curation_concern: curation_concern )
-      lines << ::Deepblue::EmailHelper.t( 'hyrax.email.globus_copy_job_complete_html', **options )
+      lines << ::Deepblue::EmailHelper.t!( 'hyrax.email.globus_copy_job_complete_html', **options )
       lines
     rescue Exception => e # rubocop:disable Lint/RescueException
       # msg = "#{@globus_log_prefix} #{e.class}: #{e.message} at #{e.backtrace[0]}"

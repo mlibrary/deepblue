@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 # monkey patch of blacklight gem, lib/blacklight/access_controls/enforcement.rb
 
@@ -26,10 +27,11 @@ module Blacklight
         attr_writer :current_ability, :discovery_permissions
         deprecation_deprecate :current_ability=
 
+        Deprecation.warn(self, 'Blacklight::AccessControls::Enforcement is deprecated and will be removed in 1.0')
         class_attribute :solr_access_filters_logic
         alias_method :add_access_controls_to_solr_params, :apply_gated_discovery
 
-        self.solr_access_filters_logic = %i(apply_group_permissions apply_user_permissions)
+        self.solr_access_filters_logic = %i[apply_group_permissions apply_user_permissions]
 
         # Apply appropriate access controls to all solr queries
         self.default_processor_chain += [:add_access_controls_to_solr_params] if respond_to?(:default_processor_chain)
@@ -40,7 +42,7 @@ module Blacklight
       # Which permission levels (logical OR) will grant you the ability to discover documents in a search.
       # Override this method if you want it to be something other than the default, or hit the setter
       def discovery_permissions
-        @discovery_permissions ||= %w(discover read)
+        @discovery_permissions ||= %w[discover read]
       end
 
       protected
@@ -106,8 +108,9 @@ module Blacklight
                                               "permission_types=#{permission_types}",
                                               "ability=#{ability}",
                                               ""] if blacklight_access_controls_enforcement_debug_verbose
+        groups = ability&.user_groups
+        groups ||= []
         # end monkey
-        groups = ability.user_groups
         return [] if groups.empty?
         permission_types.map do |type|
           field = solr_field_for(type, 'group')
@@ -119,9 +122,10 @@ module Blacklight
       # @return [Array{String}] values are lucence syntax term queries suitable for :fq
       # @example ['discover_access_person_ssim:user_1@abc.com', 'read_access_person_ssim:user_1@abc.com']
       def apply_user_permissions(permission_types, ability = current_ability)
-        user = ability.current_user
+        user = ability&.current_user # Update: hyrax4
         return [] unless user && user.user_key.present?
         permission_types.map do |type|
+          # monkey override to call escape_filter2 instead
           escape_filter2(solr_field_for(type, 'user'), user.user_key)
         end
       end

@@ -1,3 +1,6 @@
+# Reviewed: hyrax4
+# monkey -- hydra-works-2.1.0
+
 # monkey: This was taken directly from Sufia's GenericFile::MimeTypes
 module Hydra::Works
   module MimeTypes
@@ -43,7 +46,7 @@ module Hydra::Works
       end
 
       def office_document_mime_types
-        ['text/plain',
+        ['text/plain', # monkey -- add this
          'text/rtf',
          'application/msword',
          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

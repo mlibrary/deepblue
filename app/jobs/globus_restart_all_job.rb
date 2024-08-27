@@ -55,7 +55,7 @@ class GlobusRestartAllJob < GlobusJob
       end
       concern_ids_to_restart.keys.each do |concern_id|
         # Deepblue::LoggingHelper.debug "#{@globus_log_prefix} restart copy job #{concern_id}" unless @globus_job_quiet
-        ::GlobusCopyJob.perform_later( concern_id )
+        ::GlobusCopyJob.perform_later( concern_id: concern_id )
       end
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} restart all complete" unless @globus_job_quiet
     end

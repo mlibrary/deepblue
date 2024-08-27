@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # Converts UploadedFiles into FileSets and attaches them to works.
 class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
@@ -58,7 +59,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
-  def perform(work, uploaded_files, user_key, **work_attributes)
+  def perform(work:, uploaded_files:, user_key:, **work_attributes)
     case work
     when ActiveFedora::Base
       perform_af(work, uploaded_files, user_key, work_attributes)
@@ -199,24 +200,24 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       file_count_phrase = if 1 == file_count
                             ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.one_file_count_phrase" )
                           else
-                            ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.many_files_count_phrase",
+                            ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.many_files_count_phrase",
                                                      file_count: file_count )
                           end
       work_url = data_set_url
-      lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.finished_html",
+      lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.finished_html",
                                           depositor: work_depositor,
                                           file_count_phrase: file_count_phrase,
                                           title: ::Deepblue::EmailHelper.escape_html( title ),
                                           work_url: work_url )
 
       unless failed_uploads.empty?
-        lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed_html",
+        lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed_html",
                                             file_count: failed_uploads.size )
         lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_failed_html" )
         lines << "<ol>"
         failed_uploads.each do |uploaded_file|
           file_name, file_size = file_stats( uploaded_file )
-          lines << Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_html",
+          lines << Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_html",
                                             file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
                                             file_size: file_size )
         end
@@ -225,20 +226,20 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       file_list = []
       successful_uploads.each do |uploaded_file|
         file_name, file_size = file_stats( uploaded_file )
-        file_list << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
+        file_list << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
                                                 file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
                                                 file_size: file_size )
       end
       file_list.sort!
       lines << "<ol>"
       file_list.each do |file_item|
-        lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_line_html",
+        lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_line_html",
                                             file_item: file_item )
       end
       lines << "</ol>"
-      lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html",
+      lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html",
                                           contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
-      subject = Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
+      subject = Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
       attach_files_to_work_job_complete_email_user( email: user.email,
                                                     lines: lines,
                                                     subject: subject ) if notify_user
@@ -365,8 +366,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         job_status.uploading_files!
       end
       work_permissions = work.permissions.map( &:to_hash )
-      metadata = visibility_attributes( work_attributes )
       uploaded_files.each do |uploaded_file|
+        file_set_attributes = file_set_attrs(work_attributes, uploaded_file)
+        metadata = visibility_attributes(work_attributes, file_set_attributes)
         upload_file( uploaded_file, work_permissions, metadata ) unless processed_uploaded_file? uploaded_file
       end
       job_status.did_upload_files!
@@ -445,8 +447,8 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     # The attributes used for visibility - sent as initial params to created FileSets.
-    def visibility_attributes( attributes )
-      attributes.slice( :visibility,
+    def visibility_attributes( attributes, file_set_attributes )
+      attributes.merge(file_set_attributes).slice( :visibility,
                         :visibility_during_lease,
                         :visibility_after_lease,
                         :lease_expiration_date,
@@ -454,6 +456,25 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                         :visibility_during_embargo,
                         :visibility_after_embargo )
     end
+
+  def file_set_attrs(attributes, uploaded_file)
+    attrs = Array(attributes[:file_set]).find { |fs| fs[:uploaded_file_id].present? && (fs[:uploaded_file_id].to_i == uploaded_file&.id) }
+    Hash(attrs).symbolize_keys
+  end
+
+  def validate_files!(uploaded_files)
+    uploaded_files.each do |uploaded_file|
+      next if uploaded_file.is_a? Hyrax::UploadedFile
+      raise ArgumentError, "Hyrax::UploadedFile required, but #{uploaded_file.class} received: #{uploaded_file.inspect}"
+    end
+  end
+
+  ##
+  # A work with files attached by a proxy user will set the depositor as the intended user
+  # that the proxy was depositing on behalf of. See tickets #2764, #2902.
+  def proxy_or_depositor(work)
+    work.on_behalf_of.presence || work.depositor
+  end
 
     ##
     # A work with files attached by a proxy user will set the depositor as the intended user

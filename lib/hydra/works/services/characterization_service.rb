@@ -1,4 +1,5 @@
-# frozen_string_literal: true
+# Reviewed: hyrax4
+# monkey -- hydra-works-2.1.0
 
 require File.join( Gem::Specification.find_by_name("hydra-works").full_gem_path, "lib/hydra/works/services/characterization_service.rb" )
 
@@ -21,6 +22,7 @@ module Hydra::Works
     end
 
     # monkey patch characterization_terms
+    # Get proxy terms and values from the parser
     def characterization_terms( omdoc )
       # puts;puts ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> CharacterizationService.characterization_terms";puts
       h = {}

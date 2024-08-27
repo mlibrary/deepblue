@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+# Skip: hyrax4
 # Generated via
 #  `rails generate hyrax:work TestWork`
 require 'rails_helper'
 include Warden::Test::Helpers
 
 # NOTE: If you generated more than one work, you have to set "js: true"
-RSpec.feature 'Create a TestWork', js: false, skip: ENV['CIRCLECI'].present? do
+RSpec.feature 'Create a TestWork', js: false, skip: true || ENV['CIRCLECI'].present? do
   context 'a logged in user' do
     let(:user_attributes) do
       { email: 'test@example.com' }

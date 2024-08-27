@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
@@ -71,7 +72,7 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
                                           ""] if catalog_search_builder_debug_verbose
     # end monkey
     solr_parameters[:fq] ||= []
-    return if current_ability.admin? # this allows all works to show up in browse for admins
+    return if current_ability.respond_to?( :admin? ) && current_ability.admin? # this allows all works to show up in browse for admins
     solr_parameters[:fq] << '-suppressed_bsi:true'
     # begin monkey
     ::Deepblue::LoggingHelper.bold_debug [Deepblue::LoggingHelper.here,
@@ -89,10 +90,11 @@ class Hyrax::CatalogSearchBuilder < Hyrax::SearchBuilder
                                           "solr_parameters.inspect=#{solr_parameters.inspect}",
                                           ""] if catalog_search_builder_debug_verbose
     # end monkey
-    return if current_ability.admin?
+    return if current_ability.respond_to?( :admin? ) && current_ability.admin?
 
-    collection_ids = Hyrax::Collections::PermissionsService.collection_ids_for_view(ability: current_ability).map { |id| "^#{id}$" }
-    solr_parameters['f.member_of_collection_ids_ssim.facet.matches'] = if collection_ids.present?
+    collection_ids = nil
+    collection_ids = Hyrax::Collections::PermissionsService.collection_ids_for_view(ability: current_ability).map { |id| "^#{id}$" } if current_ability.present?
+      solr_parameters['f.member_of_collection_ids_ssim.facet.matches'] = if collection_ids.present?
                                                                          collection_ids.join('|')
                                                                        else
                                                                          "^$"

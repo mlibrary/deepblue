@@ -142,7 +142,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::EnsureDoiMintedJob.perform_later( params[:id],
+      ::EnsureDoiMintedJob.perform_later( id: params[:id],
                                           current_user: current_user.email,
                                           email_results_to: current_user.email )
       flash[:notice] = "Ensure DOI minted job started. You will be emailed the results."
@@ -183,7 +183,7 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "" ] if data_sets_controller_debug_verbose
-      ::WorkFindAndFixJob.perform_later( params[:id], email_results_to: current_user.email )
+      ::WorkFindAndFixJob.perform_later( id: params[:id], email_results_to: current_user.email )
       flash[:notice] = "Work find and fix job started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end
@@ -480,7 +480,7 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "@curation_concern.id=#{@curation_concern.id}",
                                              "" ] if data_sets_controller_debug_verbose
-      return MsgHelper.t( 'data_set.read_me_file_set_assignment_missing',
+      return MsgHelper.t!( 'data_set.read_me_file_set_assignment_missing',
                           size: ActiveSupport::NumberHelper.number_to_human_size( ::Deepblue::FileContentHelper.read_me_file_set_view_max_size )
                         ) if read_me_file_set.blank?
       ::Deepblue::FileContentHelper.read_file( file_set: read_me_file_set )
@@ -569,7 +569,7 @@ module Hyrax
     def globus_copy_job( user_email: nil,
                          delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
 
-      ::GlobusCopyJob.perform_later( curation_concern.id,
+      ::GlobusCopyJob.perform_later( concern_id: curation_concern.id,
                                      user_email: user_email,
                                      delay_per_file_seconds: delay_per_file_seconds )
       globus_ui_delay
@@ -703,7 +703,7 @@ module Hyrax
       epitaph = params[:tombstone]
       success = curation_concern.entomb!( epitaph, current_user )
       msg = if success
-              MsgHelper.t( 'data_set.tombstone_notice', title: curation_concern.title.first.to_s, reason: epitaph.to_s )
+              MsgHelper.t!( 'data_set.tombstone_notice', title: curation_concern.title.first.to_s, reason: epitaph.to_s )
               curation_concern.globus_clean_download if curation_concern.respond_to? :globus_clean_download
             else
               "#{curation_concern.title.first} is already tombstoned."
@@ -848,17 +848,17 @@ module Hyrax
 
       def globus_clean_msg( dir )
         dirs = dir.join( MsgHelper.t( 'data_set.globus_clean_join_html' ) )
-        rv = MsgHelper.t( 'data_set.globus_clean', dirs: dirs )
+        rv = MsgHelper.t!( 'data_set.globus_clean', dirs: dirs )
         return rv
       end
 
       def globus_file_prep_started_msg( user_email: nil )
-        MsgHelper.t( 'data_set.globus_file_prep_started',
+        MsgHelper.t!( 'data_set.globus_file_prep_started',
                      when_available: globus_files_when_available( user_email: user_email ) )
       end
 
       def globus_files_prepping_msg( user_email: nil )
-        MsgHelper.t( 'data_set.globus_files_prepping',
+        MsgHelper.t!( 'data_set.globus_files_prepping',
                      when_available: globus_files_when_available( user_email: user_email ) )
       end
 
@@ -866,12 +866,12 @@ module Hyrax
         if user_email.nil?
           MsgHelper.t( 'data_set.globus_files_when_available' )
         else
-          MsgHelper.t( 'data_set.globus_files_when_available_email', user_email: user_email )
+          MsgHelper.t!( 'data_set.globus_files_when_available_email', user_email: user_email )
         end
       end
 
       def globus_files_available_here
-        MsgHelper.t( 'data_set.globus_files_available_here', globus_url: globus_url.to_s )
+        MsgHelper.t!( 'data_set.globus_files_available_here', globus_url: globus_url.to_s )
       end
 
       def globus_status_msg( user_email: nil )

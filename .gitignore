@@ -22,6 +22,7 @@ dump.rdb
 
 # Ignore Byebug command history file.
 .byebug_history
+.rspec_status
 
 .DS_Store
 
@@ -80,4 +81,10 @@ config/settings/*.local.yml
 ## coveralls
 coverage/*
 ./coverage/.*
+
+## spec
+spec/examples.txt
+
+# Ignore LibreOffice lock files
+.~lock*
 

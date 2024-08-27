@@ -1,11 +1,14 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # monkey override
 
-# class WorkUsage follows the model established by FileUsage
-# Called by the stats controller, it finds cached work pageview data,
-# and prepares it for visualization in /app/views/stats/work.html.erb
 module Hyrax
+  # TODO: - Analytics do we still need this?
+  # Follows the model established by {FileUsage}.
+  #
+  # Called by the stats controller, it finds cached work pageview data,
+  # and prepares it for visualization in /app/views/stats/work.html.erb
   class WorkUsage < StatsUsagePresenter
     def initialize(id)
       self.model = Hyrax::WorkRelation.new.find(id)

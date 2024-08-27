@@ -1,5 +1,6 @@
 # don't freeze string literals for this, causes an error
 # monkey override
+# Reviewed: hyrax4
 
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/renderers/hyrax/renderers/attribute_renderer.rb" )
 

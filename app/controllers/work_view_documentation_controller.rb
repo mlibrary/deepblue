@@ -3,9 +3,10 @@
 class WorkViewDocumentationController < ApplicationController
 
   mattr_accessor :work_view_documentation_controller_debug_verbose,
-                 default: ::Deepblue::WorkViewContentService.work_view_documentation_controller_debug_verbose
+                 default: ::Deepblue::WorkViewContentService.work_view_documentation_controller_cc_debug_verbose
 
   include ActiveSupport::Concern
+  puts "include Blacklight::Base at #{caller_locations(1,1).first}"
   include Blacklight::Base
   include Blacklight::AccessControls::Catalog
   include Hyrax::Breadcrumbs

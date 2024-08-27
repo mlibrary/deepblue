@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # hyrax-orcid -- Created this to replace some of the definitions in Hyrax::Orcid::Engine
 
+if Rails.configuration.use_bolognese
+
 # try this here
 module Hyrax
   module Orcid
@@ -41,3 +43,4 @@ Bolognese::Metadata.prepend Bolognese::Readers::Orcid::HyraxWorkReader
   config.work_types = ["YourWorkType", "GenericWork"]
 
 end
+end # if Rails.configuration.use_bolognese

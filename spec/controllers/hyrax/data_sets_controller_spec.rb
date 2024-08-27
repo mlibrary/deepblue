@@ -152,7 +152,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         context 'as non-admin' do
           it 'calls job and redirects back' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::EnsureDoiMintedJob).to_not receive(:perform_later).with(work.id,
+            expect(::EnsureDoiMintedJob).to_not receive(:perform_later).with(id: work.id,
                                                                              current_user: user.email,
                                                                              email_results_to: user.email)
             get :ensure_doi_minted, params: { id: work }
@@ -169,7 +169,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
           it 'calls job and redirects to main page' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::EnsureDoiMintedJob).to receive(:perform_later).with(work.id,
+            expect(::EnsureDoiMintedJob).to receive(:perform_later).with(id: work.id,
                                                                          current_user: admin.email,
                                                                          email_results_to: admin.email)
             get :ensure_doi_minted, params: { id: work }
@@ -191,7 +191,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
         context 'as non-admin' do
           it 'calls job and redirects back' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::WorkFindAndFixJob).to_not receive(:perform_later).with(work.id, email_results_to: user.email)
+            expect(::WorkFindAndFixJob).to_not receive(:perform_later).with(id: work.id, email_results_to: user.email)
             get :work_find_and_fix, params: { id: work }
             expect(response).to redirect_to(root_path)
             ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
@@ -206,7 +206,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
 
           it 'calls job and redirects back' do
             allow(ActiveFedora::Base).to receive(:find).with(work.id).and_return(work)
-            expect(::WorkFindAndFixJob).to receive(:perform_later).with(work.id, email_results_to: admin.email)
+            expect(::WorkFindAndFixJob).to receive(:perform_later).with(id: work.id, email_results_to: admin.email)
             get :work_find_and_fix, params: { id: work }
             expect(response).to redirect_to main_app.hyrax_data_set_path(work.id, locale: 'en')
             expect(flash[:notice]).to eq "Work find and fix job started. You will be emailed the results."

@@ -1,3 +1,4 @@
+// Reviewed: hyrax4
 /**
  * Generic helper utilities for processing Collection and Collection Type editing
  * @type {Class}

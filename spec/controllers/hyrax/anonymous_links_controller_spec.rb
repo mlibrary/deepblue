@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
-RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false do
+RSpec.describe Hyrax::AnonymousLinksController, clean_repo: true, type: :controller, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Rails.application.routes }
@@ -8,9 +10,6 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
 
   let(:debug_verbose) { false }
-
-  let(:user) { create(:user) }
-  let(:file) { create(:file_set, user: user) }
 
   describe 'module debug verbose variables' do
     it "they have the right values" do
@@ -39,6 +38,9 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
   end
 
   describe 'logged in user with edit permission', skip: false do
+    let(:user) { create(:user) }
+    let(:file) { create(:file_set, user: user) }
+
     RSpec.shared_examples 'shared logged in user with edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
@@ -55,7 +57,8 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
 
         context "POST create" do
           before do
-            expect(Digest::SHA2).to receive(:new).and_return(hash)
+            allow(Digest::SHA2).to receive(:new).and_return(hash)
+            allow(LinkBehavior).to receive(:generate_download_key).and_return(hash)
           end
 
           describe "creating a anonymous download link" do
@@ -101,6 +104,9 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
   end
 
   describe 'logged in user without edit permission' do
+    let(:user) { create(:user) }
+    let(:file) { create(:file_set, user: user) }
+
     RSpec.shared_examples 'shared logged in user without edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
       before do
         described_class.anonymous_links_controller_debug_verbose = dbg_verbose
@@ -153,10 +159,13 @@ RSpec.describe Hyrax::AnonymousLinksController, type: :controller, skip: false d
   end
 
   describe 'unknown user' do
+    let(:user) { create(:user) }
+    let(:file) { create(:file_set, user: user) }
+
     RSpec.shared_examples 'it requires login Hyrax::AnonymousLinksController' do
       let(:flash_msg) { "You need to sign in or sign up before continuing." }
       # let(:flash_msg) { I18n.t('devise.failure.unauthenticated') }
-      # let(:flash_msg) { I18n.t(:"unauthorized.default", default: 'You are not authorized to access this page.') }
+      # let(:flash_msg) { I18n.t!(:"unauthorized.default", default: 'You are not authorized to access this page.') }
       it 'requires login' do
         expect(response).to_not be_nil
         # expect(response).to fail_redirect_and_flash(main_app.new_user_session_path, flash_msg)

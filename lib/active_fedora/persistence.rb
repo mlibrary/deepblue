@@ -1,11 +1,17 @@
-# frozen_string_literal: true
-
 # monkey patch of active_fedora gem, lib/active_fedora/persistence.rb
+# Update: hyrax4 -- active-fodora-14.0.1
 
 module ActiveFedora
   # = Active Fedora Persistence
   module Persistence
     extend ActiveSupport::Concern
+    extend ActiveSupport::Autoload
+    autoload :NullIdentifierService
+
+    included do
+      class_attribute :identifier_service_class
+      self.identifier_service_class = NullIdentifierService
+    end
 
     def new_record?
       return true if @ldp_source.subject.nil?
@@ -34,6 +40,7 @@ module ActiveFedora
     # @option options [Boolean] :update_index (true) set false to skip indexing
     # @return [Boolean] true if save was successful, otherwise false
     def save(*options)
+      # begin monkey
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "self.class.name=#{self.class.name}",
@@ -46,9 +53,11 @@ module ActiveFedora
     rescue Exception => e
       puts "Exception: #{e}"
       puts e.backtrace[0..30]
+      # end monkey
     end
 
     def save!(*args)
+      # begin monkey
       # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "self.class.name=#{self.class.name}",
@@ -57,6 +66,7 @@ module ActiveFedora
       #                                        ::Deepblue::LoggingHelper.called_from,
       #                                        "self.class.name=#{self.class.name}",
       #                                        "" ] + caller_locations[0..10] if true && 'FileSet' == self.class.name
+      # end monkey
       create_or_update(*args)
     end
 
@@ -95,7 +105,7 @@ module ActiveFedora
         raise ObjectNotFoundError, "Unable to find #{id} in the repository"
       end
 
-      ActiveFedora::SolrService.delete(id) if ActiveFedora.enable_solr_updates? # TODO: hyrax v3 update
+      ActiveFedora::SolrService.delete(id) if ActiveFedora.enable_solr_updates?
       self.class.eradicate(id) if opts[:eradicate]
       freeze
     end
@@ -175,8 +185,12 @@ module ActiveFedora
         false
       rescue Ldp::Gone
         true
+      rescue ActiveFedora::ObjectNotFoundError
+        false
+      # begin monkey
       rescue Hyrax::ObjectNotFoundError
         false
+      # end monkey
       end
 
       private
@@ -266,7 +280,13 @@ module ActiveFedora
       end
 
       # Override to tie in an ID minting service
-      def assign_id; end
+      def assign_id
+        identifier_service.mint
+      end
+
+      def identifier_service
+        @identifier_service ||= identifier_service_class.new
+      end
 
       # This is only used when creating a new record. If the object doesn't have an id
       # and assign_id can mint an id for the object, then assign it to the resource.

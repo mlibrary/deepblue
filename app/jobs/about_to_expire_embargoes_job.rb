@@ -38,7 +38,7 @@ END_OF_SCHEDULER_ENTRY
   queue_as :scheduler
 
   def perform( *args )
-    initialized = initialize_from_args( *args, debug_verbose: about_to_expire_embargoes_job_debug_verbose )
+    initialized = initialize_from_args( args: args, debug_verbose: about_to_expire_embargoes_job_debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",

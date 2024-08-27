@@ -44,7 +44,7 @@ END_OF_SCHEDULER_ENTRY
                                            "args=#{args}",
                                            ::Deepblue::LoggingHelper.obj_class( 'args', args ),
                                            "" ] if deactivate_expired_embargoes_job_debug_verbose
-    initialized = initialize_from_args( *args, debug_verbose: deactivate_expired_embargoes_job_debug_verbose )
+    initialized = initialize_from_args( args: args, debug_verbose: deactivate_expired_embargoes_job_debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "initialized=#{initialized}",

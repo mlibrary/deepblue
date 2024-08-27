@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Update: hyrax4
 
 require 'rails_helper'
 
@@ -6,16 +7,18 @@ RSpec.describe Hyrax::Admin::PermissionTemplateAccessesController, skip: false d
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
-
-  before do
-    sign_in create(:user)
-  end
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
-  let(:permission_template_access) { create(:permission_template_access) }
+  let(:permission_template_access) { FactoryBot.create(:permission_template_access) }
   let(:source_id) { permission_template_access.permission_template.source_id }
+  let(:admin_set_update_notice) { 'The administrative set\'s participant rights have been updated' }
+  let(:collection_update_notice) { 'The collection\'s sharing options have been updated.' }
+  let(:rep_admin_cannot_remove_notice) { 'The repository administrators group cannot be removed' }
+
+  before { sign_in FactoryBot.create(:user) }
 
   describe "destroy" do
-    context "without admin privleges" do
+    context "without admin privileges" do
+      let(:user_liz) { FactoryBot.create(:user, email: 'liz@example.com') }
       before do
         allow(controller.current_ability).to receive(:test_edit).with(source_id).and_return(false)
       end
@@ -26,7 +29,7 @@ RSpec.describe Hyrax::Admin::PermissionTemplateAccessesController, skip: false d
     end
 
     context "when signed in as an admin" do
-      # TODO: Need test that shows delete of admin group form depositors and viewers is allowed
+      let(:user_liz) { FactoryBot.create(:admin, email: 'liz@example.com') }
       let(:permission_template_access) do
         create(:permission_template_access,
                :manage,
@@ -34,73 +37,161 @@ RSpec.describe Hyrax::Admin::PermissionTemplateAccessesController, skip: false d
                agent_type: agent_type,
                agent_id: agent_id)
       end
+      let(:access_destroy) { true }
+
+      it 'can remove admin group from depositors'
+      it 'can remove admin group from viewers'
 
       context 'when source is an admin set' do
-        let(:permission_template) { create(:permission_template, source_id: admin_set.id) }
-        let(:admin_set) { create(:admin_set, edit_users: ['Liz']) }
+        let(:admin_set) { FactoryBot.create(:admin_set, edit_users: [user_liz.user_key]) }
+        # let(:admin_set) { FactoryBot.create(:admin_set) }
+
+        let(:permission_template) do
+          FactoryBot.create(:permission_template, source_id: admin_set.id)
+        end
 
         context 'when deleting the admin users group' do
           let(:agent_type) { 'group' }
           let(:agent_id) { 'admin' }
 
-          it "is fails" do
-            expect(controller).to receive(:authorize!).with(:destroy, permission_template_access)
-            expect do
+          before do
+            expect(controller)
+              .to receive(:authorize!)
+              .with(:destroy, permission_template_access).at_least(:once).and_return access_destroy
+          end
+
+          it "deletes the permission template access" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax::PermissionTemplateAccess.count }
+              .by(-1)
+          end
+
+          it "redirects to the admin dashboard's admin set edit path" do
               delete :destroy, params: { id: permission_template_access }
-            end.not_to change { Hyrax::PermissionTemplateAccess.count }
-            expect(response).to redirect_to(hyrax.edit_admin_admin_set_path(source_id, locale: 'en', anchor: 'participants'))
-            expect(flash[:notice]).not_to eq I18n.t('participants', scope: 'hyrax.admin.admin_sets.form.permission_update_notices')
-            expect(flash[:alert]).to eq 'The repository administrators group cannot be removed'
+
+            expect(response)
+              .to redirect_to(hyrax.edit_admin_admin_set_path(source_id,
+                                                              locale: 'en',
+                                                              anchor: 'participants'))
+          end
+
+          it "flashes a notice" do
+            delete :destroy, params: { id: permission_template_access }
+
+            expect(flash[:notice]).to eq admin_set_update_notice
+          end
+
+          it "empties the admin set's edit users" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax.query_service.find_by(id: admin_set.id).permission_manager.edit_users.to_a }
+              .to be_empty
           end
         end
 
-        # error with nil where sipity agent conversion is expected, skip for now
-        context 'with deleting any agent other than the admin users group', skip: true do
+        context 'with deleting any agent other than the admin users group' do
           let(:agent_type) { 'user' }
-          let(:agent_id) { 'Liz' }
+          let(:agent_id) { user_liz.user_key }
 
-          it "is successful" do
-            expect(controller).to receive(:authorize!).with(:destroy, permission_template_access)
-            expect do
+          before do
+            expect(controller)
+              .to receive(:authorize!)
+              .with(:destroy, permission_template_access).at_least(:once).and_return access_destroy
+          end
+
+          it "deletes the permission template access" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax::PermissionTemplateAccess.count }
+              .by(-1)
+          end
+
+          it "redirects to the admin dashboard's admin set edit path" do
               delete :destroy, params: { id: permission_template_access }
-            end.to change { Hyrax::PermissionTemplateAccess.count }.by(-1)
-            expect(response).to redirect_to(hyrax.edit_admin_admin_set_path(source_id, locale: 'en', anchor: 'participants'))
-            expect(flash[:notice]).to eq(I18n.t('participants', scope: 'hyrax.admin.admin_sets.form.permission_update_notices'))
-            expect(admin_set.reload.edit_users).to be_empty
+
+            expect(response)
+              .to redirect_to(hyrax.edit_admin_admin_set_path(source_id,
+                                                                   locale: 'en',
+                                                                   anchor: 'participants'))
+          end
+
+          it "flashes a notice" do
+            delete :destroy, params: { id: permission_template_access }
+
+            expect(flash[:notice]).to eq admin_set_update_notice
+          end
+
+          it "empties the admin set's edit users" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax.query_service.find_by(id: admin_set.id).permission_manager.edit_users.to_a }
+              .to be_empty
           end
         end
       end
 
       context 'when source is a collection' do
         let(:permission_template) { create(:permission_template, source_id: collection.id) }
-        let(:collection) { create(:collection, edit_users: ['Liz']) }
+        let(:collection) { create(:collection, edit_users: [user_liz.user_key]) }
 
         context 'when deleting the admin users group' do
           let(:agent_type) { 'group' }
           let(:agent_id) { 'admin' }
 
-          it "fails" do
-            expect(controller).to receive(:authorize!).with(:destroy, permission_template_access)
-            expect do
+          before do
+            expect(controller)
+              .to receive(:authorize!)
+              .with(:destroy, permission_template_access).at_least(:once).and_return access_destroy
+          end
+
+          it "deletes the permission template access" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax::PermissionTemplateAccess.count }
+              .by(-1)
+          end
+
+          it "redirects to the dashboard collection edit path" do
               delete :destroy, params: { id: permission_template_access }
-            end.not_to change { Hyrax::PermissionTemplateAccess.count }
-            expect(response).to redirect_to(hyrax.edit_dashboard_collection_path(source_id, locale: 'en', anchor: 'sharing'))
-            expect(flash[:notice]).not_to eq I18n.t('sharing', scope: 'hyrax.dashboard.collections.form.permission_update_notices')
-            expect(flash[:alert]).to eq 'The repository administrators group cannot be removed'
+
+            expect(response)
+              .to redirect_to(hyrax.edit_dashboard_collection_path(source_id,
+                                                                   locale: 'en',
+                                                                   anchor: 'sharing'))
+          end
+
+          it "flashes a notice" do
+            delete :destroy, params: { id: permission_template_access }
+
+            expect(flash[:notice]).to eq collection_update_notice
           end
         end
 
-        context 'with deleting any agent other than the admin users group' do
+        context 'as an agent not in the admin users group' do
           let(:agent_type) { 'user' }
-          let(:agent_id) { 'Liz' }
+          let(:agent_id) { user_liz.user_key }
 
-          it "is successful" do
-            expect(controller).to receive(:authorize!).with(:destroy, permission_template_access)
-            expect do
+          before do
+            expect(controller)
+              .to receive(:authorize!)
+              .with(:destroy, permission_template_access).at_least(:once).and_return access_destroy
+          end
+
+          it "deletes the permission template access" do
+            expect { delete :destroy, params: { id: permission_template_access } }
+              .to change { Hyrax::PermissionTemplateAccess.count }
+              .by(-1)
+          end
+
+          it "redirects to the dashboard collection edit path" do
+            delete :destroy, params: { id: permission_template_access }
+
+            expect(response)
+              .to redirect_to(hyrax.edit_dashboard_collection_path(source_id,
+                                                                   locale: 'en',
+                                                                   anchor: 'sharing'))
+          end
+
+          it "flashes a notice" do
               delete :destroy, params: { id: permission_template_access }
-            end.to change { Hyrax::PermissionTemplateAccess.count }.by(-1)
-            expect(response).to redirect_to(hyrax.edit_dashboard_collection_path(source_id, locale: 'en', anchor: 'sharing'))
-            expect(flash[:notice]).to eq(I18n.t('sharing', scope: 'hyrax.dashboard.collections.form.permission_update_notices'))
+
+            expect(flash[:notice]).to eq collection_update_notice
           end
         end
       end

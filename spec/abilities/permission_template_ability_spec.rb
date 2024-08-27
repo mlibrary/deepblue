@@ -1,17 +1,15 @@
+# frozen_string_literal: true
+# Update: hyrax4
+
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe Hyrax::Ability::PermissionTemplateAbility do
-  subject { ability }
-
-  let(:ability) { Ability.new(current_user) }
+RSpec.describe Hyrax::Ability do
+  subject(:ability) { Ability.new(current_user) }
   let(:user) { create(:user) }
   let(:current_user) { user }
-  let(:collection_type_gid) { create(:collection_type).gid }
-
-  let!(:collection) { create(:collection_lw,
-                             with_permission_template: true,
-                             collection_type_gid: collection_type_gid) }
+  let(:collection_type) { FactoryBot.create(:collection_type) }
+  let!(:collection) { create(:collection_lw, with_permission_template: true, collection_type: collection_type) }
   let(:permission_template) { collection.permission_template }
   let!(:permission_template_access) do
     create(:permission_template_access,
@@ -48,7 +46,9 @@ RSpec.describe Hyrax::Ability::PermissionTemplateAbility do
              permission_template: permission_template,
              agent_type: 'user',
              agent_id: user.user_key)
-      collection.reset_access_controls!
+      collection.permission_template.reset_access_controls_for(
+        collection: collection, interpret_visibility: true
+      )
     end
 
     it 'allows most template abilities' do
@@ -81,7 +81,9 @@ RSpec.describe Hyrax::Ability::PermissionTemplateAbility do
              permission_template: permission_template,
              agent_type: 'user',
              agent_id: user.user_key)
-      collection.reset_access_controls!
+      collection.permission_template.reset_access_controls_for(
+        collection: collection, interpret_visibility: true
+      )
     end
 
     it 'denies all template abilities' do
@@ -108,7 +110,9 @@ RSpec.describe Hyrax::Ability::PermissionTemplateAbility do
              permission_template: permission_template,
              agent_type: 'user',
              agent_id: user.user_key)
-      collection.reset_access_controls!
+      collection.permission_template.reset_access_controls_for(
+        collection: collection, interpret_visibility: true
+      )
     end
 
     it 'denies all template abilities' do

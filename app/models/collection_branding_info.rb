@@ -1,5 +1,10 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 class CollectionBrandingInfo < ApplicationRecord
+  attr_accessor :filename, :alt_txt
+  after_initialize :set_collection_attributes
+
   def initialize(collection_id:,
                  filename:,
                  role:,
@@ -51,6 +56,11 @@ class CollectionBrandingInfo < ApplicationRecord
   end
 
   private
+
+  def set_collection_attributes
+    self.alt_text ||= alt_txt || ''
+    self.local_path ||= File.join(role, filename)
+  end
 
   def storage
     Hyrax.config.branding_storage_adapter

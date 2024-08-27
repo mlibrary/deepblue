@@ -1,10 +1,13 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
+
 module Hyrax::Forms
 
   class FileSetEditForm
     include HydraEditor::Form
     include HydraEditor::Form::Permissions
 
-    delegate :depositor, :permissions, to: :model
+    delegate :depositor, :permissions, :human_readable_type, to: :model
 
     self.required_fields = [:title, :creator, :keyword, :license]
 

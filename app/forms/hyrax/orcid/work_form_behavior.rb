@@ -5,7 +5,7 @@ module Hyrax
   module Orcid
     module WorkFormBehavior
       extend ActiveSupport::Concern
-
+      # hyrax-orcid - begin delete
       # class_methods do
       #   def build_permitted_params
       #     super.tap do |permitted_params|
@@ -26,6 +26,7 @@ module Hyrax
       #     }
       #   end
       # end
+      # hyrax-orcid - end delete
     end
   end
 end

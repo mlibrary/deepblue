@@ -1,4 +1,4 @@
-/* diff to v3.1 */
+// Reviewed: hyrax4
 export class RequiredFields {
   // Monitors the form and runs the callback if any of the required fields change
   constructor(form, callback) {
@@ -52,6 +52,6 @@ export class RequiredFields {
   reload() {
     // ":input" matches all input, select or textarea fields.
     this.requiredFields = this.form.find(':input[required]')
-    this.requiredFields.change(this.callback)
+    this.requiredFields.on('change', this.callback)
   }
 }

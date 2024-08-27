@@ -13,12 +13,15 @@ class ::Deepblue::DeepblueJob < ::Hyrax::ApplicationJob
   mattr_accessor :deepblue_job_debug_verbose, default: ::Deepblue::JobTaskHelper.deepblue_job_debug_verbose
 
   # make the job_or_instantiate method public by copying its internals
-  def self.job_or_instantiate(*args)
+  # see: active_job/enqueuing.rb
+  # hyrax2 / ruby 2 version # def self.job_or_instantiate(**args)
+  def self.job_or_instantiate(**args)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args.pretty_inspect}",
                                            "" ] if deepblue_job_debug_verbose
-    rv = args.first.is_a?(self) ? args.first : new(*args)
+    # hyrax2 / ruby 2 version # rv = args.first.is_a?(self) ? args.first : new(*args)
+    rv = args.first.is_a?(self) ? args.first : new(**args)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "rv=#{rv.pretty_inspect}",

@@ -2,7 +2,7 @@
 # hyrax-orcid
 
 require "flipflop"
-require "bolognese"
+require 'bolognese' if Rails.configuration.use_bolognese
 
 module Hyrax
 

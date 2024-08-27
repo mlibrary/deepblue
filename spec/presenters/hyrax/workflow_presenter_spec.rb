@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Updated: hyrax4
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::WorkflowPresenter, skip: false do
@@ -23,7 +26,7 @@ RSpec.describe Hyrax::WorkflowPresenter, skip: false do
         allow(presenter).to receive(:sipity_entity).and_return(entity)
       end
       it "is an Array of Sipity::Action#name and translated names" do
-        allow(I18n).to receive(:t).with('hyrax.workflow.testing.complete', default: 'Complete').and_return("Approve")
+        allow(I18n).to receive(:t!).with('hyrax.workflow.testing.complete', default: 'Complete').and_return("Approve")
         is_expected.to eq [['complete', 'Approve']]
       end
     end
@@ -45,7 +48,7 @@ RSpec.describe Hyrax::WorkflowPresenter, skip: false do
         allow(entity).to receive(:workflow_state_name).and_return('complete')
         allow(presenter).to receive(:sipity_entity).and_return(entity)
       end
-      it { is_expected.to eq '<span class="state state-complete label label-primary">Complete</span>' }
+      it { is_expected.to eq '<span class="state state-complete badge badge-primary">Complete</span>' }
     end
     context 'without a Sipity::Entity' do
       before do

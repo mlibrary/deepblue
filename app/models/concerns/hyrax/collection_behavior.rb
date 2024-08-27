@@ -1,5 +1,7 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
+# monkey override:
 require File.join( Gem::Specification.find_by_name("hyrax").full_gem_path, "app/models/concerns/hyrax/collection_behavior.rb" )
 
 module Hyrax

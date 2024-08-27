@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+#  Reviewed: hyrax4
 
 module Hyrax
 
@@ -83,6 +84,7 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "single_use_link.item_id=#{single_use_link.item_id}",
                                              "" ] if single_use_links_viewer_controller_debug_verbose
+      # puts;puts "search_service.class.name=#{search_service.class.name}";puts
       _, document_list = search_results( id: single_use_link.item_id )
       solr_doc = document_list.first
       model = solr_doc['has_model_ssim'].first
@@ -115,12 +117,13 @@ module Hyrax
       response.documents.first
     end
 
-    def search_service
-      Hyrax::SearchService.new(config: blacklight_config, user_params: { id: single_use_link.item_id }, scope: self)
-    end
-
-    def search_builder_class
-      SingleUseLinkSearchBuilder
+    def search_service(*args)
+      # puts "args=#{args}"
+      # puts "blacklight_config.present?=#{blacklight_config.present?}"
+      # puts "single_use_link.item_id=#{single_use_link.item_id}"
+      rv = Hyrax::SearchService.new(config: blacklight_config, user_params: { id: single_use_link.item_id }, scope: self)
+      # puts "rv=#{rv}"
+      return rv
     end
 
     def content_options

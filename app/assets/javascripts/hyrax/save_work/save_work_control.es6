@@ -1,4 +1,6 @@
-/* diff to v3.1 */
+// Reviewed: hyrax4
+// Update: hyrax4, possibly more updates to do
+
 import { RequiredFields } from './required_fields'
 import { ChecklistItem } from './checklist_item'
 import { UploadedFiles } from './uploaded_files'
@@ -164,7 +166,7 @@ export default class SaveWorkControl {
     this.addFileUploadEventListeners();
   }
 
-  addFileUploadEventListeners() {
+  addFileUploadEventListeners_v2() {
     let $uploadsEl = this.uploads.element;
     const $cancelBtn = this.uploads.form.find('#file-upload-cancel-btn');
 
@@ -174,6 +176,19 @@ export default class SaveWorkControl {
 
     $uploadsEl.bind('fileuploadstop', () => {
       $cancelBtn.addClass('hidden');
+    });
+  }
+
+  addFileUploadEventListeners() {
+    let $uploadsEl = this.uploads.element;
+    const $cancelBtn = this.uploads.form.find('#file-upload-cancel-btn');
+
+    $uploadsEl.on('fileuploadstart', () => {
+      $cancelBtn.hidden = false;
+    });
+
+    $uploadsEl.on('fileuploadstop', () => {
+      $cancelBtn.hidden = true;
     });
   }
 

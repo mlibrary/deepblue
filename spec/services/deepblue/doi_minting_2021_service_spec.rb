@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+# Hyrax4
 
 require 'rails_helper'
 
 require_relative '../../../app/services/deepblue/doi_minting_2021_service'
 
-describe ::Deepblue::DoiMinting2021Service, :datacite_api do
+describe ::Deepblue::DoiMinting2021Service, :datacite_api, skip: false do
 
   # datacite_prefix = ::Deepblue::DataCiteRegistrar.prefix
   # datacite_prefix_test = '10.1234'

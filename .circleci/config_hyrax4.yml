@@ -1,0 +1,419 @@
+# .circleci/config.yml
+#
+# Updated: 2024/07/17
+#
+# TODO: generalized parameters, that is can parameters be set for everything once
+#
+# current:
+# - resource_class: medium
+# -- parallelism: 4
+# -- parallelism: 1 # ?? for small
+# -- parallelism: 10 # for medium+
+# - docker image: 'circleci/ruby:3.0.6-stretch-node'
+# - ruby_version: old default: '2.7.3'
+# - ruby_version: default: '3.0.6'
+# - bundler_version: old default: '2.1.12'
+# - bundler_version: default: '2.2.33'
+# - rails_version: old default: '5.2.6'
+# - rails_version: default: '6.0.5'
+# - solr core name: deepbluedata-test
+#
+# docker image: '-node'
+# docker image: '-browsers'
+# docker image: '-node-browsers' -- This image doesn't exist
+#
+version: 2.1
+#orbs:
+#  ruby: circleci/ruby@0.1.2
+
+jobs_orig:
+  build:
+    docker:
+      - image: 'cimg/ruby:3.0.6-node'
+    executor: ruby/default
+    steps:
+      - checkout
+      - run:
+          name: Which bundler?
+          command: bundle -v
+      - ruby/bundle-install
+
+commands:
+  bundle_for_gem:
+    description: Bundles and caches a gem.
+    parameters:
+      bundler_version:
+        type: string
+        default: '2.2.33'
+      cache_version:
+        type: string
+        default: "1"
+      project:
+        type: string
+      ruby_version:
+        type: string
+        default: '3.0.6'
+    steps:
+      - restore_cache:
+          keys:
+            - v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
+              "Gemfile.lock" }}-<< parameters.ruby_version >>
+          name: Restore bundle from cache
+      - run:
+          name: Install xslt xml2
+          command: |
+            sudo apt update && sudo apt-get install libxslt-dev libxml2-dev
+      - run:
+          name: Update bundler
+          command: |
+            echo 'export BUNDLER_VERSION=<< parameters.bundler_version >>' >> $BASH_ENV
+            gem install bundler -v << parameters.bundler_version >>
+      - run:
+          name: Install dependencies
+          #          command: |
+          #            bundle check || bundle install || cat /home/circleci/project/vendor/bundle/ruby/3.0.0/extensions/x86_64-linux/3.0.0/nokogiri-1.16.5/mkmf.log
+          command: bundle check || bundle install
+      - save_cache:
+          key: v<< parameters.cache_version >>-bundle-{{ checksum "Gemfile" }}--{{ checksum
+            "Gemfile.lock" }}-<< parameters.ruby_version >>
+          name: Save bundle cache
+          paths:
+            - ~/project/vendor/bundle
+  cached_checkout:
+    description: Perform a cache-enabled git checkout.
+    steps:
+      - restore_cache:
+          keys:
+            - v1-source-{{ .Branch }}-{{ .Revision }}
+          name: Restore code from cache
+      - checkout
+      - save_cache:
+          key: v1-source-{{ .Branch }}-{{ .Revision }}
+          name: Save code cache
+          paths:
+            - .git
+  install_java:
+    description: Install java
+    steps:
+      - run:
+          name: Install openjdk
+          command: |
+            sudo apt update && sudo apt-get install openjdk-17-jre
+            export JAVA_HOME=/usr/lib/jvm/openjdk-17-jdk
+            export PATH=$PATH:$JAVA_HOME/bin
+      - run:
+          name: java --version
+          command: java --version || true
+  #  install_fits:
+  #    description: Installs fix utility
+  #    steps:
+  #      - run:
+  #          command: |
+  #            mkdir -p /app/fits
+  #            cd /app/fits
+  #            wget https://github.com/harvard-lts/fits/releases/download/1.6.0/fits-1.6.0.zip -O fits.zip
+  #            unzip fits.zip
+  #            rm fits.zip tools/mediainfo/linux/libmediainfo.so.0 tools/mediainfo/linux/libzen.so.0
+  #            chmod a+x /app/fits/fits.sh
+  #            sed -i 's/\(<tool.*TikaTool.*>\)/<!--\1-->/' /app/fits/xml/fits.xml
+  install_solr_core:
+    description: Installs a solr core into a running Solr docker container.
+    parameters:
+      core_name:
+        default: deepbluedata-test
+        type: string
+      solr_config_path:
+        default: ./solr/config
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
+    steps:
+      - run:
+          name: Wait for Solr
+          command: dockerize -wait tcp://localhost:<< parameters.solr_port >> -timeout
+            1m
+      - run:
+          name: Load config into solr
+          command: |
+            cd << parameters.solr_config_path >>
+            zip -1 -r solr_config.zip ./*
+            curl -H "Content-type:application/octet-stream" --data-binary @solr_config.zip "http://localhost:<< parameters.solr_port >>/solr/admin/configs?action=UPLOAD&name=solrconfig"
+            curl -H 'Content-type: application/json' http://localhost:<< parameters.solr_port >>/api/collections/ -d '{create: {name: << parameters.core_name >>, config: solrconfig, numShards: 1}}'
+  migrate_database:
+    description: Migrate the database
+    steps:
+      - run:
+          name: Migrate database
+          command: |
+            bundle exec rake db:drop
+            bundle exec rake db:create RAILS_ENV=test
+            bundle exec rake db:migrate RAILS_ENV=test
+  #  precompile_assets:
+  #    description: Precompile the assets and create soft link public directory.
+  #    steps:
+  #    - run:
+  #        command: |
+  #          bundle exec rake assets:precompile
+  #        name: Run asset precompile
+  #    - run:
+  #        command: |
+  #          mkdir ~/public/data
+  #          cp -R ./public/assets ./public/data
+  #        name: Run create and link public dirs
+  parallel_rspec:
+    description: Run RSpec in Parallel, storing test_results for CircleCI to parse.
+    steps:
+      - run:
+          name: Run rspec in parallel
+          command: |
+            mkdir /tmp/test-results
+            # the full glory of deprecation messages
+            # bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings)
+            # eliminate the noise by directing error to /dev/null
+            COVERALLS_REPO_TOKEN=$COVERALLS_REPO_TOKEN bundle exec rspec $(circleci tests glob "spec/**/*_spec.rb" | circleci tests split --split-by=timings) 2>/dev/null
+      - store_test_results:
+          path: /tmp/test-results
+      - store_artifacts:
+          destination: test-results
+          path: /tmp/test-results
+  rubocop:
+    description: Runs rubocop
+    steps:
+      - run:
+          command: bundle exec rubocop
+          name: Call Rubocop
+
+jobs:
+  bundle:
+    parameters:
+      ruby_version:
+        type: string
+        default: '3.0.6'
+      bundler_version:
+        type: string
+        default: '2.2.33'
+      rails_version:
+        type: string
+        default: '6.0.5'
+    executor:
+      name: 'ruby'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium
+    environment:
+      RAILS_VERSION: << parameters.rails_version >>
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: true
+    steps:
+      - cached_checkout
+      - bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
+          project: deepblue
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+            - project/**/*
+
+  lint:
+    parameters:
+      ruby_version:
+        type: string
+        default: '3.0.6'
+    executor:
+      name: 'ruby'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium
+    steps:
+      - attach_workspace:
+          at: ~/
+      - rubocop
+
+  build:
+    parameters:
+      ruby_version:
+        type: string
+        default: '3.0.6'
+      bundler_version:
+        type: string
+        default: '2.2.33'
+      rails_version:
+        type: string
+        default: '6.0.5'
+    executor:
+      name: 'ruby'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium
+    environment:
+      RAILS_VERSION: << parameters.rails_version >>
+      NOKOGIRI_USE_SYSTEM_LIBRARIES: true
+    steps:
+      - attach_workspace:
+          at: ~/
+      - bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
+          project: deepblue
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/*
+            - project/**/*
+
+  test:
+    parameters:
+      ruby_version:
+        type: string
+        default: '3.0.6'
+      bundler_version:
+        type: string
+        default: '2.2.33'
+    executor:
+      name: 'ruby_fcrepo_solr_redis'
+      ruby_version: << parameters.ruby_version >>
+    resource_class: medium
+    parallelism: 4
+    environment:
+      COVERALLS_PARALLEL: true
+    steps:
+      - run:
+          name: Install FITS
+          command: |
+            mkdir ~/fits
+            wget "https://github.com/harvard-lts/fits/releases/download/1.4.1/fits-1.4.1.zip"
+            unzip -d ~/fits/ "fits-1.4.1.zip"
+            chmod a+x ~/fits/fits.sh
+            ln -s ~/fits/fits.sh ~/fits/fits
+            rm "fits-1.4.1.zip"
+            java --version || true
+            env
+      - attach_workspace:
+          at: ~/
+      - install_java
+      - install_solr_core:
+          solr_config_path: ./solr/config
+      # Rerun bundler in case this is a different ruby version than bundle and build steps
+      - bundle_for_gem:
+          ruby_version: << parameters.ruby_version >>
+          bundler_version: << parameters.bundler_version >>
+          cache_version: '{{ checksum "./.circleci/.force_rebuild" }}'
+          project: deepblue
+      - migrate_database
+      # - precompile_assets
+      - parallel_rspec
+
+executors:
+  ruby:
+    description: Box just Ruby
+    docker:
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '3.0.6'
+        type: string
+  ruby_fcrepo_solr:
+    description: Box running FCRepo, Solr, and Ruby.
+    docker:
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node
+      - environment:
+          CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
+            -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
+            -XX:+DisableExplicitGC
+        image: ualbertalib/docker-fcrepo4:<< parameters.fcrepo_version>>
+      - command: bin/solr -cloud -noprompt -f -p <<parameters.solr_port>>
+        image: solr:7-alpine
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      FCREPO_TEST_PORT: 8080/fcrepo
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      fcrepo_version:
+        default: '4.7'
+        type: string
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '3.0.6'
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
+  ruby_fcrepo_solr_redis:
+    description: Box running FCRepo, Solr, Ruby, and Redis.
+    docker:
+      - image: cimg/<< parameters.ruby_type >>:<< parameters.ruby_version >>-node
+      - environment:
+          CATALINA_OPTS: -Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m
+            -Xmx1024m -XX:NewSize=256m -XX:MaxNewSize=256m -XX:PermSize=256m -XX:MaxPermSize=256m
+            -XX:+DisableExplicitGC
+        image: ualbertalib/docker-fcrepo4:<< parameters.fcrepo_version>>
+      - command: bin/solr -cloud -noprompt -f -p <<parameters.solr_port>>
+        image: solr:7-alpine
+      - image: circleci/redis:<<parameters.redis_version>>
+    environment:
+      BUNDLE_JOBS: 4
+      BUNDLE_PATH: vendor/bundle
+      BUNDLE_RETRY: 3
+      FCREPO_TEST_PORT: 8080/fcrepo
+      RACK_ENV: test
+      RAILS_ENV: test
+      SPEC_OPTS: --profile 10 --out /tmp/test-results/rspec.xml
+        --format progress
+    parameters:
+      fcrepo_version:
+        default: '4.7'
+        type: string
+      redis_version:
+        default: '6'
+        type: string
+      ruby_type:
+        default: ruby
+        type: string
+      ruby_version:
+        default: '3.0.6'
+        type: string
+      solr_port:
+        default: "8985"
+        type: string
+
+workflows:
+  version: 2
+  ruby3-0rails6-0:
+    jobs:
+      - bundle:
+          ruby_version: '3.0.6'
+          rails_version: '6.0.5'
+      # - lint:
+      #    ruby_version: '3.0.6'
+      #    requires:
+      #      - bundle
+      - build:
+          ruby_version: '3.0.6'
+          rails_version: '6.0.5'
+          requires:
+            - bundle
+      - test:
+          name: "rails3-0"
+          ruby_version: '3.0.6'
+          requires:
+            - build
+            # - lint

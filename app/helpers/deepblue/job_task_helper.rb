@@ -356,7 +356,35 @@ END_BODY
     #   job.hostnames.include? job.hostname
     # end
 
-    def self.initialize_options_from( *args, debug_verbose: job_task_helper_debug_verbose )
+    # def self.initialize_options_from_old( *args, debug_verbose: job_task_helper_debug_verbose )
+    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "args=#{args}",
+    #                                          "" ] if debug_verbose
+    #   options = {}
+    #   unless args.present?
+    #     options = options.with_indifferent_access
+    #     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                            ::Deepblue::LoggingHelper.called_from,
+    #                                            "options=#{options}",
+    #                                            "" ] if debug_verbose
+    #     return options.with_indifferent_access
+    #   end
+    #   args = normalize_args( *args, debug_verbose: debug_verbose )
+    #   args.each do |key,value|
+    #     options[key.to_s] = value
+    #   end
+    #   options = options.with_indifferent_access
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "options=#{options}",
+    #                                          "" ] if debug_verbose
+    #   return options
+    # end
+
+    # Upgrade: ruby3
+    def self.initialize_options_from( args:, debug_verbose: job_task_helper_debug_verbose )
       debug_verbose = debug_verbose && job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -371,7 +399,7 @@ END_BODY
                                                "" ] if debug_verbose
         return options.with_indifferent_access
       end
-      args = normalize_args( *args, debug_verbose: debug_verbose )
+      args = normalize_args( args: args, debug_verbose: debug_verbose )
       args.each do |key,value|
         options[key.to_s] = value
       end
@@ -383,37 +411,38 @@ END_BODY
       return options
     end
 
-    def self.normalize_args( *args, debug_verbose: job_task_helper_debug_verbose )
-      debug_verbose = debug_verbose && job_task_helper_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "args=#{args}",
-                                             "" ] if debug_verbose
-      return args if args.is_a? Hash
-      return args if args.is_a? ActiveSupport::HashWithIndifferentAccess
-      # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "args=#{args}",
-                                             "args.is_a?( Array )=#{args.is_a?( Array )}",
-                                             "args.length=#{args.length}",
-                                             "" ] if debug_verbose
-      if ( args.is_a?( Array ) && 1 == args.length  )
-        arg0 = args[0]
-        if ( arg0.is_a?( Array ) && ( arg0[0].is_a?( String ) || arg0[0].is_a?( Symbol ) ) )
-          # skip
-        else
-          args = args[0]
-        end
-      end
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "args=#{args}",
-                                             "" ] if debug_verbose
-      return args
-    end
+    # def self.normalize_args_old( *args, debug_verbose: job_task_helper_debug_verbose )
+    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "args=#{args}",
+    #                                          "" ] if debug_verbose
+    #   return args if args.is_a? Hash
+    #   return args if args.is_a? ActiveSupport::HashWithIndifferentAccess
+    #   # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "args=#{args}",
+    #                                          "args.is_a?( Array )=#{args.is_a?( Array )}",
+    #                                          "args.length=#{args.length}",
+    #                                          "" ] if debug_verbose
+    #   if ( args.is_a?( Array ) && 1 == args.length  )
+    #     arg0 = args[0]
+    #     if ( arg0.is_a?( Array ) && ( arg0[0].is_a?( String ) || arg0[0].is_a?( Symbol ) ) )
+    #       # skip
+    #     else
+    #       args = args[0]
+    #     end
+    #   end
+    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                          ::Deepblue::LoggingHelper.called_from,
+    #                                          "args=#{args}",
+    #                                          "" ] if debug_verbose
+    #   return args
+    # end
 
-    def self.normalize_args2( *args, debug_verbose: job_task_helper_debug_verbose )
+    # Upgrade: ruby3
+    def self.normalize_args( args:, debug_verbose: job_task_helper_debug_verbose )
       debug_verbose ||= job_task_helper_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -446,6 +475,7 @@ END_BODY
                                              ::Deepblue::LoggingHelper.called_from,
                                              "args=#{args}",
                                              "" ], bold_puts: true if debug_verbose
+      args = args[0] if ( args.is_a?( Array ) && 1 == args.length && args[0].is_a?( Hash ) )
       return args
     end
 
@@ -485,7 +515,7 @@ END_BODY
                          timestamp_end: DateTime.now  )
 
       hostname = Rails.configuration.hostname if hostname.nil?
-      subject = MsgHelper.t( 'hyrax.email.subject.default', task_name: task_name, hostname: hostname ) if subject.blank?
+      subject = MsgHelper.t!( 'hyrax.email.subject.default', task_name: task_name, hostname: hostname ) if subject.blank?
       # TODO: integrate timestamps
       body = subject if body.blank?
       email_sent = ::Deepblue::EmailHelper.send_email( to: email_target,

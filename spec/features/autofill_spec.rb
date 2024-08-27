@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Skip: hyrax4 - WebMock::NetConnectNotAllowedError
 require 'rails_helper'
 
 RSpec.describe 'autofilling the form from DOI', :js, skip: true do

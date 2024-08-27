@@ -1,0 +1,7 @@
+<%# Added: hyrax4 %>
+<%# monkey - copied up from blacklight gem because the blacklight helpers were not being found %>
+
+<%= link_to url, title: label, class: "#{Array(@classes).join(' ')} view-type-#{ @key.to_s.parameterize } #{"active" if selected?}" do %>
+  <%= icon %>
+  <span class="caption"><%= label %></span>
+<% end %>

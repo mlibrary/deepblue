@@ -1,4 +1,5 @@
-<ul id="user_utility_links" class="nav navbar-nav navbar-right">
+<%# Update: hyrax4 -- revisit? %>
+<ul id="user_utility_links" class="navbar-nav navbar-dark">
   <!-- About, Help, Contact Us -->
   <li <%= 'class=active' if current_page?(hyrax.about_path) %>>
     <%= link_to t(:'hyrax.controls.about'),
@@ -16,19 +17,26 @@
 
   <%= render 'shared/locale_picker' if available_translations.size > 1 %>
   <% if user_signed_in? %>
-    <li>
+    <li class="nav-item">
       <%= render_notifications(user: current_user) %>
     </li>
-    <li class="dropdown">
-      <%= link_to hyrax.dashboard_path, # hyrax.dashboard_profile_path(current_user),
-                  role: 'button',
-                  data: {toggle: 'dropdown'},
-                  aria: {haspopup: true, expanded: false} do %>
+    <li class="nav-item dropdown">
+      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <span class="sr-only"><%= t("hyrax.toolbar.profile.sr_action") %></span>
-        <span class="hidden-xs">&nbsp;<%= current_user.name %></span>
+        <span><%= current_user.name %></span>
         <span class="sr-only"> <%= t("hyrax.toolbar.profile.sr_target") %></span>
-        <span class="fa fa-user"></span>
-        <span class="caret"></span>
+      </a>
+      <% if false %>
+        <%= link_to hyrax.dashboard_path, # hyrax.dashboard_profile_path(current_user),
+                    role: 'button',
+                    data: {toggle: 'dropdown'},
+                    aria: {haspopup: true, expanded: false} do %>
+          <span class="sr-only"><%= t("hyrax.toolbar.profile.sr_action") %></span>
+          <span class="hidden-xs">&nbsp;<%= current_user.name %></span>
+          <span class="sr-only"> <%= t("hyrax.toolbar.profile.sr_target") %></span>
+          <span class="fa fa-user"></span>
+          <span class="caret"></span>
+        <% end %>
       <% end %>
       <ul class="dropdown-menu dropdown-menu-right" role="menu">
         <li><%= link_to t('hyrax.admin.sidebar.profile'), hyrax.dashboard_profile_path(current_user) %></li>
@@ -100,18 +108,17 @@
                           class: 'log-out',
                           role: 'menuitem' %></li>
         <% end %>
-
       </ul>
     </li><!-- /.btn-group -->
   <% else %>
-    <li>
+    <li class="nav-item">
       <% if Rails.configuration.authentication_method == "iu" %>
         <%= link_to main_app.new_user_session_path do %>
           <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> Login To CAS
         <% end %>
       <% else %>
-        <%= link_to main_app.new_user_session_path do %>
-          <span class="glyphicon glyphicon-log-in" aria-hidden="true"></span> <%= t("hyrax.toolbar.profile.login") %>
+        <%= link_to main_app.new_user_session_path, class: 'nav-link' do %>
+          <span class="fa fa-sign-in" aria-hidden="true"></span> <%= t("hyrax.toolbar.profile.login") %>
         <% end %>
       <% end %>
     </li>

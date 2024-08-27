@@ -29,7 +29,7 @@ END_OF_SCHEDULER_ENTRY
   EVENT = 'update condensed events'
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: update_condensed_events_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: update_condensed_events_job_debug_verbose )
     return job_finished unless hostname_allowed?
     log( event: "update condensed events job", hostname_allowed: hostname_allowed? )
     ::AnalyticsHelper.update_current_month_condensed_events( msg_handler: msg_handler )

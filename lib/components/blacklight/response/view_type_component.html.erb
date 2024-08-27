@@ -1,0 +1,11 @@
+<%# Added: hyrax4 %>
+<%# monkey - copied up from blacklight gem because the blacklight helpers were not being found %>
+
+<div class="view-type">
+  <span class="sr-only visually-hidden"><%= t('blacklight.search.view_title') %></span>
+  <div class="view-type-group btn-group">
+    <% views.each do |view| %>
+      <%= view %>
+    <% end %>
+  </div>
+</div>

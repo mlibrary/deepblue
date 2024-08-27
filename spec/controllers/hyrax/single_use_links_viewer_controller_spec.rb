@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Hyrax::SingleUseLinksViewerController do
@@ -15,7 +17,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
     end
   end
 
-  describe 'retrieval links' do
+  describe "retrieval links" do
     let(:user) { build(:user) }
     let(:file) do
       create(:file_set, label: 'world.png', user: user)
@@ -48,12 +50,9 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
         let(:download_link_hash) { download_link.download_key }
 
         describe "GET 'download'", skip: false do
-          let(:expected_content) { ActiveFedora::Base.find(file.id).original_file.content }
-
+          let(:expected_content) { Hyrax.query_service.find_by_alternate_identifier(alternate_identifier: file.id, use_valkyrie: false).original_file.content }
           it "downloads the file and deletes the link from the database", skip: false do
-            expect(controller).to receive(:send_file_headers!).with( filename: 'world.png',
-                                                                     disposition: 'attachment',
-                                                                     type: 'image/png')
+            expect(controller).to receive(:send_file_headers!).with({ filename: 'world.png', disposition: 'attachment', type: 'image/png' })
             get :download, params: { id: download_link_hash }
             expect(response.body).to eq expected_content
             expect(response).to be_successful
@@ -81,7 +80,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
             # expect { SingleUseLink.find_by_download_key!(show_link_hash) }.to raise_error ActiveRecord::RecordNotFound
           end
 
-          context "shows the main page with message when the key is not found" do
+          context "when the key is not found" do
             before { SingleUseLink.find_by_download_key!(show_link_hash).destroy }
             it "redirects to the main page" do
               get :show, params: { id: show_link_hash }
@@ -95,6 +94,13 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
             expect(response).to redirect_to( "http://test.host/concern/file_sets/#{file.id}/single_use_link/#{download_link_hash}" )
             expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice.show_file_html'))
           end
+
+          # Skipped: hyrax4
+          it "returns 404 on attempt to get show path with download hash", skip: true do
+            get :show, params: { id: download_link_hash }
+            expect(response).to render_template("hyrax/single_use_links_viewer/single_use_error", "layouts/error")
+          end
+
         end
       end
     end

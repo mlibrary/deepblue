@@ -30,7 +30,7 @@ fedora_accessible_job:
   attr_accessor :email_targets_when_not_accessible, :verbose
 
   def perform( *args )
-    initialize_options_from( *args, debug_verbose: fedora_check_and_update_index_job_debug_verbose )
+    initialize_options_from( args: args, debug_verbose: fedora_check_and_update_index_job_debug_verbose )
     return if fedora_accessible?
     ingest_work_to_reindex_fedora
     job_finished

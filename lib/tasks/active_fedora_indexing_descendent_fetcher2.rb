@@ -25,7 +25,12 @@ ActiveFedora::Fedora.class_eval do
     Faraday.new(host, options) do |conn|
       conn.response :encoding # use Faraday::Encoding middleware
       conn.adapter Faraday.default_adapter # net/http
-      conn.basic_auth(user, password)
+      # conn.basic_auth(user, password)
+      if Gem::Version.new(Faraday::VERSION) < Gem::Version.new('2')
+        conn.request :basic_auth, user, password
+      else
+        conn.request :authorization, :basic, user, password
+      end
     end
   end
 

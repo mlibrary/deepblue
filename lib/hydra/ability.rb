@@ -1,4 +1,5 @@
-# monkey
+# monkey -- add debug verbose code
+# Updated: hyrax4
 
 # Code for [CANCAN] access to Hydra models
 
@@ -16,14 +17,8 @@ module Hydra
 
     included do
       include Hydra::PermissionsQuery
-      include Blacklight::SearchHelper
 
-      self.ability_logic = [:create_permissions,
-                            :edit_permissions,
-                            :read_permissions,
-                            :discover_permissions,
-                            :download_permissions,
-                            :custom_permissions]
+      self.ability_logic = [:create_permissions, :edit_permissions, :read_permissions, :discover_permissions, :download_permissions, :custom_permissions]
     end
 
     def self.user_class

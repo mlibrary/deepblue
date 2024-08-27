@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../lib/helpers/blacklight/catalog_helper_behavior.rb'
+
 module Deepblue
 
   module DeepbluePresenterBehavior
@@ -9,7 +11,7 @@ module Deepblue
 
     include Rails.application.routes.url_helpers
     include ActionDispatch::Routing::PolymorphicRoutes
-    include Blacklight::CatalogHelperBehavior
+    include ::Blacklight::CatalogHelperBehavior
 
     def default_url_options
       Rails.application.config.action_mailer.default_url_options

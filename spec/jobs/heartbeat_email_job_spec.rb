@@ -20,14 +20,14 @@ RSpec.describe HeartbeatEmailJob do
   RSpec.shared_examples 'it performs the job' do |run_on_server, debug_verbose_count|
     let(:event)        { "heartbeat email job" }
     let(:dbg_verbose)  { debug_verbose_count > 0 }
-    let(:job)          { described_class.send( :job_or_instantiate, *args ) }
+    let(:job)          { described_class.send( :job_or_instantiate, **args ) }
     let(:time_before)  { DateTime.now }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original
       expect(job).to receive(:job_status_init).with(id: nil, restartable: nil).and_call_original
       expect(job).to receive(:timestamp_begin).with(no_args).at_least(:once).and_call_original
-      expect(job).to receive(:initialize_options_from).with(*args, debug_verbose: dbg_verbose).and_call_original
+      expect(job).to receive(:initialize_options_from).with(args: [args], debug_verbose: dbg_verbose).and_call_original
       expect(job).to receive(:hostname_allowed?).with(no_args).at_least(:once).and_call_original
       expect(job).to receive(:log).with({event: event, hostname_allowed: allowed})
       if run_on_server

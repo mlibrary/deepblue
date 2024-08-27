@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
 
 # Responsible for persisting the ownership transfer requests and the state of each request.
 # @see ProxyDepositRequest.enum(:status)
@@ -11,7 +12,7 @@ class ProxyDepositRequest < ActiveRecord::Base
   include ActionView::Helpers::UrlHelper
 
   class_attribute :work_query_service_class
-  self.work_query_service_class = Hyrax::WorkQueryService
+  self.work_query_service_class = Hyrax.config.use_valkyrie? ? Hyrax::WorkResourceQueryService : Hyrax::WorkQueryService
 
   delegate :deleted_work?, :work, :to_s, to: :work_query_service
 
@@ -101,7 +102,7 @@ class ProxyDepositRequest < ActiveRecord::Base
       transfers_path = ::Deepblue::RouteHelper.relative_url( Hyrax::Engine.routes.url_helpers.transfers_path )
       transfer_link = link_to( I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.transfer_link_label'),
                                transfers_path )
-      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_create.message',
+      message = I18n.t!('hyrax.notifications.proxy_deposit_request.transfer_on_create.message',
                        user_link: user_link,
                        transfer_link: transfer_link)
       Hyrax::MessengerService.deliver(::User.batch_user,
@@ -111,15 +112,15 @@ class ProxyDepositRequest < ActiveRecord::Base
     end
 
     def send_request_transfer_message_as_part_of_update
-      message = I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.message', status: status)
+      message = I18n.t!('hyrax.notifications.proxy_deposit_request.transfer_on_update.message', status: status)
       if receiver_comment.present?
-        message += " " + I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.comments',
+        message += " " + I18n.t!('hyrax.notifications.proxy_deposit_request.transfer_on_update.comments',
                                 receiver_comment: receiver_comment)
       end
       Hyrax::MessengerService.deliver(::User.batch_user,
                                       sending_user,
                                       message,
-                                      I18n.t('hyrax.notifications.proxy_deposit_request.transfer_on_update.subject',
+                                      I18n.t!('hyrax.notifications.proxy_deposit_request.transfer_on_update.subject',
                                              status: status))
     end
 

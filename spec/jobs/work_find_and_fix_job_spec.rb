@@ -12,7 +12,7 @@ RSpec.describe WorkFindAndFixJob do
     let(:dbg_verbose) { debug_verbose_count > 0 }
     let(:id)          { 'workid' }
     let(:args)        { {} }
-    let(:job)         { described_class.send(:job_or_instantiate, id, *args) }
+    let(:job)         { described_class.send(:job_or_instantiate, id: id, **args) }
 
     before do
       expect(job).to receive(:perform_now).with(no_args).and_call_original

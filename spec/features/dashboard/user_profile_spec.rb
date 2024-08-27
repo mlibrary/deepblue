@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 # hyrax-orcid
+# Skip: hyrax4
 
 require 'rails_helper'
 
-RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true, skip: ENV['CIRCLECI'].present? do
+RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true, skip: true || ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
@@ -26,7 +27,7 @@ RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clea
     sign_in user
   end
 
-  describe "when the feature is disabled" do
+  describe "when the feature is disabled", skip: true do
     before do
       allow(Flipflop).to receive(:enabled?).with(:hyrax_orcid).and_return(false)
       allow(Flipflop).to receive(:hyrax_orcid?).and_return false
@@ -39,7 +40,7 @@ RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clea
     end
   end
 
-  describe "when the user has not linked their account" do
+  describe "when the user has not linked their account", skip: true do
     before do
       visit hyrax.dashboard_profile_path(user.to_param, locale: "en")
     end

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+#  Reviewed: hyrax4
 
 module Hyrax
 
@@ -22,6 +23,10 @@ module Hyrax
     before_action :authenticate_user!, except: [:show, :citation, :stats, :anonymous_link, :single_use_link] # monkey
     load_and_authorize_resource class: ::FileSet, except: [:show, :anonymous_link, :single_use_link] # monkey
     before_action :build_breadcrumbs, only: [:show, :edit, :stats]
+    before_action do
+      blacklight_config.track_search_session = false
+    end
+    before_action :presenter
 
     # monkey begin
     before_action :provenance_log_destroy,       only: [:destroy]
@@ -47,6 +52,10 @@ module Hyrax
 
     helper_method :curation_concern
     copy_blacklight_config_from(::CatalogController)
+    # Define collection specific filter facets.
+    configure_blacklight do |config|
+      config.search_builder_class = Hyrax::FileSetSearchBuilder
+    end
 
     class_attribute :show_presenter, :form_class
     # self.show_presenter = Hyrax::FileSetPresenter # monkey
@@ -90,12 +99,22 @@ module Hyrax
 
     # GET file_sets/:id/anonymous_link/:anon_link_id
     def anonymous_link
+      # puts
+      # puts "\n#{::Deepblue::LoggingHelper.here}\n"
+      # puts "anonymous_link"
+      # puts "params[:id]=#{params[:id]}"
+      # puts "params[:anon_link_id]=#{params[:anon_link_id]}"
+      # puts "@file_set=#{@file_set}"
+      # puts
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
                                              "params[:anon_link_id]=#{params[:anon_link_id]}",
                                              "" ] if file_sets_controller_debug_verbose
       @file_set ||= ::Deepblue::WorkViewContentService.content_find_by_id( id: params[:id] )
+      puts
+      puts "@file_set=#{@file_set}"
+      puts
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
@@ -214,11 +233,11 @@ module Hyrax
                                                "curation_concern.parent.read_me_file_set_id=#{curation_concern.parent.read_me_file_set_id}",
                                                "" ] if file_sets_controller_debug_verbose
         redirect_to [main_app, curation_concern.parent],
-                    notice: I18n.t('hyrax.file_sets.notifications.assigned_as_read_me',
+                    notice: I18n.t!('hyrax.file_sets.notifications.assigned_as_read_me',
                                    filename: curation_concern.label )
       else
         redirect_to [main_app, curation_concern.parent],
-                    error: I18n.t('hyrax.file_sets.notifications.insufficient_rights_to_assign_as_read_me',
+                    error: I18n.t!('hyrax.file_sets.notifications.insufficient_rights_to_assign_as_read_me',
                                   filename: curation_concern.label )
       end
     end
@@ -313,16 +332,6 @@ module Hyrax
       "#{path}#{append}"
     end
 
-    # DELETE /concern/file_sets/:id
-    def destroy
-      parent = curation_concern.parent
-      guard_for_workflow_restriction_on!(parent: presenter.parent) # TODO: verify for hyrax v3
-      return redirect_to [main_app, curation_concern],
-                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_delete_file?
-      actor.destroy
-      redirect_to [main_app, parent],  notice: view_context.t('hyrax.file_sets.asset_deleted_flash.message')
-    end
-
     # GET /concern/file_sets/:id
     def edit
       return redirect_to [main_app, curation_concern],
@@ -409,6 +418,16 @@ module Hyrax
         wants.json { presenter }
         additional_response_formats(wants)
       end
+    end
+
+    # DELETE /concern/file_sets/:id
+    def destroy
+      parent = curation_concern.parent
+      guard_for_workflow_restriction_on!(parent: presenter.parent) # TODO: verify for hyrax v3
+      return redirect_to [main_app, curation_concern],
+                         notice: I18n.t('hyrax.insufficent_privileges_for_action') unless can_delete_file?
+      actor.destroy
+      redirect_to [main_app, parent],  notice: view_context.t('hyrax.file_sets.asset_deleted_flash.message')
     end
 
     # GET /files/:id/stats
@@ -663,6 +682,49 @@ module Hyrax
 
     protected
 
+    ##
+    # @api public
+    def delete(file_set:)
+      case file_set
+      when Valkyrie::Resource
+        transactions['file_set.destroy']
+          .with_step_args('file_set.remove_from_work' => { user: current_user },
+                          'file_set.delete' => { user: current_user })
+          .call(curation_concern)
+          .value!
+      else
+        actor.destroy
+      end
+    end
+
+    ##
+    # @api public
+    #
+    # @note this is provided so that implementing application can override this
+    #   behavior and map params to different attributes
+    def update_metadata
+      case file_set
+      when Hyrax::Resource
+        change_set = Hyrax::Forms::ResourceForm.for(file_set)
+
+        change_set.validate(attributes) &&
+          transactions['change_set.apply'].call(change_set).value_or { false }
+      else
+        file_attributes = form_class.model_attributes(attributes)
+        actor.update_metadata(file_attributes)
+      end
+    end
+
+    def parent(file_set: curation_concern)
+      @parent ||=
+        case file_set
+        when Hyrax::Resource
+          Hyrax.query_service.find_parents(resource: file_set).first
+        else
+          file_set.parent
+        end
+    end
+
     def attempt_update
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -686,7 +748,8 @@ module Hyrax
                                                "current_user=#{current_user}",
                                                ::Deepblue::LoggingHelper.obj_class( "actor", actor ),
                                                "actor.update_content" ] if file_sets_controller_debug_verbose
-          actor.update_content(params[:file_set][:files].first)
+          # hyrax2 # actor.update_content(params[:file_set][:files].first)
+          actor.update_content(uploaded_file_from_path)
         else
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
@@ -708,35 +771,9 @@ module Hyrax
       end
     end
 
-    def decide_layout
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if file_sets_controller_debug_verbose
-      layout = if 'show' == action_name || params[:link_id].present? || params[:anon_link_id].present?
-                 '1_column'
-               else
-                 'dashboard'
-               end
-      rv = File.join(theme, layout)
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "rv=#{rv}",
-                                             "" ] if file_sets_controller_debug_verbose
-      return rv
-    end
-
-    def presenter
-      @presenter ||= begin
-        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                               ::Deepblue::LoggingHelper.called_from,
-                                               "params=#{params}",
-                                               "" ] if file_sets_controller_debug_verbose
-        # _, document_list = search_results(params)
-        # curation_concern = document_list.first
-        # raise CanCan::AccessDenied unless curation_concern
-        curation_concern = search_result_document( params )
-        show_presenter.new( curation_concern, current_ability, request )
-      end
+    def uploaded_file_from_path
+      uploaded_file = CarrierWave::SanitizedFile.new(params[:file_set][:files].first)
+      Hyrax::UploadedFile.create(user_id: current_user.id, file: uploaded_file)
     end
 
     def show_presenter
@@ -813,26 +850,6 @@ module Hyrax
 
     private
 
-    # this is provided so that implementing application can override this behavior and map params to different attributes
-    def update_metadata
-      file_attributes = form_class.model_attributes(attributes)
-      actor.update_metadata(file_attributes)
-    end
-
-    # monkey begin
-    # def attempt_update
-    #   if wants_to_revert?
-    #     actor.revert_content(params[:revision])
-    #   elsif params.key?(:file_set)
-    #     if params[:file_set].key?(:files)
-    #       actor.update_content(params[:file_set][:files].first)
-    #     else
-    #       update_metadata
-    #     end
-    #   end
-    # end
-    # monkey end
-
     def after_update_response
       respond_to do |wants|
         wants.html do
@@ -894,6 +911,15 @@ module Hyrax
     def initialize_edit_form
       @parent = @file_set.in_objects.first
       guard_for_workflow_restriction_on!(parent: @parent) # TODO: verify for hyrax v3
+      # Begin: Added: hyrax4
+      case file_set
+      when Hyrax::Resource
+        @form = Hyrax::Forms::ResourceForm.for(file_set)
+        @form.prepopulate!
+      else
+        @form = form_class.new(file_set)
+      end
+      # End: Added: hyrax4
       original = @file_set.original_file
       @version_list = Hyrax::VersionListPresenter.new(original ? original.versions.all : [])
       @groups = current_user.groups
@@ -923,11 +949,24 @@ module Hyrax
     # monkey begin
     # def presenter
     #   @presenter ||= begin
-    #                    presenter = show_presenter.new(curation_concern_document, current_ability, request)
-    #                    raise WorkflowAuthorizationException if presenter.parent.blank?
-    #                    presenter
+    #                    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                                           ::Deepblue::LoggingHelper.called_from,
+    #                                                           "params=#{params}",
+    #                                                           "" ] if file_sets_controller_debug_verbose
+    #                    # _, document_list = search_results(params)
+    #                    # curation_concern = document_list.first
+    #                    # raise CanCan::AccessDenied unless curation_concern
+    #                    curation_concern = search_result_document( params )
+    #                    show_presenter.new( curation_concern, current_ability, request )
     #                  end
     # end
+    def presenter
+      @presenter ||= begin
+                       presenter = show_presenter.new(curation_concern_document, current_ability, request)
+                       # raise WorkflowAuthorizationException if presenter.parent.blank?
+                       presenter
+                     end
+    end
     # monkey end
 
     def curation_concern_document
@@ -940,7 +979,7 @@ module Hyrax
     end
 
     def single_item_search_service
-      Hyrax::SearchService.new(config: blacklight_config, user_params: params.except(:q, :page), scope: self, search_builder_class: search_builder_class)
+      Hyrax::SearchService.new(config: blacklight_config, user_params: params.except(:q, :page), scope: self, search_builder_class: blacklight_config.search_builder_class)
     end
 
     def wants_to_revert?
@@ -967,6 +1006,22 @@ module Hyrax
     #   File.join(theme, layout)
     # end
     # monkey end
+    def decide_layout
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if file_sets_controller_debug_verbose
+      layout = if 'show' == action_name || params[:link_id].present? || params[:anon_link_id].present?
+                 '1_column'
+               else
+                 'dashboard'
+               end
+      rv = File.join(theme, layout)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if file_sets_controller_debug_verbose
+      return rv
+    end
 
     # rubocop:disable Metrics/MethodLength
     def render_unavailable

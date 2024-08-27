@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+# Reviewed: hyrax4
+
 module Hyrax
   class AdminStatsPresenter
     attr_reader :limit, :stats_filters

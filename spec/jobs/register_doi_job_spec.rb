@@ -39,9 +39,9 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
           before { ActiveJob::Base.queue_adapter = :test }
 
           it 'enqueues the job' do
-            expect { described_class.perform_later(work) }
+            expect { described_class.perform_later(id: work.id) }
               .to enqueue_job(described_class)
-                    .with(work)
+                    .with(id: work.id)
                     .on_queue(:doi_minting)
             ::Deepblue::LoggingHelper.bold_debug "The above has no bold_debug statements." if dbg_verbose
           end

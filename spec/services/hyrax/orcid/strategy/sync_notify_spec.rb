@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::Orcid::Strategy::SyncNotify do
+RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
   let(:sync_preference) { "sync_notify" }
   let(:strategy) { described_class.new(work, orcid_identity) }
   let(:user) { create(:user) }

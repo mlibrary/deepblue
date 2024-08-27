@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+# Skip: hyrax4
 # Generated via
 #  `rails generate hyrax:work GenericWork`
 require 'rails_helper'

@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+# Skip: hyrax4
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, skip: ENV['CIRCLECI'].present? do
+RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, skip: true || ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 

@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 module Hyrax::FileSetHelper
 
   mattr_accessor :file_set_helper_debug_verbose, default: false
@@ -11,10 +13,17 @@ module Hyrax::FileSetHelper
     end
   end
 
-  # REVIEW: Since this media display could theoretically work for
-  #         any object that inplements to_s and the Mime Type methos (image? audio? ...),
-  #         Should this really be in file_set or could it be in it's own helper class like media_helper?
+  ##
+  # monkey # (at)deprecated use render(media_display_partial(file_set), file_set: file_set)
+  #   instead
+  #
+  # @param presenter [Object]
+  # @param locals [Hash{Symbol => Object}]
   def media_display( file_set, current_ability, presenter = nil, locals = {} )
+    Deprecation.warn("the helper `media_display` renders a partial name " \
+                     "provided by `media_display_partial`. Callers " \
+                     "should render `media_display_partial(file_set) directly
+                     instead.")
     ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                           ::Deepblue::LoggingHelper.called_from,
                                           "file_set.class.name=#{file_set.class.name}",

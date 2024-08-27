@@ -241,7 +241,12 @@ module Deepblue
                                              # "password=#{password}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
       rv = Faraday.new(url: base_url) do |c|
-        c.basic_auth(username, password)
+        # c.basic_auth(username, password)
+        if Gem::Version.new(Faraday::VERSION) < Gem::Version.new('2')
+          c.request :basic_auth, username, password
+        else
+          c.request :authorization, :basic, username, password
+        end
         c.adapter(Faraday.default_adapter)
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -259,7 +264,12 @@ module Deepblue
                                              # "password=#{password}",
                                              "" ], bold_puts: debug_verbose_puts if debug_verbose
       rv = Faraday.new(url: mds_base_url) do |c|
-        c.basic_auth(username, password)
+        # c.basic_auth(username, password)
+        if Gem::Version.new(Faraday::VERSION) < Gem::Version.new('2')
+          c.request :basic_auth, username, password
+        else
+          c.request :authorization, :basic, username, password
+        end
         c.adapter(Faraday.default_adapter)
       end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+# Reviewed: hyrax4
+
 RSpec.describe Hyrax::SolrDocument::OrderedMembers do
   subject(:decorated) { described_class.decorate(document) }
   let(:data) { { id: parent_id } }

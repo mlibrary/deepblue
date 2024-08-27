@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 RSpec::Matchers.define :require_membership do
   match do |actual|
     actual&.require_membership?
@@ -24,6 +25,6 @@ end
 
 RSpec::Matchers.define :have_collections do
   match do |actual|
-    actual&.collections?
+    actual&.collections&.any?
   end
 end

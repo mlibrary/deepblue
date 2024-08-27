@@ -1,4 +1,5 @@
 <%#
+  # Updated: hyrax4
   ::Deepblue::LoggingHelper.bold_debug [ "" ]
   ::Deepblue::LoggingHelper.bold_debug [ "" ]
   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -75,11 +76,20 @@ signed in %>
 
 <!-- application js -->
 <%= javascript_include_tag 'application' %>
-<%= tinymce_assets if can? :update, ContentBlock %>
+
 <%= render 'shared/appearance_styles' %>
 
 <!-- Google Analytics -->
+<% if false %>
 <%= render partial: '/ga', formats: [:html] %>
+<% if Hyrax.config.analytics? %>
+  <% if Hyrax.config.analytics_provider == 'google' %>
+    <%= render partial: 'shared/ga', formats: [:html]  %>
+  <% elsif Hyrax.config.analytics_provider == 'matomo' %>
+    <%= render partial: 'shared/matomo', formats: [:html] %>
+  <% end %>
+<% end %>
+<% end %>
 
 <!-- for extras, e.g., a favicon -->
 <%= render partial: '/head_tag_extras', formats: [:html] %>

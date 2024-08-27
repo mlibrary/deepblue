@@ -81,6 +81,11 @@ module Hyrax
     end
 
     def show
+      # puts [ "", ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "params[:id]=#{params[:id]}",
+      #                                        "anonymous_link.class.name=#{anonymous_link.class.name}",
+      #                                        "" ].join("\n")
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params[:id]=#{params[:id]}",
@@ -93,21 +98,31 @@ module Hyrax
                                              "params[:id]=#{params[:id]}",
                                              "anonymous_link.item_id=#{anonymous_link.item_id}",
                                              "" ] if anonymous_links_viewer_controller_debug_verbose
-      _, document_list = search_results( id: anonymous_link.item_id )
-      solr_doc = document_list.first
-      model = solr_doc['has_model_ssim'].first
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "model=#{model}",
-                                             "" ] if anonymous_links_viewer_controller_debug_verbose
-      if 'FileSet' == model
+      # puts [ "", ::Deepblue::LoggingHelper.here, "anonymous_link=#{anonymous_link.pretty_inspect}", "search_service.class.name=#{search_service.class.name}", "" ].join("\n")
+      # _, document_list = search_results( id: anonymous_link.item_id )
+      # puts
+      # puts "document_list=#{document_list.first.pretty_inspect}"
+      # puts
+      # solr_doc = document_list.first
+      # model = solr_doc['has_model_ssim'].first
+      # id = solr_doc&.id
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "model=#{model}",
+      #                                        "" ] if anonymous_links_viewer_controller_debug_verbose
+      # is_file_set = 'FileSet' == model
+      cc = ::PersistHelper.find_or_nil( anonymous_link.item_id )
+      id = cc.id
+      is_file_set = cc.class.name == 'FileSet'
+      # puts [ "", "id=#{id}", "is_file_set=#{is_file_set}", "cc.class.name=#{cc.class.name}", ::Deepblue::LoggingHelper.here, "cc=#{cc.pretty_inspect}", "" ].join("\n")
+      if is_file_set
         # TODO: properly generate this route
-        url = "#{Rails.configuration.relative_url_root}/concern/file_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/file_sets/#{id}/anonymous_link/#{params[:id]}"
         flash_msg =  t('hyrax.anonymous_links.notice.show_file_html')
         # flash_msg =  t('hyrax.anonymous_links.notice.show_file_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       else
         # TODO: properly generate this route
-        url = "#{Rails.configuration.relative_url_root}/concern/data_sets/#{solr_doc.id}/anonymous_link/#{params[:id]}"
+        url = "#{Rails.configuration.relative_url_root}/concern/data_sets/#{id}/anonymous_link/#{params[:id]}"
         flash_msg =  t('hyrax.anonymous_links.notice.show_work_html')
         # flash_msg =  t('hyrax.anonymous_links.notice.show_work_with_help_link_html', help_link: "#{Rails.configuration.relative_url_root}/help" )
       end

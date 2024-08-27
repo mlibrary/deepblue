@@ -39,7 +39,7 @@ class GlobusCleanJob < GlobusJob
     globus_email_rds( description: "cleaned work #{@globus_concern_id} directories" )
     Deepblue::LoggingHelper.debug "#{@globus_log_prefix} end globus clean" unless @globus_job_quiet
 
-    GlobusCopyJob.perform_later( concern_id, log_prefix: log_prefix ) if start_globus_copy_after_clean
+    GlobusCopyJob.perform_later( concern_id: concern_id, log_prefix: log_prefix ) if start_globus_copy_after_clean
   end
 
 end
