@@ -169,6 +169,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     bi_description = ::Aptrust::AptrustUploaderForWork.dbd_bag_description( work: work )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "object_id=#{work.id}",
+                             "aptrust_info=#{aptrust_info.pretty_inspect}",
                              "bag_id_type=#{bag_id_type}",
                              "the_deposit_context=#{the_deposit_context}",
                              "export_dir=#{export_dir}",

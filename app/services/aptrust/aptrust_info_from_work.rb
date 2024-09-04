@@ -43,8 +43,8 @@ class Aptrust::AptrustInfoFromWork < Aptrust::AptrustInfo
            title:            ::Aptrust.arg_init_squish( title,            Array( work.title ).join(TITLE_JOIN ) ) )
   end
 
-  def build_replace( template )
-    super( template )
+  def build_replace( template, msg_handler: nil )
+    super( template, msg_handler: msg_handler )
   end
 
   def build_template
