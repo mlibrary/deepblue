@@ -6,6 +6,15 @@ class Aptrust::AptrustInfo
 
   mattr_accessor :aptrust_info_debug_verbose, default: false
 
+  DEFAULT_APTRUST_INFO_TXT_TEMPLATE =<<-END_OF_TEMPLATE
+Title: %title%
+Access: %access%
+Storage-Option: %storage_option%
+Description: %description%
+Item Description: %item_description%
+Creator/Author: %creator%
+END_OF_TEMPLATE
+
   mattr_accessor :aptrust_info_txt_template, default: ::Aptrust::AptrustIntegrationService.aptrust_info_txt_template
 
   mattr_accessor :default_access,           default: ::Aptrust::AptrustIntegrationService.default_access
@@ -55,12 +64,18 @@ class Aptrust::AptrustInfo
     @title            = ::Aptrust.arg_init_squish( title,            ::Aptrust::AptrustInfo.default_title )
   end
 
-  def build
+  def build( msg_handler: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if msg_handler.present?
     template = build_template.dup
-    build_replace( template )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "template=#{template}" ] if msg_handler.present?
+    template = build_replace( template )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "template=#{template}" ] if msg_handler.present?
+    return template
   end
 
-  def build_replace( template )
+  def build_replace( template, msg_handler: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "title=#{title}" ] if msg_handler.present?
     template.gsub!( '%title%',            title )
     template.gsub!( '%access%',           access )
     template.gsub!( '%storage_option%',   storage_option )
@@ -71,7 +86,9 @@ class Aptrust::AptrustInfo
   end
 
   def build_template
-    aptrust_info_txt_template
+    rv = aptrust_info_txt_template
+    rv = DEFAULT_APTRUST_INFO_TXT_TEMPLATE if rv.blank?
+    return rv
   end
 
   def build_fulcrum # save as reference

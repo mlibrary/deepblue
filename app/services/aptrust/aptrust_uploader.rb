@@ -27,7 +27,20 @@ class Aptrust::TarBag
     operation_dir = File.dirname bag_dir
     tar_target_file = File.basename tar_file
     source_dir_name = File.basename bag_dir
-    @tar_cmd_out = `cd #{operation_dir};tar -cf #{tar_target_file} #{source_dir_name}`
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "operation_dir=#{operation_dir}",
+                             "tar_target_file=#{tar_target_file}",
+                             "source_dir_name=#{source_dir_name}",
+                             "" ] if msg_handler.debug_verbose
+    tar_cmd = "cd #{operation_dir};tar -cf #{tar_target_file} #{source_dir_name}"
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "tar_cmd=#{tar_cmd}",
+                             "" ] if msg_handler.debug_verbose
+    @tar_cmd_out = `#{tar_cmd}`
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "@tar_cmd_out=#{@tar_cmd_out}",
+                             "" ] if msg_handler.debug_verbose
+    return @tar_cmd_out
   end
 
 end
@@ -400,10 +413,25 @@ class Aptrust::AptrustUploader
                                                   title:            ai_title ).build
   end
 
-  def aptrust_info_write( bag:, aptrust_info: nil )
+  def aptrust_info_write( bag:, aptrust_info: nil, note: nil )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}",
+                             "aptrust_info=#{aptrust_info}",
+                             "aptrust_info.present?=#{aptrust_info.present?}",
+                             "self.aptrust_info=#{self.aptrust_info}",
+                             "self.aptrust_info.present?=#{self.aptrust_info.present?}" ] if debug_verbose
     aptrust_info ||= self.aptrust_info
-    aptrust_info = aptrust_info.build if aptrust_info.respond_to? :build
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "aptrust_info=#{aptrust_info}",
+                             "aptrust_info.present?=#{aptrust_info.present?}",
+                             "aptrust_info.respond_to? :build=#{aptrust_info.respond_to? :build}" ] if debug_verbose
+    aptrust_info = aptrust_info.build( msg_handler: msg_handler ) if aptrust_info.respond_to? :build
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "aptrust_info=#{aptrust_info}" ] if debug_verbose
     file = File.join( bag.bag_dir, BAG_FILE_APTRUST_INFO )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "file=#{file}" ] if debug_verbose
     File.write( file, aptrust_info, mode: 'w' )
     # this does not work: bag.tag_files << file
     additional_tag_files << file
@@ -414,12 +442,14 @@ class Aptrust::AptrustUploader
   end
 
   def bag_bag( bag:, bag_info:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_BAGGED
       # info = bag_info
       bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-      aptrust_info_write( bag: bag )
+      aptrust_info_write( bag: bag, note: note )
       bag_manifest( bag: bag )
       msg_handler.msg_error "bag.complete? return false" unless bag.complete?
       msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
@@ -435,7 +465,9 @@ class Aptrust::AptrustUploader
   end
 
   def bag_bagging( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_BAGGING
       track_with_sleep( status: ::Aptrust::EVENT_BAGGING, note: note )
@@ -621,7 +653,19 @@ class Aptrust::AptrustUploader
                                "new_tag_files=#{new_tag_files}",
                                "( new_tag_files - tag_files )=#{( new_tag_files - tag_files )}" ] if debug_verbose
       # rewrite tagmanifest-info.txt if necessary
-      bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
+      begin
+        bag.tagmanifest!( new_tag_files ) unless ( new_tag_files - tag_files ).empty?
+      rescue RuntimeError => e
+        unless e.messaage.starts_with? "Tag file already in manifest:"
+          ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "ERROR",
+                                                 "e=#{e.class.name}",
+                                                 "e.message=#{e.message}",
+                                                 "e.backtrace:" ] + e.backtrace # error
+          raise e
+        end
+      end
 
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "aptrust_config.bag_delete_manifest_sha1=#{aptrust_config.bag_delete_manifest_sha1}",
@@ -667,21 +711,28 @@ class Aptrust::AptrustUploader
   end
 
   def bag_pack( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_PACKED
       if use_external_tar_cmd
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "using external tar command"] if debug_verbose
         tar = Aptrust::TarBag.new( bag_dir: bag.bag_dir,
                                    bag_id: bag_id,
                                    tar_file: tar_file( bag: bag ),
                                    msg_handler: msg_handler )
         tar.run
       else
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "using Minitar"] if debug_verbose
         parent = File.dirname bag.bag_dir
         Dir.chdir( parent ) do
           tar_src = File.basename bag.bag_dir
-          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
-          Minitar.pack( tar_src, File.open( tar_filename( bag: bag ), 'wb') )
+          tar_filename = tar_filename( bag: bag )
+          msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                   "tar_src=#{tar_src}",
+                                   "tar_filename=#{tar_filename}"] if debug_verbose
+          Minitar.pack( tar_src, File.open( tar_filename, 'wb') )
         end
       end
       export_tar_file = File.join( export_dir, File.basename( tar_file( bag: bag ) ) )
@@ -696,7 +747,8 @@ class Aptrust::AptrustUploader
   def bag_pack_and_upload( bag:, note: nil )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",
-                             "@most_recent_status=#{@most_recent_status}"  ] if debug_verbose
+                             "note=#{note}",
+                             "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
     files_exported = ::Aptrust::AptrustFileList.from_dir( dir: bag.data_dir )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "files_exported=#{files_exported}",
@@ -753,12 +805,12 @@ class Aptrust::AptrustUploader
                                                     bag_num: bag_num,
                                                     bag_max: bag_max )
         bag_export_data_files( bag: part_bag, data_files: partition )
-        bag_bagging( bag: bag, note: part_bag_id )
+        bag_bagging( bag: part_bag, note: part_bag_id )
         bag_bag( bag: part_bag, bag_info: part_bag_info, note: part_bag_id )
-        bag_packing( bag: bag, note: part_bag_id )
-        bag_pack( bag: bag, note: part_bag_id )
-        bag_uploading( bag: bag, note: part_bag_id )
-        bag_upload( bag: bag, note: part_bag_id )
+        bag_packing( bag: part_bag, note: part_bag_id )
+        bag_pack( bag: part_bag, note: part_bag_id )
+        bag_uploading( bag: part_bag, note: part_bag_id )
+        bag_upload( bag: part_bag, note: part_bag_id )
       end
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -767,7 +819,9 @@ class Aptrust::AptrustUploader
   end
 
   def bag_packing( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_PACKING
       track_with_sleep( status: ::Aptrust::EVENT_PACKING, note: note )
@@ -779,12 +833,25 @@ class Aptrust::AptrustUploader
 
   def bag_tar_mv( bag:, export_tar_file:, note: nil )
     tar_file = tar_file( bag: bag )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "export_tar_file=#{export_tar_file}",
+                             "tar_file=#{tar_file}",
+                             "note=#{note}" ] if debug_verbose
     return if File.identical? tar_file, export_tar_file
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "export_tar_file=#{export_tar_file}",
+                             "tar_file=#{tar_file}",
+                             "note=#{note}",
+                             "moving tar_file to export_tar_file"] if debug_verbose
     FileUtils.mv( tar_file, export_tar_file )
   end
 
   def bag_upload( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "bag_id=#{id_from( bag: bag )}",
@@ -830,7 +897,9 @@ class Aptrust::AptrustUploader
   end
 
   def bag_uploading( bag:, note: nil )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_UPLOADING
       track_with_sleep( status: ::Aptrust::EVENT_UPLOADING, note: note )
@@ -984,7 +1053,7 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
     begin # until true for break
       break if event_stop?
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "@most_recent_status=#{@most_recent_status}"  ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
       track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
