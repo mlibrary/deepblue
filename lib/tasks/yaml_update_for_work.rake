@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
+require_relative '../../app/tasks/deepblue/abstract_task'
+require_relative './yaml_update.rb'
+
 namespace :deepblue do
 
   # bundle exec rake deepblue:yaml_update_for_works['f4752g72m f4752g72m','{"source_dir":"/deepbluedata-prep"\,"ingester":"ingester@umich.edu"}']
   desc 'Yaml update for works (ids separated by spaces)'
   task :yaml_update_for_works, %i[ ids options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    task = Deepblue::YamlUpdateForWorks.new( ids: args[:ids], options: args[:options] )
+    task = ::Deepblue::YamlUpdateForWorks.new( ids: args[:ids], options: args[:options] )
     task.run
   end
 
@@ -19,7 +22,7 @@ module Deepblue
   require 'benchmark'
   include Benchmark
 
-  class YamlUpdateForWorks < Deepblue::YamlUpdate
+  class YamlUpdateForWorks < ::Deepblue::YamlUpdate
 
     def initialize( ids:, options: )
       super( update_type: 'work', options: options )

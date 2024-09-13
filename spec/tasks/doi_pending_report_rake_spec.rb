@@ -22,7 +22,8 @@ describe "doi pending report rake" do
     let(:msg_handler) { instance_double(::Deepblue::MessageHandler) }
 
     before do
-      expect(::Deepblue::MessageHandler).to receive(:new).with(debug_verbose: false,
+      expect(::Deepblue::MessageHandler).to receive(:new).with(bold_echo: false,
+                                                               debug_verbose: false,
                                                                msg_prefix: '',
                                                                msg_queue: nil,
                                                                to_console: true,

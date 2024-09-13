@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../app/tasks/deepblue/abstract_task'
+require_relative '../../app/tasks/deepblue/yaml_populate_for_work.rb'
 
 namespace :deepblue do
 
@@ -9,7 +10,7 @@ namespace :deepblue do
   # See: https://stackoverflow.com/questions/825748/how-to-pass-command-line-arguments-to-a-rake-task
   task :yaml_populate_from_work, %i[ id options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    task = Deepblue::YamlPopulateFromWork.new( id: args[:id], options: args[:options] )
+    task = ::Deepblue::YamlPopulateFromWork.new( id: args[:id], options: args[:options] )
     task.run
   end
 
@@ -17,7 +18,7 @@ namespace :deepblue do
   desc 'Yaml populate from multiple works (ids separated by spaces)'
   task :yaml_populate_from_multiple_works, %i[ ids options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    task = Deepblue::YamlPopulateFromMultipleWorks.new( ids: args[:ids], options: args[:options] )
+    task = ::Deepblue::YamlPopulateFromMultipleWorks.new( ids: args[:ids], options: args[:options] )
     task.run
   end
 
@@ -25,7 +26,7 @@ namespace :deepblue do
   desc 'Yaml populate from all works'
   task :yaml_populate_from_all_works, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
-    task = Deepblue::YamlPopulateFromAllWorks.new( options: args[:options] )
+    task = ::Deepblue::YamlPopulateFromAllWorks.new( options: args[:options] )
     task.run
   end
 

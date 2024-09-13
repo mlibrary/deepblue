@@ -397,6 +397,14 @@ module Deepblue
         admin_set.title == [DEFAULT_DATA_SET_ADMIN_SET_NAME]
       end
 
+      def admin_set_draft
+        if TaskHelper.dbd_version_1?
+          admin_set_default
+        else
+          AdminSet.find ::Deepblue::DraftAdminSetService.draft_admin_set_id
+        end
+      end
+
       def admin_set_work
         if TaskHelper.dbd_version_1?
           admin_set_default
@@ -418,6 +426,7 @@ module Deepblue
           work.reload
         end
         # entity = work.workflow_state
+        workflow_state = work_hash[:workflow_state]
         wgid = work.to_global_id.to_s
         entity = Sipity::Entity.where( proxy_for_global_id: wgid )
         # puts "entity=#{entity}"
@@ -428,19 +437,27 @@ module Deepblue
         # puts "entity=#{entity}"
         # puts "entity.class.name=#{entity.class.name}"
         # puts "wf.name=#{wf.name}"
-        action_name = work_hash[:workflow_state]
-        if action_name.blank?
-          action_name = if "open" == work.visibility
-                          "deposited"
-                        else
-                          "pending_review"
-                        end
+
+        if 'draft' == workflow_state
+          wf_draft = Sipity::Workflow.where( name: "draft_work_workflow" ).first
+          wf_state = Sipity::WorkflowState.where( workflow_id: wf_draft.id, name: "draft" ).first
+          entity.update!( workflow_id: wf_draft.id, workflow_state_id: wf_state.id )
+          log_provenance_workflow( curation_concern: work, workflow: wf, workflow_state: workflow_state )
+        else
+          action_name = workflow_state
+          if action_name.blank?
+            action_name = if "open" == work.visibility
+                            "deposited"
+                          else
+                            "pending_review"
+                          end
+          end
+          # puts "action_name=#{action_name}"
+          action = Sipity::WorkflowAction.find_or_create_by!( workflow: wf, name: action_name )
+          wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
+          entity.update!( workflow_state_id: action.id, workflow_state: wf_state )
+          log_provenance_workflow( curation_concern: work, workflow: wf, workflow_state: action_name )
         end
-        # puts "action_name=#{action_name}"
-        action = Sipity::WorkflowAction.find_or_create_by!( workflow: wf, name: action_name )
-        wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
-        entity.update!( workflow_state_id: action.id, workflow_state: wf_state )
-        log_provenance_workflow( curation_concern: work, workflow: wf, workflow_state: action_name )
       end
 
       def attr_prefix( cc_or_fs )
@@ -450,6 +467,7 @@ module Deepblue
       end
 
       def build_admin_set_work( hash: )
+        return admin_set_draft if 'draft' == hash[:workflow_state]
         return admin_set_work
         # TODO: resolve the issue that we really don't normally need to create admin sets
         admin_set_id = hash[:admin_set_id]
@@ -2189,7 +2207,9 @@ module Deepblue
       def report( first_label:, first_id:, measurements:, total: nil )
         return if measurements.blank?
         label = first_label
-        label += ' ' * (first_id.size - label.size)
+        sp_cnt = (first_id.size - label.size)
+        sp_cnt = 0 if sp_cnt < 0
+        label += ' ' * sp_cnt
         log_msg "#{label} #{Benchmark::CAPTION.chop}", timestamp_it: false
         format = Benchmark::FORMAT.chop
         measurements.each do |measurement|
