@@ -35,6 +35,14 @@ module Deepblue
                          debug_verbose: ticket_helper_debug_verbose )
 
       debug_verbose = debug_verbose || ticket_helper_debug_verbose
+      ::Deepblue::EmailHelper.send_email_fritx( subject: "new_ticket",
+                                                messages: [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "curation_concern.present?=#{curation_concern.present?}",
+                                                            "cc_id=#{cc_id}",
+                                                            "current_user=#{current_user}",
+                                                            "force=#{force}",
+                                                            "test_mode=#{test_mode}" ] ) if debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.present?=#{curation_concern.present?}",
@@ -60,13 +68,17 @@ module Deepblue
       update_curation_concern_ticket( curation_concern: curation_concern,
                                       update_ticket: TICKET_JOB_STARTING,
                                       test_mode: test_mode )
-      return if test_mode
+      # return if test_mode
       ::NewServiceRequestTicketJob.perform_later( work_id: curation_concern.id,
                                                   current_user: current_user,
-                                                  debug_verbose: false )
+                                                  debug_verbose: debug_verbose )
+    rescue Exception => e
+      ::Deepblue::EmailHelper.email_failure( to: "fritx@umich.edu", exception: e )
+      raise e
     end
 
     def self.new_ticket_necessary?( curation_concern: )
+      return false unless TeamdynamixIntegrationService.teamdynamix_service_active
       return false unless curation_concern.present?
       ticket = curation_concern.ticket
       return true if ticket.blank?

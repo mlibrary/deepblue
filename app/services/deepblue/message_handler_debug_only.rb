@@ -11,7 +11,8 @@ module Deepblue
                     msg_prefix: false,
                     msg_queue: nil,
                     to_console: false,
-                    verbose: false  )
+                    verbose: false,
+                    bold_echo: false )
 
       @debug_verbose = debug_verbose
       @debug_verbose ||= ->() { false }

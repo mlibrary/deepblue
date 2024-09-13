@@ -4,6 +4,7 @@ module Deepblue
 
   class MessageHandler
 
+    DEFAULT_BOLD_ECHO = false
     DEFAULT_DEBUG_VERBOSE = false
     DEFAULT_MSG_PREFIX = ''.freeze
     DEFAULT_QUIET = false
@@ -22,7 +23,15 @@ module Deepblue
     PREFIX_NONE  = ''.freeze
     PREFIX_WARN  = 'WARNING: '.freeze
 
+    def self.ensure_msg_queue( msg_handler:, debug_verbose: )
+      return if msg_handler.nil?
+      msg_handler.debug_verbose = debug_verbose
+      msg_handler.bold_echo = true
+      msg_handler.msg_queue = ['ensured msg_handler msg queue not nil'] if msg_handler.msg_queue.nil?
+    end
+
     def self.msg_handler_for( task:,
+                              bold_echo: DEFAULT_BOLD_ECHO,
                               debug_verbose: DEFAULT_DEBUG_VERBOSE,
                               msg_prefix: DEFAULT_MSG_PREFIX,
                               msg_queue: [],
@@ -30,13 +39,15 @@ module Deepblue
                               verbose: DEFAULT_VERBOSE )
 
       if task
-        MessageHandler.new( debug_verbose: debug_verbose,
+        MessageHandler.new( bold_echo: bold_echo,
+                            debug_verbose: debug_verbose,
                             msg_prefix: msg_prefix,
                             msg_queue: nil,
                             to_console: true,
                             verbose: verbose )
       else
-        MessageHandler.new( debug_verbose: debug_verbose,
+        MessageHandler.new( bold_echo: bold_echo,
+                            debug_verbose: debug_verbose,
                             msg_prefix: msg_prefix,
                             msg_queue: msg_queue,
                             to_console: to_console,
@@ -48,10 +59,12 @@ module Deepblue
       options = OptionsHelper.parse options
       debug_verbose = OptionsHelper.value( options, key: 'debug_verbose', default_value: DEFAULT_DEBUG_VERBOSE )
       verbose       = OptionsHelper.value( options, key: 'verbose',       default_value: DEFAULT_VERBOSE )
+      bold_echo     = OptionsHelper.value( options, key: 'bold_echo',     default_value: DEFAULT_BOLD_ECHO )
       msg_prefix    = OptionsHelper.value( options, key: 'msg_prefix',    default_value: DEFAULT_MSG_PREFIX )
       msg_queue     = OptionsHelper.value( options, key: 'msg_queue',     default_value: msg_queue )
       to_console    = OptionsHelper.value( options, key: 'to_console',    default_value: false )
-      rv = MessageHandler.new( debug_verbose: debug_verbose,
+      rv = MessageHandler.new( bold_echo: bold_echo,
+                               debug_verbose: debug_verbose,
                                msg_prefix: msg_prefix,
                                msg_queue: msg_queue,
                                to_console: to_console,
@@ -67,10 +80,12 @@ module Deepblue
       options = OptionsHelper.parse options
       debug_verbose = OptionsHelper.value( options, key: 'debug_verbose', default_value: DEFAULT_DEBUG_VERBOSE )
       verbose       = OptionsHelper.value( options, key: 'verbose',       default_value: DEFAULT_VERBOSE )
+      bold_echo     = OptionsHelper.value( options, key: 'bold_echo',     default_value: DEFAULT_BOLD_ECHO )
       msg_prefix    = OptionsHelper.value( options, key: 'msg_prefix',    default_value: DEFAULT_MSG_PREFIX )
       msg_queue     = OptionsHelper.value( options, key: 'msg_queue',     default_value: msg_queue )
       to_console    = OptionsHelper.value( options, key: 'to_console',    default_value: true )
-      rv = MessageHandler.new( debug_verbose: debug_verbose,
+      rv = MessageHandler.new( bold_echo: bold_echo,
+                               debug_verbose: debug_verbose,
                                msg_prefix: msg_prefix,
                                msg_queue: msg_queue,
                                to_console: to_console,
@@ -82,7 +97,8 @@ module Deepblue
       return rv
     end
 
-    def self.msg_handler_null( debug_verbose: false,
+    def self.msg_handler_null( bold_echo: false,
+                               debug_verbose: false,
                                msg_prefix: false,
                                msg_queue: nil,
                                to_console: false,
@@ -102,6 +118,7 @@ module Deepblue
     attr_reader :quiet
     alias :quiet? :quiet
 
+    attr_accessor :bold_echo
     attr_accessor :debug_verbose
     attr_accessor :msg_prefix
     attr_accessor :msg_queue
@@ -110,12 +127,14 @@ module Deepblue
     attr_writer :logger
     attr_accessor :line_buffer
 
-    def initialize( debug_verbose: DEFAULT_DEBUG_VERBOSE,
+    def initialize( bold_echo: DEFAULT_BOLD_ECHO,
+                    debug_verbose: DEFAULT_DEBUG_VERBOSE,
                     msg_prefix: DEFAULT_MSG_PREFIX,
                     msg_queue: [],
                     to_console: DEFAULT_TO_CONSOLE,
                     verbose: DEFAULT_VERBOSE ) # TODO: add logger as parameter
 
+      @bold_echo = bold_echo
       @debug_verbose = debug_verbose
       @msg_prefix = msg_prefix
       @msg_prefix ||= PREFIX_NONE
@@ -167,6 +186,7 @@ module Deepblue
                                   logger: logger,
                                   &block )
       end
+      msg_error( msg ) if bold_echo
     end
 
     # Provide the same functionality as the LoggingHelper.bold_debug, but override bold_puts parameter
@@ -203,6 +223,7 @@ module Deepblue
                                   logger: logger,
                                   &block )
       end
+      msg_debug_bold( msg ) if bold_echo
     end
 
     # buffer up input messages then pre-pend the next msg with the buffer,

@@ -6,7 +6,8 @@ module Deepblue
 
   class MessageHandlerNull
 
-    def initialize( debug_verbose: false,
+    def initialize( bold_echo: false,
+                    debug_verbose: false,
                     msg_prefix: false,
                     msg_queue: nil,
                     to_console: false,
@@ -14,6 +15,11 @@ module Deepblue
 
       # ignore inputs
     end
+
+    def bold_echo
+      false
+    end
+    def bold_echo=(_x); end
 
     def debug_verbose
       false

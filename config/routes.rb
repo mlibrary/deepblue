@@ -250,6 +250,16 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :works, only: [] do
+    member do
+      resource :featured_work, only: [:create, :destroy]
+    end
+  end
+
+  #resource :featured_work, only: [] do
+    get '/works/:id/featured_work', controller: 'hyrax/featured_works', action: :index
+  #end
+
   resources :solr_documents, only: [:show], path: '/catalog', controller: 'catalog' do
     concerns :exportable
   end

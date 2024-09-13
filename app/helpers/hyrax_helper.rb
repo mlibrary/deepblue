@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 # Reviewed: heliotrope
 
+require_relative "../../lib/helpers/catalog_helper"
+
 module HyraxHelper
   include ::BlacklightHelper
   include Hyrax::BlacklightOverride

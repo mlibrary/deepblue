@@ -422,21 +422,24 @@ module Deepblue
       false
     end
 
-    def self.send_email_error( to:,
-                               cc:,
-                               bcc:,
+    def self.send_email_error( to: nil,
+                               cc: nil,
+                               bcc: nil,
                                from: notification_email_from,
-                               subject:,
-                               body:,
-                               log:,
+                               subject: nil,
+                               body: nil,
+                               log: nil,
                                content_type: nil,
                                email_enabled:,
                                exception: )
       return unless email_enabled
-      subject = "Send email error encountered"
-      body = "#{exception.class} #{exception.message} at:\n#{exception.backtrace.join("\n")}"
-      Rails.configuration.email_error_alert_addresses.each do |to|
-        email = DeepblueMailer.send_an_email( to: to,
+      subject ||= "Send email error encountered"
+      body ||= "#{exception.class} #{exception.message} at:\n#{exception.backtrace.join("\n")}"
+      to_addresses = to
+      to_addresses ||= Rails.configuration.email_error_alert_addresses
+      to_addresses = Array( to_addresses )
+      to_addresses.each do |addr|
+        email = DeepblueMailer.send_an_email( to: addr,
                                               from: from,
                                               subject: subject,
                                               body: body,
@@ -445,6 +448,25 @@ module Deepblue
       end
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
+    end
+
+    def self.build_email_body( subject:, messages: [], msg_handler: nil )
+      messages ||= []
+      messages = messages + msg_handler.msg_queue if msg_handler.present? && msg_handler.msg_queue.present?
+      rv =<<-END_BODY
+#{subject}<br/>
+<br/>
+#{messages.empty? ? "" : "Messages:<br/>\n<pre>\n#{messages.join("\n")}\n</pre><br/>"}
+      END_BODY
+      return rv
+    end
+
+    def self.send_email_fritx( subject:, msg_handler: nil, messages: nil )
+      msg_handler.msg "send_email_fritx( #{subject} )" if msg_handler.present?
+      body = build_email_body( subject: subject, msg_handler: msg_handler, messages: messages )
+      send_email( to: "fritx@umich.edu", subject: subject, body: body )
+    rescue Exception => e
+      send_email_error( to: "fritx@umich.edu", email_enabled: true, exception: e )
     end
 
     def self.template_default_options( curation_concern:, starting_options: {} )
