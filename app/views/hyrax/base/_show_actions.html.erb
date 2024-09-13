@@ -213,10 +213,10 @@
                         method: :create_service_request %>
           <% end %>
           <% if @presenter.work_featurable? %>
-            <%= link_to t('simple_form.actions.data_set.feature'), hyrax.featured_work_path(@presenter, format: :json),
+            <%= link_to t('simple_form.actions.data_set.feature'), featured_work_path(@presenter, format: :json),
                         data: { behavior: 'feature' },
                         class: @presenter.display_unfeature_link? ? 'btn btn-default collapse' : 'btn btn-subtle' %>
-            <%= link_to t('simple_form.actions.data_set.unfeature'), hyrax.featured_work_path(@presenter, format: :json),
+            <%= link_to t('simple_form.actions.data_set.unfeature'), featured_work_path(@presenter, format: :json),
                         data: { behavior: 'unfeature' },
                         class: @presenter.display_feature_link? ? 'btn btn-subtle collapse' : 'btn btn-subtle' %>
           <% end %>

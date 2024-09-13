@@ -4,7 +4,7 @@ module Dataset
 
   class DepositorCreatorService
 
-    mattr_accessor :depositor_creator_service_debug_verbose, default: true
+    mattr_accessor :depositor_creator_service_debug_verbose, default: false
 
     def self.depositor_creator_to_params( depositor_creator )
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

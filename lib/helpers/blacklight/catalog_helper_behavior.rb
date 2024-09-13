@@ -252,6 +252,10 @@ module Blacklight::CatalogHelperBehavior
   end
   # deprecation_deprecate render_thumbnail_tag: "Use IndexPresenter#thumbnail.thumbnail_tag"
 
+  def render_thumbnail_tag2 document, image_options = {}, url_options = {}
+    document_presenter(document).thumbnail.thumbnail_tag(image_options, url_options)
+  end
+
   ##
   # Get the URL to a document's thumbnail image
   #
