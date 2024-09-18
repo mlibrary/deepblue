@@ -39,6 +39,7 @@ class AbstractRakeTaskJob < ::Deepblue::DeepblueJob
   #   hostname_allowed
   # end
 
+  # Ruby3 upgrade
   def initialize_from_args( args:, id: nil, debug_verbose: abstract_rake_task_job_debug_verbose )
     debug_verbose = debug_verbose || abstract_rake_task_job_debug_verbose
     initialize_options_from( args: args, id: id, debug_verbose: debug_verbose )

@@ -6,7 +6,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
 
   # see: https://raw.githubusercontent.com/APTrust/registry/master/member_api_v3.yml
 
-  mattr_accessor :aptrust_status_service_debug_verbose, default: true
+  mattr_accessor :aptrust_status_service_debug_verbose, default: false
 
   attr_accessor :debug_assume_verify_succeeds
   attr_accessor :force

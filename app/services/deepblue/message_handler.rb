@@ -306,7 +306,11 @@ module Deepblue
     def msg_debug_bold( msg = nil, log: false, &block )
       return buffer_reset if quiet
       return buffer_reset unless debug_verbose
-      bold_debug( msg, logger: (log ? LOG_DEBUG : LOG_NONE), &block )
+      log = (log ? LOG_DEBUG : LOG_NONE)
+      lines = 1
+      lines.times { msg_raw( ">>>>>>>>>>", log: log, prefix: PREFIX_DEBUG, &block ) }
+      msg_raw( msg, log: log, prefix: PREFIX_DEBUG, &block )
+      lines.times { msg_raw( ">>>>>>>>>>", log: log, prefix: PREFIX_DEBUG, &block ) }
     end
 
     def msg_error( msg = nil, log: false, &block )
