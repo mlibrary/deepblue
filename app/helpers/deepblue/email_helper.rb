@@ -9,18 +9,22 @@ module Deepblue
     TEXT_HTML = 'text/html'.freeze unless const_defined? :TEXT_HTML
     UTF8 = 'UTF-8'.freeze unless const_defined? :UTF8
 
+    # hyrax4 upgrade
     def self.t( key )
       I18n.t( key ) # Update: hyrax4
     end
 
+    # hyrax4 upgrade
     def self.t!( key, **options )
       I18n.t!( key, **options )
     end
 
+    # hyrax4 upgrade
     def self.translate( key )
       I18n.translate!( key )
     end
 
+    # hyrax4 upgrade
     def self.translate!( key, **options )
       I18n.translate!( key, **options  )
     end
@@ -461,10 +465,14 @@ module Deepblue
       return rv
     end
 
-    def self.send_email_fritx( subject:, msg_handler: nil, messages: nil )
+    def self.send_email_fritx( subject:,
+                               msg_handler: nil,
+                               messages: nil,
+                               content_type: ::Deepblue::EmailHelper::TEXT_HTML )
+
       msg_handler.msg "send_email_fritx( #{subject} )" if msg_handler.present?
       body = build_email_body( subject: subject, msg_handler: msg_handler, messages: messages )
-      send_email( to: "fritx@umich.edu", subject: subject, body: body )
+      send_email( to: "fritx@umich.edu", subject: subject, body: body, content_type: content_type )
     rescue Exception => e
       send_email_error( to: "fritx@umich.edu", email_enabled: true, exception: e )
     end

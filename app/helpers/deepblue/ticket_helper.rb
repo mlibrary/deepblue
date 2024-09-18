@@ -13,6 +13,7 @@ module Deepblue
     TICKET_PENDING               = 'pending'.freeze      unless const_defined? :TICKET_PENDING
 
     mattr_accessor :ticket_helper_debug_verbose, default: false
+    mattr_accessor :ticket_helper_debug_emails, default: true
 
     mattr_accessor :ticket_pending_timeout_delta, default: TeamdynamixIntegrationService.ticket_pending_timeout_delta
 
@@ -42,7 +43,7 @@ module Deepblue
                                                             "cc_id=#{cc_id}",
                                                             "current_user=#{current_user}",
                                                             "force=#{force}",
-                                                            "test_mode=#{test_mode}" ] ) if debug_verbose
+                                                            "test_mode=#{test_mode}" ] ) if ticket_helper_debug_emails && debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.present?=#{curation_concern.present?}",
@@ -59,10 +60,18 @@ module Deepblue
                                      force: force,
                                      test_mode: test_mode )
       return if ::Deepblue::DraftAdminSetService.has_draft_admin_set? curation_concern
+      ::Deepblue::EmailHelper.send_email_fritx( subject: "new_ticket - not draft",
+                                                messages: [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "curation_concern.ticket=#{curation_concern.ticket}",
+                                             "curation_concern.ticket.present?=#{curation_concern.ticket.present?}",
+                                             "" ] ) if ticket_helper_debug_emails && debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.id=#{curation_concern.id}",
                                              "curation_concern.ticket=#{curation_concern.ticket}",
+                                             "curation_concern.ticket.present?=#{curation_concern.ticket.present?}",
                                              "" ] if debug_verbose
       return if curation_concern.ticket.present? && !force
       update_curation_concern_ticket( curation_concern: curation_concern,

@@ -8,7 +8,7 @@ class Aptrust::AbstractAptrustService
 
   DEFAULT_TRACK_STATUS = false unless const_defined? :DEFAULT_TRACK_STATUS
 
-  mattr_accessor :abstract_aptrust_service_debug_verbose, default: true
+  mattr_accessor :abstract_aptrust_service_debug_verbose, default: false
 
   attr_accessor :aptrust_config
   attr_accessor :aptrust_upload_status

@@ -2,7 +2,7 @@
 
 class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
 
-  mattr_accessor :debug_email_fritx, default: true
+  mattr_accessor :debug_email_fritx, default: false
 
   mattr_accessor :new_service_request_ticket_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.new_service_request_ticket_job_debug_verbose
@@ -24,11 +24,12 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
     ::Deepblue::MessageHandler.ensure_msg_queue( msg_handler: msg_handler, debug_verbose: debug_verbose )
   end
 
-  def send_fritx_email( class_name:, id:, msg_handler: )
+  def send_fritx_email( class_name:, id:, msg_handler:, messages: [] )
     return unless debug_email_fritx
     msg_handler.msg "send_fritx_email( #{class_name}, #{id} )" if msg_handler
     ::Deepblue::EmailHelper.send_email_fritx( subject: "DBD #{class_name} on #{::Deepblue::JobTaskHelper.hostname}",
-                                              msg_handler: msg_handler )
+                                              msg_handler: msg_handler,
+                                              messages: messages )
   rescue Exception => e
     email_failure( targets: [ "fritx@umich.edu" ], task_name: self.class.name, exception: e, event: self.class.name )
   end
@@ -53,7 +54,16 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
                                            "::Deepblue::TeamdynamixService.active=#{::Deepblue::TeamdynamixService.active}",
                                            "" ] if msg_handler.debug_verbose
     log( event: "new service request ticket job" )
-    send_fritx_email( class_name: self.class.name, id: work_id, msg_handler: msg_handler ) if msg_handler.debug_verbose
+    send_fritx_email( class_name: self.class.name,
+                      id: work_id,
+                      msg_handler: msg_handler,
+                      messages: [ msg_handler.here, msg_handler.called_from,
+                                  "work_id=#{work_id}",
+                                  "current_user=#{current_user}",
+                                  "job_delay=#{job_delay}",
+                                  "::Deepblue::JiraHelper.active=#{::Deepblue::JiraHelper.active}",
+                                  "::Deepblue::TeamdynamixService.active=#{::Deepblue::TeamdynamixService.active}",
+                                  "" ] ) if debug_email_fritx && msg_handler.debug_verbose
     if 0 < job_delay
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "work_id=#{work_id}",

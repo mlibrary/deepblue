@@ -62,11 +62,11 @@ module JobHelper
                          body: nil,
                          content_type: nil )
 
-    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-                             ::Deepblue::LoggingHelper.called_from,
-                             "task_name=#{task_name}",
-                             "email_targets=#{email_targets}",
-                             "" ] if msg_handler.debug_verbose
+    # msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                          ::Deepblue::LoggingHelper.called_from,
+    #                          "task_name=#{task_name}",
+    #                          "email_targets=#{email_targets}",
+    #                          "" ] if msg_handler.debug_verbose
     return if child_job?
     body = msg_handler.join( "\n" ) if body.blank?
     if from_dashboard.present? # just email user running the job from the dashboard
@@ -99,19 +99,19 @@ module JobHelper
                      timestamp_begin: self.timestamp_begin,
                      timestamp_end: self.timestamp_end )
 
-    return if child_job?
+    # return if child_job?
     initialize_defaults if @options.nil?
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "targets=#{targets}",
-                             "task_name=#{task_name}",
-                             "task_args=#{task_args}",
-                             "msg_handler.msg_queue=#{msg_handler.msg_queue}",
-                             "" ] if msg_handler.debug_verbose
+    # msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+    #                          "targets=#{targets}",
+    #                          "task_name=#{task_name}",
+    #                          "task_args=#{task_args}",
+    #                          "msg_handler.msg_queue=#{msg_handler.msg_queue}",
+    #                          "" ] if msg_handler.debug_verbose
     targets = email_failure_targets( from_dashboard: from_dashboard, targets: targets )
     return unless targets.present?
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                                 "targets=#{targets}",
-                                 "" ] if debug_verbose
+    # msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+    #                              "targets=#{targets}",
+    #                              "" ] if debug_verbose
     # lines = msg_handler.join
     ::Deepblue::JobTaskHelper.email_failure( targets: targets,
                                              task_name: task_name,

@@ -67,8 +67,8 @@ module Aptrust
     mattr_accessor :from_controller_cleanup_bag,                  default: false
     mattr_accessor :from_controller_cleanup_bag_data,             default: true
     mattr_accessor :from_controller_clear_status,                 default: true
-    mattr_accessor :from_controller_debug_assume_upload_succeeds, default: true
-    mattr_accessor :from_controller_debug_verbose,                default: true
+    mattr_accessor :from_controller_debug_assume_upload_succeeds, default: false
+    mattr_accessor :from_controller_debug_verbose,                default: false
 
     def self.dump_mattrs
       return [ "::Aptrust::AptrustIntegrationService.allow_deposit=#{::Aptrust::AptrustIntegrationService.allow_deposit}",
