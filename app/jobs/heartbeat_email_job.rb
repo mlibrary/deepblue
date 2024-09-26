@@ -42,10 +42,10 @@ END_OF_SCHEDULER_ENTRY
     find_all_email_targets( additional_email_targets: from_config )
     email_all_targets( task_name: "scheduler heartbeat", event: event )
     job_finished
-  # rescue Exception => e # rubocop:disable Lint/RescueException
-  #   job_status_register( exception: e, args: args )
-  #   email_failure( task_name: self.class.name, exception: e, event: self.class.name )
-  #   raise e
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    job_status_register( exception: e, args: args )
+    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
+    raise e
   end
 
 end

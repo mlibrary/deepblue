@@ -11,7 +11,16 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
 
   EVENT = 'ingest script'
 
-  def perform( ingest_mode:, ingester:, path_to_script:, id: nil, **options )
+  # job_delay in seconds
+  # def perform( ingest_mode:, ingester:, path_to_script:, id: nil, **options )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    ingest_mode = args[0][:ingest_mode]
+    ingester = args[0][:ingester]
+    path_to_script = args[0][:path_to_script]
+    id = args[0][:id]
+    options = args[0][:options]
+    options ||= {}
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
     #                                         "ingest_mode=#{ingest_mode}",
     #                                         "ingester=#{ingester}",

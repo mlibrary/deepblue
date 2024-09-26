@@ -144,7 +144,7 @@ module Hyrax
                                              "" ] if data_sets_controller_debug_verbose
       ::EnsureDoiMintedJob.perform_later( id: params[:id],
                                           current_user: current_user.email,
-                                          email_results_to: current_user.email )
+                                          args: { email_results_to: current_user.email } )
       flash[:notice] = "Ensure DOI minted job started. You will be emailed the results."
       redirect_to [main_app, curation_concern]
     end
@@ -349,7 +349,9 @@ module Hyrax
         break if found
       end
       return if found
-      creator_orcid = [depositor_orcid] + creator_orcid
+      creator_orcids = []
+      creator_orcid.each { |orcid| creator_orcids << orcid }
+      creator_orcid = [depositor_orcid] + creator_orcids
       params[PARAMS_KEY]['creator_orcid'] = creator_orcid
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

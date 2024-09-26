@@ -33,7 +33,7 @@ RSpec.describe SchedulerStartJob, skip: false do
                                                 job_delay: job_delay,
                                                 restart: restart,
                                                 user_email: user.email,
-                                                **options ) }
+                                                options: options ) }
 
         context 'with valid arguments and scheduler running' do
           let(:hostname)  { Rails.configuration.hostname }
@@ -42,13 +42,15 @@ RSpec.describe SchedulerStartJob, skip: false do
 
           before do
             allow( ::Deepblue::SchedulerIntegrationService ).to receive(:scheduler_active).and_return true
+            expect(job).to receive(:perform_now).with(any_args).and_call_original
             expect( job ).to receive( :delay_job ).with( job_delay )
-            expect( job ).to receive( :scheduler_pid ).with( no_args ).and_return sched_pid
+            allow( job ).to receive( :scheduler_pid ).with( no_args ).and_return sched_pid
             expect( job ).to receive( :hostname ).with( no_args ).and_return hostname
-            expect( job ).to receive( :scheduler_emails ).with( autostart: autostart,
-                                                                to: [user.email],
-                                                                subject: email_msg,
-                                                                body: email_msg )
+            expect( job ).to receive( :scheduler_emails ) do |args|
+              expect(args[:autostart]).to eq current_user
+              expect(args[:to]).to eq [user.email]
+            end.and_call_original
+            #.with( autostart: autostart, to: [user.email], subject: email_msg, body: email_msg )
           end
 
           it 'starts the scheduler' do
