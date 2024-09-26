@@ -18,12 +18,21 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
 
   attr_accessor :ingest_mode, :ingester, :paths_to_scripts, :paths_to_scripts_invalid
 
-  def perform( ingest_mode:,
-               ingester:,
-               paths_to_scripts:,
-               debug_verbose: multiple_ingest_scripts_job_debug_verbose,
-               **options )
-
+  # job_delay in seconds
+  # def perform( ingest_mode:,
+  #              ingester:,
+  #              paths_to_scripts:,
+  #              debug_verbose: multiple_ingest_scripts_job_debug_verbose,
+  #              **options )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    ingest_mode = args[0][:ingest_mode]
+    ingester = args[0][:ingester]
+    paths_to_scripts = args[0][:paths_to_scripts]
+    debug_verbose = args[0][:debug_verbose]
+    debug_verbose ||= multiple_ingest_scripts_job_debug_verbose
+    options = args[0][:options]
+    options ||= {}
     msg_handler.debug_verbose = debug_verbose || multiple_ingest_scripts_job_debug_verbose
     initialize_with( debug_verbose: debug_verbose, options: options )
     email_targets << ingester if ingester.present?
@@ -89,8 +98,8 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
     job = IngestScriptJob.job_or_instantiate( ingest_mode: ingest_mode,
                                               ingester: ingester,
                                               path_to_script: path_to_script,
-                                              child_job: true,
-                                              verbose: verbose )
+                                              options: { child_job: true,
+                                              verbose: verbose } )
     job.msg_handler = msg_handler
     job.perform_now
     # IngestScriptJob.perform_now( ingest_mode: ingest_mode,

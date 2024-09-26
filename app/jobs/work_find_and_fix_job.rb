@@ -9,7 +9,12 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
 
   EVENT = "work find and fix"
 
-  def perform( id:, **args )
+  # def perform( id:, **args )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    id = args[0][:id]
+    args = args[0][:args]
+    args ||= {}
     initialize_options_from( args: args, id: id, debug_verbose: work_find_and_fix_job_debug_verbose )
     log( event: EVENT, hostname_allowed: hostname_allowed? )
     return job_finished unless hostname_allowed?

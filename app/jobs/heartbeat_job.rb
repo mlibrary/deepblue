@@ -22,6 +22,7 @@ class HeartbeatJob < ::Deepblue::DeepblueJob
     job_finished
   rescue Exception => e # rubocop:disable Lint/RescueException
     job_status_register( exception: e, args: args )
+    email_failure( task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 

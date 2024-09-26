@@ -9,7 +9,13 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
 
   EVENT = "ensure doi minted"
 
-  def perform( id:, current_user:, **args )
+  # def perform( id:, current_user:, **args )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    id = args[0][:id]
+    current_user = args[0][:current_user]
+    args = args[0][:args]
+    args ||= {}
     debug_verbose = ensure_doi_minted_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

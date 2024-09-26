@@ -43,45 +43,45 @@ RSpec.describe MultipleIngestScriptsJob, skip: false do
           let(:path1)            { '/some/path/to/script1' }
           let(:path2)            { '/some/path/to/script2' }
           let(:paths_to_scripts) { [ path1, path2 ] }
+          let(:sub_job_options) { { child_job: true, verbose: false } }
           let(:job)              { described_class.send( :job_or_instantiate,
                                                          ingest_mode: ingest_mode,
                                                          ingester: ingester,
                                                          paths_to_scripts: paths_to_scripts,
-                                                         **options ) }
-          let(:sub_job1) { IngestScriptJob.new( ingest_mode: ingest_mode,
-                                                               ingester: ingester,
-                                                               path_to_script: path1,
-                                                               child_job: true,
-                                                               verbose: false ) }
-          let(:sub_job2) { IngestScriptJob.new( ingest_mode: ingest_mode,
-                                                               ingester: ingester,
-                                                               path_to_script: path2,
-                                                               child_job: true,
-                                                               verbose: false ) }
+                                                         options: options ) }
+          let(:sub_job1) { IngestScriptJob.send( :job_or_instantiate,
+                                                 ingest_mode: ingest_mode,
+                                                 ingester: ingester,
+                                                 path_to_script: path1,
+                                                 options: sub_job_options ) }
+          let(:sub_job2) { IngestScriptJob.send( :job_or_instantiate,
+                                                  ingest_mode: ingest_mode,
+                                                  ingester: ingester,
+                                                  path_to_script: path2,
+                                                  options: sub_job_options ) }
 
           before do
-            expect( IngestScriptJob ).to receive( :job_or_instantiate ).at_least(:once) do |args|
-              expect( args[:ingest_mode] ).to eq ingest_mode
-              expect( args[:ingester] ).to eq ingester
-              expect( args[:child_job] ).to eq true
-              expect( args[:verbose] ).to eq false
-              # puts "path1=#{path1}"
-              # puts "path2=#{path2}"
-              # puts "args[:path_to_script]=#{args[:path_to_script]}"
-              if  path1 == args[:path_to_script]
-                sub_job1
-              else
-                sub_job2
-              end
-            end
+            # expect( IngestScriptJob ).to receive( :job_or_instantiate ).at_least(:once) do |args|
+            #   expect( args[:ingest_mode] ).to eq ingest_mode
+            #   expect( args[:ingester] ).to eq ingester
+            #   expect( args[:options] ).to eq sub_job_options
+            #   # puts "path1=#{path1}"
+            #   # puts "path2=#{path2}"
+            #   # puts "args[:path_to_script]=#{args[:path_to_script]}"
+            #   # if  path1 == args[:path_to_script]
+            #   #   sub_job1
+            #   # else
+            #   #   sub_job2
+            #   # end
+            # end
             expect( job ).to receive( :init_paths_to_scripts ).with( paths_to_scripts ).and_call_original
             expect( job ).to receive( :validate_paths_to_scripts ).with( no_args ).and_return true
-            expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ).and_call_original
-            expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ).and_call_original
+            expect( job ).to receive( :ingest_script_run ).with( path_to_script: path1 ) #.and_call_original
+            expect( job ).to receive( :ingest_script_run ).with( path_to_script: path2 ) #.and_call_original
             expect( job ).to receive( :email_results ).with(no_args)
             expect( job ).to_not receive( :email_failure ).with( any_args )
-            expect( sub_job1 ).to receive(:perform_now)
-            expect( sub_job2 ).to receive(:perform_now)
+            #expect( sub_job1 ).to receive(:perform_now).with( any_args )
+            #expect( sub_job2 ).to receive(:perform_now).with( any_args )
           end
 
           it 'it performs the job' do

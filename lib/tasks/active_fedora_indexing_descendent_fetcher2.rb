@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# hyrax4 updated
 # see: https://gist.github.com/cjcolvar/8f0485e3cf88307228447726b6b55dd3
 
 # rubocop:disable Style/SafeNavigation Style/Semicolon
@@ -45,7 +45,7 @@ module ActiveFedora
     #
     # The DescendantFetcher is also capable of partitioning the URIs into "priority" URIs
     # that will be first in the returned list. These prioritized URIs belong to objects
-    # with certain hasModel models. This feature is used in some hydra apps that need to
+    # with certain hasModel models. This feature is used in some samvera apps that need to
     # index 'permissions' objects before other objects to have the solr indexing work right.
     # And so by default, the prioritized class names are the ones form Hydra::AccessControls,
     # but you can alter the prioritized model name list, or set it to the empty array.
@@ -87,6 +87,7 @@ module ActiveFedora
         @job_msg_queue = job_msg_queue
       end
 
+      # @return [Array<String>] uris starting with priority models
       def descendant_and_self_uris
         partitioned = descendant_and_self_uris_partitioned
         pacify_verbose "[#{partitioned[:priority].count},#{partitioned[:other].count}]"
@@ -95,13 +96,19 @@ module ActiveFedora
 
       # returns a hash where key :priority is an array of all prioritized
       # type objects, key :other is an array of the rest.
+      # @return [Hash<String, Array<String>>] uris sorted into :priority and :other
       def descendant_and_self_uris_partitioned
-        pacify '.' if 1 >= @depth
-        pacify_verbose '('
-        resource = Ldp::Resource::RdfSource.new(ActiveFedora.fedora.connection, uri)
+        model_partitioned = descendant_and_self_uris_partitioned_by_model
+        { priority: model_partitioned.slice(*priority_models).values.flatten,
+          other: model_partitioned.slice(*(model_partitioned.keys - priority_models)).values.flatten }
+      end
+
+      # Returns a hash where keys are model names
+      # This is useful if you need to action on certain models and want finer grainularity than priority/other
+      # @return [Hash<String, Array<String>>] uris sorted by model names
+      def descendant_and_self_uris_partitioned_by_model
         # GET could be slow if it's a big resource, we're using HEAD to avoid this problem,
         # but this causes more requests to Fedora.
-
         ### begin update
         is_rdf_source = false
         begin
@@ -113,10 +120,9 @@ module ActiveFedora
         end
         return partitioned_uris unless is_rdf_source
         ### end update
-
         add_self_to_partitioned_uris unless @exclude_self
 
-        immediate_descendant_uris = rdf_graph.query(predicate: ::RDF::Vocab::LDP.contains).map do |descendant|
+        immediate_descendant_uris = rdf_graph.query({ predicate: ::RDF::Vocab::LDP.contains }).map do |descendant|
           descendant.object.to_s
         end
         immediate_descendant_uris.each do |descendant_uri|
@@ -127,21 +133,63 @@ module ActiveFedora
             pacifier: @pacifier,
             logger: @logger,
             depth: @depth + 1
-          ).descendant_and_self_uris_partitioned.tap do |descendant_partitioned|
-            pacify_verbose "[#{descendant_partitioned[:priority].count},#{descendant_partitioned[:other].count}]"
-            partitioned_uris[:priority].concat descendant_partitioned[:priority]
-            partitioned_uris[:other].concat descendant_partitioned[:other]
+          ).descendant_and_self_uris_partitioned_by_model.tap do |descendant_partitioned|
+            # pacify_verbose "[#{descendant_partitioned[:priority].count},#{descendant_partitioned[:other].count}]"
+            descendant_partitioned.keys.each do |k|
+              partitioned_uris[k] ||= []
+              partitioned_uris[k].concat descendant_partitioned[k]
+            end
           end
         end
         @pacifier_verbose.pacify ')' unless @pacifier_verbose.nil?
         partitioned_uris
       end
 
+      # def descendant_and_self_uris_partitioned2
+      #   pacify '.' if 1 >= @depth
+      #   pacify_verbose '('
+      #   resource = Ldp::Resource::RdfSource.new(ActiveFedora.fedora.connection, uri)
+      #   # GET could be slow if it's a big resource, we're using HEAD to avoid this problem,
+      #   # but this causes more requests to Fedora.
+      #
+      #   ### begin update
+      #   is_rdf_source = false
+      #   begin
+      #     is_rdf_source = resource.head.rdf_source?
+      #   rescue Exception => e # rubocop:disable Lint/RescueException
+      #     # TODO: collect and report on these errors
+      #     pacify '!'
+      #     error "#{uri} - #{e.class}: #{e.message} at #{e.backtrace[0]}"
+      #   end
+      #   return partitioned_uris unless is_rdf_source
+      #   ### end update
+      #
+      #   add_self_to_partitioned_uris unless @exclude_self
+      #
+      #   immediate_descendant_uris = rdf_graph.query(predicate: ::RDF::Vocab::LDP.contains).map do |descendant|
+      #     descendant.object.to_s
+      #   end
+      #   immediate_descendant_uris.each do |descendant_uri|
+      #     # pacify '.'
+      #     self.class.new(
+      #       descendant_uri,
+      #       priority_models: priority_models,
+      #       pacifier: @pacifier,
+      #       logger: @logger,
+      #       depth: @depth + 1
+      #     ).descendant_and_self_uris_partitioned.tap do |descendant_partitioned|
+      #       pacify_verbose "[#{descendant_partitioned[:priority].count},#{descendant_partitioned[:other].count}]"
+      #       partitioned_uris[:priority].concat descendant_partitioned[:priority]
+      #       partitioned_uris[:other].concat descendant_partitioned[:other]
+      #     end
+      #   end
+      #   @pacifier_verbose.pacify ')' unless @pacifier_verbose.nil?
+      #   partitioned_uris
+      # end
+
       protected
 
         def rdf_resource
-          # @rdf_resource ||= Ldp::Resource::RdfSource.new(ActiveFedora.fedora.connection, uri)
-          # see: https://gist.github.com/cjcolvar/8f0485e3cf88307228447726b6b55dd3
           @rdf_resource ||= Ldp::Resource::RdfSource.new(ActiveFedora.fedora.build_ntriples_connection, uri)
         end
 
@@ -150,29 +198,27 @@ module ActiveFedora
         end
 
         def partitioned_uris
-          @partitioned_uris ||= {
-            priority: [],
-            other: []
-          }
+          @partitioned_uris ||= {}
         end
 
-        def rdf_graph_models
-          rdf_graph.query(predicate: HAS_MODEL_PREDICATE).collect(&:object).collect do |rdf_object|
-            rdf_object.to_s if rdf_object.literal?
-          end.compact
-        end
+        # def rdf_graph_models
+        #   rdf_graph.query(predicate: HAS_MODEL_PREDICATE).collect(&:object).collect do |rdf_object|
+        #     rdf_object.to_s if rdf_object.literal?
+        #   end.compact
+        # end
+        #
+        # def prioritized_object?
+        #   priority_models.present? && (rdf_graph_models & priority_models).count.positive?
+        # end
 
-        def prioritized_object?
-          priority_models.present? && (rdf_graph_models & priority_models).count.positive?
-        end
+      def add_self_to_partitioned_uris
+        rdf_graph.query({ predicate: HAS_MODEL_PREDICATE }).each_object do |model|
+          next unless model.literal?
 
-        def add_self_to_partitioned_uris
-          if prioritized_object?
-            partitioned_uris[:priority] << rdf_resource.subject
-          else
-            partitioned_uris[:other] << rdf_resource.subject
-          end
+          partitioned_uris[model.to_s] ||= []
+          partitioned_uris[model.to_s] << rdf_resource.subject
         end
+      end
 
         def debug( msg )
           return unless debug_verbose

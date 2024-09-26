@@ -4,11 +4,21 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
 
   queue_as :doi_minting
 
-  def perform( id:,
-               current_user: nil,
-               job_delay: 0,
-               target_url:,
-               debug_verbose: ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose )
+  # job_delay in seconds
+  # def perform( id:,
+  #              current_user: nil,
+  #              job_delay: 0,
+  #              target_url:,
+  #              debug_verbose: ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    id = args[0][:id]
+    current_user = args[0][:current_user]
+    job_delay = args[0][:job_delay]
+    job_delay ||= 0
+    target_url = args[0][:target_url]
+    debug_verbose = args[0][:debug_verbose]
+    debug_verbose ||= ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose
 
     debug_verbose = debug_verbose || ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose
     warn "[DEPRECATION] `DoiMintingJob` is deprecated.  Please use `RegisterDoiJob` instead."

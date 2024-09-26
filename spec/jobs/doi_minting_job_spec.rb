@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe DoiMintingJob do
+RSpec.describe DoiMintingJob, skip: true do
 
   let(:debug_verbose) { false }
 

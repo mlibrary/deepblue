@@ -10,13 +10,26 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   attr_accessor :rails_bin_scheduler, :rails_log_scheduler
 
   # job_delay in seconds
-  def perform( autostart: false,
-               job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
-               restart: true,
-               user_email: '',
-               debug_verbose: scheduler_start_job_debug_verbose,
-               **options )
-
+  # def perform( autostart: false,
+  #              job_delay: ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay,
+  #              restart: true,
+  #              user_email: '',
+  #              debug_verbose: scheduler_start_job_debug_verbose,
+  #              options: {} )
+  # hyrax4 / ruby3 upgrade
+  def perform( *args )
+    autostart = args[0][:autostart]
+    autostart ||= false
+    job_delay = args[0][:job_delay]
+    job_delay ||= ::Deepblue::SchedulerIntegrationService.scheduler_start_job_default_delay
+    restart = args[0][:restart]
+    restart ||= true
+    user_email = args[0][:user_email]
+    user_email ||= ''
+    debug_verbose = args[0][:debug_verbose]
+    debug_verbose ||= scheduler_start_job_debug_verbose
+    options = args[0][:options]
+    options ||= {}
     debug_verbose = debug_verbose || scheduler_start_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
