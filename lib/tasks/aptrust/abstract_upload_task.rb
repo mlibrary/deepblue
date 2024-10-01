@@ -16,6 +16,7 @@ module Aptrust
     attr_accessor :debug_assume_upload_succeeds
     attr_accessor :event_start # TODO (if event hasn't occurred, skip)
     attr_accessor :event_stop # TODO
+    attr_accessor :multipart_bag_index
     attr_accessor :max_size
     attr_accessor :max_upload_total_size
     attr_accessor :max_uploads
@@ -34,6 +35,7 @@ module Aptrust
       @debug_assume_upload_succeeds = option_value( key: 'debug_assume_upload_succeeds', default_value: false )
       @event_start = option_value( key: 'event_start' )
       @event_stop = option_value( key: 'event_stop' )
+      @multipart_bag_index = option_value( key: 'multipart_bag_index' )
       @max_size = option_integer( key: 'max_size', default_value: -1 )
       @min_size = option_integer( key: 'min_size', default_value: -1 )
       @max_upload_total_size = option_integer( key: 'max_upload_total_size', default_value: -1 )
@@ -57,7 +59,14 @@ module Aptrust
       return unless sort?
       return unless noids.present?
       w = WorkCache.new
-      noids.each { |noid| w.reset.noid = noid; @noid_pairs << { noid: noid, size: w.total_file_size } }
+      noids.each do |noid|
+        w.reset.noid = noid
+        if !w.work_present?
+          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          next
+        end
+        @noid_pairs << { noid: noid, size: w.total_file_size }
+      end
       @noid_pairs.sort! { |a,b| a[:size] < b[:size] ? 0 : 1 }
       # @noid_pairs = @noid_pairs.select { |p| p[:size] <= max_size } if 0 < max_size
     end
@@ -92,6 +101,10 @@ module Aptrust
       w = WorkCache.new
       noids.each do |noid|
         w.reset.noid = noid
+        if !w.work_present?
+          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          next
+        end
         size = w.total_file_size
         next if max_upload_total_size > 0 && total_size + size > max_upload_total_size
         run_upload( noid: noid )
@@ -183,6 +196,7 @@ module Aptrust
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
                                                    event_start: event_start,
                                                    event_stop: event_stop,
+                                                   multipart_bag_index: multipart_bag_index,
                                                    noid: noid,
                                                    zip_data_dir: zip_data_dir )
       return uploader

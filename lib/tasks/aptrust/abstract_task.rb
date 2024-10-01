@@ -17,11 +17,13 @@ module Aptrust
     attr_accessor :noid
     attr_accessor :work
     attr_accessor :solr
+    attr_accessor :msg_handler
 
-    def initialize( noid: nil, work: nil, solr: true )
+    def initialize( noid: nil, work: nil, solr: true, msg_handler: nil )
       @noid = noid
       @work = work
       @solr = solr
+      @msg_handler = msg_handler
       @date_modified = nil
     end
 
@@ -37,13 +39,23 @@ module Aptrust
     end
 
     def work_init
-      if @solr
-        rv = ActiveFedora::SolrService.query("id:#{noid}", rows: 1)
-        rv = rv.first
-      else
-        rv = PersistHelper.find @noid
+      rv = nil
+      begin
+        if @solr
+          rv = ActiveFedora::SolrService.query("id:#{noid}", rows: 1)
+          rv = rv.first
+          msg_handler.msg_warn( "Solr query failed to find id: #{noid}" ) if msg_handler.present? && rv.nil?
+        end
+      end
+      if rv.nil?
+        rv = PersistHelper.find_or_nil @noid
+        msg_handler.msg_warn( "Fedora query failed to find id: #{noid}" ) if  msg_handler.present? && rv.nil?
       end
       return rv
+    end
+
+    def work_present?
+      work.present?
     end
 
     def date_modified

@@ -144,6 +144,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
+                  multipart_bag_index:           nil,
                   work:                          nil,
                   msg_handler:                   nil,
                   zip_data_dir:                  false,
@@ -159,6 +160,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                              "export_file_sets=#{export_file_sets}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
+                             "multipart_bag_index=#{multipart_bag_index}",
                              "work=#{work}",
                              "zip_data_dir=#{zip_data_dir}",
                              "" ] if msg_handler.present? && debug_verbose
@@ -193,6 +195,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            export_file_sets:              export_file_sets,
            export_file_sets_filter_date:  export_file_sets_filter_date,
            export_file_sets_filter_event: export_file_sets_filter_event,
+           multipart_bag_index:           multipart_bag_index,
            working_dir:                   working_dir,
            bi_description:                bi_description,
            zip_data_dir:                  zip_data_dir )

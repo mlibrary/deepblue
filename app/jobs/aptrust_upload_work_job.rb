@@ -77,6 +77,7 @@ aptrust_upload_work_job:
       export_file_sets_filter_date  = job_options_value( key: 'export_file_sets_filter_date',  default_value: nil )
       export_file_sets_filter_event = job_options_value( key: 'export_file_sets_filter_event', default_value: nil )
       id                            = job_options_value( key: 'id',                            default_value: nil )
+      multipart_bag_index           = job_options_value( key: 'multipart_bag_index', default_value: nil )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "bag_max_total_file_size=#{bag_max_total_file_size}",
@@ -88,6 +89,7 @@ aptrust_upload_work_job:
                                "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                                "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                                "id=#{id}",
+                               "multipart_bag_index=#{multipart_bag_index}",
                                "" ] if debug_verbose
       run_job_delay
       uploader = ::Aptrust::AptrustUploadWork.new( bag_max_total_file_size:       bag_max_total_file_size,
@@ -99,6 +101,7 @@ aptrust_upload_work_job:
                                                    export_file_sets:              export_file_sets,
                                                    export_file_sets_filter_date:  export_file_sets_filter_date,
                                                    export_file_sets_filter_event: export_file_sets_filter_event,
+                                                   multipart_bag_index:           multipart_bag_index,
                                                    noid:                          id,
                                                    zip_data_dir:                  false,
                                                    msg_handler:                   msg_handler,

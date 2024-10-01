@@ -168,6 +168,7 @@ class Aptrust::AptrustUploader
 
   attr_accessor :msg_handler
   attr_accessor :most_recent_status
+  attr_accessor :multipart_bag_index
   attr_accessor :object_id
   attr_accessor :skip_event
   attr_accessor :working_dir
@@ -214,6 +215,7 @@ class Aptrust::AptrustUploader
                   export_by_closure:             nil,
                   export_copy_src:               false,
                   export_src_dir:                nil,
+                  multipart_bag_index:           nil,
 
                   export_dir:          nil,
                   working_dir:         nil,
@@ -276,6 +278,7 @@ class Aptrust::AptrustUploader
                              "export_by_closure=#{export_by_closure}",
                              "export_copy_src=#{export_copy_src}",
                              "export_src_dir=#{export_src_dir}",
+                             "multipart_bag_index=#{multipart_bag_index}",
                              "export_dir=#{export_dir}",
                              "working_dir=#{working_dir}",
                              "" ] if debug_verbose
@@ -325,6 +328,7 @@ class Aptrust::AptrustUploader
     @export_by_closure             = export_by_closure
     @export_copy_src               = export_copy_src
     @export_src_dir                = export_src_dir
+    @multipart_bag_index           = multipart_bag_index
 
     @export_dir          = ::Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
     @export_dir = File.absolute_path( @export_dir )
@@ -447,6 +451,8 @@ class Aptrust::AptrustUploader
                              "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_skip? ::Aptrust::EVENT_BAGGED
+      # clear additional files
+      @additional_tag_files = []
       # info = bag_info
       bag.write_bag_info( bag_info ) # Create bagit-info.txt file
       aptrust_info_write( bag: bag, note: note )
@@ -737,6 +743,14 @@ class Aptrust::AptrustUploader
       end
       export_tar_file = File.join( export_dir, File.basename( tar_file( bag: bag ) ) )
       bag_tar_mv( bag: bag, export_tar_file: export_tar_file, note: note )
+      # validate with apt-cmd, TODO: consider aborting the upload if this check fails
+      if "" != `which apt-cmd`
+        cmd = "apt-cmd  bag validate -p aptrust #{export_tar_file}"
+        rv = `#{cmd}`
+        msg_handler.msg "#{cmd}"
+        msg_handler.msg "returned:"
+        msg_handler.msg "#{rv}"
+      end
       track_with_sleep( status: ::Aptrust::EVENT_PACKED, note: note )
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
