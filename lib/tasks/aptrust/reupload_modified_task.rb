@@ -28,10 +28,15 @@ module Aptrust
     def run_find
       @noids = []
       test_dates_init
-      w = WorkCache.new
+      w = WorkCache.new( msg_handler: msg_handler )
       ::Aptrust::Status.all.each do |status|
         # msg_handler.msg_verbose "status=#{status.pretty_inspect}" if debug_verbose
+        # puts "status=#{status.pretty_inspect}"
         w.reset.noid = status.noid
+        if !w.work_present?
+          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          next
+        end
         status_create_date = status.created_at
         work_modified_date = w.date_modified
         next if work_modified_date < status_create_date
