@@ -63,7 +63,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
                          :publisher,
                          :doi,
                          :date_created,
-                         :subject,
+                         :subject_discipline,
                          :language,
                          :identifier,
                          :based_near,

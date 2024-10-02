@@ -1,6 +1,12 @@
 <dl>
   <% present_terms(@presenter, @presenter.terms_with_values) do |r, term| %>
+    <% ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                              ::Deepblue::LoggingHelper.called_from,
+                                              "r.class.name=#{r.class.name}",
+                                              "term=#{term}",
+                                              "" ] if false %>
     <div>
+      <!-- term: <%= term %> -->
       <dt><%= r.label(term) %></dt>
       <dd><%= r.value(term) %></dd>
     </div>

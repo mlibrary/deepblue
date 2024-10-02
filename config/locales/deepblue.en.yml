@@ -121,6 +121,7 @@ en:
           total_size:       'Total size'
           total_size_print: 'Total size print'
           discipline:       'Discipline'
+          subject_discipline: "Discipline"
           creators:         'Creators'
           work_ids:         'Work ids'
         file_set:
@@ -152,6 +153,7 @@ en:
           work_size_print: 'Work size print'
           parent_ids:      'Parent ids'
           discipline:      'Discipline'
+          subject_discipline: "Discipline"
           creators:        'Creators'
           license:         'License'
           license_other:   'License Other'
@@ -334,6 +336,7 @@ en:
         rights: "Creative Commons License"
         tag: "Keywords"
         subject: "Discipline"
+        subject_discipline: "Discipline"
         isReferencedBy: "Citation to related material"
         authoremail: "Contact Information"
         grantnumber: "Grant Number"

@@ -120,7 +120,7 @@ module Hyrax
        :publisher,
        :doi,
        :date_created,
-       :subject,
+       :subject_discipline,
        :language,
        :identifier,
        :based_near,
@@ -135,6 +135,15 @@ module Hyrax
     end
 
     def terms_with_values
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless doi_minting_enabled?=#{doi_minting_enabled?}",
+                                             "true if doi_needs_minting?=#{doi_needs_minting?}",
+                                             "false if doi_pending?=#{doi_pending?}",
+                                             "false if doi_minted?=#{doi_minted?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "current_ability.can?( :edit, id )=#{current_ability.can?( :edit, id )}",
+                                             "" ] if collection_presenter_debug_verbose
       rv = self.class.terms.select { |t| self[t].present? }
       rv += self.class.admin_only_terms.select { |t| self[t].present? } if current_ability.admin?
       return rv
@@ -150,7 +159,13 @@ module Hyrax
       when :total_items
         total_items
       else
-        solr_document.send key
+        begin
+          return solr_document.send key
+        rescue NoMethodError
+          # TODO: fix this
+          return "#{key} not found" if collection_presenter_debug_verbose
+          return ""
+        end
       end
     end
 
@@ -208,7 +223,10 @@ module Hyrax
     end
 
     def size
-      number_to_human_size(@solr_document['bytes_lts'])
+      # TODO: fix this
+      return number_to_human_size(@solr_document['bytes_lts'])
+    rescue Exception
+      0
     end
 
     # monkey # (at)deprecated to be removed in 4.0.0; this feature was replaced with a
