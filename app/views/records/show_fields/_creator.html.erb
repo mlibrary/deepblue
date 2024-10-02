@@ -1,6 +1,5 @@
+<% creator_facet_links = [] %>
 <% record.creator.each do |creator| %>
-<span itemprop="creator">
-  <span itemprop="name"><%= link_to_facet(creator, 'creator_sim') %></span>
-</span>
-<br />
+  <% creator_facet_links << link_to_facet(creator, 'creator_sim') %>
 <% end %>
+<%= raw ::Hyrax::Renderers::CreatorAttributeRenderer.render_for_collection( creator_facet_links ) %>

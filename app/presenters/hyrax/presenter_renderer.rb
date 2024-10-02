@@ -22,6 +22,12 @@ module Hyrax
     #
     # @return [ActiveSupport::SafeBuffer] an html safe string containing the value markup
     def value(field_name, locals = {})
+      # begin monkey
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "field_name=#{field_name}",
+                                             "" ] if presenter_renderer_debug_verbose
+      # end monkey
       render_show_field_partial(field_name, locals)
     end
 

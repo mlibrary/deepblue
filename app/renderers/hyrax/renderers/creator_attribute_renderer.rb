@@ -7,6 +7,31 @@ module Hyrax
 
       mattr_accessor :creator_attribute_renderer_debug_verbose, default: false
 
+      def self.render_for_collection( links )
+        lines = []
+        if 5 >= links.count
+          lines << %(<span itemprop="creator" class="moreauthor">)
+          last = links.size - 1
+          links.each_with_index do |link, index|
+            if index < last
+              lines << %(<span itemprop="name">#{link}</span>; )
+            else
+              lines << %( and <span itemprop="name">#{link}</span>)
+            end
+          end
+          lines << %(</span>)
+        else
+          links.each do |link|
+            lines << %(<span itemprop="creator">)
+            lines << %(<span itemprop="name">#{link}</span>)
+            lines << %(</span><br/>)
+          end
+        end
+        markup = lines.join("\n")
+        # markup.html_safe
+        return markup
+      end
+
       # Draw the table row for the attribute
       def render
         return '' if values.blank? && !options[:include_empty]
