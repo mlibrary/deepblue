@@ -276,6 +276,7 @@ module Deepblue
       requestor_email = requestor_email_for( curation_concern: curation_concern )
       # jira_summary = '' # keep this blank for now, it'll be a marker for records ported from jira
       description = []
+      cc_title = ::Deepblue::EmailHelper.clean_str( cc_title )
       cc_title = build_description_from_sanitize( cc_title )
       description << "Title: #{cc_title}<br/>"
       description << "Creator: #{creator}<br/>"
