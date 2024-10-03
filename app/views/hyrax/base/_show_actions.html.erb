@@ -200,11 +200,13 @@
             <%#= link_to t('simple_form.actions.provenance_log.display_or_update'),
                         main_app.display_provenance_log_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
           <%# end %>
-          <%= link_to t('simple_form.actions.data_set.ensure_doi_minted'),
+          <% if @presenter.can_mint_doi_work? %>
+            <%= link_to t('simple_form.actions.data_set.ensure_doi_minted'),
                       "/data/concern/data_sets/#{@presenter.id}/ensure_doi_minted",
                       class: 'btn btn-subtle',
                       data: { confirm: "Ensure #{@presenter.human_readable_type}'s DOI is minted?" },
                       method: :ensure_doi_minted %>
+          <% end %>
           <% if @presenter.can_create_service_request? %>
             <%= link_to t('simple_form.actions.data_set.create_service_request'),
                         "/data/concern/data_sets/#{@presenter.id}/create_service_request",
