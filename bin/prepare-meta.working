@@ -1,0 +1,849 @@
+#!/usr/bin/perl
+#
+# Copyright 2000, The Regents of The University of Michigan, All Rights Reserved
+#
+# Permission is hereby granted, free of charge, to any person obtaining
+# a copy of this software and associated documentation files (the
+# "Software"), to deal in the Software without restriction, including
+# without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to
+# permit persons to whom the Software is furnished to do so, subject
+# to the following conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+
+BEGIN
+{
+  require "strict.pm";
+  strict::import();
+}
+
+# ----------------------------------------------------------------------
+#               start of MAIN
+# ----------------------------------------------------------------------
+
+use Encode;
+use utf8;
+use DBI;
+use File::Path;
+
+use LWP::Simple;
+use LWP::UserAgent;
+
+
+##########################################################
+############### preparing metadata file ###################
+#
+# (1) metadata file is the tab delimited file saved from an excel spreadsheet.
+# (2) The last column of the spreadsheet should have josejose value.
+# (3) Remove all the blank lines in the tab delimited file.
+#
+##########################################################
+############  making sure the metadata file is utf-8  ####
+#  Run this command to find out the file type
+#  > file metadata
+#
+#  Now that you know the format, find the stich you need to 
+#
+#  Here is a typical example:
+#
+#  [dspace@pocarisweat cope]$ file metadata 
+#  metadata: Non-ISO extended-ASCII English text, with very long lines
+#
+#  porcarsweat> iconv -f windows-1252 -t utf-8 metadata > metadata.out
+#  porcarsweat> mv metadata metadata.or
+#  porcarsweat> mv metadata.out metadata
+#
+#
+# These are two useful websites for this:
+# This one gives you the switch to use for the conversion:
+#    http://lists.w3.org/Archives/Public/www-international/1999OctDec/0010.html
+# This one gives to a clue as to the type based on the output of the 'file'
+# command:
+#    http://ereimer.net/programs/find-anomalous-textfiles
+#
+##########################################################
+######  Configuration Generic Variables ##################
+my $gArchiveDirOpen  = qq{/Users/pacerda/Desktop/batchUploads/ME450/archive};
+my $gMetaFile        = qq{/Users/pacerda/Desktop/batchUploads/ME450/metadata.tsv};
+my $gBitstreamDir    = qq{/Users/pacerda/Desktop/batchUploads/ME450/allFiles};
+#
+#
+# Important Notes on the configuration
+# FILE is a special indicator meaning filename.  It assumed that it is multiple
+#      and separated by ;
+#
+# NA means nothing of importance in that column, but if you wish just don't
+#    include the column in the configuration.
+#
+# X-Y-Z :=> X=column number, Y=dc_field, Y=does it have multiple values (Y/N)
+#
+###########################################################
+my @gDataConfiguration;
+push ( @gDataConfiguration, ' 0-FILE-Y' );
+push ( @gDataConfiguration, ' 1-FILEDESC-N' );
+push ( @gDataConfiguration, ' 2-title.none-N' );
+push ( @gDataConfiguration, ' 3-contributor.author-Y' );
+push ( @gDataConfiguration, ' 4-date.issued-N' );
+push ( @gDataConfiguration, ' 5-type.none-N' );
+push ( @gDataConfiguration, ' 6-description.abstract-N' );
+push ( @gDataConfiguration, ' 7-description.sponsorname-Y' );
+push ( @gDataConfiguration, ' 8-description.sponsorship-Y' );
+push ( @gDataConfiguration, '9-contributor.advisor-N' );
+push ( @gDataConfiguration, '10-subject.subject-N');
+push ( @gDataConfiguration, '11-subject.none-Y' );
+push ( @gDataConfiguration, '12-subject.hlbtoplevel-N' );
+push ( @gDataConfiguration, '13-subject.hlbsecondlevel-N' );
+
+############### Citation Configuration #######################
+#If citation needs to be created.
+##  author; author (date). "article_title" journal_name, volume:issue_number: first_page-last_page.) 
+#
+##############################################################
+my @gCitationConfiguration;
+my $gDoCitation =0;
+push ( @gCitationConfiguration, ' 0-author' );
+push ( @gCitationConfiguration, ' 1-date' );
+push ( @gCitationConfiguration, ' 2-article_title' );
+push ( @gCitationConfiguration, ' 3-journal_name' );
+push ( @gCitationConfiguration, ' 4-volume' );
+push ( @gCitationConfiguration, ' 5-issue_number' );
+push ( @gCitationConfiguration, ' 6-first_page' );
+push ( @gCitationConfiguration, ' 8-last_page' );
+push ( @gCitationConfiguration, ' 10-the_rest' );
+#
+##################### License configuration #################
+#
+# Put license to use here.  Remember to escape @, so it looks 
+# like this \@ (e.g. blancoj\@umich.edu) #
+#
+my $gLicense = qq{I hereby grant to the Regents of the University of Michigan the
+non-exclusive right to retain, reproduce and distribute the deposited
+work (the Work) in whole or in part, in and from its electronic format.
+This agreement does not represent a transfer of copyright to the
+University of Michigan.
+
+The University of Michigan may make and keep more than one copy of the
+Work for purposes of security, backup, preservation and access, and may
+migrate the Work to any medium or format for the purpose of preservation
+and access in the future. The University of Michigan will not make any
+alteration, other than as allowed by this agreement, to the Work.
+
+I represent and warrant to the University of Michigan that the Work is
+my original work. I also represent that the Work does not, to the best
+of my knowledge, infringe or violate any rights of others.
+
+I further represent and warrant that I have obtained all necessary
+rights to permit the University of Michigan to reproduce and distribute
+the Work and that any third-party owned content is clearly identified
+and acknowledged within the Work.
+
+By granting this license, I acknowledge that I have read and agreed to
+the terms of this agreement and all related Deep Blue and University of
+Michigan policies.};
+#############################################################
+################# Command to load into Deep Blue ############
+#
+#  From /l1/dspace/repository/dev/bin run this.  This is just
+#  an example.  Note you need to have the eperson id.  13 is
+#  Jose in the dev area.
+#
+# ./dspace import -a -e 13 -c TEMP-BOGUS/191076  -s /deepblue-prep/bin/cope/archive -m mapfile_test
+#
+#############################################################
+
+my $data = &ReadFile ( $gMetaFile );
+
+my @gValidDegrees;
+push ( @gValidDegrees, 'PhD' );
+push ( @gValidDegrees, 'Doctor of Nursing Practice (DNP)' );
+push ( @gValidDegrees, 'Doctor of Physical Therapy (DPT)' );
+push ( @gValidDegrees, 'Doctor of Education (EdD)' );
+push ( @gValidDegrees, 'Doctor of Engineering (DEng)' );
+push ( @gValidDegrees, 'Master of Arts (MA)' );
+push ( @gValidDegrees, 'Master of Fine Arts (MFA)' );
+push ( @gValidDegrees, 'Master of Landscape Architecture (MLA)' );
+push ( @gValidDegrees, 'Master of Science (MS)' );
+push ( @gValidDegrees, 'Master of Science in Engineering (MSE)' );
+push ( @gValidDegrees, 'Master of Public Health (MPH)' );
+push ( @gValidDegrees, 'Master of Science in Nursing (MSN)' );
+push ( @gValidDegrees, 'Doctor of Musical Arts (DMA)' );
+push ( @gValidDegrees, 'Master of Music (MM)' );
+push ( @gValidDegrees, 'Bachelor of Fine Arts (BFA)' );
+push ( @gValidDegrees, 'Master of Science in Information (MSI)' );
+push ( @gValidDegrees, 'Master of Design (MDes)' );
+push ( @gValidDegrees, 'Doctor of Juridical Science (SJD)' );
+push ( @gValidDegrees, 'Master of Urban Planning (MURP)' );
+push ( @gValidDegrees, 'Doctor of Nurse Anesthesia Practice (DNAP)' );
+
+&ClearInputDir ();
+&CreateInput ( $data );
+
+exit;
+
+sub ReadFile
+{
+    my ( $fileName ) = @_;
+
+    #open ( FH, "<$fileName" ) || die();
+    open FH, "<$fileName";
+    binmode FH;
+    my ($bytesRead, $buffer, $chunk);
+    while ( $bytesRead = read(FH, $chunk, 1024) ) 
+    {
+        $buffer .= $chunk;
+    }
+    close FH;
+    
+    return $buffer;
+}
+
+sub CreateInput 
+  {
+    my ( $data ) = @_;
+
+    $data =~ s,\&,\&amp\;,gs;
+    my @records = split (/josejose.*?[\n|\r]/, $data );
+
+    my $count = 1;
+    foreach my $record ( @records )
+    {
+      my $metadata = &CreateMetadata ( $count, $record );
+      $count = $count + 1;
+    }    
+  }
+
+sub CreateRecord
+  {
+    my ( $id, $metadata, $license, $file, $desc, $cc_license ) = @_;
+
+    &MakeItemDir ( $id );	  
+    &PutDCData   ( $id, $metadata );
+
+    my $contents;
+    
+    $contents .= &PutPdfFile  ( $id, $file, $desc );
+
+    $contents .= qq{license.txt\n};
+	
+    &PutLicense  ( $id, $license, 'license.txt' );
+
+    #Now for the creative commons licenses
+    if ( $cc_license =~ m,^BY-NC-SA.*, )
+    {
+      my $license_rdf = &GetPageRdfSA;;
+      &PutLicense  ( $id, $license_rdf, 'license_rdf' );
+      $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
+      
+    }
+    elsif ( $cc_license =~ m,^BY-NC-ND.*, )
+    {
+      my $license_rdf = &GetPageRdfNCND;
+      &PutLicense  ( $id, $license_rdf, 'license_rdf' );
+      $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
+      
+    }
+    elsif ( $cc_license =~ m,^BY-NC.*, )
+    {
+      my $license_rdf = &GetPageRdfNC;
+      &PutLicense  ( $id, $license_rdf, 'license_rdf' );
+      $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
+      
+    }
+    elsif ( $cc_license =~ m,^BY-SA.*, )
+    {
+      my $license_rdf = &GetPageRdfNC;
+      &PutLicense  ( $id, $license_rdf, 'license_rdf' );
+      $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
+
+    }
+    elsif ( $cc_license =~ m,^BY.*, )
+    {
+      my $license_rdf = &GetPageRdfOther;
+      &PutLicense  ( $id, $license_rdf, 'license_rdf' );
+      $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
+      
+    }
+
+    &PutContents ( 'open', $id, $contents );
+  }
+
+sub PutContents
+  {
+    my ( $where, $id, $contents ) = @_;
+
+    my $fileName;
+    $fileName = qq{$gArchiveDirOpen/$id/contents};
+
+    #Now you want to create the file
+    open ( OUTFILE, ">$fileName" ) || die();
+    print OUTFILE $contents;
+    close OUTFILE;
+  }
+
+sub PutLicense
+  {
+    my ( $id, $license, $file ) = @_;
+
+    my $fileName;
+    my $fileName = qq{$gArchiveDirOpen/$id/$file};
+    
+    #Now you want to create the file
+    open ( OUTFILE, ">$fileName" ) || die();
+    print OUTFILE $license;
+    close OUTFILE;
+  }
+
+
+sub PutPdfFile
+  {
+    my ( $id, $file, $desc ) = @_;
+
+    if ( $id == 116 )
+      {
+	my $a;
+      }
+
+    my @files  = split ( /\;/, $file );
+    my @descs  = split ( /\;/, $desc );
+
+    my $contents;    
+    my $count = 0;
+    foreach my $file ( @files )
+    {
+      $file =~ s, ,,gs;
+      my $targetDir = qq{$gArchiveDirOpen/$id/$file};
+
+      my $sourceFile = qq{$gBitstreamDir/$file};
+
+      if ( -e $sourceFile  )
+	{    
+	  `cp $sourceFile $targetDir`;
+	  if ( $desc )
+	  {
+	    my $descforfile = $descs[$count];
+	    $count = $count + 1;
+	    $contents .= qq{$file\tdescription:$descforfile\n};
+	  }
+	  else
+	  {
+	    $contents .= qq{$file\n};
+	  }
+	}
+      else 
+      {
+	my $msg = qq{this file does not exists for $id: $sourceFile \n};
+	print $msg;
+      }
+    }
+    return $contents;
+
+  }
+
+sub PutDCData
+  {
+    my ( $id, $dcData ) = @_;
+
+    my $fileName;
+
+    $fileName = qq{$gArchiveDirOpen/$id/dublin_core.xml};
+
+    #Now you want to create the file
+    open ( OUTFILE, ">$fileName" ) || die();
+    print OUTFILE $dcData;
+    close OUTFILE;
+  }
+
+
+sub MakeItemDir
+  {
+    my ( $id ) = @_;
+
+    `mkdir $gArchiveDirOpen/$id`;
+    `chmod 777 $gArchiveDirOpen/$id`;
+
+  }
+
+sub CreateMetadata 
+  {
+    my ( $count, $record ) = @_;
+
+    my @lines;
+    push ( @lines, $record );
+
+    my $out = qq{<?xml version="1.0" encoding="utf-8" standalone="no"?>\n<dublin_core>\n};
+    
+    my $filename;
+    foreach my $line ( @lines )
+    {
+      $line =~ s,\r,&amp;,gs;
+      $line =~ s,\<,&lt;,gs;
+      $line =~ s,\>,&gt;,gs;
+      $line =~ s,\"\",\",gs;
+
+      my @data = split ( /\t/, $line );
+     
+      my $filename;
+      my $desc;
+      my $cc_license;
+      foreach my $lineConfig ( @gDataConfiguration )
+      {
+	$lineConfig =~ s, ,,gs;
+	my $recordId = $lineConfig;
+	$recordId =~ s,(.*?)\-.*,$1,;
+	$recordId = $recordId + 0;
+
+
+	if ( $data[$recordId] =~ m,$\".*, )
+	  {
+	    $data[$recordId] =~ s,$\"(.*),$1,;
+	  }
+
+	if ( $data[$recordId] =~ m,.*\"$, )
+	  {
+	    $data[$recordId] =~ s,(.*)\"$,$1,;
+	  }
+
+
+	my $dcValue = $lineConfig;
+	$dcValue =~ s,.*?\-(.*?)\-.*,$1,;
+
+
+	my $multiple = $lineConfig;
+	$multiple =~ s,.*?\-.*?\-(.*),$1,;
+
+	if ( $dcValue eq 'FILE' )
+        {
+           $filename = $data[$recordId];
+           $filename =~ s,\t,,gs;
+           $filename =~ s,\n,,gs;
+        }
+	elsif ( $dcValue eq 'FILEDESC' )
+        {
+           $desc = $data[$recordId];
+           $desc =~ s,\t,,gs;
+           $desc =~ s,\n,,gs;
+        }
+	elsif ( $dcValue eq 'CCLicense' )
+        {
+           $cc_license = $data[$recordId];
+           $cc_license =~ s,\t,,gs;
+           $cc_license =~ s,\n,,gs;
+        }
+        elsif  ( $dcValue eq 'NA' )
+        {
+
+        }
+        elsif ( $multiple =~ m,^Y.*, )
+        {
+	   my @values = split (/\;/, $data[$recordId] );
+	   foreach my $value ( @values )
+	   {
+	     #Remove leading ", and ending "
+	     $value =~ s,^"(.*)"$,$1,gs;
+             my $element = $dcValue;
+             $element =~ s,(.*)\..*,$1,;
+             my $qualifier = $dcValue;
+             $qualifier =~ s,.*\.(.*),$1,;
+             if ( $value )
+             {
+	        my $validDCValue = 1;
+	        if ( ($dcValue eq 'description.thesisdegreename') && !&isValidValue ( $value ) )
+		  {
+		    $validDCValue = 0;
+		    my $msg = qq{ERROR:  description.thesisdegreename has an invalid value: $value \nPlease correct and run script again!\n};
+		    print $msg;
+		    exit;
+		  } 
+		if ( $validDCValue == 1 )
+		  {
+		    $out .= qq{<dcvalue element="$element" qualifier="$qualifier">$value</dcvalue>\n};
+		  }
+		
+             }
+           }
+	}
+        else
+        {
+	  #Remove leading ", and ending "
+	  $data[$recordId] =~ s,^"(.*)"$,$1,gs;
+	  my $element = $dcValue;
+	  $element =~ s,(.*)\..*,$1,;
+	  my $qualifier = $dcValue;
+	  $qualifier =~ s,.*\.(.*),$1,;
+	  if ( $data[$recordId] )
+	  {
+	     my $validDCValue = 1;
+	     if ( ($dcValue eq 'description.thesisdegreename') && !&isValidValue ( $data[$recordId] ) )
+	       {
+		 $validDCValue = 0;
+		 my $msg = qq{ERROR:  description.thesisdegreename has an invalid value: $data[$recordId] \nPlease correct and run script again!\n};
+		 print $msg;
+		 exit;
+	       } 
+	       if ( $validDCValue == 1 )
+	        {
+	           $out .= qq{<dcvalue element="$element" qualifier="$qualifier">$data[$recordId]</dcvalue>\n};
+	        }
+	  }
+        }
+      }
+
+      if ( $gDoCitation )
+      {
+	my $citation;
+	foreach my $citeConfig ( @gCitationConfiguration )
+	{
+	  $citeConfig =~ s, ,,gs;
+
+	  my $recId    = $citeConfig;
+	  $recId =~ s,(.*?)\-.*,$1,;
+
+	  my $dataType = $citeConfig;
+	  $dataType =~ s,.*?\-(.*),$1,;
+
+	  #  author; author (date). "article_title" journal_name, volume:issue_number: first_page-last_page.) 
+
+	  if ( $dataType eq 'author' )
+	  {
+	    $citation .= qq{$data[$recId] };
+	  }
+	  elsif ( $dataType eq 'date' )
+	  {
+	    $citation .= qq{($data[$recId]). };
+	  }
+	  elsif ( $dataType eq 'article_title' )
+	  {
+	    $citation .= qq{"$data[$recId]." };
+	  }
+	  elsif ( $dataType eq 'journal_name' )
+	  {
+	    $citation .= qq{$data[$recId], };
+	  }
+	  elsif ( $dataType eq 'volume' )
+	  {
+	    $citation .= qq{$data[$recId](};
+	  }
+	  elsif ( $dataType eq 'issue_number' )
+	  {
+	    $citation .= qq{$data[$recId]): };
+	  }
+	  elsif ( $dataType eq 'first_page' )
+	  {
+	    $citation .= qq{$data[$recId]-};
+	  }
+	  elsif ( $dataType eq 'last_page' )
+	  {
+	    $citation .= qq{$data[$recId].};
+	  }
+	  elsif ( $dataType eq 'the_rest' )
+	  {
+	    $citation .= qq{$data[$recId]};
+	  }
+	}
+	$out .= qq{<dcvalue element="identifier" qualifier="citation">$citation</dcvalue>\n};  
+      }
+
+      $out .= qq{</dublin_core>\n};
+
+      if ( $count > 1 )
+	{
+	  &CreateRecord ( $count, $out, $gLicense, $filename, $desc, $cc_license  );
+	}
+
+    }
+
+    return $out;
+
+    }
+
+sub isValidValue 
+{
+  my ( $value ) = @_;
+
+  my $isValid = 0;
+
+
+  foreach my $degree ( @gValidDegrees )
+    {
+      if ( $value eq $value ) {
+	$isValid = 1;
+      }
+    }
+
+  return $isValid
+
+}
+
+
+sub ClearInputDir 
+  {
+    `rm -r $gArchiveDirOpen`;
+    `mkdir  $gArchiveDirOpen`;
+  }
+
+#http://creativecommons.org/licenses/by-nc-sa/3.0/
+sub GetPageSourceNCSA
+  {
+    my $url = qq{http://creativecommons.org/licenses/by-nc-sa/3.0/};
+    my $data = &GetUrlPage  ( $url );
+    return $data;
+  }
+
+#http://creativecommons.org/licenses/by-nc/3.0/
+sub GetPageSourceNC
+  {
+    my $url = qq{http://creativecommons.org/licenses/by-nc/3.0/};
+    my $data = &GetUrlPage  ( $url );
+    return $data;
+  }
+
+
+#http://creativecommons.org/licenses/by-sa/3.0/
+sub GetPageSourceSA
+  {
+    my $url = qq{http://creativecommons.org/licenses/by-sa/3.0/};
+    my $data = &GetUrlPage  ( $url );
+    return $data;
+  }
+
+
+#http://creativecommons.org/licenses/by/3.0/
+sub GetPageSourceOther
+  {
+    my $url = qq{http://creativecommons.org/licenses/by/3.0/};
+    my $data = &GetUrlPage  ( $url );
+    return $data;
+  }
+
+#########
+
+
+#http://creativecommons.org/licenses/by-nc-sa/3.0/rdf
+sub GetPageRdfNCSA
+  {
+    my $url = qq{https://creativecommons.org/licenses/by-nc-sa/3.0/rdf};
+    #my $data = &GetUrlPage  ( $url );
+
+    my $data = qq{<result>
+<rdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+  </License>
+</rdf:RDF>
+  </rdf>
+<licenserdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+  </License>
+</rdf:RDF>
+  </licenserdf>
+</result>};
+    return $data;
+  }
+
+
+#http://creativecommons.org/licenses/by-nc-nd/3.0/rdf
+sub GetPageRdfNCND
+  {
+    my $url = qq{https://creativecommons.org/licenses/by-nc-nd/3.0/rdf};
+    #my $data = &GetUrlPage  ( $url );
+
+    my $data = qq{<result>
+<rdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </rdf>
+<licenserdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </licenserdf>
+</result>
+};
+    return $data;
+  }
+
+#http://creativecommons.org/licenses/by-nc/3.0/rdf
+sub GetPageRdfNC
+  {
+    my $url = qq{https://creativecommons.org/licenses/by-nc/3.0/rdf};
+    #my $data = &GetUrlPage  ( $url );
+
+    my $data = qq{<result>
+<rdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </rdf>
+<licenserdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </licenserdf>
+</result>};
+    return $data;
+  }
+
+#http://creativecommons.org/licenses/by-sa/3.0/rdf
+sub GetPageRdfSA
+  {
+    my $url = qq{https://creativecommons.org/licenses/by-sa/3.0/rdf};
+    #my $data = &GetUrlPage  ( $url );
+
+    my $data = qq{<result>
+<rdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-sa/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+  </License>
+</rdf:RDF>
+  </rdf>
+<licenserdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <License rdf:about="http://creativecommons.org/licenses/by-sa/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+  </License>
+</rdf:RDF>
+  </licenserdf>
+</result>};
+    return $data;
+  }
+
+#http://creativecommons.org/licenses/by/3.0/rdf
+sub GetPageRdfOther
+  {
+    my $url = qq{http://creativecommons.org/licenses/by/3.0/rdf};
+    #my $data = &GetUrlPage  ( $url );
+
+    my $data = qq{<result>
+<rdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </rdf>
+<licenserdf>
+    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
+  <License rdf:about="http://creativecommons.org/licenses/by/3.0/us/">
+    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
+    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
+    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
+    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
+  </License>
+</rdf:RDF>
+  </licenserdf>
+</result>};
+    return $data;
+  }
+
+
+#########
+
+
+sub GetUrlPage
+  {
+    my ( $url ) = @_;
+
+    #Call to LWP to get response.
+    my $ua = LWP::UserAgent->new;
+
+    #Added this to remove error: The owner of this website (creativecommons.org) has banned your access based on your browser\'s signature (45f680dd5b9e7e2d-ua22).
+    $ua->default_header('User-Agent' => 'Mozilla/5.0');
+
+    $ua->timeout( 300 ); ## timeout for 180 seconds
+    $ua->agent('Mozilla/5.0');
+    my $req = HTTP::Request->new( GET => $url );
+    # Pass request to the user agent and get a response back
+    my $res = $ua->request( $req );
+
+    # Check the outcome of the response
+    if ($res->is_success)
+    {
+	#return the data
+        return $res->content;
+    } 
+    else
+    {
+      my $msg = qq{URLCALL: Unsuccessful call to $url \n};
+      print $msg,"\n";
+      return;
+    }
+    return;
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+__END__;
+
+
+
