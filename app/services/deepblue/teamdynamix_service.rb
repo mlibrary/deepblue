@@ -273,10 +273,10 @@ module Deepblue
       deposit_id = curation_concern.id
       deposit_url = ::Deepblue::EmailHelper.curation_concern_url( curation_concern: curation_concern )
       discipline = Array( curation_concern.subject_discipline ).first
+      discipline = ::Deepblue::EmailHelper.clean_str( discipline )
       requestor_email = requestor_email_for( curation_concern: curation_concern )
       # jira_summary = '' # keep this blank for now, it'll be a marker for records ported from jira
       description = []
-      cc_title = ::Deepblue::EmailHelper.clean_str( cc_title )
       cc_title = build_description_from_sanitize( cc_title )
       description << "Title: #{cc_title}<br/>"
       description << "Creator: #{creator}<br/>"
@@ -299,6 +299,8 @@ module Deepblue
       str = ActionView::Base.full_sanitizer.sanitize( str )
       str.gsub!( 'DATA', 'D.A.T.A.' )
       str.gsub!( 'EXEC', 'E.X.E.C.' )
+      str = ::Deepblue::EmailHelper.clean_str( str )
+      return str
     end
 
     def build_data( data: )
@@ -454,6 +456,7 @@ module Deepblue
 
     def creator_for( curation_concern: )
       rv = Array( curation_concern.creator ).first
+      rv = ::Deepblue::EmailHelper.clean_str( rv )
       return rv
     end
 
@@ -958,6 +961,7 @@ module Deepblue
 
     def title_for( curation_concern: )
       rv = Array( curation_concern.title ).join('; ')
+      rv = ::Deepblue::EmailHelper.clean_str( rv )
       return rv
     end
 
