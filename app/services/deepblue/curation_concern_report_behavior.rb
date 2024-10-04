@@ -61,6 +61,12 @@ module Deepblue
       return rv
     end
 
+    def curation_concern_title( curation_concern )
+      rv = Array( curation_concern.title ).join( "; " )
+      rv.gsub!( '"', "'" )
+      return rv
+    end
+
     def curation_concern_status( curation_concern, file_set: nil )
       if TaskHelper.dbd_version_1?
         obj = if file_set.present?
@@ -308,6 +314,7 @@ module Deepblue
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.file_set_count" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.work_size" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.work_size_print" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.title" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.parent_ids" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.discipline" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.creators" ) << '"'
@@ -330,6 +337,7 @@ module Deepblue
         out << ',' << work.file_set_ids.size.to_s
         out << ',' << work_size.to_s
         out << ',' << human_readable( work_size ).to_s
+        out << ',' << '"' << curation_concern_title( work ) << '"'
         parent_ids = parent_ids( work: work )
         out << ',' << '"' << parent_ids.join( ' ' ) << '"'
         out << ',' << '"' << TaskHelper.work_discipline( work: work ).join( '; ' ) << '"'

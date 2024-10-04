@@ -151,6 +151,7 @@ en:
           file_set_count:  'File set count'
           work_size:       'Work size'
           work_size_print: 'Work size print'
+          title:           'Title'
           parent_ids:      'Parent ids'
           discipline:      'Discipline'
           subject_discipline: "Discipline"
