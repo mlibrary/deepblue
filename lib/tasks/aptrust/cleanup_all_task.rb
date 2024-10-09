@@ -14,8 +14,23 @@ module Aptrust
       @cleanup_noids = {}
     end
 
+    def run
+      msg_handler.msg_verbose "Starting..."
+      if msg_handler.verbose
+        rv = `df -h #{working_dir}`
+        msg_handler.msg_verbose "#{rv}"
+      end
+      # msg_handler.msg_verbose "debug_verbose=#{debug_verbose}"
+      find_noids_from_file_system
+      @cleanup_noids.each do |noid,_v|
+        cleanup_by_noid( noid: noid )
+      end
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'Aptrust::CleanupAllTask', event: 'CleanupAllTask' )
+    end
+
     def add_noid_from_filename( file: )
-      msg_handler.msg_verbose "file=#{file}"
+      msg_handler.msg_debug "considering file=#{file}"
       if @test_date_begin.present?
         timestamp =  File.mtime file
         # msg_handler.msg_verbose "timestamp: #{timestamp}"
@@ -27,7 +42,7 @@ module Aptrust
       match = @bag_id_regexp.match File.basename file
       return unless match
       noid = match[1]
-      msg_handler.msg_verbose "noid found #{noid}"
+      msg_handler.msg_debug "noid found #{noid}"
       @cleanup_noids[noid] = true
     end
 
@@ -52,16 +67,11 @@ module Aptrust
                                                             test_mode: false )
       test_dates_init if date_begin.present? || date_end.present?
       files.each { |file| add_noid_from_filename( file: file )  }
-      msg_handler.msg_verbose @cleanup_noids.pretty_inspect
-    end
-
-    def run
-      msg_handler.msg_verbose "Starting..."
-      # msg_handler.msg_verbose "debug_verbose=#{debug_verbose}"
-      find_noids_from_file_system
-      @cleanup_noids.each { |noid,_v| cleanup_by_noid( noid: noid ) }
-      msg_handler.msg_verbose "Finished."
-      run_email_targets( subject: 'Aptrust::CleanupAllTask', event: 'CleanupAllTask' )
+      return unless msg_handler.verbose
+      msg_handler.msg_verbose "Cleanup noids found:"
+      @cleanup_noids.each do |noid,_v|
+        msg_handler.msg_verbose "#{noid}"
+      end
     end
 
   end

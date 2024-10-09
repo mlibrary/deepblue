@@ -61,7 +61,13 @@ END_OF_SCHEDULER_ENTRY
                              "rake_task=#{rake_task}",
                              "allowed_job_tasks.include? #{rake_task}=#{::Deepblue::JobTaskHelper.allowed_job_tasks.include? rake_task}",
                              "" ] if debug_verbose
-    return unless allowed_job_task?
+    unless allowed_job_task?
+      ::Deepblue::EmailHelper.send_email_fritx( subject: "Skipping RakeTaskJob #{rake_task} on #{hostname}",
+                                                messages: [ "#{hostname}",
+                                                            "Skipping RakeTaskJob because not allowed job task:",
+                                                            "#{rake_task}" ] ) if true || debug_verbose
+      return
+    end
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )
     run_job_delay
     exec_str = "bundle exec rake #{rake_task}"

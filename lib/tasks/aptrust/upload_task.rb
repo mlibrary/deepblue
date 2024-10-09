@@ -8,6 +8,10 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      # ::Deepblue::EmailHelper.send_email_fritx( subject: "UploadTask on #{hostname}",
+      #                                           messages: [ "#{hostname}",
+      #                                                       "options=#{options.pretty_inspect}",
+      #                                                       "#{rake_task}" ] ) if true || debug_verbose
       @sort = true
     end
 

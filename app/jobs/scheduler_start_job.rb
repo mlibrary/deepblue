@@ -116,7 +116,8 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   end
 
   def retry_sleep
-    sleep 5.seconds # TODO configure sleep time
+    # sleep 5.seconds # TODO configure sleep time
+    sleep 60.seconds # TODO configure sleep time
   end
 
   def scheduler_email( autostart: false, email_target:, subject:, body: nil )
