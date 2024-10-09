@@ -169,6 +169,11 @@ module Aptrust
       @aptrust_config
     end
 
+    def human_readable_size( value )
+      value = value.to_i
+      return ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
+    end
+
     def msg_handler_queue_to_html
       # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
       #                                       "msg_handler=#{msg_handler.pretty_inspect}" ] if true

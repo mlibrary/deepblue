@@ -131,6 +131,7 @@ module Bolognese
               # next if t["#{type}Orcid"].blank?
 
               # TODO: this needs to come from "creator_orcid"
+              # TODO: orcid can be nil
               t << { "nameIdentifier" => { "nameIdentifierScheme" => "orcid",
                                            "__content__" => orcid.downcase },
                      "#{type}Name" => value }
