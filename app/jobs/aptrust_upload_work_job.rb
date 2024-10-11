@@ -68,7 +68,7 @@ aptrust_upload_work_job:
       break if by_request_only? && !allow_by_request_only?
       msg_handler.debug_verbose     = debug_verbose
       debug_assume_upload_succeeds  = job_options_value( key: 'debug_assume_upload_succeeds',  default_value: false )
-      bag_max_total_file_size       = job_options_value( key: 'bag_max_total_file_size',     default_value: nil )
+      bag_max_total_file_size       = job_options_value( key: 'bag_max_total_file_size',       default_value: nil )
       cleanup_after_deposit         = job_options_value( key: 'cleanup_after_deposit',         default_value: true )
       cleanup_bag                   = job_options_value( key: 'cleanup_bag',                   default_value: false )
       cleanup_bag_data              = job_options_value( key: 'cleanup_bag_data',              default_value: true )
@@ -77,7 +77,7 @@ aptrust_upload_work_job:
       export_file_sets_filter_date  = job_options_value( key: 'export_file_sets_filter_date',  default_value: nil )
       export_file_sets_filter_event = job_options_value( key: 'export_file_sets_filter_event', default_value: nil )
       id                            = job_options_value( key: 'id',                            default_value: nil )
-      multipart_bag_index           = job_options_value( key: 'multipart_bag_index', default_value: nil )
+      multibag_parts_included         = job_options_value( key: 'multibag_parts_included',         default_value: [] )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "bag_max_total_file_size=#{bag_max_total_file_size}",
@@ -89,7 +89,7 @@ aptrust_upload_work_job:
                                "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                                "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                                "id=#{id}",
-                               "multipart_bag_index=#{multipart_bag_index}",
+                               "multibag_parts_included=#{multibag_parts_included}",
                                "" ] if debug_verbose
       run_job_delay
       uploader = ::Aptrust::AptrustUploadWork.new( bag_max_total_file_size:       bag_max_total_file_size,
@@ -101,7 +101,7 @@ aptrust_upload_work_job:
                                                    export_file_sets:              export_file_sets,
                                                    export_file_sets_filter_date:  export_file_sets_filter_date,
                                                    export_file_sets_filter_event: export_file_sets_filter_event,
-                                                   multipart_bag_index:           multipart_bag_index,
+                                                   multibag_parts_included:         multibag_parts_included,
                                                    noid:                          id,
                                                    zip_data_dir:                  false,
                                                    msg_handler:                   msg_handler,

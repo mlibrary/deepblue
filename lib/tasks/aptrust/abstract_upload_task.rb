@@ -16,7 +16,7 @@ module Aptrust
     attr_accessor :debug_assume_upload_succeeds
     attr_accessor :event_start # TODO (if event hasn't occurred, skip)
     attr_accessor :event_stop # TODO
-    attr_accessor :multipart_bag_index
+    attr_accessor :multibag_parts_included
     attr_accessor :max_size
     attr_accessor :max_upload_total_size
     attr_accessor :max_uploads
@@ -35,7 +35,7 @@ module Aptrust
       @debug_assume_upload_succeeds = option_value( key: 'debug_assume_upload_succeeds', default_value: false )
       @event_start = option_value( key: 'event_start' )
       @event_stop = option_value( key: 'event_stop' )
-      @multipart_bag_index = option_value( key: 'multipart_bag_index' )
+      @multibag_parts_included = option_multibag_parts_included
       @max_size = option_integer( key: 'max_size', default_value: -1 )
       @min_size = option_integer( key: 'min_size', default_value: -1 )
       @max_upload_total_size = option_integer( key: 'max_upload_total_size', default_value: -1 )
@@ -86,6 +86,27 @@ module Aptrust
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
       msg_handler.msg_verbose "max_uploads='#{opt}'"
+      return opt
+    end
+
+    def option_multibag_parts_included
+      key = 'multibag_parts_included'.freeze
+      str = task_options_value( key: key, default_value: '' )
+      str = str.strip
+      opt = []
+      return opt if str.empty?
+      if /\s/ =~ str
+        tmp = str.split( /\s+/ )
+      else
+        tmp = Array( str )
+      end
+      if tmp.size > 0
+        tmp.each do |value |
+          n = value.to_i
+          opt << n if 0 < n
+        end
+      end
+      msg_handler.msg_verbose "#{key}=[#{opt.join(', ')}]" if verbose
       return opt
     end
 
@@ -197,7 +218,7 @@ module Aptrust
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
                                                    event_start: event_start,
                                                    event_stop: event_stop,
-                                                   multipart_bag_index: multipart_bag_index,
+                                                   multibag_parts_included: multibag_parts_included,
                                                    noid: noid,
                                                    zip_data_dir: zip_data_dir )
       return uploader

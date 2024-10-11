@@ -17,6 +17,10 @@ module DeepblueHelper
     ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: precision )
   end
 
+  def self.human_readable_size_str( value, precision: 3 )
+    "#{human_readable_size(value)} (#{value} bytes)"
+  end
+
   def user_agent()
     user_agent =  request.env['HTTP_USER_AGENT']
     user_agent
