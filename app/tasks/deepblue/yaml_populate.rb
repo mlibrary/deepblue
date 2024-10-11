@@ -35,6 +35,8 @@ module Deepblue
     attr_accessor :target_dir
     attr_accessor :validate_file_checksums
 
+    attr_accessor :export_includes_callback
+
     def initialize( msg_handler: nil, populate_type:, options: )
       super( msg_handler: msg_handler, options: options )
       @populate_type = populate_type
@@ -47,6 +49,7 @@ module Deepblue
       @overwrite_export_files   = task_options_value( key: 'overwrite_export_files',   default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
       @target_dir               = task_options_value( key: 'target_dir',               default_value: DEFAULT_TARGET_DIR )
       @validate_file_checksums  = task_options_value( key: 'validate_file_checksums',  default_value: DEFAULT_VALIDATE_FILE_CHECKSUMS )
+      @export_includes_callback = task_options_value( key: 'export_includes_callback', default_value: nil )
       @populate_ids = []
       @populate_stats = []
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -176,10 +179,10 @@ module Deepblue
     end
 
     def yaml_bag_work( id:, work: nil )
-      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+      msg_handler.msg_verbose [ msg_handler.here, msg_handler.called_from,
                                "id=#{id}",
                                "work=#{work}",
-                             ] if debug_verbose
+                             ] if true || debug_verbose
       work ||= PersistHelper.find id
       sz = DeepblueHelper.human_readable_size( work.total_file_size )
       msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
@@ -193,6 +196,7 @@ module Deepblue
                                          create_zero_length_files:        @create_zero_length_files,
                                          overwrite_export_files:          @overwrite_export_files,
                                          validate_file_checksums:         @validate_file_checksums,
+                                         export_includes_callback:        @export_includes_callback,
                                          debug_verbose:                   @debug_verbose )
       service.yaml_populate_work( curation_concern:         work,
                                   dir:                      @target_dir,

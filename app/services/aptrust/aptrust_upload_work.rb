@@ -18,11 +18,12 @@ class Aptrust::AptrustUploadWork
   attr_accessor :export_file_sets
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
-  attr_accessor :multipart_bag_index
+  attr_accessor :multibag_parts_included
   attr_accessor :msg_handler
   attr_accessor :noid
 
   attr_accessor :export_dir
+  attr_accessor :work
   attr_accessor :working_dir
   attr_accessor :zip_data_dir
 
@@ -39,7 +40,7 @@ class Aptrust::AptrustUploadWork
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
-                  multipart_bag_index:           nil,
+                  multibag_parts_included:         [],
                   noid:                          ,
                   msg_handler:                   nil,
                   zip_data_dir:                  false,
@@ -77,7 +78,7 @@ class Aptrust::AptrustUploadWork
     @export_file_sets              = export_file_sets
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
-    @multipart_bag_index           = multipart_bag_index
+    @multibag_parts_included         = multibag_parts_included
 
     @export_dir = nil
     @working_dir = nil
@@ -113,7 +114,7 @@ class Aptrust::AptrustUploadWork
                                                       export_file_sets:              export_file_sets,
                                                       export_file_sets_filter_date:  export_file_sets_filter_date,
                                                       export_file_sets_filter_event: export_file_sets_filter_event,
-                                                      multipart_bag_index:           multipart_bag_index,
+                                                      multibag_parts_included:         multibag_parts_included,
                                                       work:                          work,
                                                       zip_data_dir:                  zip_data_dir,
                                                       msg_handler:                   msg_handler,

@@ -11,16 +11,18 @@ class Aptrust::WorkTasks
                    cleanup_after_deposit: true,
                    cleanup_bag: true,
                    cleanup_bag_data: true,
+                   multibag_parts_included: [],
                    zip_data_dir: false,
                    debug_verbose: false )
 
-    puts note unless note.nil?
+    # puts note unless note.nil?
     msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, debug_verbose: debug_verbose )
     uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
                                                  bag_max_total_file_size: bag_max_total_file_size,
                                                  cleanup_after_deposit: cleanup_after_deposit,
                                                  cleanup_bag: cleanup_bag,
                                                  cleanup_bag_data: cleanup_bag_data,
+                                                 multibag_parts_included: multibag_parts_included,
                                                  noid: noid,
                                                  zip_data_dir: zip_data_dir )
     uploader.run;true
@@ -133,6 +135,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   attr_accessor :work
   attr_accessor :exported_file_set_files
 
+  @deposit_files = nil
+
   def initialize( aptrust_config:               nil,
                   bag_max_total_file_size:      nil,
                   cleanup_after_deposit:        ::Aptrust::AptrustUploader.cleanup_after_deposit,
@@ -144,7 +148,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
-                  multipart_bag_index:           nil,
+                  multibag_parts_included:         [],
                   work:                          nil,
                   msg_handler:                   nil,
                   zip_data_dir:                  false,
@@ -160,7 +164,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                              "export_file_sets=#{export_file_sets}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
-                             "multipart_bag_index=#{multipart_bag_index}",
+                             "multibag_parts_included=#{multibag_parts_included}",
                              "work=#{work}",
                              "zip_data_dir=#{zip_data_dir}",
                              "" ] if msg_handler.present? && debug_verbose
@@ -195,13 +199,13 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            export_file_sets:              export_file_sets,
            export_file_sets_filter_date:  export_file_sets_filter_date,
            export_file_sets_filter_event: export_file_sets_filter_event,
-           multipart_bag_index:           multipart_bag_index,
+           multibag_parts_included:         multibag_parts_included,
            working_dir:                   working_dir,
            bi_description:                bi_description,
            zip_data_dir:                  zip_data_dir )
 
     @work = work
-    @export_by_closure = ->(target_dir) { export_data_work( target_dir: target_dir ) }
+    @export_by_closure = ->(target_dir, files) { export_data_work( target_dir: target_dir, files: files ) }
   end
 
   def allow_deposit?
@@ -223,6 +227,21 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   def aptrust_info_work_write( bag: )
     aptrust_info_work
     aptrust_info_write( bag: bag, aptrust_info: aptrust_info )
+  end
+
+  def deposit_files
+    @deposit_files ||= deposit_files_init()
+    return @deposit_files
+  end
+
+  def deposit_files_init
+    files = AptrustFileSetList.new() # ( debug: aptrust_upload_work_debug_verbose )
+    files.add_all( file_sets: work.file_sets )
+    return files
+  end
+
+  def desposit_files_total_size()
+    return deposit_files().total_file_sets_size
   end
 
   def cleanup_bag_data_files( bag: )
@@ -265,15 +284,31 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                              debug_verbose: msg_handler.debug_verbose )
   end
 
+  def export_data_by_closure( data_dir, files )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
+    if files.is_a? Array
+      file_set_ids = files
+    else
+      file_set_ids = files.file_sets.map { |f| f[:id] }
+    end
+    super( data_dir, file_set_ids )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
+  end
+
   def export_data_resolve_error( error )
     super
     email_error( error ) if error.is_a? ::Deepblue::ExportFilesChecksumMismatch
   end
 
-  def export_data_work( target_dir: )
+  def export_data_work( target_dir:, files: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files=#{files.pretty_inspect}" ] if debug_verbose
     path = Pathname.new target_dir
-    export_work_files( target_dir: path )
+    if files.blank?
+      export_work_files( target_dir: path )
+    else
+      export_work_file_sets( target_dir: path, files: files )
+    end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
   end
 
@@ -305,9 +340,37 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                         options: { mode:                     'bag',
                                                    collect_exported_file_set_files: true,
                                                    export_files:              export_file_sets,
-                                                   export_files_newer_than_date:  export_file_sets_filter_date,
+                                                   export_files_newer_than_date: export_file_sets_filter_date,
                                                    target_dir:                target_dir,
                                                    validate_file_checksums:   validate_file_checksums,
+                                                   debug_verbose:             debug_verbose } )
+    service = pop.yaml_bag_work( id: work.id, work: work )
+    @exported_file_set_files = service.exported_file_set_files
+    @export_errors = service.errors
+    # export provenance log
+    entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
+    prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
+    ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
+  end
+
+  def export_work_file_sets( target_dir:, files: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files=#{files.pretty_inspect}" ] if debug_verbose
+    work.metadata_report( dir: target_dir, filename_pre: 'w_' )
+    export_file_sets_filter_date = export_file_sets_filter_date_init
+    # msg_handler.msg_verbose "export_work_file_sets target_dir: #{target_dir}"
+    # msg_handler.msg_verbose "file sets:"
+    # files.each { |f| msg_handler.msg_verbose "#{f}" } if msg_handler.verbose
+    export_includes_callback = ->(file_set) { rv = files.include? file_set.id }
+    pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
+                                        msg_handler: msg_handler,
+                                        options: { mode:                     'bag',
+                                                   collect_exported_file_set_files: true,
+                                                   export_files:              export_file_sets,
+                                                   export_files_newer_than_date: export_file_sets_filter_date,
+                                                   target_dir:                target_dir,
+                                                   validate_file_checksums:   validate_file_checksums,
+                                                   export_includes_callback:  export_includes_callback,
                                                    debug_verbose:             debug_verbose } )
     service = pop.yaml_bag_work( id: work.id, work: work )
     @exported_file_set_files = service.exported_file_set_files

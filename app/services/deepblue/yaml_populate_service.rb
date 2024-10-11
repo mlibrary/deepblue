@@ -24,6 +24,8 @@ module Deepblue
     attr_accessor :errors
     attr_accessor :exported_file_set_files
 
+    attr_accessor :export_includes_callback
+
     # TODO: count these
     attr_reader :total_collections_exported
     attr_reader :total_file_sets_exported
@@ -37,6 +39,7 @@ module Deepblue
                     overwrite_export_files:          DEFAULT_OVERWRITE_EXPORT_FILES,
                     source:                          MetadataHelper::DEFAULT_SOURCE,
                     validate_file_checksums:         DEFAULT_VALIDATE_FILE_CHECKSUMS,
+                    export_includes_callback:        nil,
                     debug_verbose:                   DEBUG_VERBOSE )
 
       # options
@@ -48,6 +51,7 @@ module Deepblue
       @overwrite_export_files          = overwrite_export_files
       @source                          = source
       @validate_file_checksums         = validate_file_checksums
+      @export_includes_callback        = export_includes_callback
 
       @msg_handler ||= MessageHandlerNull.new
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -764,6 +768,7 @@ module Deepblue
                  "Total file count: #{work.file_sets.count}")
       total_byte_count = 0
       if work.file_sets.count.positive?
+        test_to_include = export_includes_callback
         work.file_sets.each do |file_set|
           date_modified = file_set.date_modified
           msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -772,6 +777,14 @@ module Deepblue
                                    "date_modified=#{date_modified}",
                                    "" ] if debug_verbose
           next if export_files_newer_than_date.present? && date_modified < export_files_newer_than_date
+          if test_to_include.present?
+            rv = test_to_include.call( file_set )
+            msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                                     "file_set.id=#{file_set.id}",
+                                     "test_to_include rv=#{rv}",
+                                     "" ] if debug_verbose
+            next unless rv
+          end
           msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
           bytes_exported = yaml_work_export_file( file_set: file_set, log_file: log_file, target_dir: target_dirname )
           total_byte_count += bytes_exported
