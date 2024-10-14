@@ -73,9 +73,9 @@ use LWP::UserAgent;
 #
 ##########################################################
 ######  Configuration Generic Variables ##################
-my $gArchiveDirOpen  = qq{/Users/pacerda/Desktop/batchUploads/ME450/archive};
-my $gMetaFile        = qq{/Users/pacerda/Desktop/batchUploads/ME450/metadata.tsv};
-my $gBitstreamDir    = qq{/Users/pacerda/Desktop/batchUploads/ME450/allFiles};
+my $gArchiveDirOpen  = qq{/Users/pacerda/Desktop/dbdocs/archive};
+my $gMetaFile        = qq{/Users/pacerda/Desktop/dbdocs/metadata.txt};
+my $gBitstreamDir    = qq{/Users/pacerda/Desktop/dbdocs/Files};
 #
 #
 # Important Notes on the configuration
@@ -96,13 +96,13 @@ push ( @gDataConfiguration, ' 3-contributor.author-Y' );
 push ( @gDataConfiguration, ' 4-date.issued-N' );
 push ( @gDataConfiguration, ' 5-type.none-N' );
 push ( @gDataConfiguration, ' 6-description.abstract-N' );
-push ( @gDataConfiguration, ' 7-description.sponsorname-Y' );
-push ( @gDataConfiguration, ' 8-description.sponsorship-Y' );
-push ( @gDataConfiguration, '9-contributor.advisor-N' );
-push ( @gDataConfiguration, '10-subject.subject-N');
+push ( @gDataConfiguration, ' 7-contributor.affiliationother-Y' );
+push ( @gDataConfiguration, ' 8-CCLicense-N' ); 		
+push ( @gDataConfiguration, '9-crights.none-N' );
+push ( @gDataConfiguration, '10-rights.uri-N');
 push ( @gDataConfiguration, '11-subject.none-Y' );
-push ( @gDataConfiguration, '12-subject.hlbtoplevel-N' );
-push ( @gDataConfiguration, '13-subject.hlbsecondlevel-N' );
+#push ( @gDataConfiguration, '12-subject.hlbtoplevel-N' );
+#push ( @gDataConfiguration, '13-subject.hlbsecondlevel-N' );
 
 ############### Citation Configuration #######################
 #If citation needs to be created.
@@ -591,36 +591,36 @@ sub ClearInputDir
     `mkdir  $gArchiveDirOpen`;
   }
 
-#http://creativecommons.org/licenses/by-nc-sa/3.0/
+#http://creativecommons.org/licenses/by-nc-sa/4.0/
 sub GetPageSourceNCSA
   {
-    my $url = qq{http://creativecommons.org/licenses/by-nc-sa/3.0/};
+    my $url = qq{http://creativecommons.org/licenses/by-nc-sa/4.0/};
     my $data = &GetUrlPage  ( $url );
     return $data;
   }
 
-#http://creativecommons.org/licenses/by-nc/3.0/
+#http://creativecommons.org/licenses/by-nc/4.0/
 sub GetPageSourceNC
   {
-    my $url = qq{http://creativecommons.org/licenses/by-nc/3.0/};
+    my $url = qq{http://creativecommons.org/licenses/by-nc/4.0/};
     my $data = &GetUrlPage  ( $url );
     return $data;
   }
 
 
-#http://creativecommons.org/licenses/by-sa/3.0/
+#http://creativecommons.org/licenses/by-sa/4.0/
 sub GetPageSourceSA
   {
-    my $url = qq{http://creativecommons.org/licenses/by-sa/3.0/};
+    my $url = qq{http://creativecommons.org/licenses/by-sa/4.0/};
     my $data = &GetUrlPage  ( $url );
     return $data;
   }
 
 
-#http://creativecommons.org/licenses/by/3.0/
+#http://creativecommons.org/licenses/by/4.0/
 sub GetPageSourceOther
   {
-    my $url = qq{http://creativecommons.org/licenses/by/3.0/};
+    my $url = qq{http://creativecommons.org/licenses/by/4.0/};
     my $data = &GetUrlPage  ( $url );
     return $data;
   }
@@ -628,16 +628,16 @@ sub GetPageSourceOther
 #########
 
 
-#http://creativecommons.org/licenses/by-nc-sa/3.0/rdf
+#http://creativecommons.org/licenses/by-nc-sa/4.0/rdf
 sub GetPageRdfNCSA
   {
-    my $url = qq{https://creativecommons.org/licenses/by-nc-sa/3.0/rdf};
+    my $url = qq{https://creativecommons.org/licenses/by-nc-sa/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
     my $data = qq{<result>
 <rdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -649,7 +649,7 @@ sub GetPageRdfNCSA
   </rdf>
 <licenserdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/3.0/us/">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -664,16 +664,16 @@ sub GetPageRdfNCSA
   }
 
 
-#http://creativecommons.org/licenses/by-nc-nd/3.0/rdf
+#https://creativecommons.org/licenses/by-nc-nd/4.0/rdf
 sub GetPageRdfNCND
   {
-    my $url = qq{https://creativecommons.org/licenses/by-nc-nd/3.0/rdf};
+    my $url = qq{https://creativecommons.org/licenses/by-nc-nd/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
     my $data = qq{<result>
 <rdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/us/">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
     <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
@@ -683,7 +683,7 @@ sub GetPageRdfNCND
   </rdf>
 <licenserdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc-nd/3.0/us/">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
     <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
@@ -696,16 +696,16 @@ sub GetPageRdfNCND
     return $data;
   }
 
-#http://creativecommons.org/licenses/by-nc/3.0/rdf
+#http://creativecommons.org/licenses/by-nc/4.0/rdf
 sub GetPageRdfNC
   {
-    my $url = qq{https://creativecommons.org/licenses/by-nc/3.0/rdf};
+    my $url = qq{https://creativecommons.org/licenses/by-nc/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
     my $data = qq{<result>
 <rdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc/3.0/us/">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -716,7 +716,7 @@ sub GetPageRdfNC
   </rdf>
 <licenserdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc/3.0/us/">
+  <License rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -729,16 +729,16 @@ sub GetPageRdfNC
     return $data;
   }
 
-#http://creativecommons.org/licenses/by-sa/3.0/rdf
+#http://creativecommons.org/licenses/by-sa/4.0/rdf
 sub GetPageRdfSA
   {
-    my $url = qq{https://creativecommons.org/licenses/by-sa/3.0/rdf};
+    my $url = qq{https://creativecommons.org/licenses/by-sa/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
     my $data = qq{<result>
 <rdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-sa/3.0/us/">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -750,7 +750,7 @@ sub GetPageRdfSA
   </rdf>
 <licenserdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-sa/3.0/us/">
+  <License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -764,16 +764,16 @@ sub GetPageRdfSA
     return $data;
   }
 
-#http://creativecommons.org/licenses/by/3.0/rdf
+#http://creativecommons.org/licenses/by/4.0/rdf
 sub GetPageRdfOther
   {
-    my $url = qq{http://creativecommons.org/licenses/by/3.0/rdf};
+    my $url = qq{http://creativecommons.org/licenses/by/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
     my $data = qq{<result>
 <rdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by/3.0/us/" /></Work><License rdf:about="http://creativecommons.org/licenses/by/3.0/us/">
+  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
@@ -784,7 +784,7 @@ sub GetPageRdfOther
   </rdf>
 <licenserdf>
     <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by/3.0/us/">
+  <License rdf:about="http://creativecommons.org/licenses/by/4.0/">
     <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
     <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
     <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
