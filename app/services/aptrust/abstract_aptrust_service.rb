@@ -25,10 +25,10 @@ class Aptrust::AbstractAptrustService
 
                   debug_verbose:       abstract_aptrust_service_debug_verbose )
 
-    @debug_verbose = debug_verbose
+    @debug_verbose  = debug_verbose
     @debug_verbose ||= abstract_aptrust_service_debug_verbose
-    @msg_handler = msg_handler
-    @msg_handler ||= ::Aptrust::NULL_MSG_HANDLER
+    @msg_handler    = msg_handler
+    @msg_handler   ||= ::Aptrust::NULL_MSG_HANDLER
 
     @aptrust_config      = aptrust_config
     @aptrust_config_file = aptrust_config_file
@@ -48,7 +48,7 @@ class Aptrust::AbstractAptrustService
   end
 
   def aptrust_upload_status
-    @aptrust_upload_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @noid )
+    @aptrust_upload_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @noid, track_status: @track_status )
   end
 
   def base_url

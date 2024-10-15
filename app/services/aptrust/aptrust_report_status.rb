@@ -22,6 +22,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
+           track_status:        false,
            debug_verbose:       debug_verbose )
 
     @target_file = target_file

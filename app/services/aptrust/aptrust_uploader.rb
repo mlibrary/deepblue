@@ -118,10 +118,8 @@ class Aptrust::AptrustUploader
   end
 
   attr_accessor :additional_tag_files
-
   attr_accessor :aptrust_config
   attr_accessor :aptrust_config_file
-
   attr_accessor :aptrust_info
   attr_accessor :ai_access
   attr_accessor :ai_creator
@@ -129,14 +127,13 @@ class Aptrust::AptrustUploader
   attr_accessor :ai_item_description
   attr_accessor :ai_storage_option
   attr_accessor :ai_title
-
   attr_accessor :aptrust_upload_status
+
   attr_accessor :bag_info
   attr_accessor :bi_date
   attr_accessor :bi_description
   attr_accessor :bi_id
   attr_accessor :bi_source
-
   attr_accessor :bag_id
   attr_accessor :bag_id_context
   attr_accessor :bag_id_local_repository
@@ -167,6 +164,7 @@ class Aptrust::AptrustUploader
   attr_accessor :most_recent_status
   attr_accessor :multibag_parts_included
   attr_accessor :object_id
+  attr_accessor :track_status
   attr_accessor :skip_event
   attr_accessor :working_dir
   attr_accessor :zip_data_dir
@@ -206,19 +204,19 @@ class Aptrust::AptrustUploader
 
                   event_start:                   nil,
                   event_stop:                    nil,
+                  export_dir:                    nil,
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
                   export_by_closure:             nil,
                   export_copy_src:               false,
                   export_src_dir:                nil,
-                  multibag_parts_included:         [],
+                  multibag_parts_included:       [],
+                  track_status:                  true,
+                  working_dir:                   nil,
+                  zip_data_dir:                  false,
 
-                  export_dir:          nil,
-                  working_dir:         nil,
-                  zip_data_dir:        false,
-
-                  debug_verbose:       aptrust_uploader_debug_verbose )
+                  debug_verbose:                 aptrust_uploader_debug_verbose )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -269,6 +267,7 @@ class Aptrust::AptrustUploader
                              "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                              "event_start=#{event_start}",
                              "event_stop=#{event_stop}",
+                             "export_dir=#{export_dir}",
                              "export_file_sets=#{export_file_sets}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
@@ -276,7 +275,7 @@ class Aptrust::AptrustUploader
                              "export_copy_src=#{export_copy_src}",
                              "export_src_dir=#{export_src_dir}",
                              "multibag_parts_included=#{multibag_parts_included}",
-                             "export_dir=#{export_dir}",
+                             "track_status=#{track_status}",
                              "working_dir=#{working_dir}",
                              "" ] if debug_verbose
 
@@ -325,13 +324,14 @@ class Aptrust::AptrustUploader
     @export_by_closure             = export_by_closure
     @export_copy_src               = export_copy_src
     @export_src_dir                = export_src_dir
-    @multibag_parts_included         = multibag_parts_included
+    @multibag_parts_included       = multibag_parts_included
+    @track_status                  = track_status
 
     @export_dir          = ::Aptrust.arg_init( export_dir,  DEFAULT_EXPORT_DIR )
-    @export_dir = File.absolute_path( @export_dir )
+    @export_dir          = File.absolute_path( @export_dir )
     @working_dir         = ::Aptrust.arg_init( working_dir, DEFAULT_WORKING_DIR )
-    @working_dir = File.absolute_path( @working_dir )
-    @zip_data_dir = zip_data_dir
+    @working_dir         = File.absolute_path( @working_dir )
+    @zip_data_dir        = zip_data_dir
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "@object_id=#{@object_id}",
@@ -367,6 +367,8 @@ class Aptrust::AptrustUploader
                              "@export_copy_src=#{@export_copy_src}",
                              "@export_src_dir=#{@export_src_dir}",
                              "@export_dir=#{@export_dir}",
+                             "@multibag_parts_included=#{@multibag_parts_included}",
+                             "@track_status=#{@track_status}",
                              "@working_dir=#{@working_dir}",
                              "" ] if debug_verbose
 
@@ -439,7 +441,7 @@ class Aptrust::AptrustUploader
   end
 
   def aptrust_upload_status
-    @aptrust_uploader_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @object_id )
+    @aptrust_uploader_status ||= ::Aptrust::AptrustUploaderStatus.new( id: @object_id, track_status: @track_status )
   end
 
   def bag_bag( bag:, bag_info:, note: nil )

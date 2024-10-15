@@ -68,6 +68,7 @@ module Aptrust
                                                    event_stop: event_stop,
                                                    export_file_sets_filter_date: export_files_sets_filter_date,
                                                    noid: noid,
+                                                   track_status: track_status,
                                                    zip_data_dir: zip_data_dir )
       return uploader
     end

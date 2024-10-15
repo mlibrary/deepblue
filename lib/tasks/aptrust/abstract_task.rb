@@ -138,19 +138,24 @@ module Aptrust
     attr_accessor :test_mode
     attr_accessor :working_dir
 
+    attr_accessor :task_options # TODO: start using
+    attr_accessor :track_status
+
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
       option_email_targets_present = task_options_value( key: 'email_targets', default_value: nil ).present?
       @msg_handler.verbose = verbose? if @msg_handler.present?
       @msg_handler.msg_queue = [] if option_email_targets_present && @msg_handler.present? && @msg_handler.msg_queue.nil?
       # @test_mode = option_value( key: 'test_mode', default_value: false ) # see below
-      @noids = option_noids
-      @date_begin = option_date_begin
-      @date_end = option_date_end
+      @noids         = option_noids
+      @date_begin    = option_date_begin
+      @date_end      = option_date_end
       @email_subject = task_options_value( key: 'email_subject', default_value: '' )
       @email_targets = option_email_targets
-      @export_dir = option_path( key: 'export_dir' )
-      @working_dir = option_path( key: 'working_dir' )
+      @export_dir    = option_path( key: 'export_dir' )
+      @track_status  = option_value( key: 'track_status', default_value: true )
+      @working_dir   = option_path( key: 'working_dir' )
+      @task_options  = options.dup # TODO: start using
     end
 
     def aptrust_config

@@ -179,10 +179,10 @@ module Deepblue
     end
 
     def yaml_bag_work( id:, work: nil )
-      msg_handler.msg_verbose [ msg_handler.here, msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "id=#{id}",
                                "work=#{work}",
-                             ] if true || debug_verbose
+                             ] if debug_verbose
       work ||= PersistHelper.find id
       sz = DeepblueHelper.human_readable_size( work.total_file_size )
       msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
