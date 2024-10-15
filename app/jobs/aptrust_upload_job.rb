@@ -102,6 +102,7 @@ aptrust_upload_job:
       filter_skip_statuses          = job_options_value( key: 'filter_skip_statuses',          default_value: [] )
       max_upload_jobs               = job_options_value( key: 'max_upload_jobs',               default_value: 1 )
       max_uploads                   = job_options_value( key: 'max_uploads',                   default_value: -1 )
+      track_status                  = job_options_value( key: 'track_status',                  default_value: true )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "cleanup_after_deposit=#{cleanup_after_deposit}",
@@ -119,6 +120,7 @@ aptrust_upload_job:
                                "filter_skip_statuses=#{filter_skip_statuses}",
                                "max_upload_jobs=#{max_upload_jobs}",
                                "max_uploads=#{max_uploads}",
+                               "track_status=#{track_status}",
                                "" ] if debug_verbose
       run_job_delay
       filter = ::Aptrust::AptrustFilterWork.new

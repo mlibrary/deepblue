@@ -17,12 +17,14 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
                   debug_assume_verify_succeeds: false,
                   force_verification:           false,
                   reverify_failed:              false,
-                  noid:                    ,
+                  noid:                         ,
+                  track_status:                 true,
                   debug_verbose:                aptrust_verifier_debug_verbose )
 
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
+           track_status:        track_status,
            debug_verbose:       debug_verbose )
 
     @noid = noid

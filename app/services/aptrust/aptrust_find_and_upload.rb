@@ -24,6 +24,8 @@ class Aptrust::AptrustFindAndUpload
   attr_accessor :max_upload_jobs
   attr_accessor :max_uploads
   attr_accessor :msg_handler
+  attr_accessor :multibag_parts_included
+  attr_accessor :track_status
   attr_accessor :upload_count
 
   def initialize( cleanup_after_deposit:         ::Aptrust::AptrustUploader.cleanup_after_deposit,
@@ -38,6 +40,8 @@ class Aptrust::AptrustFindAndUpload
                   max_upload_jobs:               1,
                   max_uploads:                   -1,
                   msg_handler:                   nil,
+                  multibag_parts_included:       [],
+                  track_status:                  true,
                   debug_verbose:                 aptrust_find_and_upload_debug_verbose )
 
     @debug_verbose = debug_verbose
@@ -57,10 +61,11 @@ class Aptrust::AptrustFindAndUpload
     @filter                       ||= FILTER_DEFAULT
     # @filter.debug_verbose = true if @filter.respond_to? :debug_verbose=
 
-    @max_upload_jobs = max_upload_jobs
-    @max_uploads = max_uploads
-
-    @upload_count = 0
+    @max_upload_jobs         = max_upload_jobs
+    @max_uploads             = max_uploads
+    @multibag_parts_included = multibag_parts_included
+    @track_status            = track_status
+    @upload_count            = 0
 
     @aptrust_config = ::Aptrust::AptrustConfig.new
 
@@ -76,6 +81,8 @@ class Aptrust::AptrustFindAndUpload
                              "filter=#{filter}",
                              "max_upload_jobs=#{max_upload_jobs}",
                              "max_uploads=#{max_uploads}",
+                             "multibag_parts_included=#{multibag_parts_included}",
+                             "track_status=#{track_status}",
                              # "@aptrust_config.pretty_inspect=#{@aptrust_config.pretty_inspect}",
                              "" ] if debug_verbose
   end
@@ -95,6 +102,8 @@ class Aptrust::AptrustFindAndUpload
                                                         export_file_sets:              export_file_sets,
                                                         export_file_sets_filter_date:  export_file_sets_filter_date,
                                                         export_file_sets_filter_event: export_file_sets_filter_event,
+                                                        multibag_parts_included:       multibag_parts_included,
+                                                        track_status:                  track_status,
                                                         work:                          work,
                                                         msg_handler:                   msg_handler,
                                                         debug_verbose:                 debug_verbose )

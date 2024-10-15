@@ -77,7 +77,8 @@ aptrust_upload_work_job:
       export_file_sets_filter_date  = job_options_value( key: 'export_file_sets_filter_date',  default_value: nil )
       export_file_sets_filter_event = job_options_value( key: 'export_file_sets_filter_event', default_value: nil )
       id                            = job_options_value( key: 'id',                            default_value: nil )
-      multibag_parts_included         = job_options_value( key: 'multibag_parts_included',         default_value: [] )
+      multibag_parts_included       = job_options_value( key: 'multibag_parts_included',       default_value: [] )
+      track_status                  = job_options_value( key: 'track_status',                  default_value: true )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "bag_max_total_file_size=#{bag_max_total_file_size}",
@@ -90,6 +91,7 @@ aptrust_upload_work_job:
                                "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                                "id=#{id}",
                                "multibag_parts_included=#{multibag_parts_included}",
+                               "track_status=#{track_status}",
                                "" ] if debug_verbose
       run_job_delay
       uploader = ::Aptrust::AptrustUploadWork.new( bag_max_total_file_size:       bag_max_total_file_size,
@@ -101,8 +103,9 @@ aptrust_upload_work_job:
                                                    export_file_sets:              export_file_sets,
                                                    export_file_sets_filter_date:  export_file_sets_filter_date,
                                                    export_file_sets_filter_event: export_file_sets_filter_event,
-                                                   multibag_parts_included:         multibag_parts_included,
+                                                   multibag_parts_included:       multibag_parts_included,
                                                    noid:                          id,
+                                                   track_status:                  track_status,
                                                    zip_data_dir:                  false,
                                                    msg_handler:                   msg_handler,
                                                    debug_verbose:                 debug_verbose )

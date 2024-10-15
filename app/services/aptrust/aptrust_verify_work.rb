@@ -18,11 +18,13 @@ class Aptrust::AptrustVerifyWork < Aptrust::AbstractAptrustService
                   force_verification:  false,
                   reverify_failed:     false,
                   noid:                ,
+                  track_status:        true,
                   debug_verbose:       aptrust_verify_work_debug_verbose )
 
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
+           track_status:        track_status,
            debug_verbose:       debug_verbose )
 
     @noid = noid

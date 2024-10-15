@@ -68,15 +68,18 @@ class Aptrust::AptrustUploaderStatus
   attr_accessor :id
   attr_accessor :status
   attr_accessor :status_history
+  attr_accessor :track_status
 
-  def initialize( id:, status_history: nil )
+  def initialize( id:, status_history: nil, track_status: true )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "status_history=#{status_history}",
+                                           "track_status=#{track_status}",
                                            "" ] if aptrust_uplaoder_status_debug_verbose
     @id = id
     @status_history = status_history
+    @track_status = track_status && ::Aptrust::STATUS_IN_DB
   end
 
   def clear_statuses
@@ -84,7 +87,7 @@ class Aptrust::AptrustUploaderStatus
                                            ::Deepblue::LoggingHelper.called_from,
                                            "id=#{id}",
                                            "" ] if aptrust_uplaoder_status_debug_verbose
-    if ::Aptrust::STATUS_IN_DB
+    if @track_status
       records = ::Aptrust::Status.where( noid: id )
       records.each { |r| r.delete }
     end
@@ -97,7 +100,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def status_current
-    if ::Aptrust::STATUS_IN_DB
+    if @track_status
       records = ::Aptrust::Status.where( noid: id )
       return records.first.event if records.exists?
     end
@@ -116,7 +119,7 @@ class Aptrust::AptrustUploaderStatus
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "" ] if aptrust_uplaoder_status_debug_verbose
-    rv = if ::Aptrust::STATUS_IN_DB
+    rv = if @track_status
            history = []
            records = ::Aptrust::Event.where( noid: id )
            records.each { |e| history << { id: e.id, status: e.event, note: e.event_note } }
@@ -128,7 +131,7 @@ class Aptrust::AptrustUploaderStatus
   end
 
   def status_init
-    if ::Aptrust::STATUS_IN_DB
+    if @track_status
       records = ::Aptrust::Status.where( noid: id )
       return records.first.event if records.exists?
     end
@@ -158,7 +161,7 @@ class Aptrust::AptrustUploaderStatus
     else
       status_history << { id: id, status: status, timestamp: timestamp, note: note }
     end
-    update_db( status_event: status, note: note, timestamp: timestamp ) if ::Aptrust::STATUS_IN_DB
+    update_db( status_event: status, note: note, timestamp: timestamp ) if @track_status
   end
 
   def update_db( status_event:, note: nil, timestamp: DateTime.now )

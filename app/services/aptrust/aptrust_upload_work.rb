@@ -15,14 +15,14 @@ class Aptrust::AptrustUploadWork
   attr_accessor :debug_verbose
   attr_accessor :event_start
   attr_accessor :event_stop
+  attr_accessor :export_dir
   attr_accessor :export_file_sets
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
   attr_accessor :multibag_parts_included
   attr_accessor :msg_handler
   attr_accessor :noid
-
-  attr_accessor :export_dir
+  attr_accessor :track_status
   attr_accessor :work
   attr_accessor :working_dir
   attr_accessor :zip_data_dir
@@ -40,9 +40,10 @@ class Aptrust::AptrustUploadWork
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
-                  multibag_parts_included:         [],
+                  multibag_parts_included:       [],
                   noid:                          ,
                   msg_handler:                   nil,
+                  track_status:                  true,
                   zip_data_dir:                  false,
                   debug_verbose:                 aptrust_upload_work_debug_verbose )
 
@@ -72,17 +73,16 @@ class Aptrust::AptrustUploadWork
     @cleanup_bag_data              = cleanup_bag_data
     @clear_status                  = clear_status
     @debug_assume_upload_succeeds  = debug_assume_upload_succeeds
-
     @event_start                   = event_start
     @event_stop                    = event_stop
+    @export_dir                    = nil
     @export_file_sets              = export_file_sets
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
-    @multibag_parts_included         = multibag_parts_included
-
-    @export_dir = nil
-    @working_dir = nil
-    @zip_data_dir = zip_data_dir
+    @multibag_parts_included       = multibag_parts_included
+    @track_status                  = track_status
+    @working_dir                   = nil
+    @zip_data_dir                  = zip_data_dir
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "noid=#{noid}",
@@ -91,10 +91,12 @@ class Aptrust::AptrustUploadWork
                              "cleanup_bag=#{cleanup_bag}",
                              "cleanup_bag_data=#{cleanup_bag_data}",
                              "clear_status=#{clear_status}",
+                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "export_dir=#{export_dir}",
                              "export_file_sets=#{export_file_sets}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
-                             "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
+                             "track_status=#{track_status}",
                              "" ] + ::Aptrust::AptrustIntegrationService.dump_mattrs if @debug_verbose
   end
 
@@ -114,7 +116,8 @@ class Aptrust::AptrustUploadWork
                                                       export_file_sets:              export_file_sets,
                                                       export_file_sets_filter_date:  export_file_sets_filter_date,
                                                       export_file_sets_filter_event: export_file_sets_filter_event,
-                                                      multibag_parts_included:         multibag_parts_included,
+                                                      multibag_parts_included:       multibag_parts_included,
+                                                      track_status:                  track_status,
                                                       work:                          work,
                                                       zip_data_dir:                  zip_data_dir,
                                                       msg_handler:                   msg_handler,

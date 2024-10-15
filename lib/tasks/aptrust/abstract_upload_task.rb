@@ -211,16 +211,17 @@ module Aptrust
 
     def uploader_for( noid: )
       uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
-                                                   bag_max_total_file_size: bag_max_total_file_size,
-                                                   cleanup_after_deposit: cleanup_after_deposit,
-                                                   cleanup_bag: cleanup_bag,
-                                                   cleanup_bag_data: cleanup_bag_data,
+                                                   bag_max_total_file_size:      bag_max_total_file_size,
+                                                   cleanup_after_deposit:        cleanup_after_deposit,
+                                                   cleanup_bag:                  cleanup_bag,
+                                                   cleanup_bag_data:             cleanup_bag_data,
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
-                                                   event_start: event_start,
-                                                   event_stop: event_stop,
-                                                   multibag_parts_included: multibag_parts_included,
-                                                   noid: noid,
-                                                   zip_data_dir: zip_data_dir )
+                                                   event_start:                  event_start,
+                                                   event_stop:                   event_stop,
+                                                   multibag_parts_included:      multibag_parts_included,
+                                                   noid:                         noid,
+                                                   track_status:                 track_status,
+                                                   zip_data_dir:                 zip_data_dir )
       return uploader
     end
 

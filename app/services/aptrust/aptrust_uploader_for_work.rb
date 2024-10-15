@@ -6,25 +6,28 @@ require_relative './aptrust_config'
 class Aptrust::WorkTasks
 
   def self.upload( noid:,
-                   note: nil,
+                   note:                    nil,
                    bag_max_total_file_size: nil,
-                   cleanup_after_deposit: true,
-                   cleanup_bag: true,
-                   cleanup_bag_data: true,
+                   cleanup_after_deposit:   true,
+                   cleanup_bag:             true,
+                   cleanup_bag_data:        true,
                    multibag_parts_included: [],
-                   zip_data_dir: false,
-                   debug_verbose: false )
+                   track_status:            true,
+                   zip_data_dir:            false,
+                   debug_verbose:           false )
 
-    # puts note unless note.nil?
+    puts note unless note.nil?
     msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, debug_verbose: debug_verbose )
-    uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
+    uploader = ::Aptrust::AptrustUploadWork.new( msg_handler:             msg_handler,
+                                                 debug_verbose:           debug_verbose,
                                                  bag_max_total_file_size: bag_max_total_file_size,
-                                                 cleanup_after_deposit: cleanup_after_deposit,
-                                                 cleanup_bag: cleanup_bag,
-                                                 cleanup_bag_data: cleanup_bag_data,
+                                                 cleanup_after_deposit:   cleanup_after_deposit,
+                                                 cleanup_bag:             cleanup_bag,
+                                                 cleanup_bag_data:        cleanup_bag_data,
                                                  multibag_parts_included: multibag_parts_included,
-                                                 noid: noid,
-                                                 zip_data_dir: zip_data_dir )
+                                                 noid:                    noid,
+                                                 track_status:            track_status,
+                                                 zip_data_dir:            zip_data_dir )
     uploader.run;true
   end
 
@@ -148,7 +151,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   export_file_sets:              true,
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
-                  multibag_parts_included:         [],
+                  multibag_parts_included:       [],
+                  track_status:                  true,
                   work:                          nil,
                   msg_handler:                   nil,
                   zip_data_dir:                  false,
@@ -165,6 +169,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "multibag_parts_included=#{multibag_parts_included}",
+                             "track_status=#{track_status}",
                              "work=#{work}",
                              "zip_data_dir=#{zip_data_dir}",
                              "" ] if msg_handler.present? && debug_verbose
@@ -199,9 +204,10 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            export_file_sets:              export_file_sets,
            export_file_sets_filter_date:  export_file_sets_filter_date,
            export_file_sets_filter_event: export_file_sets_filter_event,
-           multibag_parts_included:         multibag_parts_included,
+           multibag_parts_included:       multibag_parts_included,
            working_dir:                   working_dir,
            bi_description:                bi_description,
+           track_status:                  track_status,
            zip_data_dir:                  zip_data_dir )
 
     @work = work
