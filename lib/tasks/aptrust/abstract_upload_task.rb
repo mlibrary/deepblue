@@ -9,6 +9,7 @@ module Aptrust
 
   class AbstractUploadTask < ::Aptrust::AbstractTask
 
+    attr_accessor :bag_max_file_size
     attr_accessor :bag_max_total_file_size
     attr_accessor :cleanup_after_deposit
     attr_accessor :cleanup_bag
@@ -28,6 +29,7 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      @bag_max_file_size = option_integer( key: 'bag_max_file_size' )
       @bag_max_total_file_size = option_integer( key: 'bag_max_total_file_size' )
       @cleanup_after_deposit = option_value( key: 'cleanup_after_deposit', default_value: true )
       @cleanup_bag = option_value( key: 'cleanup_bag', default_value: true )
@@ -210,7 +212,9 @@ module Aptrust
     end
 
     def uploader_for( noid: )
-      uploader = ::Aptrust::AptrustUploadWork.new( msg_handler: msg_handler, debug_verbose: debug_verbose,
+      uploader = ::Aptrust::AptrustUploadWork.new( msg_handler:                  msg_handler,
+                                                   debug_verbose:                debug_verbose,
+                                                   bag_max_file_size:            bag_max_file_size,
                                                    bag_max_total_file_size:      bag_max_total_file_size,
                                                    cleanup_after_deposit:        cleanup_after_deposit,
                                                    cleanup_bag:                  cleanup_bag,

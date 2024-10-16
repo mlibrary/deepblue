@@ -35,6 +35,7 @@ module Deepblue
     attr_accessor :target_dir
     attr_accessor :validate_file_checksums
 
+    attr_accessor :collect_exported_file_set_files
     attr_accessor :export_includes_callback
 
     def initialize( msg_handler: nil, populate_type:, options: )
@@ -42,20 +43,23 @@ module Deepblue
       @populate_type = populate_type
       # options
       @debug_verbose            = task_options_value( key: 'debug_verbose',            default_value: DEBUG_VERBOSE )
+      @collect_exported_file_set_files = task_options_value( key: 'collect_exported_file_set_files', default_value: false )
       @create_zero_length_files = task_options_value( key: 'create_zero_length_files', default_value: DEFAULT_CREATE_ZERO_LENGTH_FILES )
       @export_files             = task_options_value( key: 'export_files',             default_value: DEFAULT_EXPORT_FILES )
       @export_files_newer_than_date = task_options_value( key: 'export_files_newer_than_date', default_value: DEFAULT_EXPORT_FILES_FILTER_DATE )
+      @export_includes_callback = task_options_value( key: 'export_includes_callback', default_value: nil )
       @mode                     = task_options_value( key: 'mode',                     default_value: DEFAULT_MODE )
       @overwrite_export_files   = task_options_value( key: 'overwrite_export_files',   default_value: DEFAULT_OVERWRITE_EXPORT_FILES )
       @target_dir               = task_options_value( key: 'target_dir',               default_value: DEFAULT_TARGET_DIR )
       @validate_file_checksums  = task_options_value( key: 'validate_file_checksums',  default_value: DEFAULT_VALIDATE_FILE_CHECKSUMS )
-      @export_includes_callback = task_options_value( key: 'export_includes_callback', default_value: nil )
       @populate_ids = []
       @populate_stats = []
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "@collect_exported_file_set_files=#{@collect_exported_file_set_files}",
                                "@create_zero_length_files=#{@create_zero_length_files}",
                                "@export_files=#{@export_files}",
                                "@export_files_newer_than_date=#{@export_files_newer_than_date}",
+                               "@export_includes_callback=#{@export_includes_callback}",
                                "@mode=#{@mode}",
                                "@overwrite_export_files=#{@overwrite_export_files}",
                                "@target_dir=#{@target_dir}",
@@ -186,7 +190,6 @@ module Deepblue
       work ||= PersistHelper.find id
       sz = DeepblueHelper.human_readable_size( work.total_file_size )
       msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
-      msg = "#{msg} with export files flag set to #{@export_files}" unless @export_files
       report_puts msg
       log_filename = "w_#{id}.export.log"
       @mode = ::Deepblue::MetadataHelper::MODE_BAG

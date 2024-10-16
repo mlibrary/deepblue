@@ -68,6 +68,7 @@ aptrust_upload_work_job:
       break if by_request_only? && !allow_by_request_only?
       msg_handler.debug_verbose     = debug_verbose
       debug_assume_upload_succeeds  = job_options_value( key: 'debug_assume_upload_succeeds',  default_value: false )
+      bag_max_file_size             = job_options_value( key: 'bag_max_file_size',             default_value: nil )
       bag_max_total_file_size       = job_options_value( key: 'bag_max_total_file_size',       default_value: nil )
       cleanup_after_deposit         = job_options_value( key: 'cleanup_after_deposit',         default_value: true )
       cleanup_bag                   = job_options_value( key: 'cleanup_bag',                   default_value: false )
@@ -94,7 +95,8 @@ aptrust_upload_work_job:
                                "track_status=#{track_status}",
                                "" ] if debug_verbose
       run_job_delay
-      uploader = ::Aptrust::AptrustUploadWork.new( bag_max_total_file_size:       bag_max_total_file_size,
+      uploader = ::Aptrust::AptrustUploadWork.new( bag_max_file_size:             bag_max_file_size,
+                                                   bag_max_total_file_size:       bag_max_total_file_size,
                                                    cleanup_after_deposit:         cleanup_after_deposit,
                                                    cleanup_bag:                   cleanup_bag,
                                                    cleanup_bag_data:              cleanup_bag_data,

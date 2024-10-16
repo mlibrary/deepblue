@@ -37,7 +37,8 @@ module Aptrust
 
     mattr_accessor :bag_checksum_algorithm,    default: 'md5'
     mattr_accessor :bag_delete_manifest_sha1,  default: true
-    mattr_accessor :bag_max_total_file_size,   default: 5.terabytes - 1.gigabyte # max less a bit of buffer
+    mattr_accessor :bag_max_file_size,         default: 1.terabytes - 200.megabytes # max less a bit of buffer
+    mattr_accessor :bag_max_total_file_size,   default: 1.terabytes - 100.megabytes # max less a bit of buffer
 
     mattr_accessor :cleanup_after_deposit,     default: true
     mattr_accessor :cleanup_bag,               default: false
@@ -80,6 +81,7 @@ module Aptrust
 
        "::Aptrust::AptrustIntegrationService.bag_checksum_algorithm=#{::Aptrust::AptrustIntegrationService.bag_checksum_algorithm}",
        "::Aptrust::AptrustIntegrationService.bag_delete_manifest_sha1=#{::Aptrust::AptrustIntegrationService.bag_delete_manifest_sha1}",
+       "::Aptrust::AptrustIntegrationService.bag_max_file_size=#{::Aptrust::AptrustIntegrationService.bag_max_file_size}",
        "::Aptrust::AptrustIntegrationService.bag_max_total_file_size=#{::Aptrust::AptrustIntegrationService.bag_max_total_file_size}",
 
        "::Aptrust::AptrustIntegrationService.cleanup_after_deposit=#{::Aptrust::AptrustIntegrationService.cleanup_after_deposit}",

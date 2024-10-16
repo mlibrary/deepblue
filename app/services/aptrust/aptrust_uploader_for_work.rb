@@ -7,6 +7,7 @@ class Aptrust::WorkTasks
 
   def self.upload( noid:,
                    note:                    nil,
+                   bag_max_file_size:       nil,
                    bag_max_total_file_size: nil,
                    cleanup_after_deposit:   true,
                    cleanup_bag:             true,
@@ -20,6 +21,7 @@ class Aptrust::WorkTasks
     msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, debug_verbose: debug_verbose )
     uploader = ::Aptrust::AptrustUploadWork.new( msg_handler:             msg_handler,
                                                  debug_verbose:           debug_verbose,
+                                                 bag_max_file_size:       bag_max_file_size,
                                                  bag_max_total_file_size: bag_max_total_file_size,
                                                  cleanup_after_deposit:   cleanup_after_deposit,
                                                  cleanup_bag:             cleanup_bag,
@@ -141,6 +143,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   @deposit_files = nil
 
   def initialize( aptrust_config:               nil,
+                  bag_max_file_size:            nil,
                   bag_max_total_file_size:      nil,
                   cleanup_after_deposit:        ::Aptrust::AptrustUploader.cleanup_after_deposit,
                   cleanup_bag:                  ::Aptrust::AptrustUploader.cleanup_bag,
@@ -160,6 +163,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "aptrust_config=#{aptrust_config}",
+                             "bag_max_file_size=#{bag_max_file_size}",
                              "bag_max_total_file_size=#{bag_max_total_file_size}",
                              "cleanup_after_deposit=#{cleanup_after_deposit}",
                              "cleanup_bag=#{cleanup_bag}",
@@ -193,6 +197,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            aptrust_info:                  aptrust_info,
            bag_id_type:                   bag_id_type,
            bag_id_context:                the_deposit_context,
+           bag_max_file_size:             bag_max_file_size,
            bag_max_total_file_size:       bag_max_total_file_size,
            cleanup_after_deposit:         cleanup_after_deposit,
            cleanup_bag:                   cleanup_bag,
@@ -241,9 +246,44 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
   end
 
   def deposit_files_init
-    files = AptrustFileSetList.new() # ( debug: aptrust_upload_work_debug_verbose )
+    files = ::Aptrust::AptrustFileSetList.new() # ( debug: aptrust_upload_work_debug_verbose )
     files.add_all( file_sets: work.file_sets )
-    return files
+    msg_handler.msg_debug "deposit_files_init:"
+    need_to_split = false
+    msg_handler.msg_debug "bag_max_file_size: #{DeepblueHelper.human_readable_size_str(bag_max_file_size ) }"
+    files.entries.each do |f|
+      next unless f.size > bag_max_file_size
+      msg_handler.msg_debug "split: #{f.id} - #{DeepblueHelper.human_readable_size_str( f.size ) }"
+      need_to_split = true
+      break
+    end
+    return files unless need_to_split
+    files_with_splits = ::Aptrust::AptrustFileSetList.new()
+    files.entries.each do |f|
+      if f.size <= bag_max_file_size
+        files_with_splits.add( file_set: f )
+        next
+      end
+      msg_handler.msg_debug "split: #{f.id} - #{DeepblueHelper.human_readable_size_str( f.size ) }"
+      split_size = (f.size / 10).to_int
+      (0..9).each do |i|
+        split_id = "#{f.id}_#{i}"
+        split_name = "#{f.name}.#{i}"
+        files_with_splits.add_split( id: split_id,
+                                     id_orig: f.id,
+                                     name: split_name,
+                                     name_orig: f.name,
+                                     size: split_size )
+      end
+      if msg_handler.debug_verbose
+        files_with_splits.entries.each do |f|
+          msg_handler.msg_debug "split: #{f.id} - #{f.name} - #{DeepblueHelper.human_readable_size_str( f.size ) }"
+        end
+      end
+    end
+    # return files
+    files.clear
+    return files_with_splits
   end
 
   def desposit_files_total_size()
@@ -294,11 +334,63 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
     if files.is_a? Array
       file_set_ids = files
+    elsif files.is_a? ::Aptrust::AptrustFileSetList
+      file_set_ids = []
+      files.entries.each do |f|
+        if f.split
+          msg_handler.msg_debug "exclude export as split: #{f.id}"
+        else
+          file_set_ids << f.id
+        end
+      end
     else
-      file_set_ids = files.file_sets.map { |f| f[:id] }
+      file_set_ids = []
     end
     super( data_dir, file_set_ids )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
+    if files.is_a? ::Aptrust::AptrustFileSetList
+      files.entries.each do |f|
+        if f.split
+          msg_handler.msg_debug "Export as split: #{f.id}, orig_id=#{f.id_orig}, name_orig=#{f.name_orig}"
+          data_dir_file = File.join data_dir, f.name
+          msg_handler.msg_debug "data_dir_file: #{data_dir_file} -- exists? #{File.exist? data_dir_file}"
+          next if File.exist? data_dir_file
+          work_dir = File.dirname data_dir # bag directory
+          msg_handler.msg_debug "work_dir: #{work_dir} -- exists? #{Dir.exist? work_dir}"
+          work_dir = File.dirname work_dir # parent of bag directory
+          msg_handler.msg_debug "work_dir: #{work_dir} -- exists? #{Dir.exist? work_dir}"
+          split_dir = File.join work_dir, f.id_orig
+          msg_handler.msg_debug "split_dir: #{split_dir} -- exists? #{Dir.exist? split_dir}"
+          Dir.mkdir split_dir unless Dir.exist? split_dir
+          split_name = "#{f.id_orig}_#{f.name}"
+          split_file = File.join split_dir, split_name
+          msg_handler.msg_debug "split_file: #{split_file} -- exists? #{File.exist? split_file}"
+          if File.exist? split_file
+            msg_handler.msg_debug "moving existing split file to data dir"
+            FileUtils.mv( split_file, data_dir )
+            next
+          end
+          msg_handler.msg_debug "split_dir: #{split_dir} -- exists? #{Dir.exist? split_dir}"
+          files = [ f.id_orig ]
+          export_data_work( target_dir: split_dir, files: files, split_export: true )
+          unsplit_name = "#{f.id_orig}_#{f.name_orig}"
+          unsplit_file = File.join split_dir, unsplit_name
+          msg_handler.msg_debug "non_split_file: #{unsplit_file} -- exists? #{File.exist? unsplit_file}"
+          export_split( file: unsplit_file )
+          if msg_handler.debug_verbose
+            split_files = export_split_file_names( file: unsplit_file )
+            split_files.each do |file|
+              file = File.join split_dir, file
+              msg_handler.msg_debug "split_file: #{file} -- exists? #{File.exist? file}"
+            end
+          end
+          msg_handler.msg_debug "moving new split file to data dir"
+          msg_handler.msg_debug "mv #{split_file}"
+          msg_handler.msg_debug "to #{data_dir}"
+          FileUtils.mv( split_file, data_dir )
+        end
+      end
+    end
   end
 
   def export_data_resolve_error( error )
@@ -306,14 +398,16 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     email_error( error ) if error.is_a? ::Deepblue::ExportFilesChecksumMismatch
   end
 
-  def export_data_work( target_dir:, files: )
+  def export_data_work( target_dir:, files:, split_export: false )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files=#{files.pretty_inspect}" ] if debug_verbose
+    msg_handler.msg_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
+    msg_handler.msg_debug [ msg_handler.here, msg_handler.called_from, "files=#{files.pretty_inspect}" ] if debug_verbose
     path = Pathname.new target_dir
     if files.blank?
       export_work_files( target_dir: path )
     else
-      export_work_file_sets( target_dir: path, files: files )
+      export_work_file_sets( target_dir: path, files: files, split_export: split_export )
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
   end
@@ -341,9 +435,12 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
     work.metadata_report( dir: target_dir, filename_pre: 'w_' )
     export_file_sets_filter_date = export_file_sets_filter_date_init
+    verbose = msg_handler.verbose
+    msg_handler.verbose = false unless debug_verbose
     pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
                                         msg_handler: msg_handler,
-                                        options: { mode:                     'bag',
+                                        options: { verbose:                  false,
+                                                   mode:                     'bag',
                                                    collect_exported_file_set_files: true,
                                                    export_files:              export_file_sets,
                                                    export_files_newer_than_date: export_file_sets_filter_date,
@@ -351,6 +448,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                                    validate_file_checksums:   validate_file_checksums,
                                                    debug_verbose:             debug_verbose } )
     service = pop.yaml_bag_work( id: work.id, work: work )
+    msg_handler.verbose = verbose
     @exported_file_set_files = service.exported_file_set_files
     @export_errors = service.errors
     # export provenance log
@@ -359,15 +457,26 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
     ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
   end
 
-  def export_work_file_sets( target_dir:, files: )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_dir=#{target_dir}" ] if debug_verbose
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "files=#{files.pretty_inspect}" ] if debug_verbose
-    work.metadata_report( dir: target_dir, filename_pre: 'w_' )
+  def export_work_file_sets( target_dir:, files:, split_export: false )
+    msg_handler.msg_debug [ msg_handler.here, msg_handler.called_from,
+                              "target_dir=#{target_dir}",
+                              "files=#{files.pretty_inspect}",
+                              "split_export=#{split_export}" ]
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "target_dir=#{target_dir}",
+                             "files=#{files.pretty_inspect}",
+                             "split_export=#{split_export}" ] if debug_verbose
+    unless split_export
+      msg_handler.msg_debug "export provenance log"
+      work.metadata_report( dir: target_dir, filename_pre: 'w_' )
+    end
     export_file_sets_filter_date = export_file_sets_filter_date_init
-    # msg_handler.msg_verbose "export_work_file_sets target_dir: #{target_dir}"
-    # msg_handler.msg_verbose "file sets:"
-    # files.each { |f| msg_handler.msg_verbose "#{f}" } if msg_handler.verbose
-    export_includes_callback = ->(file_set) { rv = files.include? file_set.id }
+    export_includes_callback = ->(file_set) do
+      msg_handler.msg_debug "export_includes_callback file_set.id #{file_set.id}"
+      rv = files.include? file_set.id
+    end
+    verbose = msg_handler.verbose
+    msg_handler.verbose = false unless debug_verbose
     pop = ::Deepblue::YamlPopulate.new( populate_type: 'work',
                                         msg_handler: msg_handler,
                                         options: { mode:                     'bag',
@@ -379,12 +488,23 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                                                    export_includes_callback:  export_includes_callback,
                                                    debug_verbose:             debug_verbose } )
     service = pop.yaml_bag_work( id: work.id, work: work )
-    @exported_file_set_files = service.exported_file_set_files
-    @export_errors = service.errors
-    # export provenance log
-    entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
-    prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
-    ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
+    msg_handler.verbose = verbose
+    unless split_export
+      # TODO: need to deal with when split exporting
+      @exported_file_set_files = service.exported_file_set_files
+      @export_errors = service.errors
+    end
+    unless split_export
+      msg_handler.msg_debug "export provenance log"
+      entries = ::Deepblue::ProvenanceLogService.entries( work.id, refresh: true )
+      prov_file = File.join( target_dir, "w_#{work.id}_provenance.log" )
+      ::Deepblue::ProvenanceLogService.write_entries( prov_file, entries )
+    end
+    msg_handler.msg_debug [ msg_handler.here, msg_handler.called_from, "exiting" ]
+  end
+
+  def exported_files()
+    return exported_file_set_files
   end
 
   def target_file_name( dir, filename, ext = '' ) # TODO: review

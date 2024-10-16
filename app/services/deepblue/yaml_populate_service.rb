@@ -15,17 +15,16 @@ module Deepblue
     attr_accessor :collect_exported_file_set_files
     attr_accessor :create_zero_length_files
     attr_accessor :debug_verbose
+    attr_accessor :export_includes_callback
     attr_accessor :mode
     attr_accessor :msg_handler
     attr_accessor :overwrite_export_files
     attr_accessor :source
     attr_accessor :validate_file_checksums
 
+    # variables
     attr_accessor :errors
     attr_accessor :exported_file_set_files
-
-    attr_accessor :export_includes_callback
-
     # TODO: count these
     attr_reader :total_collections_exported
     attr_reader :total_file_sets_exported
@@ -701,13 +700,19 @@ module Deepblue
         log_lines( log_file, "Finished file export of #{export_what} at #{Time.now}." )
       elsif write_file && file.nil? && export_file_name.present?
         if create_zero_length_files
-          log_lines( log_file, "File export of file_set #{file_set.id} -- #{export_what} at #{Time.now} creating zero length file because file is nil." )
+          log_lines( log_file,
+                     "File export of file_set #{file_set.id} -- #{export_what}" +
+                     " at #{Time.now} creating zero length file because file is nil." )
           File.open( export_file_name, 'w' ) { |out| out.write( '' ) }
         else
-          log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil." )
+          log_lines( log_file,
+                     "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what}" +
+                     " at #{Time.now} because file is nil." )
         end
       elsif write_file && file.nil?
-        log_lines( log_file, "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what} at #{Time.now} because file is nil and export_file_name is empty." )
+        log_lines( log_file,
+                   "WARNING: Skipping file export of file_set #{file_set.id} -- #{export_what}" +
+                   " at #{Time.now} because file is nil and export_file_name is empty." )
       else
         log_lines( log_file, "Skipping file export of #{export_what} at #{Time.now}." )
       end
