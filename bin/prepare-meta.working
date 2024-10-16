@@ -240,7 +240,7 @@ sub CreateRecord
     #Now for the creative commons licenses
     if ( $cc_license =~ m,^BY-NC-SA.*, )
     {
-      my $license_rdf = &GetPageRdfSA;;
+      my $license_rdf = &GetPageRdfNCSA;
       &PutLicense  ( $id, $license_rdf, 'license_rdf' );
       $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
       
@@ -261,7 +261,7 @@ sub CreateRecord
     }
     elsif ( $cc_license =~ m,^BY-SA.*, )
     {
-      my $license_rdf = &GetPageRdfNC;
+      my $license_rdf = &GetPageRdfSA;
       &PutLicense  ( $id, $license_rdf, 'license_rdf' );
       $contents .= qq{license_rdf\tbundle:CC-LICENSE\n};
 
@@ -634,32 +634,29 @@ sub GetPageRdfNCSA
     my $url = qq{https://creativecommons.org/licenses/by-nc-sa/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
-    my $data = qq{<result>
-<rdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-sa/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
-  </License>
-</rdf:RDF>
-  </rdf>
-<licenserdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
-  </License>
-</rdf:RDF>
-  </licenserdf>
-</result>};
+    my $data = qq{<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:cc="http://creativecommons.org/ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-nc-sa/4.0/">
+    <cc:legalcode xml:lang="en">http://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en</cc:legalcode>
+    <cc:licenseClass rdf:resource="http://creativecommons.org/license/"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+    <dcterms:LicenseDocument xml:lang="en">https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode.en</dcterms:LicenseDocument>
+    <dcterms:creator rdf:resource="http://creativecommons.org"/>
+    <dcterms:hasVersion>4.0</dcterms:hasVersion>
+    <dcterms:identifier>by-nc-sa</dcterms:identifier>
+    <dcterms:source>http://creativecommons.org/licenses/by-nc-sa/3.0/</dcterms:source>
+    <dcterms:title xml:lang="en">Attribution-NonCommercial-ShareAlike 4.0 International</dcterms:title>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc-sa/4.0/80x15.png"/>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc-sa/4.0/88x31.png"/>
+    <owl:sameAs rdf:resource="https://creativecommons.org/licenses/by-nc-sa/4.0/"/>
+  </cc:License>
+</rdf:RDF>};
     return $data;
   }
 
@@ -670,29 +667,27 @@ sub GetPageRdfNCND
     my $url = qq{https://creativecommons.org/licenses/by-nc-nd/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
-    my $data = qq{<result>
-<rdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc-nd/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </rdf>
-<licenserdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </licenserdf>
-</result>
-};
+    my $data = qq{<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:cc="http://creativecommons.org/ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-nc-nd/4.0/">
+    <cc:legalcode xml:lang="en">http://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en</cc:legalcode>
+    <cc:licenseClass rdf:resource="http://creativecommons.org/license/"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <dcterms:LicenseDocument xml:lang="en">https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode.en</dcterms:LicenseDocument>
+    <dcterms:creator rdf:resource="http://creativecommons.org"/>
+    <dcterms:hasVersion>4.0</dcterms:hasVersion>
+    <dcterms:identifier>by-nc-nd</dcterms:identifier>
+    <dcterms:source>http://creativecommons.org/licenses/by-nc-nd/3.0/</dcterms:source>
+    <dcterms:title xml:lang="en">Attribution-NonCommercial-NoDerivatives 4.0 International</dcterms:title>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc-nd/4.0/80x15.png"/>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc-nd/4.0/88x31.png"/>
+    <owl:sameAs rdf:resource="https://creativecommons.org/licenses/by-nc-nd/4.0/"/>
+  </cc:License>
+</rdf:RDF>};
     return $data;
   }
 
@@ -702,30 +697,28 @@ sub GetPageRdfNC
     my $url = qq{https://creativecommons.org/licenses/by-nc/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
-    my $data = qq{<result>
-<rdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-nc/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </rdf>
-<licenserdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </licenserdf>
-</result>};
+    my $data = qq{<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:cc="http://creativecommons.org/ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-nc/4.0/">
+    <cc:legalcode xml:lang="en">http://creativecommons.org/licenses/by-nc/4.0/legalcode.en</cc:legalcode>
+    <cc:licenseClass rdf:resource="http://creativecommons.org/license/"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:prohibits rdf:resource="http://creativecommons.org/ns#CommercialUse"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <dcterms:LicenseDocument xml:lang="en">https://creativecommons.org/licenses/by-nc/4.0/legalcode.en</dcterms:LicenseDocument>
+    <dcterms:creator rdf:resource="http://creativecommons.org"/>
+    <dcterms:hasVersion>4.0</dcterms:hasVersion>
+    <dcterms:identifier>by-nc</dcterms:identifier>
+    <dcterms:source>http://creativecommons.org/licenses/by-nc/3.0/</dcterms:source>
+    <dcterms:title xml:lang="en">Attribution-NonCommercial 4.0 International</dcterms:title>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc/4.0/80x15.png"/>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-nc/4.0/88x31.png"/>
+    <owl:sameAs rdf:resource="https://creativecommons.org/licenses/by-nc/4.0/"/>
+  </cc:License>
+</rdf:RDF>};
     return $data;
   }
 
@@ -735,32 +728,28 @@ sub GetPageRdfSA
     my $url = qq{https://creativecommons.org/licenses/by-sa/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
-    my $data = qq{<result>
-<rdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
-  </License>
-</rdf:RDF>
-  </rdf>
-<licenserdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-    <requires rdf:resource="http://creativecommons.org/ns#ShareAlike" />
-  </License>
-</rdf:RDF>
-  </licenserdf>
-</result>};
+    my $data = qq{<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:cc="http://creativecommons.org/ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <cc:License rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+    <cc:legalcode xml:lang="en">http://creativecommons.org/licenses/by-sa/4.0/legalcode.en</cc:legalcode>
+    <cc:licenseClass rdf:resource="http://creativecommons.org/license/"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#ShareAlike"/>
+    <dcterms:LicenseDocument xml:lang="en">https://creativecommons.org/licenses/by-sa/4.0/legalcode.en</dcterms:LicenseDocument>
+    <dcterms:creator rdf:resource="http://creativecommons.org"/>
+    <dcterms:hasVersion>4.0</dcterms:hasVersion>
+    <dcterms:identifier>by-sa</dcterms:identifier>
+    <dcterms:source>http://creativecommons.org/licenses/by-sa/3.0/</dcterms:source>
+    <dcterms:title xml:lang="en">Attribution-ShareAlike 4.0 International</dcterms:title>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-sa/4.0/80x15.png"/>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by-sa/4.0/88x31.png"/>
+    <owl:sameAs rdf:resource="https://creativecommons.org/licenses/by-sa/4.0/"/>
+  </cc:License>
+</rdf:RDF>};
     return $data;
   }
 
@@ -770,30 +759,27 @@ sub GetPageRdfOther
     my $url = qq{http://creativecommons.org/licenses/by/4.0/rdf};
     #my $data = &GetUrlPage  ( $url );
 
-    my $data = qq{<result>
-<rdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <Work xmlns:dc="http://purl.org/dc/elements/1.1/" rdf:about=""><license rdf:resource="http://creativecommons.org/licenses/by/4.0/" /></Work><License rdf:about="http://creativecommons.org/licenses/by/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </rdf>
-<licenserdf>
-    <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://creativecommons.org/ns#">
-  <License rdf:about="http://creativecommons.org/licenses/by/4.0/">
-    <permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
-    <permits rdf:resource="http://creativecommons.org/ns#Distribution" />
-    <permits rdf:resource="http://creativecommons.org/ns#Reproduction" />
-    <requires rdf:resource="http://creativecommons.org/ns#Attribution" />
-    <requires rdf:resource="http://creativecommons.org/ns#Notice" />
-  </License>
-</rdf:RDF>
-  </licenserdf>
-</result>};
+    my $data = qq{<?xml version='1.0' encoding='utf-8'?>
+<rdf:RDF xmlns:cc="http://creativecommons.org/ns#" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <cc:License rdf:about="http://creativecommons.org/licenses/by/4.0/">
+    <cc:legalcode xml:lang="en">http://creativecommons.org/licenses/by/4.0/legalcode.en</cc:legalcode>
+    <cc:licenseClass rdf:resource="http://creativecommons.org/license/"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+    <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Attribution"/>
+    <cc:requires rdf:resource="http://creativecommons.org/ns#Notice"/>
+    <dcterms:LicenseDocument xml:lang="en">https://creativecommons.org/licenses/by/4.0/legalcode.en</dcterms:LicenseDocument>
+    <dcterms:creator rdf:resource="http://creativecommons.org"/>
+    <dcterms:hasVersion>4.0</dcterms:hasVersion>
+    <dcterms:identifier>by</dcterms:identifier>
+    <dcterms:source>http://creativecommons.org/licenses/by/3.0/</dcterms:source>
+    <dcterms:title xml:lang="en">Attribution 4.0 International</dcterms:title>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by/4.0/80x15.png"/>
+    <foaf:logo rdf:resource="http://licensebuttons.net/l/by/4.0/88x31.png"/>
+    <owl:sameAs rdf:resource="https://creativecommons.org/licenses/by/4.0/"/>
+  </cc:License>
+</rdf:RDF>};
     return $data;
   }
 
