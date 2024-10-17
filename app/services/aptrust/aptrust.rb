@@ -35,6 +35,7 @@ module Aptrust
     EVENT_PACKED          = 'packed'          unless const_defined? :EVENT_PACKED
     EVENT_PACKING         = 'packing'         unless const_defined? :EVENT_PACKING
     EVENT_UPLOAD_AGAIN    = 'upload_again'    unless const_defined? :EVENT_UPLOAD_AGAIN
+    EVENT_UPLOAD_FAILED   = 'upload_failed'   unless const_defined? :EVENT_UPLOAD_FAILED
     EVENT_UPLOAD_SKIPPED  = 'upload_skipped'  unless const_defined? :EVENT_UPLOAD_SKIPPED
     EVENT_UPLOADED        = 'uploaded'        unless const_defined? :EVENT_UPLOADED
     EVENT_UPLOADING       = 'uploading'       unless const_defined? :EVENT_UPLOADING
@@ -51,12 +52,14 @@ module Aptrust
     EVENTS_ERRORS = [ EVENT_EXPORT_FAILED,
                       EVENT_DEPOSIT_FAILED,
                       EVENT_FAILED,
+                      EVENT_UPLOAD_FAILED,
                       EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_ERRORS
 
     EVENTS_FAILED = [ EVENT_EXPORT_FAILED,
                       EVENT_DELETE_FAILED,
                       EVENT_DEPOSIT_FAILED,
                       EVENT_FAILED,
+                      EVENT_UPLOAD_FAILED,
                       EVENT_VERIFY_FAILED ] unless const_defined? :EVENTS_FAILED
 
     EVENTS_NEED_VERIFY = [ EVENT_DEPOSITED,

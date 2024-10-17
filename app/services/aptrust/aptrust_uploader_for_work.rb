@@ -332,11 +332,16 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def export_data_by_closure( data_dir, files )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose
+    return if export_by_closure.nil?
+    errors = []
     if files.is_a? Array
       file_set_ids = files
     elsif files.is_a? ::Aptrust::AptrustFileSetList
       file_set_ids = []
       files.entries.each do |f|
+        if 0 == f.size
+          errors << "#{f.id} file size is zero."
+        end
         if f.split
           msg_handler.msg_debug "exclude export as split: #{f.id}"
         else
@@ -345,6 +350,10 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
       end
     else
       file_set_ids = []
+    end
+    if errors.present?
+      export_failed( status: ::Aptrust::EVENT_EXPORT_FAILED, note: errors )
+      return
     end
     super( data_dir, file_set_ids )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "data_dir=#{data_dir}" ] if debug_verbose

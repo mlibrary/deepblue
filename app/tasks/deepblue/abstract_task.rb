@@ -27,7 +27,8 @@ module Deepblue
       @options = @options.with_indifferent_access if @options.respond_to? :with_indifferent_access
       @msg_handler = msg_handler
       @msg_handler ||= MessageHandler.msg_handler_for_task( options: @options )
-      report_puts "verbose=#{@msg_handler.verbose}" if @msg_handler.verbose
+      #puts "Deepblue::AbstractTask - " + caller_locations.pretty_inspect
+      report_puts "verbose=#{@msg_handler.verbose}" if @msg_handler.debug_verbose
       if  @options.key?( :error )
         report_puts "WARNING: options error #{@options[:error]}"
         report_puts "options=#{options}"

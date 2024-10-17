@@ -512,36 +512,11 @@ class Aptrust::AptrustUploader
     return rv
   end
 
-  # def bag_export( bag:, bag_info: )
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
-  #   msg_handler.msg_verbose "Bag export #{id_from( bag: bag )} with total file sets size #{DeepblueHelper.human_readable_size_str( file_sets.total_file_sets_size ) }"
-  #   track_with_sleep( status: ::Aptrust::EVENT_BAGGING )
-  #   bag.write_bag_info( bag_info ) # Create bagit-info.txt file
-  #   aptrust_info_write( bag: bag )
-  #   exporting( bag: bag )
-  #   exported( bag: bag )
-  #   begin # until true for break
-  #     break if event_skip? ::Aptrust::EVENT_BAGGED
-  #     break unless most_recent_status == ::Aptrust::EVENT_EXPORTED
-  #     bag_manifest( bag: bag )
-  #     msg_handler.msg_error "bag.complete? return false" unless bag.complete?
-  #     msg_handler.msg_error "bag.consistent? return false" unless bag.consistent?
-  #     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                              "bag.complete?=#{bag.complete?}",
-  #                              "bag.consistent?=#{bag.consistent?}",
-  #                              "" ] if debug_verbose
-  #     track_with_sleep( status: ::Aptrust::EVENT_BAGGED, note: id_from( bag: bag ) )
-  #   end until true # for break
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "bag_id=#{id_from( bag: bag )}",
-  #                            "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
-  # end
-
   def bag_export_data_file_sets( bag:, file_sets: )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
-    msg_handler.msg_verbose "Bag export data files #{id_from( bag: bag )} with total file sets size #{DeepblueHelper.human_readable_size_str( file_sets.total_file_sets_size ) }"
+    msg_handler.msg_verbose "  Bag export data files #{id_from( bag: bag )} with total file sets size #{DeepblueHelper.human_readable_size_str( file_sets.total_file_sets_size ) }"
     if msg_handler.verbose
-      file_sets.entries.each { |f| msg_handler.msg_verbose "#{f.id} - #{DeepblueHelper.human_readable_size_str( f.size ) }" }
+      file_sets.entries.each { |f| msg_handler.msg_verbose "  #{f.id} - #{DeepblueHelper.human_readable_size_str( f.size ) }" }
     end
     begin # until true for break
       bag_id = id_from( bag: bag )
@@ -596,12 +571,6 @@ class Aptrust::AptrustUploader
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "rv=#{rv}" ] if debug_verbose
     return rv
-    # rv = bag_id_template
-    # rv = rv.gsub( /\%local_repository\%/, bag_id_local_repository )
-    # rv = rv.gsub( /\%context\%/, bag_id_context )
-    # rv = rv.gsub( /\%type\%/, bag_id_type )
-    # rv = rv.gsub( /\%id\%/, object_id )
-    # return rv
   end
 
   def bag_id_context
@@ -771,11 +740,10 @@ class Aptrust::AptrustUploader
       bag_tar_mv( bag: bag, export_tar_file: export_tar_file, note: note )
       # validate with apt-cmd, TODO: consider aborting the upload if this check fails
       if "" != `which apt-cmd`
-        cmd = "apt-cmd  bag validate -p aptrust #{export_tar_file}"
+        cmd = "apt-cmd bag validate -p aptrust #{export_tar_file}"
         rv = `#{cmd}`
-        msg_handler.msg "#{cmd}"
-        msg_handler.msg "returned:"
-        msg_handler.msg "#{rv}"
+        msg_handler.msg "  #{cmd}"
+        msg_handler.msg "  returned: '#{rv.chomp}'"
       end
       track_with_sleep( status: ::Aptrust::EVENT_PACKED, note: note )
     end until true # for break
@@ -783,32 +751,6 @@ class Aptrust::AptrustUploader
                              "bag_id=#{id_from( bag: bag )}",
                              "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
-
-  # def bag_pack_and_upload( bag:, note: nil )
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "bag_id=#{id_from( bag: bag )}",
-  #                            "note=#{note}",
-  #                            "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
-  #   files_exported = ::Aptrust::AptrustFileList.from_dir( dir: bag.data_dir )
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "files_exported=#{files_exported}",
-  #                            "files_exported.total_file_size=#{files_exported.total_file_size}",
-  #                            "bag_max_total_file_size=#{bag_max_total_file_size}" ] if debug_verbose
-  #   total_file_size = files_exported.total_file_size
-  #   if total_file_size < bag_max_total_file_size
-  #     bag_bagging( bag: bag )
-  #     bag_bag( bag: bag, bag_info: bag_info )
-  #     bag_packing( bag: bag, note: note )
-  #     bag_pack( bag: bag )
-  #     bag_uploading( bag: bag )
-  #     bag_upload( bag: bag )
-  #   else
-  #     bag_pack_and_upload_multiple_bags( bag: bag, files_exported: files_exported )
-  #   end
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "bag_id=#{id_from( bag: bag )}",
-  #                            "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
-  # end
 
   def bag_pack_and_upload_single( bag:, note: nil )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -865,7 +807,7 @@ class Aptrust::AptrustUploader
         log_lines << "bag #{bag_num} partition total file size: " +
           "#{DeepblueHelper.human_readable_size_str( partition.total_file_sets_size )}"
         partition.entries.each do |f|
-          log_lines << "#{part_bag_id}: file set id - #{f.id} - #{DeepblueHelper.human_readable_size_str(f.size)}"
+          log_lines << "  #{part_bag_id}: file set id - #{f.id} - #{DeepblueHelper.human_readable_size_str(f.size)}"
         end
       end
       if msg_handler.verbose
@@ -899,54 +841,6 @@ class Aptrust::AptrustUploader
                              "base_bag_id=#{base_bag_id}",
                              "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
-
-  # def bag_pack_and_upload_multiple_bags( bag:, files_exported: )
-  #   # TODO: add support for event_start and event_stop
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
-  #   begin # until true for break
-  #     base_bag_id = id_from( bag: bag )
-  #     partitioned = []
-  #     files_exported.sort_by_size
-  #     msg_handler.bold_debug files_exported.files if debug_verbose
-  #     begin
-  #       partition = files_exported.list_file_sets_up_to( max_total: bag_max_total_file_size )
-  #       files_exported.delete_files( files: partition )
-  #       partitioned << partition
-  #     end until files_exported.empty?
-  #     bag_max = partitioned.size
-  #     lines = ["Multiple bag file distribution:"]
-  #     partitioned.each_with_index do |partition,index|
-  #       bag_num = index + 1
-  #       part_bag_id = "#{base_bag_id}_#{bag_num}"
-  #       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                                "bag_num=#{bag_num}",
-  #                                "part_bag_id=#{part_bag_id}" ] if debug_verbose
-  #       msg_handler.bold_debug partition if debug_verbose
-  #       partition.each do |f|
-  #         lines << "#{part_bag_id}: #{File.basename f}"
-  #       end
-  #     end
-  #     export_log_lines( bag, lines )
-  #     partitioned.each_with_index do |partition,index|
-  #       bag_num = index + 1
-  #       part_bag_id = "#{base_bag_id}_#{bag_num}"
-  #       part_bag = bag_init( bag_id: part_bag_id )
-  #       part_bag_info = bag_info_for_multiple_bags( bag_group_identifier: base_bag_id,
-  #                                                   bag_num: bag_num,
-  #                                                   bag_max: bag_max )
-  #       bag_export_data_files( bag: part_bag, data_files: partition )
-  #       bag_bagging( bag: part_bag, note: part_bag_id )
-  #       bag_bag( bag: part_bag, bag_info: part_bag_info, note: part_bag_id )
-  #       bag_packing( bag: part_bag, note: part_bag_id )
-  #       bag_pack( bag: part_bag, note: part_bag_id )
-  #       bag_uploading( bag: part_bag, note: part_bag_id )
-  #       bag_upload( bag: part_bag, note: part_bag_id )
-  #     end
-  #   end until true # for break
-  #   msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-  #                            "bag_id=#{id_from( bag: bag )}",
-  #                            "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
-  # end
 
   def bag_packing( bag:, note: nil )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -1010,19 +904,14 @@ class Aptrust::AptrustUploader
         aws_object.upload_file( filename )
         track_with_sleep( status: ::Aptrust::EVENT_UPLOADED, note: note )
       rescue Aws::S3::MultipartUploadError => e
-        track_with_sleep( status: ::Aptrust::EVENT_FAILED,
-                          error: true,
-                          note: "failed in #{e.backtrace[0]} with error #{e}" )
-        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                                 "failed in #{e.backtrace[0]} with error #{e}",
-                                 "" ]
+        msg = "failed in #{e.backtrace[0]} with error #{e}"
+        export_failed( status: ::Aptrust::EVENT_UPLOAD_FAILED, note: msg )
+        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from, msg, "" ]
         # TODO: Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       rescue Aws::S3::Errors::ServiceError => e
-        track_with_sleep( status: ::Aptrust::EVENT_FAILED,
-                          error: true,
-                          note: "failed in #{e.backtrace[0]} with error #{e}" )
-        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                                 "failed in #{e.backtrace[0]} with error #{e}" ]
+        msg = "failed in #{e.backtrace[0]} with error #{e}"
+        export_failed( status: ::Aptrust::EVENT_UPLOAD_FAILED, note: msg )
+        msg_handler.bold_error [ msg_handler.here, msg_handler.called_from, msg, "" ]
       end
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -1177,7 +1066,11 @@ class Aptrust::AptrustUploader
                              "total_size=#{total_size}",
                              "bag_max_file_size=#{bag_max_file_size}",
                              "bag_max_total_file_size=#{bag_max_total_file_size}" ] if debug_verbose
-    if total_size < bag_max_total_file_size
+    if 0 == total_size
+      msg = "Desposit files total size is zero for #{object_id}."
+      export_failed( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: msg )
+      msg_handler.bold_error [ msg_handler.here, msg_handler.called_from, msg, "" ]
+    elsif total_size < bag_max_total_file_size
       deposit_single_bag()
     else
       deposit_multibag()
@@ -1202,9 +1095,7 @@ class Aptrust::AptrustUploader
       bag_pack_and_upload_multibag( base_bag_id: bag_id, files: files )
     rescue StandardError => e
       msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30]
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED,
-                        error: true,
-                        note: "failed in #{e.backtrace[0]} with error #{e}" )
+      export_failed( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
@@ -1224,9 +1115,7 @@ class Aptrust::AptrustUploader
       cleanup_upload( bag: bag )
     rescue StandardError => e
       msg_handler.bold_error ["Aptrust::AptrustService.perform_deposit(#{object_id}) error #{e}"] + e.backtrace[0..30]
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSIT_FAILED,
-                        error: true,
-                        note: "failed in #{e.backtrace[0]} with error #{e}" )
+      export_failed( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
@@ -1368,6 +1257,12 @@ class Aptrust::AptrustUploader
       export_data_resolve_error( error )
     end
     export_errors = nil
+  end
+
+  def export_failed( note:, status: ::Aptrust::EVENT_FAILED )
+    msg_handler.msg_error note
+    note = note.first if note.is_a? Array
+    track_with_sleep( status: status, error: true, note: note )
   end
 
   def export_log_lines( bag, *lines )
@@ -1644,9 +1539,13 @@ class Aptrust::AptrustUploader
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if debug_verbose
       sleep_secs = event_sleep_secs if sleep_secs.blank?
       sleep( sleep_secs )
-      status_str = "#{status}"
-      status_str += " -- #{note}" if note.present?
-      msg_handler.msg_verbose "#{@object_id}: #{status_str}"
+      if msg_handler.verbose
+        status_str = "#{DeepblueHelper.display_timestamp DateTime.now}: #{@object_id}: #{status}"
+        pad_size = (::Aptrust::EVENT_DEPOSITING.size - status.size)
+        status_str += " " * pad_size if 0 < pad_size
+        status_str += " -- #{note}" if note.present?
+        msg_handler.msg_verbose status_str
+      end
       aptrust_upload_status.track( status: status, note: note )
     end until true # for break
     @most_recent_status = status
@@ -1738,9 +1637,7 @@ class Aptrust::AptrustUploader
       track_with_sleep( status: ::Aptrust::EVENT_UPLOADED )
       track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED )
     rescue Aws::S3::Errors::ServiceError => e
-      track_with_sleep( status: ::Aptrust::EVENT_FAILED,
-                        error: true,
-                        note: "failed in #{e.backtrace[0]} with error #{e}" )
+      export_failed( status: ::Aptrust::EVENT_UPLOAD_FAILED, note: "failed in #{e.backtrace[0]} with error #{e}" )
       msg_handler.bold_error ["Upload of file #{filename} failed in #{e.backtrace[0]} with error #{e}"] + e.backtrace[0..20]
       Rails.logger.error "Upload of file #{filename} failed with error #{e}"
       success = false

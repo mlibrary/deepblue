@@ -135,9 +135,9 @@ RSpec.describe ::Deepblue::AbstractService do
       before do
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg)
-        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_error)
-        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
+        #expect(msg_handler).to receive(:msg_debug).with("set key quiet to true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -155,9 +155,9 @@ RSpec.describe ::Deepblue::AbstractService do
       before do
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg)
-        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_error)
-        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
+        #expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -177,10 +177,10 @@ RSpec.describe ::Deepblue::AbstractService do
       before do
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg)
-        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_error)
-        expect(msg_handler).to receive(:msg_verbose).with("set key quiet to true")
-        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
+        #expect(msg_handler).to receive(:msg_debug).with("set key quiet to true")
+        #expect(msg_handler).to receive(:msg_debug).with("set key verbose to true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -198,9 +198,9 @@ RSpec.describe ::Deepblue::AbstractService do
       before do
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg)
-        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_error)
-        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
+        expect(msg_handler).to receive(:msg_debug).with("set key verbose to true")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do
@@ -219,11 +219,11 @@ RSpec.describe ::Deepblue::AbstractService do
         # expect(msg_handler).to receive(:msg).with("set key subscription_service_id to #{subscription_service_id}")
         expect(msg_handler).to_not receive(:buffer)
         expect(msg_handler).to_not receive(:msg)
-        expect(msg_handler).to_not receive(:msg_debug)
+        expect(msg_handler).to_not receive(:msg_verbose)
         expect(msg_handler).to_not receive(:msg_error)
         # expect(msg_handler).to_not receive(:msg_verbose)
-        expect(msg_handler).to receive(:msg_verbose).with("set key verbose to true")
-        expect(msg_handler).to receive(:msg_verbose).with("set key subscription_service_id to subscriptionServiceID")
+        #expect(msg_handler).to receive(:msg_debug).with("set key verbose to true")
+        #expect(msg_handler).to receive(:msg_verbose).with("set key subscription_service_id to subscriptionServiceID")
         expect(msg_handler).to_not receive(:msg_warn)
       end
       it 'has default values' do

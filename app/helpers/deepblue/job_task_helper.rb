@@ -304,84 +304,9 @@ END_BODY
       end
     end
 
-    # def self.has_email_targets( job:,
-    #                             options: job.options,
-    #                             msg_handler: nil,
-    #                             debug_verbose: job_task_helper_debug_verbose )
-    #
-    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
-    #   subscription_service_id = job.job_options_value( options,
-    #                                                    key: 'subscription_service_id',
-    #                                                    default_value: nil )
-    #   job.subscription_service_id = subscription_service_id if job.respond_to? :subscription_service_id=
-    #   return if subscription_service_id.blank?
-    #   targets = job.email_targets
-    #   targets = ::Deepblue::EmailSubscriptionService.merge_targets_and_subscribers( targets: targets,
-    #                                                             subscription_service_id: subscription_service_id )
-    #   job.email_targets = targets
-    # end
-
-    # def self.has_options( *args, job:, msg_handler: nil, debug_verbose: job_task_helper_debug_verbose )
-    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "" ] if debug_verbose
-    #   job.options = initialize_options_from( *args, debug_verbose: debug_verbose )
-    # end
-
     def self.hostname
       Rails.configuration.hostname
     end
-
-    # def self.hostname_allowed( job:,
-    #                            msg_handler: nil,
-    #                            options:,
-    #                            debug_verbose: job_task_helper_debug_verbose,
-    #                            task: false,
-    #                            verbose: false )
-    #
-    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
-    #   # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
-    #   #                                        ::Deepblue::LoggingHelper.called_from,
-    #   #                                       "options=#{options}",
-    #   #                                        "" ] if debug_verbose
-    #   return true unless job.job_options_key?( options, key: 'hostnames' )
-    #   # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here,
-    #   #                                        ::Deepblue::LoggingHelper.called_from,
-    #   #                                       "options=#{options}",
-    #   #                                        "" ] if debug_verbose
-    #   job.hostnames = job.job_options_value( key: 'hostnames', default_value: [] )
-    #   job.hostname = self.hostname
-    #   # puts "hostname=#{self.hostname}"
-    #   job.hostnames.include? job.hostname
-    # end
-
-    # def self.initialize_options_from_old( *args, debug_verbose: job_task_helper_debug_verbose )
-    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "args=#{args}",
-    #                                          "" ] if debug_verbose
-    #   options = {}
-    #   unless args.present?
-    #     options = options.with_indifferent_access
-    #     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                            ::Deepblue::LoggingHelper.called_from,
-    #                                            "options=#{options}",
-    #                                            "" ] if debug_verbose
-    #     return options.with_indifferent_access
-    #   end
-    #   args = normalize_args( *args, debug_verbose: debug_verbose )
-    #   args.each do |key,value|
-    #     options[key.to_s] = value
-    #   end
-    #   options = options.with_indifferent_access
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "options=#{options}",
-    #                                          "" ] if debug_verbose
-    #   return options
-    # end
 
     # Upgrade: ruby3
     def self.initialize_options_from( args:, debug_verbose: job_task_helper_debug_verbose )
@@ -410,36 +335,6 @@ END_BODY
                                              "" ] if debug_verbose
       return options
     end
-
-    # def self.normalize_args_old( *args, debug_verbose: job_task_helper_debug_verbose )
-    #   debug_verbose = debug_verbose && job_task_helper_debug_verbose
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "args=#{args}",
-    #                                          "" ] if debug_verbose
-    #   return args if args.is_a? Hash
-    #   return args if args.is_a? ActiveSupport::HashWithIndifferentAccess
-    #   # Don't want to strip outermost array unless the its of the form [[[x,y]]], so it doesn't strip if [[x,y]]
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "args=#{args}",
-    #                                          "args.is_a?( Array )=#{args.is_a?( Array )}",
-    #                                          "args.length=#{args.length}",
-    #                                          "" ] if debug_verbose
-    #   if ( args.is_a?( Array ) && 1 == args.length  )
-    #     arg0 = args[0]
-    #     if ( arg0.is_a?( Array ) && ( arg0[0].is_a?( String ) || arg0[0].is_a?( Symbol ) ) )
-    #       # skip
-    #     else
-    #       args = args[0]
-    #     end
-    #   end
-    #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                          ::Deepblue::LoggingHelper.called_from,
-    #                                          "args=#{args}",
-    #                                          "" ] if debug_verbose
-    #   return args
-    # end
 
     # Upgrade: ruby3
     def self.normalize_args( args:, debug_verbose: job_task_helper_debug_verbose )
@@ -496,7 +391,7 @@ END_BODY
     def self.options_value( options, key:, default_value: nil, verbose: false, msg_handler: nil )
       return default_value if options.blank?
       return default_value unless options.key? key
-      msg_handler.msg_verbose "set key #{key} to #{options[key]}" if verbose
+      msg_handler.msg_verbose "set key #{key} to #{options[key]}" if msg_handler.present?
       return options[key]
     end
 
