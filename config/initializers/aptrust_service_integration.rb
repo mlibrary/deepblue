@@ -15,7 +15,8 @@ Aptrust::AptrustIntegrationService.setup do |config|
   config.bag_delete_manifest_sha1 = true
   # config.bag_checksum_algorithm   = 'sha1' # md5, sha1, sha256
   # config.bag_delete_manifest_sha1 = false
-  config.bag_max_total_file_size  = 5.terabytes - 1.gigabyte # max less a bit of buffer
+  config.bag_max_file_size        = 1.terabytes - 200.megabytes # max less a bit of buffer
+  config.bag_max_total_file_size  = 1.terabytes - 100.megabytes # max less a bit of buffer
 
   config.cleanup_after_deposit    = true
   config.cleanup_bag              = false
