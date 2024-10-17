@@ -28,7 +28,7 @@ module Deepblue
       def options_value( options, key:, default_value: nil, verbose: false )
         return default_value if options.blank?
         return default_value unless options.key? key
-        puts "set key #{key} to #{options[key]}" if verbose
+        puts "set key #{key} to #{options[key]}" if abstract_filter_debug_verbose
         return options[key]
       end
 

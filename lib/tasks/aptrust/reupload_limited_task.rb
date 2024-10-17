@@ -23,12 +23,12 @@ module Aptrust
       @max_size = 1.terabyte
       @email_targets = ["fritx@umich.edu"]
       @email_subject = "Aptrust re-uploads on %hostname% finished at %now% max size 1tb"
-      @msg_handler.msg_verbose "cleanup_after_deposit: #{@cleanup_after_deposit}"
-      @msg_handler.msg_verbose "export_all_files: #{@export_all_files}"
-      @msg_handler.msg_verbose "max_size: #{human_readable_size( @max_size )}"
-      @msg_handler.msg_verbose "email_targets: #{@email_targets}"
-      @msg_handler.msg_verbose "email_subject: #{@email_subject}"
-      @msg_handler.msg_verbose "test_mode: #{@test_mode}"
+      @msg_handler.msg_debug "cleanup_after_deposit: #{@cleanup_after_deposit}"
+      @msg_handler.msg_debug "export_all_files: #{@export_all_files}"
+      @msg_handler.msg_debug "max_size: #{human_readable_size( @max_size )}"
+      @msg_handler.msg_debug "email_targets: #{@email_targets}"
+      @msg_handler.msg_debug "email_subject: #{@email_subject}"
+      @msg_handler.msg_debug "test_mode: #{@test_mode}"
     end
 
   end

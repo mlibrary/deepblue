@@ -56,16 +56,20 @@ module Aptrust
     end
 
     def noids_sort
-      msg_handler.msg_verbose "Sorting noids into noid_pairs"
-      @noid_pairs=[]
       return unless sort?
       return unless noids.present?
+      msg_handler.msg_verbose "Sorting noids into noid_pairs"
+      @noid_pairs=[]
       w = WorkCache.new
       noids.each do |noid|
         w.reset.noid = noid
         if !w.work_present?
           msg_handler.msg_warn "Failed to load work with noid #{noid}"
           # TODO: try loading the work from fedora and saving to solr
+          next
+        end
+        unless 0 < w.total_file_size
+          msg_handler.msg_warn "Total file size is zero for noid #{noid}"
           next
         end
         @noid_pairs << { noid: noid, size: w.total_file_size }
@@ -79,7 +83,7 @@ module Aptrust
       opt = opt.strip if opt.is_a? String
       # opt = opt.to_i if opt.is_a? String
       opt = to_integer( num: opt ) if opt.is_a? String
-      msg_handler.msg_verbose "max_size='#{opt}'"
+      msg_handler.debug_verbose "max_size='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -87,7 +91,7 @@ module Aptrust
       opt = task_options_value( key: 'max_uploads', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.msg_verbose "max_uploads='#{opt}'"
+      msg_handler.debug_verbose "max_uploads='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -108,7 +112,7 @@ module Aptrust
           opt << n if 0 < n
         end
       end
-      msg_handler.msg_verbose "#{key}=[#{opt.join(', ')}]" if verbose
+      msg_handler.debug_verbose "#{key}=[#{opt.join(', ')}]" if debug_verbose
       return opt
     end
 
@@ -116,7 +120,7 @@ module Aptrust
       opt = task_options_value( key: 'sleep_secs', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.msg_verbose "sleep_secs=#{opt}"
+      msg_handler.debug_verbose "sleep_secs=#{opt}" if debug_verbose
       return opt
     end
 
@@ -127,6 +131,10 @@ module Aptrust
         w.reset.noid = noid
         if !w.work_present?
           msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          next
+        end
+        unless 0 < w.total_file_size
+          msg_handler.msg_warn "Total file size is zero for noid #{noid}"
           next
         end
         size = w.total_file_size
@@ -156,7 +164,17 @@ module Aptrust
 
     def run_pair_uploads
       unless noid_pairs.present?
-        msg_handler.msg_verbose "No NOIDs found for date begin: '#{options['date_begin']}' and date end: '#{options['date_end']}'"
+        begin_date = options['date_begin']
+        end_date = options['date_end']
+        if begin_date.present? && end_date.present?
+          msg_handler.msg_verbose "No NOIDs found for date begin: '#{begin_date}' and date end: '#{end_date}'"
+        elsif begin_date.present?
+          msg_handler.msg_verbose "No NOIDs found with date begin: '#{begin_date}'"
+        elsif end_date.present?
+          msg_handler.msg_verbose "No NOIDs found with date end: '#{end_date}'"
+        else
+          msg_handler.msg_verbose "No NOIDs found."
+        end
         return
       end
       if max_size > 0 || min_size > 0
@@ -174,7 +192,7 @@ module Aptrust
         msg_handler.msg_verbose "#{index}: #{pair[:noid]} -- #{readable_sz( size )}"
       end if verbose
       msg_handler.msg_verbose "Total upload size: #{readable_sz( total_size )}"
-      msg_handler.msg_verbose "test_mode?=#{test_mode?}"
+      msg_handler.msg_verbose "Test mode: #{test_mode?}"
       return if test_mode?
       total_size = 0
       @noid_pairs.each do |pair|
@@ -202,7 +220,7 @@ module Aptrust
       uploader.working_dir = @working_dir if @working_dir.present?
 
       # msg_handler.msg_verbose "uploader=#{uploader.pretty_inspect}"
-      msg_handler.msg_verbose "test_mode?=#{test_mode?}"
+      msg_handler.msg_verbose "Test mode: #{test_mode?}"
       return if test_mode?
       uploader.run
     end

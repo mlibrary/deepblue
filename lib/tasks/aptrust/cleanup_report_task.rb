@@ -21,10 +21,10 @@ module Aptrust
       # @date_end = DateTime.now - 1.week
       @email_targets = ["fritx@umich.edu"]
       @email_subject = "Aptrust report cleanup on %hostname% finished at %now%"
-      @msg_handler.msg_verbose "date_end: #{@date_end}"
-      @msg_handler.msg_verbose "email_targets: #{@email_targets}"
-      @msg_handler.msg_verbose "email_subject: #{@email_subject}"
-      @msg_handler.msg_verbose "test_mode: #{@test_mode}"
+      @msg_handler.msg_debug "date_end: #{@date_end}"
+      @msg_handler.msg_debug "email_targets: #{@email_targets}"
+      @msg_handler.msg_debug "email_subject: #{@email_subject}"
+      @msg_handler.msg_debug "test_mode: #{@test_mode}"
     end
 
   end
