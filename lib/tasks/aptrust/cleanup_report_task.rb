@@ -10,13 +10,13 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
-      @verbose = true
-      @msg_handler.verbose = @verbose
-      @msg_handler.msg_queue = []
-      # @msg_handler.debug_verbose = cleanup_report_task_debug_verbose
-      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
-      #                                       "@msg_handler=#{@msg_handler.pretty_inspect}" ] if cleanup_report_task_debug_verbose
-      # bundle exec rake aptrust:cleanup_all['{"verbose":true\,"test_mode":true\,"email_targets":"fritx@umich.edu"\,"email_subject":"Aptrust report cleanup on %hostname% finished %now%"}']
+      if msg_handler.nil?
+        @verbose = true
+        @msg_handler.verbose = @verbose
+        @msg_handler.msg_queue = []
+      else
+        @verbose = @msg_handler.verbose
+      end
       @test_mode = true
       # @date_end = DateTime.now - 1.week
       @email_targets = ["fritx@umich.edu"]

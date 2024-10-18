@@ -35,7 +35,7 @@ class Aptrust::AptrustFileSetList
       @name_orig = nil
       return self
     end
-    
+
     def init_from_split( file_set, name:, size: )
       @id = file_set.id
       @name = name
