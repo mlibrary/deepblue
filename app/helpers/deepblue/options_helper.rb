@@ -27,7 +27,7 @@ module Deepblue
     def self.value( options, key:, default_value: nil, msg_handler: nil )
       return default_value if options.blank?
       return default_value unless options.key? key
-      msg_handler.msg_verbose "set key #{key} to #{options[key]}" if msg_handler
+      msg_handler.msg_debug "set key #{key} to #{options[key]}" if msg_handler.present?
       return options[key]
     end
 

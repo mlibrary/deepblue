@@ -129,6 +129,7 @@ module Aptrust
     attr_accessor :aptrust_config_file
     attr_accessor :date_begin
     attr_accessor :date_end
+    attr_accessor :email_results
     attr_accessor :email_subject
     attr_accessor :email_targets
     attr_accessor :export_dir
@@ -150,6 +151,7 @@ module Aptrust
       @noids         = option_noids
       @date_begin    = option_date_begin
       @date_end      = option_date_end
+      @email_results = task_options_value( key: 'email_results', default_value: true )
       @email_subject = task_options_value( key: 'email_subject', default_value: '' )
       @email_targets = option_email_targets
       @export_dir    = option_path( key: 'export_dir' )
@@ -187,7 +189,7 @@ module Aptrust
     end
 
     def option_date_begin
-      msg_handler.msg_verbose "option_date_begin: @options['date_begin']=#{@options['date_begin']}" if verbose
+      msg_handler.msg_debug "option_date_begin: @options['date_begin']=#{@options['date_begin']}" if debug_verbose
       opt = task_options_value( key: 'date_begin', default_value: nil )
       # opt = DateTime.parse opt if opt.is_a? String
       opt = to_datetime( date: opt ) if opt.is_a? String
@@ -195,7 +197,7 @@ module Aptrust
     end
 
     def option_date_end
-      msg_handler.msg_verbose "option_date_end: @options['option_date_end']=#{@options['option_date_end']}" if verbose
+      msg_handler.msg_debug "option_date_end: @options['option_date_end']=#{@options['option_date_end']}" if debug_verbose
       opt = task_options_value( key: 'date_end', default_value: nil )
       # opt = DateTime.parse opt if opt.is_a? String
       opt = to_datetime( date: opt ) if opt.is_a? String
@@ -213,7 +215,7 @@ module Aptrust
       else
         opt = []
       end
-      msg_handler.msg_verbose "#{key}=[#{opt.join(', ')}]" if verbose
+      msg_handler.msg_debug "#{key}=[#{opt.join(', ')}]" if debug_verbose
       return opt
     end
 
@@ -222,7 +224,7 @@ module Aptrust
       return opt if opt.nil?
       opt = opt.strip if opt.is_a? String
       opt = to_integer( num: opt ) if opt.is_a? String
-      msg_handler.msg_verbose "#{key}='#{opt}'"
+      msg_handler.msg_debug "#{key}='#{opt}'"
       return opt
     end
 
@@ -237,7 +239,7 @@ module Aptrust
       else
         opt = []
       end
-      msg_handler.msg_verbose "#{key}=[#{opt.join(', ')}]"
+      msg_handler.msg_debug "#{key}=[#{opt.join(', ')}]"
       return opt
     end
 
@@ -249,7 +251,7 @@ module Aptrust
 
     def option_value( key:, default_value: nil )
       rv = task_options_value( key: key, default_value: default_value )
-      msg_handler.msg_verbose "#{key}=#{rv}" if verbose
+      msg_handler.msg_debug "#{key}=#{rv}" if debug_verbose
       return rv
     end
 
@@ -291,6 +293,7 @@ module Aptrust
     end
 
     def run_email_targets( subject:, body: nil, event: '', event_note: '' )
+      return unless email_results
       subject = run_email_subject( subject: subject )
       body ||= msg_handler_queue_to_html
       # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
@@ -324,8 +327,8 @@ module Aptrust
     end
 
     def test_dates_init
-      msg_handler.msg_verbose "Filter date_begin=#{date_begin}"
-      msg_handler.msg_verbose "Filter date_end=#{date_end}"
+      msg_handler.msg_debug "Filter date_begin=#{date_begin}" if debug_verbose
+      msg_handler.msg_debug "Filter date_end=#{date_end}" if debug_verbose
       @test_date_end = DateTime.now + 10.years
       @test_date_begin = @test_date_end - 50.years
       if !date_begin.nil? && !date_end.nil?

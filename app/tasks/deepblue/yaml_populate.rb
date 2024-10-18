@@ -189,7 +189,7 @@ module Deepblue
                              ] if debug_verbose
       work ||= PersistHelper.find id
       sz = DeepblueHelper.human_readable_size( work.total_file_size )
-      msg = "Bagging work #{id} (#{sz}) to '#{@target_dir}'"
+      msg = "  Bagging work #{id} (#{sz}) to '#{@target_dir}'"
       report_puts msg
       log_filename = "w_#{id}.export.log"
       @mode = ::Deepblue::MetadataHelper::MODE_BAG
