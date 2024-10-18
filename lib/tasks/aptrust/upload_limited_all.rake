@@ -4,7 +4,7 @@ require_relative './upload_limited_all_task'
 
 namespace :aptrust do
 
-  # bundle exec rake aptrust:uload_limited_all
+  # bundle exec rake aptrust:upload_limited_all
   desc 'APTrust upload limited all.'
   task :upload_limited_all, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )

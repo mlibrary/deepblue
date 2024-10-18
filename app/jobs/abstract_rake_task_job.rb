@@ -28,17 +28,6 @@ class AbstractRakeTaskJob < ::Deepblue::DeepblueJob
     @event_name ||= task_name.downcase.gsub( / job$/, '' )
   end
 
-  # def initialize_from_args_old( *args, id: nil, debug_verbose: abstract_rake_task_job_debug_verbose )
-  #   debug_verbose = debug_verbose || abstract_rake_task_job_debug_verbose
-  #   initialize_options_from( args: args, id: id, debug_verbose: debug_verbose )
-  #   from_dashboard
-  #   job_delay
-  #   @email_results_to = job_options_value( key: 'email_results_to', default_value: [] )
-  #   email_targets_add @email_results_to
-  #   subscription_service_id
-  #   hostname_allowed
-  # end
-
   # Ruby3 upgrade
   def initialize_from_args( args:, id: nil, debug_verbose: abstract_rake_task_job_debug_verbose )
     debug_verbose = debug_verbose || abstract_rake_task_job_debug_verbose
