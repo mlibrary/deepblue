@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "abstract_rake_task_job"
+require_relative "../services/aptrust/aptrust_filter_work"
 
 class AptrustUploadJob < AbstractRakeTaskJob
 
