@@ -50,9 +50,7 @@ class IngestJobStatus
 
   attr_accessor :processed_file_set_ids, :processed_uploaded_ids
 
-  delegate :add_message,
-           :add_message!,
-           :error,
+  delegate :error,
            :error!,
            :finished?,
            :job_class,
@@ -347,10 +345,19 @@ class IngestJobStatus
   end
   alias did! status!
 
+  def add_message( msg, sep: "\n" )
+    @job_status.add_message( msg, sep: sep )
+  end
+
+  def add_message!( msg, sep: "\n" )
+    @job_status.add_message!( msg, sep: sep )
+  end
+
   def uploading_files!( message: nil )
     add_message message
     state_serialize( current_state )
-    status! UPLOADING_FILES
+    rv = status! UPLOADING_FILES
+    return rv
   end
 
   def uploading_files?

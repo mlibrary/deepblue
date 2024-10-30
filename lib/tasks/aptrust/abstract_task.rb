@@ -8,120 +8,121 @@ require_relative '../../../app/services/deepblue/message_handler'
 require_relative '../../../app/services/aptrust/aptrust'
 require_relative '../../../app/services/aptrust/aptrust_config'
 require_relative '../../../app/services/aptrust/aptrust_integration_service'
+require_relative '../../../app/services/aptrust/work_cache'
 require_relative '../../../app/models/aptrust/status'
 
 module Aptrust
 
-  class WorkCache
-
-    attr_accessor :noid
-    attr_accessor :work
-    attr_accessor :solr
-    attr_accessor :msg_handler
-
-    def initialize( noid: nil, work: nil, solr: true, msg_handler: nil )
-      @noid = noid
-      @work = work
-      @solr = solr
-      @msg_handler = msg_handler
-      @date_modified = nil
-    end
-
-    def reset
-      @noid = nil
-      @work = nil
-      @date_modified = nil
-      return self
-    end
-
-    def work
-      @work ||= work_init
-    end
-
-    def work_init
-      rv = nil
-      begin
-        if @solr
-          rv = ActiveFedora::SolrService.query("id:#{noid}", rows: 1)
-          rv = rv.first
-          msg_handler.msg_warn( "Solr query failed to find id: #{noid}" ) if msg_handler.present? && rv.nil?
-        end
-      end
-      if rv.nil?
-        rv = PersistHelper.find_or_nil @noid
-        msg_handler.msg_warn( "Fedora query failed to find id: #{noid}" ) if  msg_handler.present? && rv.nil?
-      end
-      return rv
-    end
-
-    def work_present?
-      work.present?
-    end
-
-    def date_modified
-      if @solr
-        rv = date_modified_solr
-      else
-        rv = work.date_modified
-      end
-      return rv
-    end
-
-    def date_modified_solr
-      @date_modified ||= date_modified_solr_init
-    end
-
-    def date_modified_solr_init
-      rv = work['date_modified_dtsi']
-      rv = DateTime.parse rv
-      return rv
-    end
-
-    def file_set_ids
-      if @solr
-        rv = work['file_set_ids_ssim']
-      else
-        rv = work.file_set_ids
-      end
-      return rv
-    end
-
-    def id
-      if @solr
-        rv = work['id']
-      else
-        rv = work.id
-      end
-      return rv
-    end
-
-    def published?
-      if @solr
-        rv = published_solr?
-      else
-        rv = work.published?
-      end
-      return rv
-    end
-
-    def published_solr?
-      doc = work
-      return false unless doc['visibility_ssi'] == 'open'
-      return false unless doc['workflow_state_name_ssim'] = ["deposited"]
-      return false if doc['suppressed_bsi']
-      return true
-    end
-
-    def total_file_size
-      if @solr
-        rv = work['total_file_size_lts']
-      else
-        rv = work.total_file_size
-      end
-      return rv
-    end
-
-  end
+  # class WorkCache
+  #
+  #   attr_accessor :noid
+  #   attr_accessor :work
+  #   attr_accessor :solr
+  #   attr_accessor :msg_handler
+  #
+  #   def initialize( noid: nil, work: nil, solr: true, msg_handler: nil )
+  #     @noid = noid
+  #     @work = work
+  #     @solr = solr
+  #     @msg_handler = msg_handler
+  #     @date_modified = nil
+  #   end
+  #
+  #   def reset
+  #     @noid = nil
+  #     @work = nil
+  #     @date_modified = nil
+  #     return self
+  #   end
+  #
+  #   def work
+  #     @work ||= work_init
+  #   end
+  #
+  #   def work_init
+  #     rv = nil
+  #     begin
+  #       if @solr
+  #         rv = ActiveFedora::SolrService.query("id:#{noid}", rows: 1)
+  #         rv = rv.first
+  #         msg_handler.msg_warn( "Solr query failed to find id: #{noid}" ) if msg_handler.present? && rv.nil?
+  #       end
+  #     end
+  #     if rv.nil?
+  #       rv = PersistHelper.find_or_nil @noid
+  #       msg_handler.msg_warn( "Fedora query failed to find id: #{noid}" ) if  msg_handler.present? && rv.nil?
+  #     end
+  #     return rv
+  #   end
+  #
+  #   def work_present?
+  #     work.present?
+  #   end
+  #
+  #   def date_modified
+  #     if @solr
+  #       rv = date_modified_solr
+  #     else
+  #       rv = work.date_modified
+  #     end
+  #     return rv
+  #   end
+  #
+  #   def date_modified_solr
+  #     @date_modified ||= date_modified_solr_init
+  #   end
+  #
+  #   def date_modified_solr_init
+  #     rv = work['date_modified_dtsi']
+  #     rv = DateTime.parse rv
+  #     return rv
+  #   end
+  #
+  #   def file_set_ids
+  #     if @solr
+  #       rv = work['file_set_ids_ssim']
+  #     else
+  #       rv = work.file_set_ids
+  #     end
+  #     return rv
+  #   end
+  #
+  #   def id
+  #     if @solr
+  #       rv = work['id']
+  #     else
+  #       rv = work.id
+  #     end
+  #     return rv
+  #   end
+  #
+  #   def published?
+  #     if @solr
+  #       rv = published_solr?
+  #     else
+  #       rv = work.published?
+  #     end
+  #     return rv
+  #   end
+  #
+  #   def published_solr?
+  #     doc = work
+  #     return false unless doc['visibility_ssi'] == 'open'
+  #     return false unless doc['workflow_state_name_ssim'] = ["deposited"]
+  #     return false if doc['suppressed_bsi']
+  #     return true
+  #   end
+  #
+  #   def total_file_size
+  #     if @solr
+  #       rv = work['total_file_size_lts']
+  #     else
+  #       rv = work.total_file_size
+  #     end
+  #     return rv
+  #   end
+  #
+  # end
 
   class AbstractTask < ::Deepblue::AbstractTask
 
@@ -157,7 +158,10 @@ module Aptrust
       @export_dir    = option_path( key: 'export_dir' )
       @track_status  = option_value( key: 'track_status', default_value: true )
       @working_dir   = option_path( key: 'working_dir' )
+      @test_mode     = option_value( key: 'test_mode', default_value: false )
       @task_options  = options.dup # TODO: start using
+      msg_handler.msg_debug( [ msg_handler.here, msg_handler.called_from,
+                               "@track_status=#{@track_status}" ] ) if msg_handler.present?
     end
 
     def aptrust_config
@@ -204,9 +208,9 @@ module Aptrust
       return opt
     end
 
-    def option_email_targets
+    def option_email_targets( default_value: '' )
       key = 'email_targets'.freeze
-      opt = task_options_value( key: key, default_value: '' )
+      opt = task_options_value( key: key, default_value: default_value )
       opt = opt.strip
       if /\s/ =~ opt
         opt = opt.split( /\s+/ )
@@ -292,13 +296,13 @@ module Aptrust
       return new_subject
     end
 
-    def run_email_targets( subject:, body: nil, event: '', event_note: '' )
+    def run_email_targets( subject:, body: nil, event: '', event_note: '', debug_verbose: false )
       return unless email_results
       subject = run_email_subject( subject: subject )
       body ||= msg_handler_queue_to_html
-      # ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
-      #                                       "subject=#{subject}",
-      #                                       "body=#{body}" ] if true
+      ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                            "subject=#{subject}",
+                                            "body=#{body}" ] if true
       email_targets.each do |email|
         email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                          subject: subject,

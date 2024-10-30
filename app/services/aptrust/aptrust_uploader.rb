@@ -817,10 +817,14 @@ class Aptrust::AptrustUploader
       partitioned.each_with_index do |partition,index|
         bag_num = index + 1
         if test_multibag_parts_included.present?
-          msg_handler.msg_verbose "skip multipart index=#{bag_num}"
           msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                    "skip multipart index=#{bag_num}" ] if debug_verbose
-          next unless test_multibag_parts_included.include? bag_num
+          if test_multibag_parts_included.include? bag_num
+            msg_handler.msg_verbose "include multipart index=#{bag_num}"
+          else
+            msg_handler.msg_verbose "skip multipart index=#{bag_num}"
+            next
+          end
         end
         part_bag_id = "#{base_bag_id}_#{bag_num}"
         part_bag = bag_init( bag_id: part_bag_id )
@@ -835,6 +839,8 @@ class Aptrust::AptrustUploader
         bag_pack( bag: part_bag, note: part_bag_id )
         bag_uploading( bag: part_bag, note: part_bag_id )
         bag_upload( bag: part_bag, note: part_bag_id )
+        deposited( bag: part_bag, note: part_bag_id )
+        cleanup_upload( bag: part_bag )
       end
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
@@ -1121,14 +1127,15 @@ class Aptrust::AptrustUploader
                              "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
   end
 
-  def deposited( bag: )
+  def deposited( bag:, note: nil )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             "bag_id=#{id_from( bag: bag )}" ] if debug_verbose
+                             "bag_id=#{id_from( bag: bag )}",
+                             "note=#{note}" ] if debug_verbose
     begin # until true for break
       break if event_stop?
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "@most_recent_status=#{@most_recent_status}" ] if debug_verbose
-      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
+      track_with_sleep( status: ::Aptrust::EVENT_DEPOSITED, note: note ) if most_recent_status == ::Aptrust::EVENT_UPLOADED
     end until true # for break
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "bag_id=#{id_from( bag: bag )}",

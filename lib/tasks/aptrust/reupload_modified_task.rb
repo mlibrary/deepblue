@@ -28,7 +28,7 @@ module Aptrust
     def run_find
       @noids = []
       test_dates_init
-      w = WorkCache.new( msg_handler: msg_handler )
+      w = ::Aptrust::WorkCache.new( msg_handler: msg_handler )
       ::Aptrust::Status.all.each do |status|
         # msg_handler.msg_verbose "status=#{status.pretty_inspect}" if debug_verbose
         # puts "status=#{status.pretty_inspect}"

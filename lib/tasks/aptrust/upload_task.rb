@@ -8,10 +8,6 @@ module Aptrust
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
-      # ::Deepblue::EmailHelper.send_email_fritx( subject: "UploadTask on #{hostname}",
-      #                                           messages: [ "#{hostname}",
-      #                                                       "options=#{options.pretty_inspect}",
-      #                                                       "#{rake_task}" ] ) if true || debug_verbose
       @sort = true
     end
 
@@ -29,7 +25,7 @@ module Aptrust
     def run_find
       @noids = []
       test_dates_init
-      w = WorkCache.new
+      w = ::Aptrust::WorkCache.new
       w_all.each do |work|
         w.reset.work = work
         if !w.work_present?

@@ -18,6 +18,10 @@ module Aptrust
       @report_append = option_value( key: 'report_append', default_value: false )
       @report_dir = option_value( key: 'report_dir', default_value: './data' )
       @report_file = report_file_init
+      msg_handler.msg_debug( [ msg_handler.here, msg_handler.called_from,
+                               "@report_append=#{@report_append}",
+                               "@report_dir=#{@report_dir}",
+                               "@report_file=#{@report_file}" ] ) if msg_handler.present?
     end
 
     def csv_out
@@ -30,9 +34,10 @@ module Aptrust
       return rv
     end
 
-    def report_file_init
-      @report_file = option_value( key: 'report_file', default_value: nil )
+    def report_file_init( default_value: nil )
+      @report_file = option_value( key: 'report_file', default_value: default_value )
       return if @report_file.blank?
+      @report_file = File.join @report_dir, @report_file
       @report_file = ::Deepblue::ReportHelper.expand_path_partials @report_file
       @report_file = File.absolute_path @report_file
     end

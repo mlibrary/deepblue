@@ -19,12 +19,14 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
                   reverify_failed:              false,
                   noid:                         ,
                   track_status:                 true,
+                  test_mode:                    false,
                   debug_verbose:                aptrust_verifier_debug_verbose )
 
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
            track_status:        track_status,
+           test_mode:           test_mode,
            debug_verbose:       debug_verbose )
 
     @noid = noid
@@ -59,6 +61,7 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
                                                     force: force_verification,
                                                     reverify_failed: reverify_failed,
                                                     track_status: true,
+                                                    test_mode: test_mode,
                                                     msg_handler: msg_handler,
                                                     debug_assume_verify_succeeds: debug_assume_verify_succeeds,
                                                     debug_verbose: debug_verbose )
@@ -68,7 +71,7 @@ class Aptrust::AptrustVerifier < Aptrust::AbstractAptrustService
                              "status.event=#{status.event}",
                              "" ] if debug_verbose
     if status.event == ::Aptrust::EVENT_DEPOSIT_SKIPPED || debug_assume_verify_succeeds
-      track( status: ::Aptrust::EVENT_VERIFY_SKIPPED )
+      track( status: ::Aptrust::EVENT_VERIFY_SKIPPED ) unless test_mode
       rv = ::Aptrust::EVENT_VERIFY_SKIPPED
     else
       rv = verifier.ingest_status( identifier: identifier, noid: noid )

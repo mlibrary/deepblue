@@ -17,11 +17,13 @@ class Aptrust::AbstractAptrustService
   attr_accessor :msg_handler
   attr_accessor :options
   attr_accessor :track_status
+  attr_accessor :test_mode
 
   def initialize( msg_handler:         nil,
                   aptrust_config:      nil,
                   aptrust_config_file: nil, # ignored if aptrust_config is defined
                   track_status:        DEFAULT_TRACK_STATUS,
+                  test_mode:           false,
 
                   debug_verbose:       abstract_aptrust_service_debug_verbose )
 
@@ -33,7 +35,9 @@ class Aptrust::AbstractAptrustService
     @aptrust_config      = aptrust_config
     @aptrust_config_file = aptrust_config_file
 
+    @track_status = track_status
     @track_status ||= DEFAULT_TRACK_STATUS
+    @test_mode = test_mode
 
     if @aptrust_config.blank?
       @aptrust_config = if @aptrust_config_file.present?
@@ -44,6 +48,7 @@ class Aptrust::AbstractAptrustService
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "track_status=#{@track_status}",
+                             "test_mode=#{@test_mode}",
                              "" ] if debug_verbose
   end
 
