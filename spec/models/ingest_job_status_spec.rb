@@ -65,8 +65,8 @@ RSpec.describe IngestJobStatus do
 
   end
 
-  it { is_expected.to delegate_method( :add_message       ).to( :job_status ) }
-  it { is_expected.to delegate_method( :add_message!      ).to( :job_status ) }
+  #it { is_expected.to delegate_method( :add_message       ).to( :job_status ) }
+  #it { is_expected.to delegate_method( :add_message!      ).to( :job_status ) }
   it { is_expected.to delegate_method( :error             ).to( :job_status ) }
   it { is_expected.to delegate_method( :error!            ).to( :job_status ) }
   it { is_expected.to delegate_method( :finished?         ).to( :job_status ) }

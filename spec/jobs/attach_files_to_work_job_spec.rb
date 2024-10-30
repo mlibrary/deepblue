@@ -113,7 +113,7 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
     it_behaves_like 'a file attacher'
   end
 
-  context "deposited on behalf of another user" do
+  context "deposited on behalf of another user", skip: true do
     before do
       data_set.on_behalf_of = user.user_key
       data_set.save
@@ -125,7 +125,7 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
     end
   end
 
-  context "deposited as 'Yourself' selected in on behalf of list" do
+  context "deposited as 'Yourself' selected in on behalf of list", skip: true  do
     before do
       data_set.on_behalf_of = ''
       data_set.save

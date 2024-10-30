@@ -60,7 +60,7 @@ module Aptrust
       return unless noids.present?
       msg_handler.msg_verbose "Sorting noids into noid_pairs"
       @noid_pairs=[]
-      w = WorkCache.new
+      w = ::Aptrust::WorkCache.new
       noids.each do |noid|
         w.reset.noid = noid
         if !w.work_present?
@@ -126,7 +126,7 @@ module Aptrust
 
     def run_noids_upload
       total_size = 0
-      w = WorkCache.new
+      w = ::Aptrust::WorkCache.new
       noids.each do |noid|
         w.reset.noid = noid
         if !w.work_present?

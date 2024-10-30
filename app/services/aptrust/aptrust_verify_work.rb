@@ -19,12 +19,14 @@ class Aptrust::AptrustVerifyWork < Aptrust::AbstractAptrustService
                   reverify_failed:     false,
                   noid:                ,
                   track_status:        true,
+                  test_mode:           false,
                   debug_verbose:       aptrust_verify_work_debug_verbose )
 
     super( msg_handler:         msg_handler,
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
            track_status:        track_status,
+           test_mode:           test_mode,
            debug_verbose:       debug_verbose )
 
     @noid = noid
@@ -53,6 +55,7 @@ class Aptrust::AptrustVerifyWork < Aptrust::AbstractAptrustService
                                                     force: force_verification,
                                                     reverify_failed: reverify_failed,
                                                     track_status: true,
+                                                    test_mode: test_mode,
                                                     msg_handler: msg_handler,
                                                     debug_assume_verify_succeeds: debug_assume_verify_succeeds,
                                                     debug_verbose: debug_verbose )

@@ -56,7 +56,7 @@ module Aptrust
         csv_out << header
         # writer header
         test_dates_init
-        w = WorkCache.new
+        w = ::Aptrust::WorkCache.new
         w_all.each do |work|
           w.reset.work = work
           if !w.work_present?

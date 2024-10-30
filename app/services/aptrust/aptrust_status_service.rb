@@ -17,6 +17,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                   aptrust_config:      nil,
                   aptrust_config_file: nil, # ignored if aptrust_config is defined
                   track_status:        true,
+                  test_mode:           false,
 
                   debug_assume_verify_succeeds: false,
                   force:               false,
@@ -28,6 +29,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
            aptrust_config:      aptrust_config,
            aptrust_config_file: aptrust_config_file,
            track_status:        track_status,
+           test_mode:           test_mode,
            debug_verbose:       debug_verbose )
 
     @debug_assume_verify_succeeds = debug_assume_verify_succeeds
@@ -59,7 +61,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
       stage = results['stage']
       if /success/i.match?( status ) && /cleanup/i.match?( stage )
         rv = ::Aptrust::EVENT_VERIFIED
-        breakl
+        break
       end
       rv = ::Aptrust::EVENT_VERIFY_PENDING
     end until true # for break
@@ -137,7 +139,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
       track( status: ::Aptrust::EVENT_VERIFY_PENDING, note: "#{object_identifier}" )
     rescue StandardError => e
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
-                               "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}",
+                               "Aptrust::AptrustStatusService.ingest_status2(#{identifier}) #{e}",
                                "" ] # + e.backtrace # [0..40]
       rv = 'standard_error'
       track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
@@ -155,8 +157,17 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                              "force=#{force}",
                              "reverify_failed=#{reverify_failed}",
                              "track_status=#{track_status}",
+                             "test_mode=#{test_mode}",
                              "" ] if debug_verbose
+    msg_handler.msg_debug [ "identifier=#{identifier}",
+                             "noid=#{noid}",
+                             "force=#{force}",
+                             "reverify_failed=#{reverify_failed}",
+                             "track_status=#{track_status}",
+                            "test_mode=#{test_mode}" ] if debug_verbose
+    return ::Aptrust::EVENT_VERIFY_SKIPPED if test_mode
     @noid = noid
+    @aptrust_upload_status = nil
 
     begin # until true for break
       status = aptrust_upload_status.status
@@ -164,10 +175,13 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                                "@aptrust_uploader_status.object_id=#{@aptrust_uploader_status.object_id}",
                                "needs_verification?( status: #{status} )=#{needs_verification?( status: status )}",
                                "" ] if debug_verbose
+      msg_handler.msg_debug "@aptrust_uploader_status.object_id=#{@aptrust_uploader_status.object_id}" if debug_verbose
+      msg_handler.msg_debug "needs_verification?( status: #{status} )=#{needs_verification?( status: status )}" if debug_verbose
       unless needs_verification?( status: status )
         msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                  "skip because it does not need verification",
                                  "" ] if debug_verbose
+        msg_handler.msg_debug "skip because it does not need verification" if debug_verbose
         rv = status
         break
       end
@@ -176,12 +190,14 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "get_arg=#{get_arg}",
                                "" ] if debug_verbose
+      msg_handler.msg_debug "get_arg=#{get_arg}" if debug_verbose
       # track( status: ::Aptrust::EVENT_VERIFYING, note: "object_identifier=#{aptrust_config.repository}\/#{identifier}" )
       response = connection.get( get_arg )
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "response.success?=#{response.success?}",
                                # "response.pretty_inspect=#{response.pretty_inspect}",
                                "" ] if debug_verbose
+      msg_handler.msg_debug "response.success?=#{response.success?}" if debug_verbose
       unless response.success?
         rv = 'http_error'
         # track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
@@ -192,13 +208,16 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
                                "response.success?=#{response.success?}",
                                "response.body.pretty_inspect=#{response.body.pretty_inspect}",
                                "" ] if debug_verbose
+      msg_handler.msg_debug "response.success?=#{response.success?}" if debug_verbose
       rv = ingest_result_to_verification( current_status: status, results: response.body['results'] )
       break if rv == ::Aptrust::EVENT_VERIFY_FAILED
+      msg_handler.msg_debug "setting #{noid} status to #{rv}"
       track( status: rv )
     rescue StandardError => e
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from,
                                "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}",
                                "" ] # + e.backtrace # [0..40]
+      msg_handler.msg_error "Aptrust::AptrustStatusService.ingest_status(#{identifier}) #{e}"
       rv = 'standard_error'
       track( status: ::Aptrust::EVENT_VERIFY_FAILED, note: "#{rv} - #{object_identifier}" )
     end until true # for break
