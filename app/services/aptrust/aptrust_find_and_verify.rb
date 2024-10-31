@@ -85,8 +85,66 @@ class Aptrust::AptrustFindAndVerify
     return aptrust_config.identifier( id_context: aptrust_config.context, noid: status.noid, type: "#{status.type}." )
   end
 
-  def track_status
-    return !@test_mode
+  def load_work_cache( status:, set_delete_status_if_necessary: false )
+    # msg_handler.msg_debug "status=#{status.pretty_inspect}"
+    return nil if status.event == ::Aptrust::EVENT_DELETED
+    noid = status.noid
+    msg_handler.msg_debug "noid=#{status.noid}"
+    wc = work_cache( noid: noid )
+    unless wc.work.present?
+      msg_handler.msg_warn "Could not find work #{noid}"
+      if set_delete_status_if_necessary
+        msg_handler.msg "Set work #{noid} status to deleted."
+        Aptrust::AptrustStatusService.track_status_event( object_id: noid,
+                                                          status_event: ::Aptrust::EVENT_DELETED,
+                                                          msg_handler: msg_handler,
+                                                          note: "Failed to find work." )
+      end
+    end
+    return wc
+  end
+
+  def needs_verification?( status: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             # "status=#{status.pretty_inspect}",
+                             "noid=#{status.noid}",
+                             "status.event=#{status.event}",
+                             "" ] if debug_verbose
+    return false if status.event == ::Aptrust::EVENT_DELETED
+    msg_handler.msg_debug [ "force_verification=#{force_verification}" ] if debug_verbose
+    wc = load_work_cache( status: status, set_delete_status_if_necessary: true )
+    return true if force_verification
+    return false unless wc.work.present?
+    total_file_size = wc.total_file_size
+    msg_handler.msg_debug "total_file_size=#{DeepblueHelper.human_readable_size_str(total_file_size)}"
+    delay_str = ""
+    # set expected delay based on total size of work
+    delay = if total_file_size > 500.gigabytes
+              delay_str = "7 days"
+              7.days
+            elsif total_file_size > 100.gigabytes
+              delay_str = "3 days"
+              3.days
+            elsif total_file_size > 1.gigabytes
+              delay_str = "2 days"
+              2.days
+            else
+              delay_str = "1 day"
+              1.day
+            end
+    msg_handler.msg_debug "Delay based on total size of work is #{delay_str}."
+    msg_handler.msg_debug "status.event=#{status.event}"
+    #msg_handler.msg_debug "status.timestamp.class=#{status.timestamp.class}"
+    msg_handler.msg_debug "status.timestamp=#{status.timestamp}"
+    # x = ActiveSupport::TimeWithZone
+    delta = Time.now - status.timestamp
+    msg_handler.msg_debug "Older than #{delay_str}." if delta > delay
+    return false unless delta > delay
+    msg_handler.msg_debug [ "reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )=#{reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )}" ] if debug_verbose
+    return true if reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )
+    msg_handler.msg_debug [ "::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )=#{::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )}" ] if debug_verbose
+    return true if ::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )
+    return false
   end
 
   def process( identifier:, noid:, status: )
@@ -124,61 +182,6 @@ class Aptrust::AptrustFindAndVerify
                              "rv=#{rv}",
                              "" ] if debug_verbose
     return rv
-  end
-
-  def work_cache( noid: nil )
-    @work_cache ||= ::Aptrust::WorkCache.new( msg_handler: msg_handler )
-    @work_cache.reset
-    @work_cache.noid = noid
-    @work_cache
-  end
-
-  def needs_verification?( status: )
-    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
-                             # "status=#{status.pretty_inspect}",
-                             "noid=#{status.noid}",
-                             "status.event=#{status.event}",
-                             "" ] if debug_verbose
-    msg_handler.msg_debug [ "force_verification=#{force_verification}" ] if debug_verbose
-    return true if force_verification
-    # msg_handler.msg_debug "status=#{status.pretty_inspect}"
-    noid = status.noid
-    msg_handler.msg_debug "noid=#{status.noid}"
-    wc = work_cache( noid: noid )
-    unless wc.work.present?
-      msg_handler.msg_warn "Could not find work #{noid}"
-      return false
-    end
-    total_file_size = wc.total_file_size
-    msg_handler.msg_debug "total_file_size=#{DeepblueHelper.human_readable_size_str(total_file_size)}"
-    delay_str = ""
-    # set expected delay based on total size of work
-    delay = if total_file_size > 500.gigabytes
-              delay_str = "7 days"
-              7.days
-            elsif total_file_size > 100.gigabytes
-              delay_str = "3 days"
-              3.days
-            elsif total_file_size > 1.gigabytes
-              delay_str = "2 days"
-              2.days
-            else
-              delay_str = "1 day"
-              1.day
-            end
-    msg_handler.msg_debug "Delay based on total size of work is #{delay_str}."
-    msg_handler.msg_debug "status.event=#{status.event}"
-    #msg_handler.msg_debug "status.timestamp.class=#{status.timestamp.class}"
-    msg_handler.msg_debug "status.timestamp=#{status.timestamp}"
-    # x = ActiveSupport::TimeWithZone
-    delta = Time.now - status.timestamp
-    msg_handler.msg_debug "Older than #{delay_str}." if delta > delay
-    return false unless delta > delay
-    msg_handler.msg_debug [ "reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )=#{reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )}" ] if debug_verbose
-    return true if reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status.event )
-    msg_handler.msg_debug [ "::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )=#{::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )}" ] if debug_verbose
-    return true if ::Aptrust::EVENTS_NEED_VERIFY.include?( status.event )
-    return false
   end
 
   def run
@@ -256,6 +259,17 @@ class Aptrust::AptrustFindAndVerify
       end
     end
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "run", "" ] if debug_verbose
+  end
+
+  def track_status
+    return !@test_mode
+  end
+
+  def work_cache( noid: nil )
+    @work_cache ||= ::Aptrust::WorkCache.new( msg_handler: msg_handler )
+    @work_cache.reset
+    @work_cache.noid = noid
+    @work_cache
   end
 
 end

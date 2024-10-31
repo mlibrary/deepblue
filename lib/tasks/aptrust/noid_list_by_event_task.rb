@@ -52,8 +52,9 @@ module Aptrust
 
     def run_find_ids
       ids=[]
-      ::Aptrust::Status.all.each do |r|
-        ids << r.noid if event == r.event
+      ::Aptrust::Status.all.each do |status|
+        next if status.event == ::Aptrust::EVENT_DELETED
+        ids << status.noid if event == status.event
       end
       return ids if 0 > max_size && !sort?
       id_pairs=[]

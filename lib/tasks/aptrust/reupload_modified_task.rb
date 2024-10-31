@@ -32,6 +32,7 @@ module Aptrust
       ::Aptrust::Status.all.each do |status|
         # msg_handler.msg_verbose "status=#{status.pretty_inspect}" if debug_verbose
         # puts "status=#{status.pretty_inspect}"
+        next if status.event == ::Aptrust::EVENT_DELETED
         w.reset.noid = status.noid
         if !w.work_present?
           msg_handler.msg_warn "Failed to load work with noid #{status.noid}"

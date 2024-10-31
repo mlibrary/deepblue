@@ -38,6 +38,7 @@ module Aptrust
       test_dates_init
       ::Aptrust::Status.all.each do |status|
         # msg_handler.msg_verbose "status=#{status.pretty_inspect}" if debug_verbose
+        next if status.event == ::Aptrust::EVENT_DELETED
         next if event.present? && status.event != event
         # msg_handler.msg_verbose "Filter status.timestamp=#{status.timestamp}"
         # msg_handler.msg_verbose "Filter #{test_date_begin} < #{status.timestamp} < #{test_date_end} ?"

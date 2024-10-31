@@ -8,6 +8,21 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
 
   mattr_accessor :aptrust_status_service_debug_verbose, default: false
 
+
+  def self.track_status_event( object_id:, msg_handler:, note: nil, status_event: )
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                             "object_id=#{object_id}",
+                             "status_event=#{status_event}",
+                             "note=#{note}" ] if msg_handler.debug_verbose
+    status_str = "#{status_event}"
+    status_str += " -- #{note}" if note.present?
+    msg_handler.msg_verbose "#{@object_id}: #{status_str}"
+    ::Aptrust::AptrustUploaderStatus.track_db( noid: object_id,
+                                               status_event: status_event,
+                                               note: note,
+                                               timestamp: DateTime.now )
+  end
+
   attr_accessor :debug_assume_verify_succeeds
   attr_accessor :force
   attr_accessor :noid
@@ -268,6 +283,7 @@ class Aptrust::AptrustStatusService < Aptrust::AbstractAptrustService
   end
 
   def needs_verification?( status: )
+    return false if status == ::Aptrust::EVENT_DELETED
     return true if force
     return true if reverify_failed && ::Aptrust::EVENTS_FAILED.include?( status )
     return true if ::Aptrust::EVENTS_NEED_VERIFY.include?( status )

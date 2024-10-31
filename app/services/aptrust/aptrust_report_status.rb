@@ -220,6 +220,10 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
           msg_handler.msg "#{status.noid}: #{status.event}"
           @count_processing += 1
         end
+        if status.event == ::Aptrust::EVENT_DELETED
+          count_status( status )
+          break
+        end
         row = row_read_from_aptrust( status: status )
         row_msg = row_status_msg( row: row )
         msg_handler.msg_warn row_msg if row_msg.present?
