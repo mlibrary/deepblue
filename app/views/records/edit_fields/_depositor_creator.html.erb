@@ -7,11 +7,28 @@
   <% show_edit_depositor_orcid = current_user.orcid  %>
 <% end %>
 <% if show_edit_despositor_creator %>
+  <%
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "f.class.name=#{f.class.name}",
+                                           "f.object.authoremail=#{f.object.authoremail}",
+                                           "f.object.creator_orcid=#{f.object.creator_orcid}",
+                                           "f.object.depositor_creator=#{f.object.depositor_creator}",
+                                           "" ] if false
+  %>
   <%= hidden_field_tag('depositor_creator_available', 'true') %>
   <%= hidden_field_tag('depositor_orcid', show_edit_depositor_orcid) %>
-  <!-- Current User is <%= current_user.email %> -->
-  <!-- Depositor is <%= @presenter&.depositor %> -->
-  <!-- Depositor orcid is <%= show_edit_depositor_orcid %> -->
-  <!-- Depositor orcid stripped is "<%= Hyrax::Orcid::OrcidHelper::validate_orcid( show_edit_depositor_orcid ) %>" -->
-  <%= f.input :depositor_creator, as: :boolean, required: false, label: t('simple_form.labels.data_set.depositor_creator')  %>
+  <% if f.object.authoremail.blank? # i.e. is it new %>
+    <% depositor_creator_input_html_is_checked = true %>
+  <% elsif f.object.creator_orcid.blank? || [""] == f.object.creator_orcid %>
+    <% depositor_creator_input_html_is_checked = false %>
+  <% else %>
+    <% depositor_creator_input_html_is_checked = true %>
+  <% end %>
+  <%= f.input :depositor_creator,
+              as: :boolean,
+              required: false,
+              input_html: { checked: depositor_creator_input_html_is_checked },
+              label: t('simple_form.labels.data_set.depositor_creator') %>
+  <%#= f.input :depositor_creator, as: :boolean, required: false, label: t('simple_form.labels.data_set.depositor_creator')  %>
 <% end %>
