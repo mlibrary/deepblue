@@ -13,18 +13,20 @@
     <%#
       ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                             ::Deepblue::LoggingHelper.called_from,
-                                            "member.class=#{member.class.name}",
-                                            "member.member_thumbnail_url_options( member )=#{member.member_thumbnail_url_options( member )}",
+                                            "member_no_action.class=#{member_no_action.class.name}",
+                                            "member_no_action.member_thumbnail_url_options( member_no_action )=#{member_no_action.member_thumbnail_url_options( member_no_action )}",
                                             ""]
     %>
     <td class="thumbnail">
-      <%# hyrax2 # thumbnail_tag = render_thumbnail_tag( member.solr_document,
-                                               member.member_thumbnail_image_options( member ),
-                                               member.member_thumbnail_url_options( member ) ) %>
-      <%= thumbnail_tag = document_presenter(member).thumbnail.thumbnail_tag(alt: 'file details') %>
-      <%= raw @presenter.member_thumbnail_post_process( main_app: main_app, member: member_no_action, tag: thumbnail_tag ) %>
+      <%# hyrax2 # thumbnail_tag = render_thumbnail_tag( member_no_action.solr_document,
+                                               member_no_action.member_thumbnail_image_options( member_no_action ),
+                                               member_no_action.member_thumbnail_url_options( member_no_action ) ) %>
+      <%= thumbnail_tag = document_presenter(member_no_action).thumbnail.thumbnail_tag(alt: 'file details') %>
+      <%= raw @presenter.member_thumbnail_post_process( main_app: main_app,
+                                                        member: member_no_action,
+                                                        tag: thumbnail_tag ) %>
     </td>
-    <%# if can?(:download, member.id) %>
+    <%# if can?(:download, member_no_action.id) %>
     <% if member_no_action.can_download_file? && !member_no_action.anonymous_show? %>
       <% unless member_no_action.file_size_too_large_to_download? %>
         <td role="menuitem" tabindex="-1">

@@ -30,6 +30,11 @@ module Hyrax
         markup = lines.join("\n")
         # markup.html_safe
         return markup
+      rescue Exception => e
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "e=#{e}" ] + e.backtrace
+        return "Exception #{e}"
       end
 
       # Draw the table row for the attribute

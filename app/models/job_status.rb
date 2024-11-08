@@ -2,10 +2,42 @@
 
 class JobStatus < ApplicationRecord
 
+  # TODO: make sure message and error columns don't have any odd characters
+
+  # class CreateJobStatuses < ActiveRecord::Migration[5.2]
+  #   def change
+  #     create_table :job_statuses do |t|
+  #       t.string :job_class, null: false
+  #       t.string :job_id, null: false
+  #       t.string :parent_job_id
+  #       t.string :status
+  #       t.text :state
+  #       t.text :message
+  #       t.text :error
+  #       t.string :main_cc_id
+  #       t.integer :user_id
+  #
+  #       t.timestamps
+  #     end
+  #
+  #     add_index :job_statuses, :job_id
+  #     add_index :job_statuses, :parent_job_id
+  #     add_index :job_statuses, :status
+  #     add_index :job_statuses, :main_cc_id
+  #     add_index :job_statuses, :user_id
+  #   end
+  # end
+
   mattr_accessor :job_status_debug_verbose, default: false
 
   FINISHED = 'finished'.freeze
   STARTED = 'started'.freeze
+
+  def self.clean( str )
+    return str unless str.present?
+    str = str.to_s unless str.is_a?( String )
+    DeepblueHelper.clean_str( str )
+  end
 
   def self.find_or_create( job:,
                            status: nil,
@@ -32,8 +64,8 @@ class JobStatus < ApplicationRecord
     job_status = JobStatus.where( job_id: job_id, job_class: job_class ).first_or_create
     if status.present? || message.present? || error.present? || parent_job_id.present? || main_cc_id.present? || user_id.present?
       job_status.status = status.to_s if status.present?
-      job_status.message = message.to_s if message.present?
-      job_status.error = error.to_s if error.present?
+      job_status.message = clean( message )
+      job_status.error = clean( error )
       job_status.parent_job_id = parent_job_id.to_s if parent_job_id.present?
       job_status.main_cc_id = main_cc_id if main_cc_id.present?
       job_status.user_id = user_id if user_id.present?
@@ -126,8 +158,8 @@ class JobStatus < ApplicationRecord
     job_status = JobStatus.find_by_job_id( job_id )
     return nil if job_status.nil?
     job_status.status = status
-    job_status.message = message if message.present?
-    job_status.error = error if error.present?
+    job_status.message = clean( message )
+    job_status.error = clean( error )
     job_status.save_safe
     return job_status
   end
@@ -141,6 +173,7 @@ class JobStatus < ApplicationRecord
   end
 
   def add_error( error, sep: "\n" )
+    error = clean( error )
     if self.error.blank?
       self.error = error
     else
@@ -155,17 +188,15 @@ class JobStatus < ApplicationRecord
     return self
   end
 
-  def add_message( message, sep: "\n" )
-    if self.message.blank?
-      self.message = message
-    else
-      self.message = "#{self.message}#{sep}#{message}"
-    end
+  def add_message( msg, sep: "\n" )
+    msg = clean( msg )
+    msg = "#{self.message}#{sep}#{msg}" if self.message.present?
+    self.message =  msg
     return self
   end
 
-  def add_message!( message, sep: "\n" )
-    add_message( message, sep: sep )
+  def add_message!( msg, sep: "\n" )
+    add_message( msg, sep: sep )
     save_safe
     return self
   end
@@ -180,13 +211,17 @@ class JobStatus < ApplicationRecord
     save_safe
   end
 
+  def clean( str )
+    return str unless str.present?
+    str = str.to_s unless str.is_a?( String )
+    DeepblueHelper.clean_str( str )
+  end
+
   def error!( error: nil )
-    self.error = error.to_s
+    self.error = clean( error )
     save_safe
     return self
   end
-
-
 
   def error_snipped
     snipped error
@@ -194,6 +229,10 @@ class JobStatus < ApplicationRecord
 
   def messages_snipped
     snipped message
+  end
+
+  def save!
+    super
   end
 
   def state_snipped
@@ -209,7 +248,6 @@ class JobStatus < ApplicationRecord
     x = sz - 10
     "#{str[0..9]}...#{str[x..sz]}"
   end
-
 
   def finished!( message: nil )
     status!( FINISHED, message: message )
@@ -286,8 +324,8 @@ class JobStatus < ApplicationRecord
 
   def status!( status, message: nil, error: nil )
     self.status = status
-    self.message = message.to_s if message.present?
-    self.error = error.to_s if error.present?
+    self.message = clean( message )
+    self.error = clean( error )
     save_safe
     return self
   end
@@ -429,7 +467,6 @@ class JobStatus < ApplicationRecord
     def reload
       # ignore
     end
-
 
     def save_safe
       # ignore
