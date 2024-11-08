@@ -259,6 +259,16 @@ module Deepblue
       hash = YAML.load( value )
       # walk hash and store values
       load_i18n_templates_hash_walk( hash: hash, debug_verbose: debug_verbose )
+    rescue Exception => e
+      Rails.logger.error "#{e.class} key=#{key}, value=#{value} -- #{e.message} at #{e.backtrace[0]}"
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "ERROR while parsing yaml file",
+                                             "key=#{key}",
+                                             "value=#{value}",
+                                             "e=#{e.class.name}",
+                                             "e.message=#{e.message}",
+                                             "e.backtrace:" ] + e.backtrace # error
     end
 
     def self.load_i18n_templates_hash_walk( hash:, key_path: '', key: '', locale: '', debug_verbose: )
