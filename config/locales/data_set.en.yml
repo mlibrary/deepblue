@@ -103,7 +103,7 @@ en:
       access_deepblue:      "Related items in Deep Blue Documents"
       authoremail:          "Contact information"
       creator:              "Creator"
-      creator_orcid:        "Creator ORCID"
+      creator_orcid:        "Creator ORCID iD"
       curation_notes_admin: "Curation notes admin"
       curation_notes_user:  "Curation notes"
       date_coverage:        "Date coverage"
@@ -111,7 +111,7 @@ en:
       date_modified:        "Last modified"
       date_published:       "Published"
       date_updated:         "Date updated"
-      depositor_creator:    "Use depositor ORCID"
+      depositor_creator:    "Use Depositor ORCID iD"
       doi:                  "DOI"
       edit_groups:          "Edit Groups"
       edit_users:           "Edit Users"
@@ -211,7 +211,7 @@ en:
         collection_ids:       "Add as member of collection"
         contributor:          "Contributor"
         creator:              "Creator"
-        creator_orcid:        "Creator ORCID"
+        creator_orcid:        "Creator ORCID iD"
         curation_notes_admin: "Curation Notes for Admins"
         curation_notes_user:  "Curation Notes"
         date_coverage:        "Date Coverage"
@@ -221,7 +221,7 @@ en:
         date_modified:        "Last Modified"
         date_published:       "Published"
         date_updated:         "Date Updated"
-        depositor_creator:    "Use depositor ORCID"
+        depositor_creator:    "Use Depositor ORCID iD"
         description:          "Description"
         description_abstract: "Abstract or Summary"
         doi:                  "DOI"
@@ -275,14 +275,14 @@ en:
           List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
           following format: Last name, First name MI.
         creator_orcid: >
-          List the ORCID(s) of the person(s) responsible for creating the Work; use the following format:
+          List the ORCID iD(s) of the person(s) responsible for creating the Work; use the following format:
           https://orcid.org/XXXX-XXXX-XXXX-XXXX
         date_coverage: >
           Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
         date_created: >
           The date the work’s data was created, as determined by the creator.
         depositor_creator: >
-          Flag to indicate despositor's ORCID is to be included.
+          Flag to indicate Depositor's ORCID iD should be included.
         describe_work: >
           Please provide information about your data set (referred to as a "work") in the following fields, keeping in
           mind that your responses will enable people to discover, identify, and understand your data. If you are
