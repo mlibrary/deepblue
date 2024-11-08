@@ -722,9 +722,11 @@ module Deepblue
     end
 
     def self.yaml_export_file_path( target_dirname:, file_set: )
-      file = file_from_file_set( file_set )
-      export_file_name = file.original_name
-      target_dirname.join "#{file_set.id}_#{export_file_name}"
+      # file = file_from_file_set( file_set )
+      # export_file_name = file.original_name
+      # target_dirname.join "#{file_set.id}_#{export_file_name}"
+      export_file_name = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set, include_id: true )
+      target_dirname.join export_file_name
     end
 
     def self.yaml_file_set_checksum( file_set: )

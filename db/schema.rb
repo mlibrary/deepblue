@@ -2,15 +2,15 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `rails
+# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2024_07_25_094010) do
+ActiveRecord::Schema.define(version: 2024_11_04_203630) do
 
   create_table "ahoy_condensed_events", force: :cascade do |t|
     t.string "name"
@@ -226,6 +226,47 @@ ActiveRecord::Schema.define(version: 2024_07_25_094010) do
     t.integer "user_id"
     t.index ["file_id"], name: "index_file_download_stats_on_file_id"
     t.index ["user_id"], name: "index_file_download_stats_on_user_id"
+  end
+
+  create_table "file_exports", force: :cascade do |t|
+    t.string "export_type", null: false
+    t.string "export_noid", null: false
+    t.string "noid", null: false
+    t.string "export_status", null: false
+    t.datetime "export_status_timestamp"
+    t.text "base_noid_path"
+    t.text "export_file_name"
+    t.string "checksum_value"
+    t.string "checksum_algorithm"
+    t.datetime "checksum_validated"
+    t.text "note"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.integer "file_sys_exports_id"
+    t.index ["base_noid_path"], name: "index_file_exports_on_base_noid_path"
+    t.index ["checksum_validated"], name: "index_file_exports_on_checksum_validated"
+    t.index ["export_file_name"], name: "index_file_exports_on_export_file_name"
+    t.index ["export_noid"], name: "index_file_exports_on_export_noid"
+    t.index ["export_status"], name: "index_file_exports_on_export_status"
+    t.index ["export_type"], name: "index_file_exports_on_export_type"
+    t.index ["file_sys_exports_id"], name: "index_file_exports_on_file_sys_exports_id"
+    t.index ["noid"], name: "index_file_exports_on_noid"
+  end
+
+  create_table "file_sys_exports", force: :cascade do |t|
+    t.string "export_type", null: false
+    t.string "noid", null: false
+    t.boolean "published"
+    t.string "export_status", null: false
+    t.datetime "export_status_timestamp"
+    t.text "base_noid_path"
+    t.text "note"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["base_noid_path"], name: "index_file_sys_exports_on_base_noid_path"
+    t.index ["export_status"], name: "index_file_sys_exports_on_export_status"
+    t.index ["export_type"], name: "index_file_sys_exports_on_export_type"
+    t.index ["noid"], name: "index_file_sys_exports_on_noid"
   end
 
   create_table "file_view_stats", force: :cascade do |t|
@@ -786,4 +827,12 @@ ActiveRecord::Schema.define(version: 2024_07_25_094010) do
     t.index ["work_id"], name: "index_work_view_stats_on_work_id"
   end
 
+  add_foreign_key "collection_type_participants", "hyrax_collection_types"
+  add_foreign_key "curation_concerns_operations", "users"
+  add_foreign_key "mailboxer_conversation_opt_outs", "mailboxer_conversations", column: "conversation_id"
+  add_foreign_key "mailboxer_notifications", "mailboxer_conversations", column: "conversation_id"
+  add_foreign_key "mailboxer_receipts", "mailboxer_notifications", column: "notification_id"
+  add_foreign_key "permission_template_accesses", "permission_templates"
+  add_foreign_key "qa_local_authority_entries", "qa_local_authorities", column: "local_authority_id"
+  add_foreign_key "uploaded_files", "users"
 end
