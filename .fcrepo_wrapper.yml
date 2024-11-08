@@ -4,3 +4,9 @@
 port: 8984
 enable_jms: false
 fcrepo_home_dir: tmp/fcrepo4-development-data
+verbose: true
+# default version: 4.7.3
+# version: 4.7.6
+validate: false
+version_file: ./tmp/fcrepo-webapp-VERSION
+instance_dir: ./tmp/

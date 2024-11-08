@@ -30,7 +30,6 @@ module Deepblue
     end
   end
 
-
   module ExportFilesHelper
 
     mattr_accessor :export_files_helper_debug_verbose, default: false
@@ -60,6 +59,29 @@ module Deepblue
         bytes_copied = export_file_uri( source_uri: source_uri, target_file: target_file, debug_verbose: debug_verbose )
       end
       return bytes_copied
+    end
+
+    def self.export_file_name( file_set:, include_id: false )
+      title = file_set.title[0]
+      file = ::Deepblue::MetadataHelper.file_from_file_set( file_set )
+      if file.nil?
+        rv = "nil_file"
+      else
+        rv = file&.original_name
+        rv = "nil_original_file" if rv.nil?
+      end
+      rv = title unless title == rv
+      rv = rv.gsub( /[\/\?\<\>\\\:\*\|\'\"\^\;]/, '_' )
+      rv = "#{file_set.id}_#{rv}" if include_id
+      return rv
+    end
+
+    def self.export_file_name_increment( file_name:, count: )
+      rv = file_name
+      ext = ::File.extname( file_name )
+      basename = ::File.basename( file_name, ".*" )
+      rv = basename + "_" + count.to_s.rjust( 3, '0' ) + ext
+      return rv
     end
 
     def self.export_file_uri( source_uri:,

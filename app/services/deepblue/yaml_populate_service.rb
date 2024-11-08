@@ -263,15 +263,17 @@ module Deepblue
     end
 
     def yaml_export_file_path( target_dirname:, file_set: )
-      export_file_name = yaml_export_file_name( file_set: file_set )
-      filename = "#{file_set.id}_#{export_file_name}"
+      # export_file_name = yaml_export_file_name( file_set: file_set )
+      # filename = "#{file_set.id}_#{export_file_name}"
+      filename = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set, include_id: true )
       puts filename if DEBUG_VERBOSE
       target_dirname.join filename
      end
 
     def yaml_import_file_path( target_dirname:, file_set: )
-      export_file_name = yaml_export_file_name( file_set: file_set )
-      filename = "#{file_set.id}_#{export_file_name}"
+      # export_file_name = yaml_export_file_name( file_set: file_set )
+      # filename = "#{file_set.id}_#{export_file_name}"
+      filename = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set, include_id: true )
       puts filename if DEBUG_VERBOSE
       if MetadataHelper::MODE_BAG == mode
         filename = File.basename filename
@@ -281,19 +283,19 @@ module Deepblue
       end
     end
 
-    def yaml_export_file_name( file_set: )
-      title = file_set.title[0]
-      file = MetadataHelper.file_from_file_set( file_set )
-      if file.nil?
-        rv = "nil_file"
-      else
-        rv = file&.original_name
-        rv = "nil_original_file" if rv.nil?
-      end
-      rv = title unless title == rv
-      rv = rv.gsub( /[\/\?\<\>\\\:\*\|\'\"\^\;]/, '_' )
-      return rv
-    end
+    # def yaml_export_file_name( file_set: )
+    #   title = file_set.title[0]
+    #   file = MetadataHelper.file_from_file_set( file_set )
+    #   if file.nil?
+    #     rv = "nil_file"
+    #   else
+    #     rv = file&.original_name
+    #     rv = "nil_original_file" if rv.nil?
+    #   end
+    #   rv = title unless title == rv
+    #   rv = rv.gsub( /[\/\?\<\>\\\:\*\|\'\"\^\;]/, '_' )
+    #   return rv
+    # end
 
     def yaml_file_set_checksum( file_set: )
       file = MetadataHelper.file_from_file_set( file_set )
