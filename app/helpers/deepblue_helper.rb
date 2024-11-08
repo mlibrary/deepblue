@@ -2,6 +2,28 @@
 
 module DeepblueHelper
 
+  # CLEAN_STR_REPLACEMENT_CHAR = "?"
+  UTF8 = 'UTF-8'.freeze unless const_defined? :UTF8
+
+  # Replace invalid UTF-8 character sequences with a replacement character
+  #
+  # Returns self as valid UTF-8.
+  def self.clean_str!(str)
+    return str if str.encoding.to_s == UTF8
+    str.force_encoding("binary").encode(UTF8, :invalid => :replace, :undef => :replace, :replace => '?')
+  end
+
+  # Replace invalid UTF-8 character sequences with a replacement character
+  #
+  # Returns a copy of this String as valid UTF-8.
+  def self.clean_str(str)
+    clean_str!(str.dup)
+  end
+
+  def self.clean_str_needed?( str )
+    str.encoding.to_s != UTF8
+  end
+
   def self.display_timestamp( timestamp )
     timestamp = timestamp.to_datetime if timestamp.is_a? Time
     timestamp = DateTime.parse timestamp if timestamp.is_a? String
