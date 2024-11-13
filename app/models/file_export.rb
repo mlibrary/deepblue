@@ -120,17 +120,20 @@ class FileExport < ApplicationRecord
     return rv
   end
 
-  def status( status, with_note: nil )
-    export_status = status
-    export_status_timestamp = DateTime.now
-    note = with_note if with_note.present?
-  end
+  # def status( status, with_note: nil )
+  #   export_status = status
+  #   export_status_timestamp = DateTime.now
+  #   note = with_note if with_note.present?
+  # end
 
-  def status!( status, with_note: nil )
-    export_status = status
-    export_status_timestamp = DateTime.now
-    note = with_note if with_note.present?
-    self.save!
-  end
+  # def status!( status, with_note: nil )
+  #   puts "FileExport.status!( #{status}, #{with_note} )"
+  #   export_status = status
+  #   export_status_timestamp = DateTime.now
+  #   note = with_note if with_note.present?
+  #   rv = save
+  #   puts "rv=#{rv}"
+  #   return rv
+  # end
 
 end

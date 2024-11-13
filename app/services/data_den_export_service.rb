@@ -6,7 +6,9 @@ class DataDenExportService < AbstractFileSysExportService
 
   def self.test_it( debug_verbose: false )
     msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, verbose: true, debug_verbose: debug_verbose )
-    service = DataDenExportService.new( msg_handler: msg_handler, options: { skip_export: true, test_mode: true } )
+    service = DataDenExportService.new( msg_handler: msg_handler, options: { force_export: true,
+                                                                             skip_export: false,
+                                                                             test_mode: false } )
     w = DataSet.all.first
     w.file_set_ids.size
     service.export_data_set( work: w )
