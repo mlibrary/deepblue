@@ -28,8 +28,8 @@ module FileSysExportService
     # TODO: deal with non-SHA1 algorithms
     checksum_rv = Digest::SHA1.file file_path
     if checksum_rv == fs_checksum
-      fs_rec.checksum_validated = DataTime.now
-      fs_rec.save! if save
+      fs_rec.checksum_validated = DateTime.now
+      fs_rec.save!
     else
       # TODO
     end
@@ -39,15 +39,30 @@ module FileSysExportService
     # TODO
   end
 
-  def self.data_set_needs_export?( export_type:, cc:, export_rec: nil )
+  def self.rv_msg_verbose_if( rv, msg, msg_handler = nil )
+    return rv if msg_handler.nil? || !msg_handler.verbose
+    msg_handler.msg_verbose msg
+    return rv
+  end
+
+  def self.rv_msg_debug_verbose_if( rv, msg, msg_handler = nil )
+    return rv if msg_handler.nil? || !msg_handler.debug_verbose
+    msg_handler.msg_debug msg
+    return rv
+  end
+
+  def self.data_set_needs_export?( export_type:, cc:, export_rec: nil, msg_handler: nil )
+    debug_verbose = msg_handler.nil? ? false : msg_handler.debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_type=#{export_type}", "cc.id=#{cc.id}" ] if debug_verbose
     export_rec = FileSysExportNoidService.find_or_create( export_type: export_type, cc: cc ) if export_rec.nil?
     export_status = export_rec.export_status
-    return true if export_status.blank?
-    return true if export_status == FileSysExportC::STATUS_EXPORT_NEEDED
-    return true if cc.update_date > export_rec.export_status_timestamp
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_status=#{export_status}" ] if debug_verbose
+    return rv_msg_verbose_if( true, "needs export? export_status is blank", msg_handler ) if export_status.blank?
+    return rv_msg_verbose_if( true, "needs export? export needed",          msg_handler ) if export_status == FileSysExportC::STATUS_EXPORT_NEEDED
+    return rv_msg_verbose_if( true, "needs export? date modified newer",    msg_handler ) if cc.date_modified > export_rec.export_status_timestamp
     # TODO: other statuses?
     # TODO: check for missing and extra?
-    return false
+    return rv_msg_verbose_if( false, "needs export? default false", msg_handler )
   end
 
   def self.delete_all_files( service:, update_status: true )
@@ -90,7 +105,7 @@ module FileSysExportService
   #   export_status = export_rec.export_status
   #   return true if export_status.blank?
   #   return true if export_status == FileSysExportC::STATUS_EXPORT_NEEDED
-  #   return true if cc.update_date > export_rec.updated_at
+  #   return true if cc.date_modified > export_rec.updated_at
   #   # TODO: other statuses?
   #   return false
   # end

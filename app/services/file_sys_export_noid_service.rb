@@ -14,6 +14,8 @@ class FileSysExportNoidService
   attr_accessor :msg_handler
   attr_reader   :options
 
+  attr_accessor :force_export, :skip_export, :test_mode
+
   delegate :debug_verbose, :verbose, to: :msg_handler
   delegate :bold_debug,
            :bold_error,
@@ -42,6 +44,9 @@ class FileSysExportNoidService
     else
       raise ArgumentError "Either work or noid must be specified."
     end
+    @skip_export           = @options.option_value( :skip_export,        default_value: false, msg_handler: @msg_handler )
+    @force_export          = @options.option_value( :force_export,       default_value: false, msg_handler: @msg_handler )
+    @test_mode             = @options.option_value( :test_mode,          default_value: false, msg_handler: @msg_handler )
     @file_sys_export = init_file_sys_export
     @files = FileSysExportNoidFiles.new( export_service: self, file_sys_export: @file_sys_export )
   end
@@ -85,7 +90,11 @@ class FileSysExportNoidService
   end
 
   def needs_export?
-    FileSysExportService.data_set_needs_export?( export_type: @export_type, cc: @work, export_rec: @file_sys_export )
+    return true if force_export
+    FileSysExportService.data_set_needs_export?( export_type: @export_type,
+                                                 cc: @work,
+                                                 export_rec: @file_sys_export,
+                                                 msg_handler: @msg_handler )
   end
 
   def status!( export_status:, note: nil )

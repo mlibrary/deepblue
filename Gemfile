@@ -225,7 +225,7 @@ gem 'ezid-client'
 # Use jquery as the JavaScript library
 gem 'jquery-rails'
 # jQuery plugin for drop-in fix binded events problem caused by Turbolinks
-gem 'jquery-turbolinks'
+# gem 'jquery-turbolinks'
 
 gem 'willow_sword', git: 'https://github.com/CottageLabs/willow_sword.git', branch: 'develop'
 
