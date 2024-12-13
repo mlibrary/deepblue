@@ -2,12 +2,12 @@
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: false do
+RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: Rails.configuration.hyrax5_spec_skip do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before do
     sign_in user
@@ -179,7 +179,7 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: false do
   end
 
   describe "#destroy_collection" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     let(:collection1) do
       create(:public_collection_lw, title: ["My First Collection"],
@@ -209,7 +209,7 @@ RSpec.describe Hyrax::BatchEditsController, type: :controller, skip: false do
     end
 
     context 'when user does not have edit access' do
-      let(:user2) { create(:user) }
+      let(:user2) { factory_bot_create_user(:user) }
 
       let(:collection3) do
         create(:public_collection_lw, title: ["User2's Collection"],

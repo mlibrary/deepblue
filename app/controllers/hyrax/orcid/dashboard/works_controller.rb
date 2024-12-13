@@ -38,7 +38,7 @@ module Hyrax
         protected
 
           def work
-            @_work ||= ActiveFedora::Base.find(permitted_params.dig(:work_id))
+            @_work ||= PersistHelper.find(permitted_params.dig(:work_id)) # hyrax5
           end
 
           def identity

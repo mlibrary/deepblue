@@ -1,10 +1,42 @@
-Date: 10 September, 2021
+Date: 18 November, 2024
 
 Dataset Title: Modeled Response of Greenland Snowmelt to the Presence of Biomass Burning-Based Absorbing Aerosols in the Atmosphere and Snow
 
-Dataset Creators: J.L. Ward, M.G. Flanner, M. Bergin, J.E. Dibb, C.M. Polashenski, A.J. Soja, & J.L. Thomas
-
 Dataset Contact: Jamie Ward jamiewa@umich.edu
+
+Dataset Creators: 
+Name: Jamie L. Ward 
+Email: jamiewa@umich.edu
+Institution: University of Michigan Department of Climate and Space Sciences and Engineering
+ORCID: https://orcid.org/0000-0002-8751-8894
+
+Name: Mark G. Flanner 
+Email: flanner@umich.edu
+Institution: University of Michigan Department of Climate and Space Sciences and Engineering
+ORCID: https://orcid.org/0000-0003-4012-174X
+
+Name: Mike Bergin 
+Email: michael.bergin@duke.edu
+Institution: Duke University School of Civil and Environmental Engineering
+ORCID: https://orcid.org/0000-0003-0542-485X
+
+Name: Jack E. Dibb 
+Email:jack.dibb@unh.edu
+Institution: University of New Hampshire Earth Systems Research Center EOS 
+ORCID: https://orcid.org/0000-0003-3096-7709
+
+Name: Chris M. Polashenski 
+Email: christopher.m.polashenski@dartmouth.edu
+Institution: Cold Regions Research and Engineering Laboratory (CRREL), US Army Corps of Engineers (USACE); Dartmouth College Thayer School of Engineering 
+ORCID: https://orcid.org/0000-0001-6691-9384
+
+Name: Amber J. Soja 
+Institution: National Aeronautical and Space Administration (NASA) National Institute of Aerospace 
+ORCID: https://orcid.org/0000-0001-8637-3040
+ 
+Name: Jennie L. Thomas 
+Email: Jennie.Thomas@latmos.ipsl.fr
+Institution: Laboratoire atmospheres milieux, observations spatiales (LATMOS) 
 
 Funding: NNX14AE72G (NASA), DE-SC0013991 (DOE), & 80NSSC17K0323 (NASA Earth and Space Science Fellowship, NESSF)
 

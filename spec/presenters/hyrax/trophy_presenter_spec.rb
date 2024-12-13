@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::TrophyPresenter, skip: false do
   describe "find_by_user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:work1) { create(:work, user: user) }
     let(:work2) { create(:work, user: user) }
     let(:work3) { create(:work, user: user) }

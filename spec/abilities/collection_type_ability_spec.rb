@@ -5,11 +5,11 @@ RSpec.describe 'CollectionAbility' do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:current_user) { user }
 
   context 'when admin user' do
-    let(:user) { FactoryBot.create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
     let(:collection_type) { create(:collection_type) }
 
     it 'allows all abilities' do

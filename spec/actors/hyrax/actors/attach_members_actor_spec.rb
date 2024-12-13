@@ -13,7 +13,7 @@ RSpec.describe Hyrax::Actors::AttachMembersActor, skip: false do
   let(:ability)      { ::Ability.new(depositor) }
   let(:env)          { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator)   { Hyrax::Actors::Terminator.new }
-  let(:depositor)    { create(:user) }
+  let(:depositor)    { factory_bot_create_user(:user) }
   let(:work)         { create(:work) }
   let(:attributes) { HashWithIndifferentAccess.new(work_members_attributes: { '0' => { id: existing_child_work.id } }) }
   let(:existing_child_work) { create(:work) }

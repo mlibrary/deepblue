@@ -6,7 +6,7 @@ require 'cancan/matchers'
 
 RSpec.describe Hyrax::Ability do
   subject(:ability) { Ability.new(current_user) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:current_user) { user }
   let(:collection_type) { FactoryBot.create(:collection_type) }
   let!(:collection) { create(:collection_lw, with_permission_template: true, collection_type: collection_type) }
@@ -20,7 +20,7 @@ RSpec.describe Hyrax::Ability do
   end
 
   context 'when admin user' do
-    let(:user) { FactoryBot.create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
 
     it 'allows all template abilities' do
       is_expected.to be_able_to(:manage, Hyrax::PermissionTemplate)

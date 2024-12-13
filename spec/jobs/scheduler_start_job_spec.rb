@@ -27,7 +27,7 @@ RSpec.describe SchedulerStartJob, skip: false do
         let(:job_delay) { 0 }
         let(:restart)   { false }
         let(:options)   { {} }
-        let(:user)      { create(:user) }
+        let(:user)      { factory_bot_create_user(:user) }
         let(:job)       { described_class.send( :job_or_instantiate,
                                                 autostart: autostart,
                                                 job_delay: job_delay,

@@ -388,6 +388,8 @@ Hyrax.config do |config|
   # config.collection_model = 'CollectionResource'    # collection with basic metadata
   # config.admin_set_model = 'Hyrax::AdministrativeSet'
 
+  config.disable_wings = false # hyrax5
+
 end
 
 Date::DATE_FORMATS[:standard] = "%m/%d/%Y"

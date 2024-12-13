@@ -9,7 +9,7 @@ RSpec.describe Hyrax::CitationsController, skip: false do
   let(:main_app) { Rails.application.routes.url_helpers }
 
   describe "#work" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:work) { create(:work, user: user) }
 
     context "with an authenticated_user" do
@@ -39,7 +39,7 @@ RSpec.describe Hyrax::CitationsController, skip: false do
     end
   end
   describe "#file" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:file_set) { create(:file_set, user: user) }
 
     context "with an authenticated_user" do

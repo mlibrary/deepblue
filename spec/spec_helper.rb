@@ -147,6 +147,18 @@ module EngineRoutes
   end
 end
 
+def factory_bot_build_user(name, *traits_and_overrides)
+  FactoryBot.build(name, *traits_and_overrides)
+rescue ActiveRecord::RecordInvalid => e
+  FactoryBot.build(name, *traits_and_overrides) #hyrax5 - hack to retry the creation of users, don't know why it is failing in the first place
+end
+
+def factory_bot_create_user(name, *traits_and_overrides)
+  FactoryBot.create(name, *traits_and_overrides)
+rescue ActiveRecord::RecordInvalid => e
+  FactoryBot.create(name, *traits_and_overrides) #hyrax5 - hack to retry the creation of users, don't know why it is failing in the first place
+end
+
 # ActiveJob::Base.queue_adapter = :test
 
 Shoulda::Matchers.configure do |config|

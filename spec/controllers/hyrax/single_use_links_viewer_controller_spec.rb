@@ -95,8 +95,7 @@ RSpec.describe Hyrax::SingleUseLinksViewerController do
             expect(flash[:notice]).to include(I18n.t('hyrax.single_use_links.notice.show_file_html'))
           end
 
-          # Skipped: hyrax4
-          it "returns 404 on attempt to get show path with download hash", skip: true do
+          it "returns 404 on attempt to get show path with download hash", skip: Rails.configuration.hyrax4_spec_skip do
             get :show, params: { id: download_link_hash }
             expect(response).to render_template("hyrax/single_use_links_viewer/single_use_error", "layouts/error")
           end

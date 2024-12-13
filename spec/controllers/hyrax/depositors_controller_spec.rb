@@ -10,8 +10,8 @@ RSpec.describe Hyrax::DepositorsController, skip: false do
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
 
 
-  let(:user) { create(:user) }
-  let(:grantee) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
+  let(:grantee) { factory_bot_create_user(:user) }
 
   let(:grant_proxy_params) do
     {
@@ -98,7 +98,7 @@ RSpec.describe Hyrax::DepositorsController, skip: false do
 
   context "as a user without access" do
     before do
-      sign_in create(:user)
+      sign_in factory_bot_create_user(:user)
     end
 
     describe "create" do

@@ -2,11 +2,11 @@
 # Skip: hyrax4
 require 'rails_helper'
 
-RSpec.describe "Sending an email via the contact form", type: :feature, js: true, clean_repo: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe "Sending an email via the contact form", type: :feature, js: true, clean_repo: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before do
     sign_in user

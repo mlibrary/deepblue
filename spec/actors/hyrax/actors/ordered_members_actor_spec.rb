@@ -4,7 +4,7 @@ require 'redlock'
 RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: false do
   include ActionDispatch::TestProcess
 
-  let(:user)          { create(:user) }
+  let(:user)          { factory_bot_create_user(:user) }
   let(:actor)         { described_class.new([file_set], user) }
   let(:file_set) { build(:file_set) }
   let(:work) { create(:data_set) }
@@ -39,7 +39,7 @@ RSpec.describe Hyrax::Actors::OrderedMembersActor, skip: false do
       let(:work_v1) { create(:data_set) } # this version of the work has no members
 
       before do # another version of the same work is saved with a member
-        work_v2 = ActiveFedora::Base.find(work_v1.id)
+        work_v2 = PersistHelper.find(work_v1.id)
         work_v2.ordered_members << create(:file_set)
         work_v2.save!
       end

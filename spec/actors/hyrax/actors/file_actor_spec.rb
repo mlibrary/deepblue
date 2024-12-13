@@ -13,7 +13,7 @@ RSpec.describe Hyrax::Actors::FileActor, skip: false do
   include ActionDispatch::TestProcess
   include Hyrax::FactoryHelpers
 
-  let(:user)     { create(:user) }
+  let(:user)     { factory_bot_create_user(:user) }
   let(:file_set) { create(:file_set) }
   let(:relation) { :original_file }
   let(:actor)    { described_class.new(file_set, relation, user) }
@@ -83,7 +83,7 @@ RSpec.describe Hyrax::Actors::FileActor, skip: false do
     let(:fixture2) { fixture_file_upload('/small_file.txt', 'text/plain') }
     let(:huf2) { Hyrax::UploadedFile.new(user: user2, file_set_uri: file_set.uri, file: fixture2) }
     let(:io2) { JobIoWrapper.new(file_set_id: file_set.id, user: user2, uploaded_file: huf2) }
-    let(:user2) { create(:user) }
+    let(:user2) { factory_bot_create_user(:user) }
     let(:actor2) { described_class.new(file_set, relation, user2) }
     let(:versions) { file_set.reload.original_file.versions }
 

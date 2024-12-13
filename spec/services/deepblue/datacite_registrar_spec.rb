@@ -6,7 +6,7 @@ require_relative '../../../app/services/deepblue/datacite_registrar'
 require_relative '../../../app/services/deepblue/doi_minting_2021_service'
 
 # hyrax4 # skip until bolognese is fixed
-describe ::Deepblue::DataCiteRegistrar, :datacite_api, skip: true do
+describe ::Deepblue::DataCiteRegistrar, :datacite_api, skip: false do
   #
   # let(:debug_verbose) { false }
   #

@@ -34,8 +34,7 @@ RSpec.describe CatalogController, type: :controller do
       expect(blacklight_config.search_builder_class).to be ::Hyrax::CatalogSearchBuilder
     end
 
-    # TODO: hyrax4 -- fix this
-    describe 'default_solr_params', skip: true do
+    describe 'default_solr_params', skip: Rails.configuration.hyrax4_spec_skip do
       subject(:default_solr_params) { blacklight_config.default_solr_params }
 
       # Fields to query
@@ -99,7 +98,7 @@ RSpec.describe CatalogController, type: :controller do
       end
       context do
 
-        let(:user) { create(:user) }
+        let(:user) { factory_bot_create_user(:user) }
 
         before do
           sign_in user
@@ -166,8 +165,7 @@ RSpec.describe CatalogController, type: :controller do
               get :index, params: { 'f' => { 'keyword_tesim' => ['frodo'] } }
             end
 
-            # TODO: hyrax4 -- fix this
-            it 'finds faceted works', skip: true do
+            it 'finds faceted works', skip: Rails.configuration.hyrax4_spec_skip do
               expect(response).to be_successful
               expect(response).to render_template('catalog/index')
               expect(assigns(:response).documents.map(&:id)).to contain_exactly(clouds.id)

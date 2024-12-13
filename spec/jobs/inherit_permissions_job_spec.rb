@@ -24,7 +24,7 @@ RSpec.describe InheritPermissionsJob, skip: true do
       end
       context do
 
-        let(:user) { create(:user) }
+        let(:user) { factory_bot_create_user(:user) }
         let(:work) { create(:data_set_with_one_file, user: user) }
 
         before do

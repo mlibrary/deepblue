@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Updated: hyrax5
 
 ##
 # Use this factory for generic Hyrax/HydraWorks Collections in valkyrie.
@@ -11,13 +12,38 @@ FactoryBot.define do
     transient do
       with_permission_template { true }
       with_index { true }
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       edit_groups { [] }
       edit_users { [] }
       read_groups { [] }
       read_users { [] }
       members { nil }
       access_grants { [] }
+    end
+
+    trait :not_nestable do
+      nestable { false }
+    end
+
+    trait :discoverable do
+      discoverable { true }
+    end
+
+    trait :not_discoverable do
+      discoverable { false }
+    end
+
+    trait :brandable do
+      brandable { true }
+    end
+
+    trait :not_brandable do
+      brandable { false }
+    end
+
+    trait :sharable do
+      sharable { true }
+      share_applies_to_new_works { true }
     end
 
     after(:create) do |collection, evaluator|

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Updated: hyrax5
 FactoryBot.define do
-
   factory :file_set do
     transient do
-      user         { create(:user) }
-      content      { nil }
+      user { factory_bot_create_user(:user) }
+      content { nil }
       fixture_path { './spec/fixtures' }
       file_path    { nil }
     end
@@ -76,5 +76,4 @@ FactoryBot.define do
     end
 
   end
-
 end

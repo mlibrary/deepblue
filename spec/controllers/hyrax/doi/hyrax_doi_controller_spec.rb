@@ -15,7 +15,7 @@ RSpec.describe Hyrax::Doi::HyraxDoiController, :datacite_api, type: :controller,
   end
 
   shared_context 'with a logged in admin user' do
-    let(:user) { create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
 
     before do
       allow_any_instance_of(Ability).to receive(:admin_set_with_deposit?).and_return(true)

@@ -73,7 +73,7 @@ RSpec.describe FileSet do
   }
 
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   describe 'provenance constants' do
 

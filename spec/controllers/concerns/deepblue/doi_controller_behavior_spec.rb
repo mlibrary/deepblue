@@ -8,9 +8,17 @@ class MockDeepblueDoiControllerBehavior
 
 end
 
-RSpec.describe Deepblue::DoiControllerBehavior do
+RSpec.describe Deepblue::DoiControllerBehavior, :clean_repo, clean: true do
 
   let(:debug_verbose) { false }
+
+  let(:current_user_email) { "current_user@test.com" }
+  let(:depositor_email) { "depositor@test.com" }
+  # let(:current_user) { factory_bot_create_user(:user, id: 1, email: current_user_email) }
+  # let(:depositor) { factory_bot_create_user(:user, id: 2, email: depositor_email) }
+  let(:current_user) { factory_bot_create_user(:user, email: current_user_email) }
+  let(:depositor) { factory_bot_create_user(:user, email: depositor_email) }
+  let(:ability) { Ability.new(current_user) }
 
   describe 'module debug verbose variables' do
     it { expect( described_class.doi_controller_behavior_debug_verbose ).to eq( debug_verbose ) }
@@ -21,11 +29,6 @@ RSpec.describe Deepblue::DoiControllerBehavior do
   it { expect( subject.doi_minting_enabled? ).to eq ::Deepblue::DoiBehavior.doi_minting_enabled }
 
   describe '.doi_mint' do
-    let(:current_user_email) { "current_user@test.com" }
-    let(:depositor_email) { "depositor@test.com" }
-    let(:current_user) { create(:user, id: 1, email: current_user_email) }
-    let(:depositor) { create(:user, id: 2, email: depositor_email) }
-    let(:ability) { Ability.new(current_user) }
 
     RSpec.shared_examples 'it calls doi_mint' do |debug_verbose_count,doi_msg,mints_doi|
       let(:dbg_verbose) { debug_verbose_count > 0 }

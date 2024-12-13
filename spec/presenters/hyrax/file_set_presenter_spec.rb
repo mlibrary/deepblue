@@ -17,7 +17,7 @@ RSpec.describe Hyrax::FileSetPresenter, clean_repo: true do
           depositor: user.user_key,
           label: "filename.tif")
   end
-  let(:user) { create(:admin) }
+  let(:user) { factory_bot_create_user(:admin) }
 
   describe 'stats_path' do
     before do
@@ -400,7 +400,7 @@ RSpec.describe Hyrax::FileSetPresenter, clean_repo: true do
   #         end
   #
   #         context "when the user doesn't have permission to view the image" do
-  #           let(:user) { create(:user) }
+  #           let(:user) { factory_bot_create_user(:user) }
   #
   #           it { is_expected.to be_nil }
   #         end

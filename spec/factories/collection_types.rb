@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# No change; hyrax5
 FactoryBot.define do
   factory :collection_type, class: Hyrax::CollectionType do
     sequence(:title) { |n| "Collection Type #{n}" }

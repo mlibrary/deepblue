@@ -12,7 +12,7 @@ RSpec.describe Hyrax::Actors::FileSetOrderedMembersActor, skip: false do
 
   include ActionDispatch::TestProcess
 
-  let(:user)          { create(:user) }
+  let(:user)          { factory_bot_create_user(:user) }
   let(:file_path)     { File.join(fixture_path, 'world.png') }
   let(:file)          { fixture_file_upload(file_path, 'image/png') } # we will override for the different types of File objects
   let(:local_file)    { File.open(file_path) }

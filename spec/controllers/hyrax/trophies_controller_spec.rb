@@ -6,7 +6,7 @@ RSpec.describe Hyrax::TrophiesController, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe "#toggle_trophy" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:work) { create(:work, user: user) }
 
     context "for a work we have edit access on" do

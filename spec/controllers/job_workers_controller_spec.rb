@@ -17,8 +17,8 @@ RSpec.describe JobWorkersController do
   #   it { expect( described_class.presenter_class ).to eq ProvenanceLogPresenter }
   # end
   let(:themed_layout) { 'dashboard' }
-  let(:admin)     { create(:admin) }
-  let(:user)      { create(:user) }
+  let(:admin)     { factory_bot_create_user(:admin) }
+  let(:user)      { factory_bot_create_user(:user) }
   let(:access_denied) { I18n.t!(:"unauthorized.default", default: 'You are not authorized to access this page.') }
 
   describe "#show" do

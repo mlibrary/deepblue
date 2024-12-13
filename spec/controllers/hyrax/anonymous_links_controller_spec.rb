@@ -38,7 +38,7 @@ RSpec.describe Hyrax::AnonymousLinksController, clean_repo: true, type: :control
   end
 
   describe 'logged in user with edit permission', skip: false do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:file) { create(:file_set, user: user) }
 
     RSpec.shared_examples 'shared logged in user with edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
@@ -104,7 +104,7 @@ RSpec.describe Hyrax::AnonymousLinksController, clean_repo: true, type: :control
   end
 
   describe 'logged in user without edit permission' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:file) { create(:file_set, user: user) }
 
     RSpec.shared_examples 'shared logged in user without edit permission Hyrax::AnonymousLinksController' do |dbg_verbose|
@@ -117,7 +117,7 @@ RSpec.describe Hyrax::AnonymousLinksController, clean_repo: true, type: :control
         described_class.anonymous_links_controller_debug_verbose = debug_verbose
       end
       context do
-        let(:other_user) { create(:user) }
+        let(:other_user) { factory_bot_create_user(:user) }
         let(:file) { create(:file_set, user: user, read_users: [other_user]) }
 
         before do
@@ -159,7 +159,7 @@ RSpec.describe Hyrax::AnonymousLinksController, clean_repo: true, type: :control
   end
 
   describe 'unknown user' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:file) { create(:file_set, user: user) }
 
     RSpec.shared_examples 'it requires login Hyrax::AnonymousLinksController' do

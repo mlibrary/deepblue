@@ -1,11 +1,13 @@
+# frozen_string_literal: true
+# Updated: hyrax5
 require 'rails_helper'
 
-RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
+RSpec.describe Hyrax::UsersController, type: :controller, skip: Rails.configuration.hyrax5_spec_skip do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before { sign_in user }
 
@@ -24,8 +26,8 @@ RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
   end
 
   describe "#index" do
-    let!(:u1) { create(:user) }
-    let!(:u2) { create(:user) }
+    let!(:u1) { factory_bot_create_user(:user) }
+    let!(:u2) { factory_bot_create_user(:user) }
 
     before do
       allow(Flipflop).to receive(:hide_users_list?).and_return(false)
@@ -36,7 +38,7 @@ RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
         # These user types are excluded:
         User.audit_user
         User.batch_user
-        create(:user, :guest)
+        factory_bot_create_user(:user, :guest)
       end
 
       it "excludes the audit_user and batch_user" do
@@ -77,8 +79,8 @@ RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
       end
 
       context "by display name" do
-        let!(:u1) { create(:user, display_name: "Dr. Curator") }
-        let!(:u2) { create(:user, display_name: "Jr. Architect") }
+        let!(:u1) { factory_bot_create_user(:user, display_name: "Dr. Curator") }
+        let!(:u2) { factory_bot_create_user(:user, display_name: "Jr. Architect") }
 
         it "finds the expected user via display name" do
           #
@@ -91,7 +93,7 @@ RSpec.describe Hyrax::UsersController, type: :controller, skip: false do
       end
 
       it "uses the base query" do
-        u3 = create(:user)
+        u3 = factory_bot_create_user(:user)
         allow(controller).to receive(:base_query).and_return(["email == \"#{u3.email}\""])
         get :index
         expect(assigns[:users]).to include(u3)

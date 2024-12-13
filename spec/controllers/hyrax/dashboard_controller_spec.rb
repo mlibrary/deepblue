@@ -14,7 +14,7 @@ RSpec.describe Hyrax::DashboardController, type: :controller, skip: false do
   end
 
   context "with an authenticated user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       sign_in user
@@ -31,7 +31,7 @@ RSpec.describe Hyrax::DashboardController, type: :controller, skip: false do
   context 'with an admin user' do
     let(:service) { instance_double(Hyrax::AdminSetService, search_results_with_work_count: results) }
     let(:results) { instance_double(Array) }
-    let(:user) { create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
 
     before do
       sign_in user

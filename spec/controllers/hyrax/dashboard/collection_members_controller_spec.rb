@@ -7,8 +7,8 @@ RSpec.describe Hyrax::Dashboard::CollectionMembersController, :clean_repo, skip:
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { FactoryBot.create(:user) }
-  let(:other) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
+  let(:other) { factory_bot_create_user(:user) }
 
   let(:work_1_own) { create(:work, id: 'work-1-own', title: ['First of the Assets'], user: user) }
   let(:work_2_own) { create(:work, id: 'work-2-own', title: ['Second of the Assets'], user: user) }

@@ -59,8 +59,8 @@ RSpec.describe ::Deepblue::NewContentService, skip: false do
     it { expect( described_class.new_content_service_debug_verbose ).to eq debug_verbose }
   end
 
-  let(:user) { create(:user) }
-  let(:user2) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
+  let(:user2) { factory_bot_create_user(:user) }
   let(:base_path) { "./fixtures" }
   let(:path_to_yaml_file) { "./fixtures/test_populate.yml" }
 

@@ -10,7 +10,7 @@ RSpec.describe Hyrax::WorkflowPresenter, skip: false do
       "has_model_ssim" => ["DataSet"] }
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { Ability.new(user) }
   let(:presenter) { described_class.new(solr_document, ability) }
   let(:entity) { instance_double(Sipity::Entity) }

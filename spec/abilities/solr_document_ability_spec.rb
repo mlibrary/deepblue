@@ -6,7 +6,7 @@ RSpec.describe Hyrax::Ability::SolrDocumentAbility do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:current_user) { user }
 
   context 'with Collection solr doc' do

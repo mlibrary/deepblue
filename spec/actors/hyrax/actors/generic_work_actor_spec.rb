@@ -6,7 +6,7 @@ RSpec.describe Hyrax::Actors::GenericWorkActor, skip: true do
   include ActionDispatch::TestProcess
 
   let(:env) { Hyrax::Actors::Environment.new(curation_concern, ability, attributes) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { ::Ability.new(user) }
   let(:admin_set) { create(:admin_set, id: 'admin_set_1', with_permission_template: { with_active_workflow: true }) }
   # stub out redis connection

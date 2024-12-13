@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/file_sets/_anonymous_links.html.erb', type: :view do
-  let(:user)          { create(:user) }
+  let(:user)          { factory_bot_create_user(:user) }
   let(:solr_document) { SolrDocument.new(id: '1234', 'has_model_ssim' => 'FileSet') }
   let(:ability)       { Ability.new(user) }
   let(:presenter)     { Hyrax::DsFileSetPresenter.new(solr_document, ability) }

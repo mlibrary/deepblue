@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Hyrax::Dashboard::UserPresenter, skip: false do
   let(:since) { nil }
   let(:context) { ActionView::TestCase::TestController.new.view_context }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:instance) { described_class.new(user, context, since) }
 
   describe "#activity" do

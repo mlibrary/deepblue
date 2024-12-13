@@ -1,9 +1,13 @@
+# frozen_string_literal: true
+# Updated: hyrax5
 require 'rails_helper'
 
 RSpec.describe Hyrax::ResourceSyncController, skip: false do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
+
+  let(:response_content_type) { 'application/xml; charset=utf-8' }
 
   before do
     Rails.cache.clear
@@ -18,7 +22,7 @@ RSpec.describe Hyrax::ResourceSyncController, skip: false do
       allow(Hyrax::ResourceSync::SourceDescriptionWriter).to receive(:new).with(capability_list_url: capability_list).and_return(writer)
       expect(writer).to receive(:write).and_return(document)
       get :source_description
-      expect(response.content_type).to eq 'application/xml'
+      expect(response.content_type).to eq response_content_type
       expect(response.body).to eq document
     end
   end
@@ -34,7 +38,7 @@ RSpec.describe Hyrax::ResourceSyncController, skip: false do
                                                                              description_url: "http://test.host/.well-known/resourcesync").and_return(writer)
       expect(writer).to receive(:write).and_return(document)
       get :capability_list
-      expect(response.content_type).to eq 'application/xml'
+      expect(response.content_type).to eq response_content_type
       expect(response.body).to eq document
     end
   end
@@ -52,7 +56,7 @@ RSpec.describe Hyrax::ResourceSyncController, skip: false do
       allow(Hyrax::ResourceSync::ResourceListWriter).to receive(:new).with(capability_list_url: capability_list, resource_host: "test.host").and_return(writer)
       expect(writer).to receive(:write).and_return(document)
       get :resource_list
-      expect(response.content_type).to eq 'application/xml'
+      expect(response.content_type).to eq response_content_type
       expect(response.body).to eq document
     end
   end
@@ -70,7 +74,7 @@ RSpec.describe Hyrax::ResourceSyncController, skip: false do
       allow(Hyrax::ResourceSync::ChangeListWriter).to receive(:new).with(capability_list_url: capability_list, resource_host: "test.host").and_return(writer)
       expect(writer).to receive(:write).and_return(document)
       get :change_list
-      expect(response.content_type).to eq 'application/xml'
+      expect(response.content_type).to eq response_content_type
       expect(response.body).to eq document
     end
   end

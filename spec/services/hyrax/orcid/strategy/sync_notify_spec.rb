@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
   let(:sync_preference) { "sync_notify" }
   let(:strategy) { described_class.new(work, orcid_identity) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
   let(:work) { create(:work, :public, user: user, **work_attributes) }
   let(:work_attributes) do
@@ -37,7 +37,7 @@ RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
 
     context "when the referenced user is not the depositor" do
       let(:strategy) { described_class.new(work, orcid_identity2) }
-      let(:user2) { create(:user) }
+      let(:user2) { factory_bot_create_user(:user) }
       let!(:orcid_identity2) { create(:orcid_identity, work_sync_preference: sync_preference, user: user2) }
       let(:orcid_id) { user2.orcid_identity.orcid_id }
 
@@ -81,7 +81,7 @@ RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
 
     context "when the depositing user is not the user being referenced" do
       let(:strategy) { described_class.new(work, orcid_identity2) }
-      let(:user2) { create(:user) }
+      let(:user2) { factory_bot_create_user(:user) }
       let!(:orcid_identity2) { create(:orcid_identity, work_sync_preference: sync_preference, user: user2) }
       let(:orcid_id) { user2.orcid_identity.orcid_id }
 
@@ -93,7 +93,7 @@ RSpec.describe Hyrax::Orcid::Strategy::SyncNotify, skip: false do
 
   describe "#notify" do
     let(:strategy) { described_class.new(work, orcid_identity2) }
-    let(:user2) { create(:user) }
+    let(:user2) { factory_bot_create_user(:user) }
     let!(:orcid_identity2) { create(:orcid_identity, work_sync_preference: sync_preference, user: user2) }
     let(:orcid_id) { user2.orcid_identity.orcid_id }
 

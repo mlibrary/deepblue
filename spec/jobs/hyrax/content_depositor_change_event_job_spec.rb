@@ -2,8 +2,8 @@
 require 'rails_helper'
 
 RSpec.describe ContentDepositorChangeEventJob do
-  let(:user) { create(:user) }
-  let(:another_user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
+  let(:another_user) { factory_bot_create_user(:user) }
   let(:work) { create(:data_set, title: ['BethsMac'], user: user) }
   let(:mock_time) { Time.zone.at(1) }
   let(:event) do

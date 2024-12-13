@@ -13,7 +13,7 @@ RSpec.describe Hyrax::Actors::FeaturedWorkActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
-  let(:depositor) { create(:user) }
+  let(:depositor) { factory_bot_create_user(:user) }
   let(:work) { create(:work) }
   let(:attributes) { {} }
   let!(:feature) { FeaturedWork.create(work_id: work.id) }

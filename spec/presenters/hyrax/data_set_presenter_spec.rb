@@ -174,7 +174,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   end
 
   describe 'admin users' do
-    let(:user)    { create(:user) }
+    let(:user)    { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
     let(:attributes) do
       {
@@ -396,7 +396,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   end
 
   context "with workflow" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
     let(:entity) { instance_double(Sipity::Entity) }
 
@@ -408,7 +408,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   end
 
   context "with inspect_work" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
 
     describe "#inspect_work" do
@@ -444,8 +444,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
       it { is_expected.to eq "\n<http://example.com/1> <http://purl.org/dc/terms/title> \"Test title\" .\n" }
     end
 
-    # Skip: hyrax4
-    describe "#export_as_jsonld", skip: true do
+    describe "#export_as_jsonld", skip: Rails.configuration.hyrax4_spec_skip do
       subject { presenter.export_as_jsonld }
 
       it do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/file_sets/_show_actions.html.erb', type: :view do
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:object_profile) { ["{\"id\":\"999\"}"] }
   let(:contributor) { ['Frodo'] }
   let(:creator)     { ['Bilbo'] }

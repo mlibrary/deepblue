@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe ContentRestoredVersionEventJob do
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:file_set) { create(:file_set, title: ['Hamlet'], user: user) }
   let(:data_set) { create(:data_set, title: ['BethsMac'], user: user) }
   let(:mock_time) { Time.zone.at(1) }

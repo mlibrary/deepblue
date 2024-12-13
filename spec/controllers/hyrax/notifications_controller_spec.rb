@@ -5,7 +5,7 @@ RSpec.describe Hyrax::NotificationsController, type: :controller, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:mock_box) { UserMailbox.new(user) }
 
   before do

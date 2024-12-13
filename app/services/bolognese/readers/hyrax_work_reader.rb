@@ -16,7 +16,7 @@ module Bolognese
 
       # Not usable right now given how Metadata#initialize works
       # def get_hyrax_work(id: nil, **options)
-      #   work = ActiveFedora::Base.find(id)
+      #   work = PersistHelper.find(id)
       #   { "string" => work.attributes.merge(has_model: work.has_model).to_json }
       # end
 

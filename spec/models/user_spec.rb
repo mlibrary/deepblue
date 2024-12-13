@@ -26,7 +26,7 @@ RSpec.describe User, type: :model do
       end
     end
     describe ':admin' do
-      let(:admin_user) { create(:admin) }
+      let(:admin_user) { factory_bot_create_user(:admin) }
 
       it 'will have an "admin" group' do
         expect(admin_user.groups).to eq(['admin'])
@@ -163,7 +163,7 @@ RSpec.describe User, type: :model do
   #   end
   #
   #   context "when another process makes the agent" do
-  #     let(:user) { create(:user) }
+  #     let(:user) { factory_bot_create_user(:user) }
   #
   #     before do
   #       user.sipity_agent # load up and cache the association
@@ -245,8 +245,8 @@ RSpec.describe User, type: :model do
   #   end
   # end
   describe "scope Users" do
-    let!(:basic_user) { create(:user) }
-    let!(:guest_user) { create(:user, :guest) }
+    let!(:basic_user) { factory_bot_create_user(:user) }
+    let!(:guest_user) { factory_bot_create_user(:user, :guest) }
     let!(:audit_user) { User.audit_user }
     let!(:batch_user) { User.batch_user }
 
@@ -279,7 +279,7 @@ RSpec.describe User, type: :model do
   # hyrax-orcid begin
   # TODO: fix so don't have to skip
   describe "#orcid_referenced_works", skip: true do
-    subject(:user) { create(:user, :with_orcid_identity) }
+    subject(:user) { factory_bot_create_user(:user, :with_orcid_identity) }
 
     let(:title) { "Moomin" }
     let(:description) { "Swedish comic about the adventures of the residents of Moominvalley." }

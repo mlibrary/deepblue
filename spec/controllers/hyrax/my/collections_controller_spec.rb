@@ -10,7 +10,7 @@ RSpec.describe Hyrax::My::CollectionsController, type: :controller, skip: false 
 
   describe "logged in user" do
     describe "#index" do
-      let(:user) { create(:admin) }
+      let(:user) { factory_bot_create_user(:admin) }
       let(:ability) { Ability.new(user) }
       let(:response) { instance_double(Blacklight::Solr::Response, response: { 'numFound' => 3 }) }
       let(:doc_list) { [double(id: 123), double(id: 456)] }
@@ -39,7 +39,7 @@ RSpec.describe Hyrax::My::CollectionsController, type: :controller, skip: false 
   end
 
   # Skip: hyrax4
-  describe "#search_builder_class", skip: true do
+  describe "#search_builder_class", skip: Rails.configuration.hyrax4_spec_skip do
     subject { controller.search_builder_class }
 
     it { is_expected.to eq Hyrax::My::CollectionsSearchBuilder }

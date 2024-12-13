@@ -17,7 +17,7 @@ RSpec.describe Hyrax::WorkflowActionsController, type: :controller, skip: false 
   end
 
   let(:data_set) { stub_model(DataSet, id: '123') }
-  let(:user) { FactoryBot.create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   # let(:data_set) { FactoryBot.valkyrie_create(:data_set) }
   let(:form) { instance_double(described_class::DEFAULT_FORM_CLASS, errors: {}) }
 

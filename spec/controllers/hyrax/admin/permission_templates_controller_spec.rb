@@ -9,7 +9,7 @@ RSpec.describe Hyrax::Admin::PermissionTemplatesController, skip: false do
   routes { Hyrax::Engine.routes }
 
   before do
-    sign_in create(:user)
+    sign_in factory_bot_create_user(:user)
     allow(Hyrax::Forms::PermissionTemplateForm).to receive(:new).with(permission_template).and_return(form)
   end
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }

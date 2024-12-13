@@ -11,7 +11,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo, skip: false do
 
   let(:debug_verbose) { false }
 
-  let(:user)  { FactoryBot.create(:user) }
+  let(:user)  { factory_bot_create_user(:user) }
   let(:actor) { controller.send(:actor) }
   let(:not_authorized) { I18n.t!(:"unauthorized.default", default: 'You are not authorized to access this page.') }
 
@@ -245,7 +245,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo, skip: false do
           context "with two existing versions from different users", :perform_enqueued do
             let(:file1)       { "world.png" }
             let(:file2)       { "image.jpg" }
-            let(:second_user) { create(:user) }
+            let(:second_user) { factory_bot_create_user(:user) }
             let(:version1)    { "version1" }
             let(:actor1)      { Hyrax::Actors::FileSetActor.new(file_set, user) }
             let(:actor2)      { Hyrax::Actors::FileSetActor.new(file_set, second_user) }
@@ -467,7 +467,7 @@ RSpec.describe Hyrax::FileSetsController, :clean_repo, skip: false do
 
         context 'someone elses (public) files' do
           let(:creator) do
-            FactoryBot.create(:user, email: 'archivist1@example.com')
+            factory_bot_create_user(:user, email: 'archivist1@example.com')
           end
 
           let(:parent) do

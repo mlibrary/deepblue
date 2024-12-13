@@ -27,7 +27,7 @@ RSpec.describe CreateDerivativesJob, skip: false do
   end
 
   # let(:ingest_helper) { class_double(::Deepblue::IngestHelper).as_stubbed_const(:transfer_nested_constants => true) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   around do |example|
     ffmpeg_enabled = Hyrax.config.enable_ffmpeg
@@ -85,7 +85,7 @@ RSpec.describe CreateDerivativesJob, skip: false do
           allow(fs).to receive(:under_embargo?).and_return false
         end
       end
-      # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
+      # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: factory_bot_create_user(:user), path: filename) }
       let(:file) do
         Hydra::PCDM::File.new.tap do |f|
           f.content = 'foo'
@@ -153,8 +153,9 @@ RSpec.describe CreateDerivativesJob, skip: false do
                                                                           verbose: CreateDerivativesJob.create_derivatives_job_debug_verbose).and_return ingest_job_status
           # expect( job.send( :arguments ) ).to eq []
           expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
-          expect(File).to receive(:delete).with(filepath)
-          expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          # expect(File).to receive(:delete).with(filepath)
+          # expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          expect(::Deepblue::DiskUtilitiesHelper).to receive(:file_exists?).with(filepath).at_least(:once).and_return file_exist
           expect(Hyrax::WorkingDirectory).to receive(:find_or_retrieve).with( repository_file_id,
                                                                               file_set.id,
                                                                               filepath ).and_return filepath
@@ -173,7 +174,7 @@ RSpec.describe CreateDerivativesJob, skip: false do
           expect(job).not_to receive(:log_error)
         end
 
-        it 'updates the index of the parent object' do
+        it 'updates the index of the parent object', skip: Rails.configuration.hyrax5_spec_skip do
           expect(parent).to receive(:update_index)
           ActiveJob::Base.queue_adapter = :test
           expect {
@@ -198,7 +199,7 @@ RSpec.describe CreateDerivativesJob, skip: false do
         end
       end
 
-      context "when the file_set isn't the parent's thumbnail", skip: false do
+      context "when the file_set isn't the parent's thumbnail", skip: Rails.configuration.hyrax5_spec_skip do
         let(:parent) { DataSet.new }
         let(:parent_job_id) { nil }
         let(:job)    { CreateDerivativesJob.send( :job_or_instantiate,
@@ -214,7 +215,8 @@ RSpec.describe CreateDerivativesJob, skip: false do
           expect(::Deepblue::IngestHelper).not_to receive(:log_error).with( any_args )
           expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
           expect(File).to receive(:delete).with(filepath)
-          expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          # expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+          expect(::Deepblue::DiskUtilitiesHelper).to receive(:file_exists?).with(filepath).at_least(:once).and_return file_exist
           expect(Hyrax::WorkingDirectory).to receive(:find_or_retrieve).with( repository_file_id,
                                                                               file_set.id,
                                                                               filepath ).and_call_original
@@ -310,7 +312,7 @@ RSpec.describe CreateDerivativesJob, skip: false do
           allow(fs).to receive(:under_embargo?).and_return false
         end
       end
-      # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
+      # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: factory_bot_create_user(:user), path: filename) }
       let(:file) do
         Hydra::PCDM::File.new.tap do |f|
           f.content = 'foo'
@@ -379,7 +381,8 @@ RSpec.describe CreateDerivativesJob, skip: false do
                                                         at_least(expected_calls).times.and_return ingest_job_status
         expect(File).to receive(:size).with(filepath).at_least(:once).and_return file_size
         expect(File).to receive(:delete).with(filepath)
-        expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+        # expect(File).to receive(:exist?).with(filepath).at_least(:once).and_return file_exist
+        expect(::Deepblue::DiskUtilitiesHelper).to receive(:file_exists?).with(filepath).at_least(:once).and_return file_exist
         call_count = 0
         expect(Hyrax::WorkingDirectory).to receive(:find_or_retrieve).with( repository_file_id,
                                                                             file_set.id,

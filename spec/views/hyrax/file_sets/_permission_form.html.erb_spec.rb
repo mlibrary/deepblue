@@ -3,7 +3,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'hyrax/file_sets/_permission_form.html.erb', type: :view, skip: true do
+RSpec.describe 'hyrax/file_sets/_permission_form.html.erb', type: :view, skip: Rails.configuration.hyrax4_spec_skip do
   # let(:file_set) do
   #   stub_model(FileSet, id: '123',
   #                       depositor: 'bob',

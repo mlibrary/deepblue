@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# Update: hyrax5
 
 require 'rails_helper'
 
@@ -13,7 +14,7 @@ RSpec.describe Hyrax::CollectionsController, clean_repo: true, skip: false do
     it { expect( described_class.hyrax_collection_controller_debug_verbose ).to eq( debug_verbose ) }
   end
 
-  let(:user)  { create(:user) }
+  let(:user)  { factory_bot_create_user(:user) }
   let(:other) { build(:user) }
 
   let(:collection) do

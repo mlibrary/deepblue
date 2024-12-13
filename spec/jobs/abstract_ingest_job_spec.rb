@@ -21,7 +21,7 @@ RSpec.describe AbstractIngestJob do
   end
 
   describe '.find_or_create_job_status_started' do
-    let(:current_user) { create(:user) }
+    let(:current_user) { factory_bot_create_user(:user) }
     let(:parent_job_id) { nil }
     let(:continue_job_chain_later) { false }
     let(:verbose)    { false }

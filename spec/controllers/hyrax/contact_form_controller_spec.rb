@@ -30,7 +30,7 @@ RSpec.describe Hyrax::ContactFormController, skip: false do
     it { expect( described_class.ngr_just_human_test         ).to eq false }
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:required_params) do
     {
       category: "Depositing content",

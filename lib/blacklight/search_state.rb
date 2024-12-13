@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+# hyrax4 -- added to remove deprecation references
 # monkey #
 require 'blacklight/deprecations/search_state_normalization'
 require 'blacklight/search_state/filter_field'

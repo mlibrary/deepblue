@@ -32,7 +32,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
                                         rights_license: "The Rights License",
                                         authoremail: "author@umich.edu" ) }
         let(:ability)    { ::Ability.new(user) }
-        let(:user)       { create(:admin) }
+        let(:user)       { factory_bot_create_user(:admin) }
         let(:terminator) { Hyrax::Actors::Terminator.new }
         let(:env)        { Hyrax::Actors::Environment.new(curation_concern, ability, attributes) }
 
@@ -60,7 +60,7 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
         end
 
         describe '#update' do
-          let(:user) { create(:admin) }
+          let(:user) { factory_bot_create_user(:admin) }
           let(:curation_concern) { create( :data_set_with_one_child,
                                            user: user,
                                            id: 'id321',
@@ -112,8 +112,8 @@ RSpec.describe Hyrax::Actors::ApplyOrderActor, skip: false do
 
           context 'with ordered_member_ids that include a work owned by a different user' do
             # set user not a non-admin for this test to ensure the actor disallows adding the child
-            let(:user) { create(:user) }
-            let(:other_user) { create(:user) }
+            let(:user) { factory_bot_create_user(:user) }
+            let(:other_user) { factory_bot_create_user(:user) }
             let(:child) { create(:data_set, user: other_user) }
             let(:attributes) { { ordered_member_ids: [child.id] } }
 

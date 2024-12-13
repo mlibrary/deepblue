@@ -43,10 +43,10 @@ RSpec.describe CharacterizeJob do
     it { expect(`which #{Hyrax.config.libreoffice_path}`.present?).to eq true }
   end
 
-  # let(:user) { create(:user) }
-  let(:user1) { create(:user) }
-  let(:user2) { create(:user) }
-  let(:user3) { create(:user) }
+  # let(:user) { factory_bot_create_user(:user) }
+  let(:user1) { factory_bot_create_user(:user) }
+  let(:user2) { factory_bot_create_user(:user) }
+  let(:user3) { factory_bot_create_user(:user) }
   let(:file_set_id) { 'abc12345' }
   let(:filename)    { Rails.root.join('tmp', 'uploads', 'ab', 'c1', '23', '45', 'abc12345', 'picture.png').to_s }
   let(:file_set) do
@@ -55,7 +55,7 @@ RSpec.describe CharacterizeJob do
       allow(fs).to receive(:update_index)
     end
   end
-  # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
+  # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: factory_bot_create_user(:user), path: filename) }
   let(:file) do
     Hydra::PCDM::File.new.tap do |f|
       f.content = 'foo'

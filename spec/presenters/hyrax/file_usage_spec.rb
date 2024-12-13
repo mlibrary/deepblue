@@ -150,7 +150,7 @@ RSpec.describe Hyrax::FileUsage, :clean_repo, type: :model, skip: false do
   end
 
   # Skip: hyrax4 -- dates isn't working
-  describe "on a migrated file", skip: true do
+  describe "on a migrated file", skip: Rails.configuration.hyrax4_spec_skip do
     let(:date_uploaded) { "2014-12-31" }
     let(:file_migrated) do
       create(:file_set, date_uploaded: date_uploaded, user: user)

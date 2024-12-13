@@ -4,7 +4,7 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::Orcid::WorkOrcidExtractor do
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
   let(:sync_preference) { "sync_all" }
   let(:service) { described_class.new(work) }

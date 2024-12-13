@@ -6,7 +6,7 @@ module Hyrax
   module CollectionsControllerBehavior
     extend ActiveSupport::Concern
     include Blacklight::AccessControls::Catalog
-    puts "include Blacklight::Base at #{caller_locations(1,1).first}"
+    # puts "include Blacklight::Base at #{caller_locations(1,1).first}"
     include Blacklight::Base
 
     mattr_accessor :hyrax_collections_controller_behavior_debug_verbose, default: false

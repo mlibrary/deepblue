@@ -5,7 +5,7 @@ RSpec.describe Hyrax::FixityChecksController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:file_set) { create(:file_set, user: user) }
   let(:binary) { File.open(fixture_path + '/world.png') }
   let(:file) { Hydra::Derivatives::IoDecorator.new(binary, 'image/png', 'world.png') }

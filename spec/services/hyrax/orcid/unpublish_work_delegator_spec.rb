@@ -6,7 +6,7 @@ require 'rails_helper'
 RSpec.describe Hyrax::Orcid::UnpublishWorkDelegator do
   let(:delegator) { described_class.new(work) }
   let(:sync_preference) { "sync_all" }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
   let(:work) { create(:work, user: user, **work_attributes) }
   let(:work_attributes) do

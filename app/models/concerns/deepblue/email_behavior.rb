@@ -96,9 +96,9 @@ module Deepblue
       body.string
     end
 
-    def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
-      email_create( current_user: current_user, event_note: event_note )
-    end
+    # def email_create_to_user( current_user:, event_note: '' ) # TODO: delete this method
+    #   email_create( current_user: current_user, event_note: event_note )
+    # end
 
     def email_event_create_rds( current_user:,
                                 event_note: '',

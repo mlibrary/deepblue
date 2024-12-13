@@ -8,7 +8,7 @@ RSpec.describe Hyrax::Actors::Orcid::UnpublishWorkActor do
   let(:ability) { Ability.new(user) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, {}) }
   let(:next_actor) { Hyrax::Actors::Terminator.new }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
   let(:sync_preference) { "sync_all" }
   let(:model_class) { DataSet }

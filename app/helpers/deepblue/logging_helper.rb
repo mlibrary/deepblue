@@ -263,6 +263,7 @@ module Deepblue
                         **key_values )
       logger.info msg
       Rails.logger.info msg if echo_to_rails_logger
+      true # hyrax5
     end
 
     def self.mask( arg, always: false, keys: [], dupe: true )

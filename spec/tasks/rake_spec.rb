@@ -4,8 +4,8 @@ require 'rake'
 
 RSpec.describe "Rake tasks", skip: true do
   describe "hyrax:user:list_emails" do
-    let!(:user1) { create(:user) }
-    let!(:user2) { create(:user) }
+    let!(:user1) { factory_bot_create_user(:user) }
+    let!(:user2) { factory_bot_create_user(:user) }
 
     before do
       load_rake_environment [File.expand_path("../../../lib/tasks/hyrax_user.rake", __FILE__)]

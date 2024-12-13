@@ -96,8 +96,13 @@ module Hyrax
         redirect_to url_for(action: 'show'), notice: msg
       end
 
+      def collection_type
+        #@collection.collection_type
+        Hyrax::CollectionType.for(collection: @collection)
+      end
+
       def show_rest
-        if @collection.collection_type.brandable?
+        if collection_type.brandable?
           banner_info = collection_banner_info( id: @collection.id )
           @banner = brand_path( collection_branding_info: banner_info.first ) unless banner_info.empty?
         end

@@ -12,7 +12,7 @@ RSpec.describe Hyrax::Actors::CreateWithFilesActor, skip: false do
     end
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { ::Ability.new(user) }
   let(:work) { create(:data_set, user: user) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }

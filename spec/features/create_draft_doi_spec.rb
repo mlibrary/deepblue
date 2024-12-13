@@ -46,7 +46,7 @@ RSpec.describe 'creating a draft DOI', :datacite_api, :js, skip: true do
   end
 
   let(:prefix) { '10.1234' }
-  let(:user) { create(:admin) }
+  let(:user) { factory_bot_create_user(:admin) }
 
   before do
     # Override test app classes and module to simulate generators having been run

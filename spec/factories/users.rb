@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Reviewed: hyrax4
+# Reviewed: hyrax5
 FactoryBot.define do
   factory :user do
     sequence(:email) { |n| "user#{n}@example.com" }
@@ -7,7 +8,7 @@ FactoryBot.define do
 
     transient do
       # Allow for custom groups when a user is instantiated.
-      # @example create(:user, groups: 'avacado')
+      # @example factory_bot_create_user(:user, groups: 'avacado')
       groups { [] }
     end
 

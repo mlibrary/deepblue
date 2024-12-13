@@ -6,7 +6,7 @@ RSpec.describe 'User' do
     subject { Ability.new(current_user) }
 
     let(:data_set) { create(:private_data_set, user: creating_user) }
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     describe 'without embargo' do
       describe 'creator of object' do
@@ -22,7 +22,7 @@ RSpec.describe 'User' do
       end
 
       describe 'as a repository manager' do
-        let(:manager_user) { create(:admin) }
+        let(:manager_user) { factory_bot_create_user(:admin) }
         let(:creating_user) { user }
         let(:current_user) { manager_user }
 
@@ -35,7 +35,7 @@ RSpec.describe 'User' do
       end
 
       describe 'another authenticated user' do
-        let(:creating_user) { create(:user) }
+        let(:creating_user) { factory_bot_create_user(:user) }
         let(:current_user) { user }
 
         it do
@@ -48,7 +48,7 @@ RSpec.describe 'User' do
       end
 
       describe 'a nil user' do
-        let(:creating_user) { create(:user) }
+        let(:creating_user) { factory_bot_create_user(:user) }
         let(:current_user) { nil }
 
         it do

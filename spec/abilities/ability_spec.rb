@@ -3,11 +3,11 @@
 require 'rails_helper'
 require 'cancan/matchers'
 
-RSpec.describe Hyrax::Ability, clean_repo: true do
+RSpec.describe Hyrax::Ability, :clean_repo do
   subject(:ability) { Ability.new(user) }
 
   describe '.admin_group_name' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     it 'returns the admin group name' do
       expect(subject.admin_group_name).to eq 'admin'
@@ -18,7 +18,8 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
     subject { ability.send :registered_user? }
 
     context "with a guest user" do
-      let(:user) { create(:user, :guest) }
+      let(:user) { factory_bot_create_user(:user, :guest) }
+      # let(:user) { factory_bot_create_user(:user, :guest) }
 
       it { is_expected.to be false }
     end
@@ -27,7 +28,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
   describe "#can_create_any_work?" do
     subject { ability.can_create_any_work? }
 
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     context "when user doesn't have deposit into any admin set" do
       it { is_expected.to be false }
@@ -52,7 +53,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
     subject { ability.can?(:review, :submissions) }
 
     let(:role) { Sipity::Role.create(name: role_name) }
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:permission_template) { create(:permission_template, with_active_workflow: true) }
     let(:workflow) { permission_template.active_workflow }
 
@@ -106,7 +107,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
   end
 
   describe "a registered user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     it { is_expected.not_to be_able_to(:update, ContentBlock) }
     it { is_expected.to be_able_to(:read, ContentBlock) }
@@ -117,7 +118,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
   end
 
   describe "a user in the admin group" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before { allow(user).to receive_messages(groups: ['admin', 'registered']) }
     it { is_expected.to be_able_to(:update, ContentBlock) }
@@ -135,7 +136,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
   describe "AdminSets and PermissionTemplates" do
     let(:permission_template) { build(:permission_template, source_id: admin_set.id) }
     let(:permission_template_access) { build(:permission_template_access, permission_template: permission_template) }
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:admin_set) { create(:admin_set) }
 
     RSpec.shared_examples 'A user with additional access' do
@@ -147,7 +148,7 @@ RSpec.describe Hyrax::Ability, clean_repo: true do
     end
 
     describe 'as admin' do
-      let(:user) { create(:user, groups: ['admin']) }
+      let(:user) { factory_bot_create_user(:user, groups: ['admin']) }
 
       it '#admin? is true' do
         expect(ability).to be_admin

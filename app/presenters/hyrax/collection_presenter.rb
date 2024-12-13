@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Reviewed: hyrax4
+# Reviewed: hyrax5
 
 # monkey override Hyrax::CollectionPresenter in Hyrax gem.
 

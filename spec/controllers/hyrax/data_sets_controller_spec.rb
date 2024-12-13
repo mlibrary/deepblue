@@ -13,9 +13,9 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
     it { expect( described_class.data_sets_controller_debug_verbose ).to eq debug_verbose }
   end
 
-  let(:user)       { create(:user) }
-  let(:user_other) { create(:user) }
-  let(:admin)      { create(:admin) }
+  let(:user)       { factory_bot_create_user(:user) }
+  let(:user_other) { factory_bot_create_user(:user) }
+  let(:admin)      { factory_bot_create_user(:admin) }
 
   before do
     sign_in user
@@ -736,7 +736,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             end
           end
 
-          context 'with a user granted workflow permission', skip: true do
+          context 'with a user granted workflow permission', skip: Rails.configuration.hyrax3_spec_skip do
             # TODO: fix this for hyrax v3
             let(:document_list) { [document] }
             let(:document) { instance_double(SolrDocument) }

@@ -7,7 +7,7 @@ RSpec.describe Hyrax::Admin::StatsController, type: :controller, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   context "a non admin" do
     describe "#show" do

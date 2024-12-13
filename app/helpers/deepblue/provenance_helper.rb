@@ -51,6 +51,7 @@ module Deepblue
                           time_zone: time_zone,
                           **log_key_values ) if echo_to_rails_logger
       Rails.logger.info msg if echo_to_rails_logger
+      true # hyrax5
     end
 
     def self.log_to_db( class_name:, event:, event_note:, id:, timestamp:, **log_key_values )

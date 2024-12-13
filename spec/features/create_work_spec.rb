@@ -3,7 +3,7 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
@@ -21,7 +21,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
 
   describe 'as normal user' do
 
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let!(:ability) { ::Ability.new(user) }
 
     before do
@@ -112,7 +112,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
     end
 
     context 'when the user is a proxy', perform_enqueued: [ContentDepositorChangeEventJob, AttachFilesToWorkJob, IngestJob], skip: true do
-      let(:second_user) { create(:user) }
+      let(:second_user) { factory_bot_create_user(:user) }
 
       before do
         ProxyDepositRights.create!(grantor: second_user, grantee: user)
@@ -250,7 +250,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
 
   describe 'as admin user', skip: true do
 
-    let(:user) { create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
     let!(:ability) { ::Ability.new(user) }
 
     before do

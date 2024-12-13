@@ -8,7 +8,7 @@ RSpec.describe Hyrax::My::HighlightsController, type: :controller, skip: false d
   routes { Hyrax::Engine.routes }
 
   describe "logged in user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before { sign_in user }
 
@@ -18,7 +18,7 @@ RSpec.describe Hyrax::My::HighlightsController, type: :controller, skip: false d
         other_user.trophies.create(work_id: unrelated_highlighted_work.id)
       end
 
-      let(:other_user) { create(:user) }
+      let(:other_user) { factory_bot_create_user(:user) }
       let(:highlighted_work) { create(:data_set, user: user) }
       let!(:normal_work) { create(:data_set, user: user) }
       let(:unrelated_highlighted_work) do

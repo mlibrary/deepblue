@@ -21,7 +21,7 @@ RSpec.describe Hyrax::Actors::ModelActor, skip: false do
   end
 
   let(:work) { MusicalWork::Cover.new }
-  let(:depositor) { create(:user) }
+  let(:depositor) { factory_bot_create_user(:user) }
   let(:depositor_ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, depositor_ability, {}) }
 

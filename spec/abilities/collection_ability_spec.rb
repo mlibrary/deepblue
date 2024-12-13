@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 # Updated: hyrax4
+# Updated: hyrax5
+
 require 'rails_helper'
 require 'cancan/matchers'
 
@@ -7,31 +9,41 @@ RSpec.describe Hyrax::Ability, :clean_repo do
   subject { ability }
 
   let(:ability) { Ability.new(current_user) }
-  let(:user) { FactoryBot.create(:user, email: 'user@example.com') }
+  let(:user) { factory_bot_create_user(:user, email: 'user@example.com') }
   let(:current_user) { user }
   let(:collection_type) { FactoryBot.create(:collection_type) }
   let(:collection_type_gid) { collection_type.to_global_id }
 
-  # rubocop:disable RSpec/InstanceVariable
-  before :all do
-    @current_collection_model = Hyrax.config.collection_model
+  # abilities always test Hyrax::PcdmCollection, but only test Collection
+  # if it is configured as the collection_model
+  around(:each) do |example|
+    current_collection_model = Hyrax.config.collection_model
+    Hyrax.config.collection_model = 'Collection' unless Rails.configuration.hyrax_disable_wings || Hyrax.config.disable_wings
 
-    # abilities always test Hyrax::PcdmCollection, but only test Collection
-    # if it is configured as the collection_model
-    Hyrax.config.collection_model = 'Collection'
+    example.run
+    Hyrax.config.collection_model = current_collection_model
   end
 
-  after :all do
-    Hyrax.config.collection_model = @current_collection_model
-  end
-  # rubocop:enable RSpec/InstanceVariable
+  # # rubocop:disable RSpec/InstanceVariable
+  # before :all do
+  #   @current_collection_model = Hyrax.config.collection_model
+  #
+  #   # abilities always test Hyrax::PcdmCollection, but only test Collection
+  #   # if it is configured as the collection_model
+  #   Hyrax.config.collection_model = 'Collection'
+  # end
+  #
+  # after :all do
+  #   Hyrax.config.collection_model = @current_collection_model
+  # end
+  # # rubocop:enable RSpec/InstanceVariable
 
   # rubocop:disable RSpec/ExampleLength
   context 'when admin user' do
     let(:current_user) { admin }
-    let(:admin) { FactoryBot.create(:admin, email: 'admin@example.com') }
+    let(:admin) { factory_bot_create_user(:admin, email: 'admin@example.com') }
 
-    context 'and collection is an ActiveFedora::Base' do
+    context 'and collection is an ActiveFedora::Base', :active_fedora do
       let!(:collection) do
         FactoryBot.build(:collection_lw, id: 'col_au',
                                          user: user,
@@ -60,7 +72,7 @@ RSpec.describe Hyrax::Ability, :clean_repo do
       end
     end
 
-    context 'and collection is a valkyrie resource' do
+    context 'and collection is a valkyrie resource', skip: Rails.configuration.hyrax5_spec_skip do
       let!(:collection) do
         FactoryBot.valkyrie_create(:hyrax_collection,
                                    user: user,
@@ -91,9 +103,9 @@ RSpec.describe Hyrax::Ability, :clean_repo do
 
   context 'when collection manager' do
     let(:current_user) { manager }
-    let(:manager) { FactoryBot.create(:user, email: 'manager@example.com') }
+    let(:manager) { factory_bot_create_user(:user, email: 'manager@example.com') }
 
-    context 'and collection is an ActiveFedora::Base' do
+    context 'and collection is an ActiveFedora::Base', :active_fedora do
       let!(:collection) do
         FactoryBot.build(:collection_lw, id: 'col_mu',
                                          user: user,
@@ -133,7 +145,7 @@ RSpec.describe Hyrax::Ability, :clean_repo do
       end
     end
 
-    context 'and collection is a valkyrie resource' do
+    context 'and collection is a valkyrie resource', skip: Rails.configuration.hyrax5_spec_skip do
       let!(:collection) do
         FactoryBot.valkyrie_create(:hyrax_collection,
                                    user: user,
@@ -177,9 +189,9 @@ RSpec.describe Hyrax::Ability, :clean_repo do
 
   context 'when collection depositor' do
     let(:current_user) { depositor }
-    let(:depositor) { FactoryBot.create(:user, email: 'depositor@example.com') }
+    let(:depositor) { factory_bot_create_user(:user, email: 'depositor@example.com') }
 
-    context 'and collection is an ActiveFedora::Base' do
+    context 'and collection is an ActiveFedora::Base', :active_fedora do
       let!(:collection) do
         FactoryBot.build(:collection_lw, id: 'col_du',
                                          user: user,
@@ -221,7 +233,7 @@ RSpec.describe Hyrax::Ability, :clean_repo do
       end
     end
 
-    context 'and collection is a valkyrie resource' do
+    context 'and collection is a valkyrie resource', skip: Rails.configuration.hyrax5_spec_skip do
       let!(:collection) do
         FactoryBot.valkyrie_create(:hyrax_collection,
                                    user: user,
@@ -265,9 +277,9 @@ RSpec.describe Hyrax::Ability, :clean_repo do
 
   context 'when collection viewer' do
     let(:current_user) { viewer }
-    let(:viewer) { FactoryBot.create(:user, email: 'viewer@example.com') }
+    let(:viewer) { factory_bot_create_user(:user, email: 'viewer@example.com') }
 
-    context 'and collection is an ActiveFedora::Base' do
+    context 'and collection is an ActiveFedora::Base', :active_fedora do
       let!(:collection) do
         FactoryBot.build(:collection_lw, id: 'col_vu',
                                          user: user,
@@ -307,7 +319,7 @@ RSpec.describe Hyrax::Ability, :clean_repo do
       end
     end
 
-    context 'and collection is a valkyrie resource' do
+    context 'and collection is a valkyrie resource', skip: Rails.configuration.hyrax5_spec_skip do
       let!(:collection) do
         FactoryBot.valkyrie_create(:hyrax_collection,
                                    user: user,
@@ -351,9 +363,9 @@ RSpec.describe Hyrax::Ability, :clean_repo do
 
   context 'when user has no special access' do
     let(:current_user) { other_user }
-    let(:other_user) { FactoryBot.create(:user, email: 'other_user@example.com') }
+    let(:other_user) { factory_bot_create_user(:user, email: 'other_user@example.com') }
 
-    context 'and collection is an ActiveFedora::Base' do
+    context 'and collection is an ActiveFedora::Base', :active_fedora do
       let!(:collection) do
         FactoryBot.create(:collection_lw, id: 'as',
                                           user: user,
@@ -376,12 +388,12 @@ RSpec.describe Hyrax::Ability, :clean_repo do
         is_expected.not_to be_able_to(:deposit, solr_document)
         is_expected.not_to be_able_to(:view_admin_show, collection)
         is_expected.not_to be_able_to(:view_admin_show, solr_document)
-        # hyrax4 # is_expected.not_to be_able_to(:read, collection)
-        # hyrax4 # is_expected.not_to be_able_to(:read, solr_document) # defined in solr_document_ability.rb
+        # hyrax4 # is_expected.not_to be_able_to(:read, collection) - Rails.configuration.hyrax4_spec_skip
+        # hyrax4 # is_expected.not_to be_able_to(:read, solr_document) # defined in solr_document_ability.rb - Rails.configuration.hyrax4_spec_skip
       end
     end
 
-    context 'and collection is a valkyrie resource' do
+    context 'and collection is a valkyrie resource', skip: Rails.configuration.hyrax5_spec_skip do
       let!(:collection) do
         FactoryBot.valkyrie_create(:hyrax_collection,
                                    user: user,
@@ -403,8 +415,8 @@ RSpec.describe Hyrax::Ability, :clean_repo do
         is_expected.not_to be_able_to(:deposit, solr_document)
         is_expected.not_to be_able_to(:view_admin_show, collection)
         is_expected.not_to be_able_to(:view_admin_show, solr_document)
-        # hyrax4 # is_expected.not_to be_able_to(:read, collection)
-        # hyrax4 # is_expected.not_to be_able_to(:read, solr_document) # defined in solr_document_ability.rb
+        # hyrax4 # is_expected.not_to be_able_to(:read, collection) - Rails.configuration.hyrax4_spec_skip
+        # hyrax4 # is_expected.not_to be_able_to(:read, solr_document) # defined in solr_document_ability.rb - Rails.configuration.hyrax4_spec_skip
       end
     end
   end

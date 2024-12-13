@@ -9,7 +9,7 @@ RSpec.describe Hyrax::HomepageController, type: :controller, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe "#index" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       sign_in user

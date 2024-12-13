@@ -6,7 +6,7 @@ RSpec.describe Hyrax::StatsController, skip: false do
   routes { Hyrax::Engine.routes }
   let(:main_app) { Rails.application.routes.url_helpers }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:usage) { double }
 
   before do

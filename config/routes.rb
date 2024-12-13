@@ -15,7 +15,8 @@ Hyrax::Engine.routes.draw do
 end
 
 Rails.application.routes.draw do
-  concern :oai_provider, BlacklightOaiProvider::Routes.new
+
+  concern :oai_provider, BlacklightOaiProvider::Routes.new if defined? BlacklightOaiProvider::Routes
 
   mount Blacklight::Engine => '/'
   mount BrowseEverything::Engine => '/browse'
@@ -94,7 +95,7 @@ Rails.application.routes.draw do
   concern :searchable, Blacklight::Routes::Searchable.new
 
   resource :catalog, only: [:index], as: 'catalog', path: '/catalog', controller: 'catalog' do
-    concerns :oai_provider
+    concerns :oai_provider if defined? BlacklightOaiProvider
 
     concerns :searchable
   end
@@ -114,13 +115,13 @@ Rails.application.routes.draw do
   else
     devise_for :users
   end
-  mount Hydra::RoleManagement::Engine => '/'
+  mount Hydra::RoleManagement::Engine => '/' if defined? Hydra::RoleMangement
 
   get '/logout_now', to: 'sessions#logout_now'
 
   mount Qa::Engine => '/authorities'
   mount Hyrax::Engine, at: '/'
-  mount Samvera::Persona::Engine => '/'
+  mount Samvera::Persona::Engine => '/' if defined?(Samvera::Persona) #hyrax5
   resources :welcome, only: 'index'
   root 'hyrax/homepage#index'
   curation_concerns_basic_routes
@@ -239,7 +240,7 @@ Rails.application.routes.draw do
   get 'orcid/works/publish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :publish, as: 'orcid_works_publish'
   get 'orcid/works/unpublish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :unpublish, as: 'orcid_works_unpublish'
 
-  mount WillowSword::Engine => '/sword'
+  mount WillowSword::Engine => '/sword' if defined?(WillowSword) #hyrax5
 
   # Permissions routes
   namespace :hyrax, path: :concern do

@@ -54,7 +54,7 @@ RSpec.describe Hyrax::WorksControllerBehavior, :clean_repo, type: :controller, s
   end
 
   shared_context 'with a logged in user' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before { sign_in user }
   end
@@ -111,7 +111,7 @@ RSpec.describe Hyrax::WorksControllerBehavior, :clean_repo, type: :controller, s
 
       context 'when depositing as a proxy for (on_behalf_of) another user' do
         let(:create_params) { { title: 'comet in moominland', on_behalf_of: target_user.user_key } }
-        let(:target_user) { FactoryBot.create(:user) }
+        let(:target_user) { factory_bot_create_user(:user) }
         it 'transfers depositor status to proxy target' do
           expect { post :create, params: { test_simple_work: create_params } }
             .to have_enqueued_job(ChangeDepositorEventJob)

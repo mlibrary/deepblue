@@ -32,6 +32,7 @@ module Deepblue
       # puts msg
       log_raw msg
       Rails.logger.info msg if echo_to_rails_logger
+      true # hyrax5
     end
 
     def self.log_raw( msg )

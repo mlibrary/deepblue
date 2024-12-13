@@ -50,6 +50,7 @@ module Deepblue
       else
         Rails.logger.info msg
       end
+      true # hyrax5
     end
 
     def previous_era?

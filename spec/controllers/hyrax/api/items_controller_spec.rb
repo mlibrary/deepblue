@@ -13,7 +13,7 @@ RSpec.describe Hyrax::API::ItemsController, type: :controller, skip: true do
   # routes { Hyrax::Engine.routes }
   #
   # let(:arkivo_actor) { double Hyrax::Arkivo::Actor }
-  # let!(:user) { create(:user) }
+  # let!(:user) { factory_bot_create_user(:user) }
   # let!(:default_work) do
   #   create(:work,
   #          title: ['Foo Bar'],

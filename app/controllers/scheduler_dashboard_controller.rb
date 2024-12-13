@@ -64,14 +64,14 @@ class SchedulerDashboardController < ApplicationController
     puts "\n\n"
     puts "::Deepblue::SchedulerIntegrationService.scheduler_job_file_path='#{::Deepblue::SchedulerIntegrationService.scheduler_job_file_path}'"
     puts "\n\n"
-    return "" unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
+    return "" unless File.exist? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
     rv = []
     File.open( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path, "r" ) { |f| rv = f.readlines }
     rv.join("")
   end
 
   def edit_schedule_save
-    unless File.exists? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
+    unless File.exist? ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path
       parentdir = Pathname( ::Deepblue::SchedulerIntegrationService.scheduler_job_file_path ).parent
       FileUtils.mkdir_p(parentdir.to_s) unless parentdir.exist?
     end

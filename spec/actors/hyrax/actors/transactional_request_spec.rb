@@ -14,7 +14,7 @@ RSpec.describe Hyrax::Actors::TransactionalRequest, skip: false do
   let(:good_actor) do
     Class.new(Hyrax::Actors::AbstractActor) do
       def create(_attributes)
-        FactoryBot.create(:user)
+        factory_bot_create_user(:user)
       end
     end
   end
