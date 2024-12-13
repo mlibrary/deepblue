@@ -96,7 +96,7 @@ module Hyrax
       filename = 'config/role_map.yml'
       file = File.join(Rails.root, filename)
 
-      unless File.exists?(file)
+      unless File.exist?(file)
         return {} unless raise_exception
         raise "You are missing a role map configuration file: #{filename}. Have you run \"rails generate hydra:head\"?"
       end

@@ -443,7 +443,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   describe 'admin users' do
-    let(:user)    { create(:user) }
+    let(:user)    { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
     let(:attributes) do
       {
@@ -713,8 +713,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
     it { is_expected.to eq 'Generic Work | foo | ID: 888888 | Deep Blue Data' }
   end
 
-  # TODO: hyrax4 -- fix this
-  describe "#valid_child_concerns", skip: true do
+  describe "#valid_child_concerns", skip: Rails.configuration.hyrax4_spec_skip do
     subject { presenter }
 
     it "delegates to the class attribute of the model" do
@@ -752,7 +751,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   context "with workflow" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
     let(:entity) { instance_double(Sipity::Entity) }
 
@@ -764,7 +763,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
   end
 
   context "with inspect_work" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
 
     describe "#inspect_work" do
@@ -888,7 +887,8 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
         before do
           allow(ability)
             .to receive(:can?)
-            .with(:create_any, Hyrax.config.collection_class)
+            #hyrax5 - .with(:create_any, Hyrax.config.collection_class)
+            .with(:create_any, Collection)
             .and_return(true)
         end
 
@@ -901,7 +901,8 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
         before do
           allow(ability)
             .to receive(:can?)
-            .with(:create_any, Hyrax.config.collection_class)
+            #hyrax5 - .with(:create_any, Hyrax.config.collection_class)
+            .with(:create_any, Collection)
             .and_return(false)
         end
 

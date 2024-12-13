@@ -4,7 +4,7 @@ require 'rails_helper'
 
 include Warden::Test::Helpers
 
-RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clean_repo: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.feature 'Create a DataSet', type: :feature, js: true, workflow: true, clean_repo: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
 
   before(:all ) do
     # puts "DataSet ids before=#{DataSet.all.map { |ds| ds.id }}"

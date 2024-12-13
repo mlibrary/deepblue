@@ -7,7 +7,7 @@ RSpec.describe Hyrax::BatchUploadsController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:expected_types) do
     { '1' => 'Article',
       '2' => ['Article', 'Text'] }

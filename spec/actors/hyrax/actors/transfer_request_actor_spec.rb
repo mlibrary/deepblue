@@ -5,7 +5,7 @@ RSpec.describe Hyrax::Actors::TransferRequestActor, skip: false do
   let(:ability) { ::Ability.new(depositor) }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:terminator) { Hyrax::Actors::Terminator.new }
-  let(:depositor) { create(:user) }
+  let(:depositor) { factory_bot_create_user(:user) }
   let(:work) do
     build(:data_set, on_behalf_of: proxied_to)
   end
@@ -31,7 +31,7 @@ RSpec.describe Hyrax::Actors::TransferRequestActor, skip: false do
       let(:proxied_to) { 'james@example.com' }
 
       before do
-        create(:user, email: proxied_to)
+        factory_bot_create_user(:user, email: proxied_to)
         allow(terminator).to receive(:create).and_return(true)
       end
 

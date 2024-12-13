@@ -14,7 +14,7 @@ RSpec.describe Hyrax::Actors::OptimisticLockValidator, skip: false do
   let(:ability) { ::Ability.new(depositor) }
 
   let(:terminator) { Hyrax::Actors::Terminator.new }
-  let(:depositor) { create(:user) }
+  let(:depositor) { factory_bot_create_user(:user) }
   let(:work) { create(:data_set) }
 
   subject(:middleware) do

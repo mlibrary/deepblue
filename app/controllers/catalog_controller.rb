@@ -5,7 +5,7 @@
 class CatalogController < ApplicationController
   include Hydra::Catalog
   include Hydra::Controller::ControllerBehavior
-  include BlacklightOaiProvider::Controller
+  include BlacklightOaiProvider::Controller if defined? BlacklightOaiProvider
 
   mattr_accessor :catalog_controller_debug_verbose, default: Rails.configuration.catalog_controller_debug_verbose
   mattr_accessor :catalog_controller_allow_search_fix_for_json, default: true

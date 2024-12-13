@@ -8,7 +8,7 @@ RSpec.describe DoiMintingJob, skip: true do
     it { expect( ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose ).to eq debug_verbose }
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   RSpec.shared_examples 'it performs the job' do |doi, doi_mint_called, doi_call_success, debug_verbose_count|
     let(:dbg_verbose) { debug_verbose_count > 0 }

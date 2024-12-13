@@ -6,7 +6,7 @@ require 'cancan/matchers'
 
 RSpec.describe Hyrax::Ability do
   subject(:ability) { Ability.new(user) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   describe "Transfers" do
     before do
@@ -78,7 +78,7 @@ RSpec.describe Hyrax::Ability do
   end
 
   describe "ProxyDepositRequests" do
-    let(:sender) { create(:user) }
+    let(:sender) { factory_bot_create_user(:user) }
     let(:work) { create(:work, user: sender) }
 
     context "creating a ProxyDepositRequest" do
@@ -95,7 +95,7 @@ RSpec.describe Hyrax::Ability do
           it { is_expected.to be_able_to(:create, ProxyDepositRequest) }
         end
         context "for a guest user" do
-          let(:user) { create(:user, :guest) }
+          let(:user) { factory_bot_create_user(:user, :guest) }
 
           it { is_expected.not_to be_able_to(:create, ProxyDepositRequest) }
         end

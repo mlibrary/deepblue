@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-# Update: hyrax4
+# hyrax4 -- added to remove deprecation references
 
 # monkey patch of blacklight gem, lib/blacklight/access_controls/enforcement.rb
 

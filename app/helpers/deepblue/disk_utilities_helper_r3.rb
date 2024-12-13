@@ -138,7 +138,7 @@ module Deepblue
       return 0 unless is_a_file
       File.delete file_path unless test_mode
       add_msg( msg_handler: msg_handler, prefix: 'File.delete ', path: file_path )
-      rv = File.exists?( file_path ) ? 0 : 1
+      rv = File.exist?( file_path ) ? 0 : 1
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "rv=#{rv}",
@@ -267,6 +267,10 @@ module Deepblue
       return rv unless base_dir.present?
       rv = File.join base_dir, rv
       return rv
+    end
+
+    def self.file_exists?( file )
+      return File.exist?( file )
     end
 
     # returns array of files

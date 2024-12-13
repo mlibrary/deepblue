@@ -8,7 +8,7 @@ RSpec.describe 'hyrax/my/works/index.html.erb', type: :view do
   let(:subscribe_analytics) { t('simple_form.actions.data_set.analytics_subscribe') }
   let(:unsubcribe_analytics) { t('simple_form.actions.data_set.analytics_unsubscribe') }
   let( :empty_admin ) { double('adminset') }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:current_user) { user }
   let(:ability) { Ability.new(current_user) }
 

@@ -30,7 +30,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "data_branding_dir=#{data_branding_dir}",
-                                               "data_branding_dir exists?=#{File.exists? data_branding_dir}",
+                                               "data_branding_dir exists?=#{File.exist? data_branding_dir}",
                                                "" ], bold_puts: true if debug_verbose
         cmd = "ln -s \"#{data_branding_dir}/\" \"#{public_branding_dir}\""
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

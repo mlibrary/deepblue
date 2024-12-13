@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 # Reviewed: hyrax4
+# Updated: hyrax5
+# TODO: update more from hyrax5?
 FactoryBot.define do
   factory :generic_work, aliases: [:private_generic_work], class: GenericWork do
     trait :public do
@@ -15,7 +17,7 @@ FactoryBot.define do
     end
 
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       # Set to true (or a hash) if you want to create an admin set
       with_admin_set { false }
     end
@@ -207,6 +209,6 @@ FactoryBot.define do
   # Doesn't set up any edit_users
   factory :generic_work_without_access, class: GenericWork do
     title { ['Test title'] }
-    depositor { create(:user).user_key }
+    depositor { factory_bot_create_user(:user).user_key }
   end
 end

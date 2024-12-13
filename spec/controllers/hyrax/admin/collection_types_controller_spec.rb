@@ -53,7 +53,7 @@ RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean
   end
 
   context "unauthorized user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       allow(controller.current_ability).to receive(:can?).with(any_args).and_return(false)
@@ -122,7 +122,7 @@ RSpec.describe Hyrax::Admin::CollectionTypesController, type: :controller, clean
 
     let(:valid_session) { {} }
     let(:collection_type) { create(:collection_type) }
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       allow(controller.current_ability).to receive(:can?).with(any_args).and_return(true)

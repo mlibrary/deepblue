@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe FixityCheckJob, skip: true do
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   let(:file_set) do
     create(:file_set, user: user).tap do |file|

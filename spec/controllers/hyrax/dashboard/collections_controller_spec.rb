@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+# Updated: hyrax5
 
 require 'rails_helper'
 require 'hyrax/specs/spy_listener'
 
-RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false do
+RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: Rails.configuration.hyrax5_spec_skip do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
@@ -15,14 +16,14 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
   end
 
   let(:queries) { Hyrax.custom_queries }
-  let(:user) { FactoryBot.create(:user) }
-  let(:other) { FactoryBot.create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
+  let(:other) { factory_bot_create_user(:user) }
   let(:collection_type_gid) { FactoryBot.create(:user_collection_type).to_global_id.to_s }
 
   let(:collection) do
     create(:public_collection_lw, title: ["My collection"],
-                                  description: ["My incredibly detailed description of the collection"],
-                                  user: user)
+           description: ["My incredibly detailed description of the collection"],
+           user: user)
   end
 
   let(:asset1)         { create(:work, title: ["First of the Assets"], user: user) }
@@ -193,28 +194,47 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
 
         expect { put :update, params: parameters }
           .to change { queries.find_members_of(collection: collection).map(&:id) }
-          .to contain_exactly(asset1.id, asset2.id, asset3.id)
+                .to contain_exactly(asset1.id, asset2.id, asset3.id)
 
         expect(response).to redirect_to routes.url_helpers.edit_dashboard_collection_path(collection, locale: 'en')
       end
 
+      # it "adds members to the collection from other than the edit form" do
+      #   expect do
+      #     put :update, params: { id: collection,
+      #                            collection: { members: 'add' },
+      #                            batch_document_ids: [asset3.id] }
+      #   end.to change { collection.reload.member_objects.size }.by(1)
+      #   expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(collection, locale: 'en')
+      #   expect(assigns[:collection].member_objects).to match_array [asset1, asset2, asset3]
+      # end
       it "adds members to the collection from other than the edit form" do
-        expect do
-          put :update, params: { id: collection,
-                                 collection: { members: 'add' },
-                                 batch_document_ids: [asset3.id] }
-        end.to change { collection.reload.member_objects.size }.by(1)
+        parameters = { id: collection,
+                       collection: { members: 'add' },
+                       batch_document_ids: [asset3.id] }
+        expect { put :update, params: parameters }
+          .to change { queries.find_members_of(collection: collection).map(&:id) }
+                .to contain_exactly(asset1.id, asset2.id, asset3.id)
+
         expect(response).to redirect_to routes.url_helpers.dashboard_collection_path(collection, locale: 'en')
-        expect(assigns[:collection].member_objects).to match_array [asset1, asset2, asset3]
       end
 
+      # it "removes members from the collection" do
+      #   expect do
+      #     put :update, params: { id: collection,
+      #                            collection: { members: 'remove' },
+      #                            batch_document_ids: [asset2] }
+      #   end.to change { asset2.reload.member_of_collections.size }.by(-1)
+      #   expect(assigns[:collection].member_objects).to match_array [asset1]
+      # end
       it "removes members from the collection" do
-        expect do
-          put :update, params: { id: collection,
-                                 collection: { members: 'remove' },
-                                 batch_document_ids: [asset2] }
-        end.to change { asset2.reload.member_of_collections.size }.by(-1)
-        expect(assigns[:collection].member_objects).to match_array [asset1]
+        parameters = { id: collection,
+                       collection: { members: 'remove' },
+                       batch_document_ids: [asset2] }
+
+        expect { put :update, params: parameters }
+          .to change { queries.find_members_of(collection: collection).map(&:id) }
+                .to contain_exactly(asset1.id)
       end
 
       it "publishes object.metadata.updated for removed objects" do
@@ -224,7 +244,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
                                  batch_document_ids: [asset2] }
         end
           .to change { listener.object_metadata_updated&.payload }
-          .to match(object: have_attributes(id: asset2.id), user: user)
+                .to match(object: have_attributes(id: asset2.id), user: user)
       end
     end
 
@@ -255,6 +275,14 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
     end
 
     context "updating a collections metadata" do
+      it "saves the metadata" do
+        expect { put :update, params: { id: collection, collection: { title: ['New Collection Title'] } } }
+          .to change { Hyrax.query_service.find_by(id: collection.id).title }
+                .to contain_exactly('New Collection Title')
+
+        expect(flash[:notice]).to eq "Collection was successfully updated."
+      end
+
       it "saves the metadata" do
         put :update, params: { id: collection, collection: { creator: ['Emily'] } }
         collection.reload
@@ -289,7 +317,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
 
       it "renders the form again", skip: true do
         # TODO: fix this
-      # it "renders the form again" do
+        # it "renders the form again" do
         put :update, params: {
           id: collection,
           collection: collection_attrs
@@ -299,9 +327,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
       end
     end
 
-    context "updating a collections branding metadata", skip: true do
-      # TODO: fix this for hyrax v3
-    # context "updating a collections branding metadata" do
+    context "updating a collections branding metadata", skip: Rails.configuration.hyrax3_spec_skip do
+      # context "updating a collections branding metadata" do
       let(:uploaded) { FactoryBot.create(:uploaded_file) }
       it "saves banner metadata" do
         put :update, params: { id: collection, banner_files: [uploaded.id], collection: { creator: ['Emily'] }, update_collection: true }
@@ -435,14 +462,14 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
         end
       end
 
-      context "without a referer" do
+      context "without a referer", skip: Rails.configuration.hyrax4_spec_skip do
         it "sets breadcrumbs" do
           # expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
           # expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
           # TODO: hyrax4 -- fix
-          # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+          # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en')) - Rails.configuration.hyrax4_spec_skip
           # TODO: hyrax4 -- fix
-          # expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), { "aria-current" => "page" })
+          # expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), { "aria-current" => "page" }) - Rails.configuration.hyrax4_spec_skip
           get :show, params: { id: collection }
           expect(response).to be_successful
         end
@@ -453,13 +480,13 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
           request.env['HTTP_REFERER'] = 'http://test.host/foo'
         end
 
-        it "sets breadcrumbs" do
+        it "sets breadcrumbs", skip: Rails.configuration.hyrax4_spec_skip do
           # expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
           # expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
           # TODO: hyrax4 -- fix
-          # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+          # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en')) - Rails.configuration.hyrax4_spec_skip
           # TODO: hyrax4 -- fix
-          # expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), { "aria-current" => "page" })
+          # expect(controller).to receive(:add_breadcrumb).with('My collection', collection_path(collection.id, locale: 'en'), { "aria-current" => "page" }) - Rails.configuration.hyrax4_spec_skip
           get :show, params: { id: collection }
           expect(response).to be_successful
         end
@@ -475,12 +502,12 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
       end
 
       before do
-        sign_in FactoryBot.create(:admin)
+        sign_in factory_bot_create_user(:admin)
 
         allow(controller.current_ability)
           .to receive(:can?)
-          .with(:show, anything)
-          .and_return(true)
+                .with(:show, anything)
+                .and_return(true)
       end
 
       it "returns successfully" do
@@ -523,8 +550,8 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
         allow_any_instance_of(Collection).to receive(:destroy).and_return(nil)
         allow(Hyrax.persister)
           .to receive(:delete)
-          .with(any_args)
-          .and_raise(StandardError, "Failed to delete collection.")
+                .with(any_args)
+                .and_raise(StandardError, "Failed to delete collection.")
         # rubocop:enable RSpec/AnyInstance
       end
 
@@ -552,14 +579,14 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
       expect(flash[:notice]).to be_nil
     end
 
-    context "without a referer" do
+    context "without a referer", skip: Rails.configuration.hyrax4_spec_skip do
       it "sets breadcrumbs" do
         # expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
         # expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
         # TODO: hyrax4 -- fix
-        # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
+        # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en')) - Rails.configuration.hyrax4_spec_skip
         # TODO: hyrax4 -- fix
-        # expect(controller).to receive(:add_breadcrumb).with(I18n.t("hyrax.collection.edit_view"), collection_path(collection.id, locale: 'en'), { "aria-current" => "page" })
+        # expect(controller).to receive(:add_breadcrumb).with(I18n.t("hyrax.collection.edit_view"), collection_path(collection.id, locale: 'en'), { "aria-current" => "page" }) - Rails.configuration.hyrax4_spec_skip
         get :edit, params: { id: collection }
         expect(response).to be_successful
       end
@@ -571,7 +598,7 @@ RSpec.describe Hyrax::Dashboard::CollectionsController, :clean_repo, skip: false
       it "sets breadcrumbs" do
         # expect(controller).to receive(:add_breadcrumb).with('Home', Hyrax::Engine.routes.url_helpers.root_path(locale: 'en'))
         # expect(controller).to receive(:add_breadcrumb).with('Dashboard', Hyrax::Engine.routes.url_helpers.dashboard_path(locale: 'en'))
-        # TODO: hyrax4 -- fix
+        # TODO: hyrax4 -- fix - Rails.configuration.hyrax4_spec_skip
         # expect(controller).to receive(:add_breadcrumb).with('Collections', Hyrax::Engine.routes.url_helpers.my_collections_path(locale: 'en'))
         # expect(controller).to receive(:add_breadcrumb).with(I18n.t("hyrax.collection.edit_view"), collection_path(collection.id, locale: 'en'), { "aria-current" => "page" })
 

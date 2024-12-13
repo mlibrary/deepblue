@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe 'hyrax/dashboard/collections/_show_document_list_row.html.erb', type: :view, skip: true do
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   let(:work) do
     mock_model(DataSet, label: 'One Hundred Years of Solitude', date_uploaded: '1999',

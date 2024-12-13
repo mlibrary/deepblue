@@ -9,15 +9,15 @@ RSpec.describe Hyrax::My::SharesController, type: :controller, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe "logged in user" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       sign_in user
     end
 
     describe "#index" do
-      let(:other_user)   { create(:user) }
-      let(:someone_else) { create(:user) }
+      let(:other_user)   { factory_bot_create_user(:user) }
+      let(:someone_else) { factory_bot_create_user(:user) }
 
       let!(:my_work)                  { create(:work, user: user) }
       let!(:unshared_work)            { create(:work, user: other_user) }

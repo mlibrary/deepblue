@@ -29,7 +29,7 @@ module Deepblue
         begin
           uptime_file_name = uptime_timestamp_file_path_self
           puts "attempting to delete #{uptime_file_name}" if uptime_service_debug_verbose
-          File.delete uptime_file_name if File.exists? uptime_file_name
+          File.delete uptime_file_name if File.exist? uptime_file_name
         rescue Exception => e # rubocop:disable Lint/RescueException
           # ignore
         end

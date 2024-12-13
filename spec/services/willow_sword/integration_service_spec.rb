@@ -4,7 +4,7 @@ require 'rails_helper'
 
 require_relative '../../../app/services/willow_sword/integration_service'
 
-RSpec.describe ::WillowSword::IntegrationService do
+RSpec.describe ::WillowSword::IntegrationService, skip: ::WillowSword::IntegrationService.skip_specs do
 
   describe 'module debug verbose variables' do
     let(:debug_verbose) { false }

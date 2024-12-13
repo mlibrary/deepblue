@@ -1,6 +1,8 @@
+# frozen_string_literal: true
+# Updated: hyrax5
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
+RSpec.describe Hyrax::Actors::DefaultAdminSetActor, :active_fedora, skip: false do
 
   let(:debug_verbose) { false }
 
@@ -10,7 +12,7 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
     end
   end
 
-  let(:depositor) { create(:user) }
+  let(:depositor) { build(:user) }
   let(:depositor_ability) { ::Ability.new(depositor) }
   let(:work) { build(:data_set) }
   let(:admin_set) { build(:admin_set, id: 'admin_set_1') }
@@ -27,8 +29,7 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
   end
 
   describe "#create" do
-    # TODO: fix, this is broken
-    context "when admin_set_id is blank", skip: true do
+    context "when admin_set_id is blank" do
       let(:attributes) { { admin_set_id: '' } }
       let(:default_id) { AdminSet::DEFAULT_ID }
 
@@ -37,7 +38,7 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
           expect(k.attributes).to eq("admin_set_id" => default_id)
           true
         end
-        expect(AdminSet).to receive(:find_or_create_default_admin_set_id).and_return(default_id)
+        expect(Hyrax::EnsureWellFormedAdminSetService).to receive(:call).with(admin_set_id: nil).and_return(default_id)
         middleware.create(env)
       end
     end
@@ -45,15 +46,13 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
     context "when admin_set_id is provided" do
       let(:attributes) { { admin_set_id: admin_set.id } }
 
-      it "uses the provided id, ensures a permission template, and returns true" do
+      it "uses the provided id, ensures a well formed admin set, and returns true" do
         expect(terminator).to receive(:create).with(Hyrax::Actors::Environment) do |k|
           expect(k.attributes).to eq("admin_set_id" => admin_set.id)
           true
         end
-        expect(AdminSet).not_to receive(:find_or_create_default_admin_set_id)
-        expect do
-          expect(middleware.create(env)).to be true
-        end.to change { Hyrax::PermissionTemplate.count }.by(1)
+        expect(Hyrax::EnsureWellFormedAdminSetService).to receive(:call).with(admin_set_id: admin_set.id).and_return(admin_set.id)
+        expect(middleware.create(env)).to be true
       end
     end
   end
@@ -66,12 +65,12 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
       let(:attributes) { { title: 'new title' } }
       let(:default_id) { AdminSet::DEFAULT_ID }
 
-      it "gets the admin set id fro the work" do
+      it "gets the admin set id for the work" do
         expect(terminator).to receive(:update).with(Hyrax::Actors::Environment) do |k|
           expect(k.attributes).to eq('title' => 'new title', 'admin_set_id' => admin_set.id)
           true
         end
-        expect(AdminSet).not_to receive(:find_or_create_default_admin_set_id)
+        expect(Hyrax::EnsureWellFormedAdminSetService).to receive(:call).with(admin_set_id: admin_set.id).and_return(admin_set.id)
         expect(middleware.update(env)).to be true
       end
     end
@@ -80,12 +79,12 @@ RSpec.describe Hyrax::Actors::DefaultAdminSetActor, skip: false do
       let(:admin_set2) { build(:admin_set, id: 'admin_set_2') }
       let(:attributes) { { title: 'new title', admin_set_id: admin_set2.id } }
 
-      it "uses the provided id, ensures a permission template, and returns true" do
+      it "uses the provided id, ensures ensures a well formed admin set, and returns true" do
         expect(terminator).to receive(:update).with(Hyrax::Actors::Environment) do |k|
           expect(k.attributes).to eq('title' => 'new title', 'admin_set_id' => admin_set2.id)
           true
         end
-        expect(AdminSet).not_to receive(:find_or_create_default_admin_set_id)
+        expect(Hyrax::EnsureWellFormedAdminSetService).to receive(:call).with(admin_set_id: admin_set2.id).and_return(admin_set2.id)
         expect(middleware.update(env)).to be true
       end
     end

@@ -15,7 +15,7 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
     end
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:file) { create(:file_set, user: user) }
 
   describe '#show_presenter' do
@@ -110,7 +110,7 @@ RSpec.describe Hyrax::SingleUseLinksController, type: :controller do
         described_class.single_use_links_controller_debug_verbose = debug_verbose
       end
       context do
-        let(:other_user) { create(:user) }
+        let(:other_user) { factory_bot_create_user(:user) }
         let(:file) { create(:file_set, user: user, read_users: [other_user]) }
 
         before do

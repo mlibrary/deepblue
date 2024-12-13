@@ -24,7 +24,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
           depositor: user.user_key,
           label: "filename.tif" )
   end
-  let(:user) { create(:admin) }
+  let(:user) { factory_bot_create_user(:admin) }
   let(:user_key) { 'a_user_key' }
   let( :parent_id ) { '888888' }
   let( :parent_title ) { ['foo', 'bar'] }
@@ -769,7 +769,7 @@ RSpec.describe Hyrax::DsFileSetPresenter do
   #         end
   #
   #         context "when the user doesn't have permission to view the image" do
-  #           let(:user) { create(:user) }
+  #           let(:user) { factory_bot_create_user(:user) }
   #
   #           it { is_expected.to be_nil }
   #         end

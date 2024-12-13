@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-
+# Updated: hyrax5
 require 'rails_helper'
 
 RSpec.describe ::Deepblue::ProvenancePath do
@@ -16,7 +16,7 @@ RSpec.describe ::Deepblue::ProvenancePath do
   let(:partial_path) { 'tmp/derivatives/12/34/56/78/9-' }
   let(:partial_path_log) { 'tmp/derivatives/12/34/56/78/9-provenance.log' }
 
-  describe '#path_for_reference' do
+  describe '#path_for_reference', :clean_db do
     context 'with data set' do
       it { expect( described_class.path_for_reference( data_set ).end_with?( partial_path_log ) ).to eq true }
     end
@@ -25,7 +25,7 @@ RSpec.describe ::Deepblue::ProvenancePath do
     end
   end
 
-  describe 'initalized with data set' do
+  describe 'initalized with data set', :clean_db do
     context 'no destination name' do
       let(:prov_path) { described_class.new( data_set ) }
       it { expect( prov_path.id ).to eq id }
@@ -40,7 +40,7 @@ RSpec.describe ::Deepblue::ProvenancePath do
     end
   end
 
-  describe 'initalized with string id' do
+  describe 'initalized with string id', :clean_db do
     context 'no destination name' do
       let(:prov_path) { described_class.new( id ) }
       it { expect( prov_path.id ).to eq id }

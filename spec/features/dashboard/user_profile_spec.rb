@@ -4,11 +4,11 @@
 
 require 'rails_helper'
 
-RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clean: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
 
   include Devise::Test::IntegrationHelpers
 
-  let(:user) { create(:admin) }
+  let(:user) { factory_bot_create_user(:admin) }
   let(:code) { "123456" }
   let(:orcid_id) { "0000-0003-0652-1234" }
   let(:access_token) { "292b3a63-1259-44bf-a0f8-11bf15134920" }
@@ -100,7 +100,7 @@ RSpec.describe "The Dashboard User Profile Page", type: :feature, js: true, clea
 
   # TODO: fix this to remove skip
   describe "when the user has linked their account", skip: true do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
     let(:sync_preference) { "sync_all" }
     let(:work) { create(:work, :public, **work_attributes) }

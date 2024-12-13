@@ -7,7 +7,7 @@ RSpec.describe Hyrax::FeaturedWorksController, type: :controller, skip: true do
 
   describe "#create" do
     before do
-      sign_in create(:user)
+      sign_in factory_bot_create_user(:user)
       expect(controller).to receive(:authorize!).with(:create, FeaturedWork).and_return(true)
     end
 
@@ -37,7 +37,7 @@ RSpec.describe Hyrax::FeaturedWorksController, type: :controller, skip: true do
 
   describe "#destroy" do
     before do
-      sign_in create(:user)
+      sign_in factory_bot_create_user(:user)
       expect(controller).to receive(:authorize!).with(:destroy, FeaturedWork).and_return(true)
     end
 

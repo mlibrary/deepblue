@@ -10,8 +10,8 @@ class WorkflowEventBehaviorCCMock
     @id = id
   end
 
+  def email_event_create_user(current_user:, event_note:, was_draft:); end
   def email_event_create_rds( current_user:, event_note:, was_draft: ); end
-  def email_event_create_user( current_user:, event_note:, was_draft: ); end
   def email_event_destroy_rds( current_user:, event_note: ); end
   def email_event_destroy_user( current_user:, event_note:, was_draft: ); end
   def email_event_publish_rds( current_user:, event_note:, message: ); end

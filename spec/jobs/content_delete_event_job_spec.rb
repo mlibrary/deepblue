@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe ContentDeleteEventJob, skip: false do
 
-  let(:user)      { create(:user) }
+  let(:user)      { factory_bot_create_user(:user) }
   let(:mock_time) { Time.zone.at(1) }
   let(:event) do
     {

@@ -31,7 +31,7 @@ RSpec.describe 'hyrax/base/_attribute_rows.html.erb', type: :view do
     let(:resource_type)      { 'Dataset' }
     let(:rights_license)     { 'http://creativecommons.org/publicdomain/zero/1.0/' }
     let(:subject_discipline) { 'The Subject Discipline' }
-    let(:user)               { create(:user) }
+    let(:user)               { factory_bot_create_user(:user) }
     let(:current_user)       { user.user_key }
     let(:visibility_private) { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
     let(:visibility_public)  { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
@@ -371,7 +371,7 @@ RSpec.describe 'hyrax/base/_attribute_rows.html.erb', type: :view do
   end
 
   describe 'admin users', skip: false do
-    let(:user) { create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
 
     context 'do not display various fields', skip: true do
       let(:current_user)        { user.user_key }

@@ -22,7 +22,7 @@ RSpec.describe Hyrax::Actors::EmbargoActor, skip: true do
     end
   end
   let(:attributes) { {} }
-  let(:user)    { create(:admin) }
+  let(:user)    { factory_bot_create_user(:admin) }
   let(:ability) { Ability.new(user) }
   let(:env)     { Hyrax::Actors::Environment.new(work, ability, attributes) }
   let(:actor)   { described_class.new(env, work) }

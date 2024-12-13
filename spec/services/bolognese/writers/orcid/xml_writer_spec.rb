@@ -6,7 +6,7 @@
 require 'rails_helper'
 
 
-RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: true do
+RSpec.describe Bolognese::Writers::Orcid::XmlWriter, skip: Rails.configuration.hyrax4_spec_skip do
   # let(:date_created) { "#{created_year}-08-19" }
   # let(:doi) { "10.18130/v3-k4an-w022" }
   # let(:isbn) { "9781770460621" }

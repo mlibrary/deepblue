@@ -45,7 +45,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
               allow(fs).to receive(:update_index)
             end
           end
-          # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
+          # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: factory_bot_create_user(:user), path: filename) }
           let(:file) do
             Hydra::PCDM::File.new.tap do |f|
               f.content = 'foo'
@@ -55,7 +55,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
             end
           end
 
-          let(:user)               { create(:user) }
+          let(:user)               { factory_bot_create_user(:user) }
           let(:repository_file_id) { nil }
           let(:filepath)           { nil }
           let(:current_user)       { user }
@@ -308,7 +308,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
               allow(fs).to receive(:update_index)
             end
           end
-          # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: create(:user), path: filename) }
+          # let(:io)          { JobIoWrapper.new(file_set_id: file_set.id, user: factory_bot_create_user(:user), path: filename) }
           let(:file) do
             Hydra::PCDM::File.new.tap do |f|
               f.content = 'foo'
@@ -318,7 +318,7 @@ RSpec.describe ::Deepblue::IngestHelper, type: :helper do
             end
           end
 
-          let(:user)               { create(:user) }
+          let(:user)               { factory_bot_create_user(:user) }
           let(:repository_file_id) { nil }
           let(:filepath)           { nil }
           let(:current_user)       { user }

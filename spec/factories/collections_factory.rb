@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Updated: hyrax5
 FactoryBot.define do
   factory :collection do
     # DEPRECATION: This factory is being replaced by collection_lw defined in collections.rb.  New tests should use the
@@ -10,7 +11,7 @@ FactoryBot.define do
     # rubocop:enable Layout/LineLength
 
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       # allow defaulting to default user collection
       collection_type_settings { nil }
       with_permission_template { false }
@@ -60,7 +61,7 @@ FactoryBot.define do
 
   factory :user_collection, class: Collection do
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       collection_type { create(:user_collection_type) }
     end
 
@@ -76,7 +77,7 @@ FactoryBot.define do
     #   col = build(:typeless_collection, ...)
     #   col.save(validate: false)
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       with_permission_template { false }
       create_access { false }
       do_save { false }

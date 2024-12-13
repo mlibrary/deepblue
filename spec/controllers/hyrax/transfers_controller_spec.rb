@@ -3,7 +3,7 @@
 # Skip: hyrax4
 require 'rails_helper'
 
-RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
+RSpec.describe Hyrax::TransfersController, type: :controller, skip: Rails.configuration.hyrax4_spec_skip do
 
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
@@ -35,8 +35,8 @@ RSpec.describe Hyrax::TransfersController, type: :controller, skip: true do
   end
 
   describe "with a signed in user" do
-    let(:another_user) { create(:user) }
-    let(:user) { create(:user) }
+    let(:another_user) { factory_bot_create_user(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before do
       sign_in user

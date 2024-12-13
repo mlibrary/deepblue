@@ -8,8 +8,8 @@ RSpec.describe 'User' do
 
     let(:ability)       { Ability.new(current_user) }
     let(:visibility)    { Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE }
-    let(:creating_user) { create(:user) }
-    let(:user)          { create(:user) }
+    let(:creating_user) { factory_bot_create_user(:user) }
+    let(:user)          { factory_bot_create_user(:user) }
     let(:current_user)  { user }
     let(:data_set)      { create(:data_set, visibility: visibility, user: creating_user) }
     let(:file_set)      { create(:file_set, visibility: visibility, user: creating_user) }
@@ -29,7 +29,7 @@ RSpec.describe 'User' do
       end
 
       describe 'as a repository manager' do
-        let(:manager_user) { create(:admin) }
+        let(:manager_user) { factory_bot_create_user(:admin) }
         let(:creating_user) { user }
         let(:current_user) { manager_user }
 
@@ -43,7 +43,7 @@ RSpec.describe 'User' do
       end
 
       describe 'another authenticated user' do
-        let(:creating_user) { create(:user) }
+        let(:creating_user) { factory_bot_create_user(:user) }
         let(:current_user) { user }
 
         it do
@@ -56,7 +56,7 @@ RSpec.describe 'User' do
       end
 
       describe 'a nil user' do
-        let(:creating_user) { create(:user) }
+        let(:creating_user) { factory_bot_create_user(:user) }
         let(:current_user) { nil }
 
         it do

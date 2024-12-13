@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'hyrax/dashboard/collections/_form_share_table.html.erb', type: :view, skip: true do
   let(:template) { stub_model(Hyrax::PermissionTemplate) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:access_grant) { stub_model(Hyrax::PermissionTemplateAccess) }
   let(:collection) { stub_model(Collection, share_applies_to_new_works?: false) }
   let(:pt_form) do

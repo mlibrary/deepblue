@@ -5,7 +5,7 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::Orcid::IdentityStrategyDelegator do
   let(:service) { described_class.new(work) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: work_sync_preference, user: user) }
   let(:work) { create(:work, user: user, **work_attributes) }
 

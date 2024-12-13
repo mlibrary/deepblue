@@ -2,13 +2,13 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::TransfersPresenter, skip: false do
   let(:context) { ActionView::TestCase::TestController.new.view_context }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:instance) { described_class.new(user, context) }
 
   describe "#incoming_proxy_deposits" do
     subject(:incoming_proxy_deposits) { instance.send(:incoming_proxy_deposits) }
 
-    let(:another_user) { create(:user) }
+    let(:another_user) { factory_bot_create_user(:user) }
     let!(:incoming_work) do
       create(:work, user: another_user).tap do |w|
         w.request_transfer_to(user)
@@ -31,7 +31,7 @@ RSpec.describe Hyrax::TransfersPresenter, skip: false do
   describe "#outgoing_proxy_deposits" do
     subject { instance.send(:outgoing_proxy_deposits) }
 
-    let(:another_user) { create(:user) }
+    let(:another_user) { factory_bot_create_user(:user) }
     let!(:outgoing_work) do
       create(:work, user: user).tap do |w|
         w.request_transfer_to(another_user)

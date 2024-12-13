@@ -1,9 +1,10 @@
 # frozen_string_literal: true
+# Updated: hyrax5
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: false do
-  let(:user) { create(:user) }
+RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: Rails.configuration.hyrax5_spec_skip do
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { ::Ability.new(user) }
   let(:curation_concern) { build(:work, user: user) }
   let(:attributes) { {} }
@@ -116,7 +117,7 @@ RSpec.describe Hyrax::Actors::CollectionsMembershipActor, skip: false do
     end
 
     context "when work is in another user's collection" do
-      let(:other_user) { create(:user) }
+      let(:other_user) { factory_bot_create_user(:user) }
       let(:other_collection) { build(:collection_lw, user: other_user, title: ['A good title'], with_permission_template: true) }
 
       before do

@@ -5,7 +5,7 @@ require 'rails_helper'
 
 RSpec.describe Hyrax::Actors::Orcid::PublishWorkActor do
   subject(:actor) { described_class.new(Hyrax::Actors::Terminator.new) }
-  let(:user) { create(:user, :with_orcid_identity) }
+  let(:user) { factory_bot_create_user(:user, :with_orcid_identity) }
   let(:ability) { Ability.new(user) }
   let(:attributes) { {} }
   let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }

@@ -11,7 +11,7 @@ module Deepblue
       # Path on file system where derivative file is stored
       # @param [ActiveFedora::Base or String] object either the AF object or its id
       def path_for_reference( object )
-        pp = new( object, "provenance" )
+        pp = ProvenancePath.new( object, "provenance" )
         rv = pp.provenance_path
         return rv
       end

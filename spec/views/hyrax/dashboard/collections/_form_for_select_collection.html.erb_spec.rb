@@ -25,7 +25,7 @@ RSpec.describe 'hyrax/dashboard/collections/_form_for_select_collection.html.erb
   let(:page) { Capybara::Node::Simple.new(rendered) }
 
   context 'for admin user' do
-    let(:user) { create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
     let(:ability) { Ability.new(user) }
 
     before do
@@ -42,7 +42,7 @@ RSpec.describe 'hyrax/dashboard/collections/_form_for_select_collection.html.erb
   end
 
   context 'for normal user' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:ability) { Ability.new(user) }
 
     before do

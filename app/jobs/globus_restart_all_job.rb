@@ -72,7 +72,8 @@ class GlobusRestartAllJob < GlobusJob
     def globus_job_complete?
       file = globus_job_complete_file
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} globus job complete file #{file}" unless @globus_job_quiet
-      return false unless File.exist? file
+      # return false unless File.exist? file
+      return false unless ::Deepblue::DiskUtilitiesHelper.file_exists? file
       last_complete_time = last_complete_time file
       token_time = ::GlobusJob.era_token_time
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} token_time:#{token_time} <= last_complete_time:#{last_complete_time}" unless @globus_job_quiet

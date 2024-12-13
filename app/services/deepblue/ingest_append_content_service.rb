@@ -141,7 +141,7 @@ module Deepblue
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "real_dir=#{real_dir}",
-                                               "real_dir exists?=#{File.exists? real_dir}",
+                                               "real_dir exists?=#{File.exist? real_dir}",
                                                "" ], bold_puts: @@bold_puts if debug_verbose
 
         tmp_scripts_dir = File.join current_dir, 'tmp', 'scripts'

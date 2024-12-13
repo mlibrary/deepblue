@@ -1,18 +1,19 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Updated: hyrax5
 
 require 'rails_helper'
 
-RSpec.describe Hyrax::Admin::DashboardPresenter, skip: false do
+RSpec.describe Hyrax::Admin::DashboardPresenter, skip: Rails.configuration.hyrax5_spec_skip do
   let(:instance) { described_class.new }
   let(:start_date) { 2.days.ago }
   let(:end_date) { Time.zone.now }
 
   describe "#user_count" do
     before do
-      create(:user)
-      create(:user)
-      create(:user, :guest)
+      factory_bot_create_user(:user)
+      factory_bot_create_user(:user)
+      factory_bot_create_user(:user, :guest)
     end
 
     subject { instance.user_count(start_date, end_date) }

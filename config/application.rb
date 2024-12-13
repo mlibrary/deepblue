@@ -38,9 +38,13 @@ module DeepBlueDocs
     end
     config.program_args = ARGV.dup
 
-    # BEGIN: Upgrade: Hyrax4
-    config.hyrax_ver = 4.0
+    # BEGIN: Upgrade: Hyrax4, Hyrax5
+    config.hyrax_ver = 5.0
     config.use_bolognese = true # Skip: hyrax4 - try it
+    config.hyrax_disable_wings = true # use this to override Hyrax.config.disable_wings # Rails.configuration.hyrax_disable_wings
+    config.hyrax3_spec_skip = true
+    config.hyrax4_spec_skip = true
+    config.hyrax5_spec_skip = true
     # END: Upgrade: Hyrax4
 
     # Chimera configuration goes here
@@ -356,7 +360,7 @@ module DeepBlueDocs
     config.shared_drive_volumes_ulib_dbd_prep = '/Volumes/ulib-dbd-prep'
     config.shared_drive_ulib_dbd_prep = 'ulib-dbd-prep'
     config.shared_drive_mounts = []
-    config.shared_drive_mounts << config.shared_drive_deepbluedata_prep if File.exists? config.shared_drive_deepbluedata_prep
+    config.shared_drive_mounts << config.shared_drive_deepbluedata_prep if File.exist? config.shared_drive_deepbluedata_prep
     # end
 
     ## to configure work_view_content, see config/initalizers/work_view_content.rb

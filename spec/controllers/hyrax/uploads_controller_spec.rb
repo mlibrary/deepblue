@@ -8,7 +8,7 @@ RSpec.describe Hyrax::UploadsController do
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   describe "#create" do
     let(:file) { fixture_file_upload('/world.png', 'image/png') }

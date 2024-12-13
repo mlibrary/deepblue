@@ -14,11 +14,11 @@ RSpec.describe Hyrax::Admin::PermissionTemplateAccessesController, skip: false d
   let(:collection_update_notice) { 'The collection\'s sharing options have been updated.' }
   let(:rep_admin_cannot_remove_notice) { 'The repository administrators group cannot be removed' }
 
-  before { sign_in FactoryBot.create(:user) }
+  before { sign_in factory_bot_create_user(:user) }
 
   describe "destroy" do
     context "without admin privileges" do
-      let(:user_liz) { FactoryBot.create(:user, email: 'liz@example.com') }
+      let(:user_liz) { factory_bot_create_user(:user, email: 'liz@example.com') }
       before do
         allow(controller.current_ability).to receive(:test_edit).with(source_id).and_return(false)
       end
@@ -29,7 +29,7 @@ RSpec.describe Hyrax::Admin::PermissionTemplateAccessesController, skip: false d
     end
 
     context "when signed in as an admin" do
-      let(:user_liz) { FactoryBot.create(:admin, email: 'liz@example.com') }
+      let(:user_liz) { factory_bot_create_user(:admin, email: 'liz@example.com') }
       let(:permission_template_access) do
         create(:permission_template_access,
                :manage,

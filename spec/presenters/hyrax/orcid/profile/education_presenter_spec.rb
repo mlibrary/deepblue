@@ -7,7 +7,7 @@ RSpec.describe Hyrax::Orcid::Profile::EducationPresenter do
   let(:service) { described_class.new(reader.read_education) }
   let(:reader) { Hyrax::Orcid::Record::ReaderService.new(orcid_identity) }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let!(:orcid_identity) { create(:orcid_identity, work_sync_preference: "sync_all", user: user) }
   # let(:base_dir) { '..' }
   let(:base_dir) { 'spec' }

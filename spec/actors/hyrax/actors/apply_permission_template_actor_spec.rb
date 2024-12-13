@@ -25,7 +25,7 @@ RSpec.describe Hyrax::Actors::ApplyPermissionTemplateActor, skip: false do
         let(:ability) { ::Ability.new(depositor) }
         let(:env) { Hyrax::Actors::Environment.new(work, ability, attributes) }
         let(:terminator) { Hyrax::Actors::Terminator.new }
-        let(:depositor) { create(:user) }
+        let(:depositor) { factory_bot_create_user(:user) }
         let(:work) do
           build(:data_set,
                 user: depositor,

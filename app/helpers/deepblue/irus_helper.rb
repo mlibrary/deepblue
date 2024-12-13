@@ -33,6 +33,7 @@ module Deepblue::IrusHelper
                       **log_key_values )
     log_raw msg
     Rails.logger.info msg if echo_to_rails_logger
+    true # hyrax5
   end
 
   def self.log_raw( msg )

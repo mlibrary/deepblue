@@ -14,7 +14,7 @@ RSpec.describe Hyrax::Actors::DataSetActor do
   include ActionDispatch::TestProcess
 
   let(:env)       { Hyrax::Actors::Environment.new(curation_concern, ability, attributes) }
-  let(:user)      { create(:user) }
+  let(:user)      { factory_bot_create_user(:user) }
   let(:depositor) { user }
   let(:ability)   { ::Ability.new(user) }
   let(:admin_set) { create(:admin_set, id: 'admin_set_1', with_permission_template: { with_active_workflow: true }) }
@@ -228,7 +228,7 @@ RSpec.describe Hyrax::Actors::DataSetActor do
   describe '#update' do
     let(:curation_concern) { create(:data_set, user: user, admin_set_id: admin_set.id) }
     before do
-      # allow(curation_concern).to receive(:to_sipity_entity).and_return(nil) # Update: hyrax4
+      # allow(curation_concern).to receive(:to_sipity_entity).and_return(nil) # Update: hyrax4 - Rails.configuration.hyrax4_spec_skip
     end
 
     context 'failure' do

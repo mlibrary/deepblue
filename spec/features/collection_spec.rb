@@ -4,13 +4,13 @@ require 'rails_helper'
 include Warden::Test::Helpers
 require 'rspec/rails/matchers/have_http_status'
 
-RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe 'collection', type: :feature, js: true, clean_repo: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
   #
   # COLLECTION_SPEC_DEBUG_VERBOSE = false
   #
   # include Devise::Test::IntegrationHelpers
   #
-  # let(:user) { create(:user) }
+  # let(:user) { factory_bot_create_user(:user) }
   #
   # let(:collection1) { create(:public_collection_lw, user: user) }
   # let(:collection2) { create(:public_collection_lw, user: user) }

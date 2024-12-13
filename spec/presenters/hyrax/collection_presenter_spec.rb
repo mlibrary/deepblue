@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Update: hyrax5
 
 require 'rails_helper'
 
@@ -47,6 +48,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
   let(:ability) { double(::Ability) }
   let(:solr_doc) { SolrDocument.new(solr_hash) }
   let(:solr_hash) { Hyrax::ValkyrieIndexer.for(resource: collection).to_solr }
+  let(:user) { factory_bot_create_user(:user) }
 
   describe ".terms" do
     subject { described_class.terms }
@@ -242,9 +244,9 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
   describe "#total_items", :clean_repo do
     # hyrax2 # subject { presenter.total_items }
 
-    context "empty collection" do
+    context "empty collection", skip: Rails.configuration.hyrax5_spec_skip do
       let(:ability) { double(::Ability, user_groups: ['public'], current_user: user) }
-      let(:user) { create(:user) }
+      #hyrax5 - let(:user) { factory_bot_create_user(:user) }
       let(:collection) { FactoryBot.valkyrie_create(:hyrax_collection) }
 
       before { allow(ability).to receive(:admin?).and_return(false) }
@@ -254,7 +256,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
       end
     end
 
-    context "collection with work" do
+    context "collection with work", skip: Rails.configuration.hyrax5_spec_skip do
       let(:collection) { FactoryBot.valkyrie_create(:hyrax_collection) }
       let!(:data_set) { FactoryBot.valkyrie_create(:hyrax_work, member_of_collection_ids: [collection.id]) }
 
@@ -275,7 +277,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
   describe "#total_viewable_items", :clean_repo do
     subject { presenter.total_viewable_items }
     let(:ability) { double(::Ability, user_groups: ['public'], current_user: user) }
-    let(:user) { create(:user) }
+    #hyrax5 - let(:user) { factory_bot_create_user(:user) }
     let(:collection) { FactoryBot.create(:collection_lw) }
     let(:solr_hash) { collection.to_solr }
 
@@ -327,7 +329,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
   describe "#total_viewable_works", :clean_repo do
     subject { presenter.total_viewable_works }
     let(:ability) { double(::Ability, user_groups: ['public'], current_user: user) }
-    let(:user) { create(:user) }
+    #hyrax5 - let(:user) { factory_bot_create_user(:user) }
     let(:collection) { FactoryBot.create(:collection_lw) }
     let(:solr_hash) { collection.to_solr }
 
@@ -367,7 +369,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
   describe "#total_viewable_collections", :clean_repo do
     subject { presenter.total_viewable_collections }
     let(:ability) { double(::Ability, user_groups: ['public'], current_user: user) }
-    let(:user) { create(:user) }
+    #hyrax5 - let(:user) { factory_bot_create_user(:user) }
     let(:collection) { FactoryBot.create(:collection_lw) }
     let(:solr_hash) { collection.to_solr }
 

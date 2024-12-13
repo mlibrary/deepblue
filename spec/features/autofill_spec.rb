@@ -2,7 +2,7 @@
 # Skip: hyrax4 - WebMock::NetConnectNotAllowedError
 require 'rails_helper'
 
-RSpec.describe 'autofilling the form from DOI', :js, skip: true do
+RSpec.describe 'autofilling the form from DOI', :js, skip: Rails.configuration.hyrax4_spec_skip do
   let(:model_class) do
     Class.new(DataSet) do
       include ::Deepblue::DoiBehavior
@@ -45,7 +45,7 @@ RSpec.describe 'autofilling the form from DOI', :js, skip: true do
     end
   end
 
-  let(:user) { create(:admin) }
+  let(:user) { factory_bot_create_user(:admin) }
   let(:input) { File.join(Rails.root, 'spec', 'fixtures', 'datacite.json') }
   let(:metadata) { Bolognese::Metadata.new(input: input) }
 

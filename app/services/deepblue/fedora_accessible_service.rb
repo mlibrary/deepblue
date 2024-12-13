@@ -46,7 +46,7 @@ END_BODY
 
     def self.solr_accessible?
       # this tests for solr, as versus PersistHelper.all.count
-      ActiveFedora::Base.all.count
+      PersistHelper.all.count # hyrax5
     rescue RSolr::Error::ConnectionRefused
       false
     rescue
@@ -56,7 +56,7 @@ END_BODY
     # Queries Fedora to figure out if there are versions for the resource.
     def content_doc_collection_id_exists_in_fedora?
       id = ::Deepblue::WorkViewContentService.content_documentation_collection_id
-      uri = ActiveFedora::Base.id_to_uri(id)
+      uri = PersistHelper.id_to_uri(id)
       rv = ActiveFedora.fedora.connection.head(uri)
       rv.present?
     rescue Ldp::NotFound

@@ -11,8 +11,8 @@ RSpec.describe 'hyrax/my/works/_list_works.html.erb', type: :view do
     }
   end
 
-  # let(:user) { create(:admin) }
-  let(:user) { create(:user) }
+  # let(:user) { factory_bot_create_user(:admin) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { Ability.new(user) }
 
   let(:doc) { SolrDocument.new(work_data) }

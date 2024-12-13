@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::ChangeContentDepositorService do
-  let!(:depositor) { create(:user) }
-  let!(:receiver) { create(:user) }
+  let!(:depositor) { factory_bot_create_user(:user) }
+  let!(:receiver) { factory_bot_create_user(:user) }
 
   context "for Active Fedora objects" do
     let!(:file) do

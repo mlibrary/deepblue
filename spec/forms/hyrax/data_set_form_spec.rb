@@ -12,7 +12,7 @@ RSpec.describe Hyrax::DataSetForm do
 
   subject { form }
   let(:work) { DataSet.new }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { Ability.new(user) }
   let(:form) { described_class.new(work, ability, nil) }
 

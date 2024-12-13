@@ -57,6 +57,7 @@ module Deepblue
       Rails.logger.info '+++++++++++++++++++++++++++++++++' if echo_to_rails_logger
       Rails.logger.info msg if echo_to_rails_logger
       Rails.logger.info '+++++++++++++++++++++++++++++++++' if echo_to_rails_logger
+      true # hyrax5
     end
 
     def self.log_key_values_to_table( key_values,

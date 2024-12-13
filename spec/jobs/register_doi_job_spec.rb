@@ -10,7 +10,7 @@ RSpec.describe ::Deepblue::RegisterDoiJob, type: :job do
     it { expect( ::Deepblue::DoiMintingService.register_doi_job_debug_verbose ).to eq debug_verbose }
   end
 
-  describe 'all', skip: false do
+  describe 'all', skip: Rails.configuration.hyrax5_spec_skip do
     RSpec.shared_examples 'shared ::Deepblue::RegisterDoiJob' do |dbg_verbose|
       subject { described_class }
       before do

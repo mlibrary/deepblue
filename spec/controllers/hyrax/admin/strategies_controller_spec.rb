@@ -23,7 +23,7 @@ RSpec.describe Hyrax::Admin::StrategiesController, skip: false do
     end
 
     let(:original_feature_hash) { Flipflop::FeatureSet.current.instance_variable_get(:@features) }
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:strategy) { Flipflop::Strategies::ActiveRecordStrategy.new(class: Hyrax::Feature).key }
     let(:feature) { double('feature', id: feature_id, key: 'foo') }
     let(:feature_id) { :my_feature }

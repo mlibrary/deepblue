@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Hyrax::CollectionsHelper, skip: true do
-  let(:user) { create(:user, groups: ['admin']) }
+  let(:user) { factory_bot_create_user(:user, groups: ['admin']) }
   let(:ability) { Ability.new(user) }
 
   before do

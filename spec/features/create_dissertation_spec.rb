@@ -4,7 +4,7 @@ require 'rails_helper'
 include Warden::Test::Helpers
 
 # NOTE: If you generated more than one work, you have to set "js: true"
-RSpec.feature 'Create a Dissertation', type: :feature, js: true, workflow: true, clean_repo: true, skip: true do
+RSpec.feature 'Create a Dissertation', type: :feature, js: true, workflow: true, clean_repo: true, skip: Rails.configuration.hyrax4_spec_skip do
 
   include Devise::Test::IntegrationHelpers
 

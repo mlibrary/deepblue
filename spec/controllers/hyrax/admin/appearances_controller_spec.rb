@@ -7,7 +7,7 @@ RSpec.describe Hyrax::Admin::AppearancesController, skip: true do
     before do
       sign_in user
     end
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     context "when not authorized" do
       it "renders the unauthorized template" do
@@ -38,7 +38,7 @@ RSpec.describe Hyrax::Admin::AppearancesController, skip: true do
     before do
       sign_in user
     end
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     context "when authorized" do
       before do

@@ -37,7 +37,7 @@ RSpec.describe ::Deepblue::EmailBehavior do
   let(:id)         { 'an_id' }
   let(:mock_attrs) { { :date_created => 'date_created_value', 'test_key' => 'test_value'} }
   let(:cc_mock)    { EmailBehaviorCCMock.new(id, attributes: mock_attrs) }
-  let(:user)       { create(:user) }
+  let(:user)       { factory_bot_create_user(:user) }
   let(:event)      { 'EVENT' }
   let(:event_publish) { ::Deepblue::AbstractEventBehavior::EVENT_PUBLISH }
   let(:event_note) { 'event note' }

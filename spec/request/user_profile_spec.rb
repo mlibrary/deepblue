@@ -7,12 +7,12 @@ require 'rails_helper'
 RSpec.describe "Links", type: :request do
   # include Hyrax::Orcid::Engine.routes.url_helpers
 
-  # let(:user) { create(:user) }
+  # let(:user) { factory_bot_create_user(:user) }
   # let(:orcid_identity) { create(:orcid_identity, work_sync_preference: sync_preference, user: user) }
   # let(:sync_preference) { "sync_all" }
   # let(:url) { Rails.application.routes.url_helpers.users_orcid_profile_path(user.orcid_identity.orcid_id) }
 
-  let(:user) { create(:user, :with_orcid_identity) }
+  let(:user) { factory_bot_create_user(:user, :with_orcid_identity) }
   let(:orcid_identity) { user.orcid_identity }
   let(:sync_preference) { "sync_all" }
   let(:url) { Rails.application.routes.url_helpers.users_orcid_profile_path(user.orcid_identity.orcid_id) }

@@ -17,7 +17,7 @@ RSpec.describe Hyrax::SelectTypeListPresenter, skip: false do
     end
 
     context 'with a logged in user' do
-      let(:user) { create(:user) }
+      let(:user) { factory_bot_create_user(:user) }
 
       it { is_expected.to be true }
       context "if authorized_models returns only one" do
@@ -30,7 +30,7 @@ RSpec.describe Hyrax::SelectTypeListPresenter, skip: false do
   end
 
   describe "#first_model" do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     subject { instance.first_model }
 

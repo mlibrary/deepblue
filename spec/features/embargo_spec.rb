@@ -3,14 +3,14 @@
 require 'rails_helper'
 include Warden::Test::Helpers
 
-RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true, skip: true || ENV['CIRCLECI'].present? do
+RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: true, skip: Rails.configuration.hyrax4_spec_skip || ENV['CIRCLECI'].present? do
 
   # mattr_accessor :embargo_spec_debug_verbose
   # # @@embargo_spec_debug_verbose = false
   #
   # include Devise::Test::IntegrationHelpers
   #
-  # let(:user) { create(:user) }
+  # let(:user) { factory_bot_create_user(:user) }
   # let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
   #
   # before do
@@ -128,7 +128,7 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
   #   let(:later_future_date) { 10.days.from_now }
   #   # let(:invalid_future_date) { 185.days.from_now } # More than 6 months
   #   let(:invalid_future_date) { 185.days.before } # More than 6 months
-  #   let(:admin) { create(:admin) }
+  #   let(:admin) { factory_bot_create_user(:admin) }
   #   let(:work) do
   #     create(:work, title: ['embargoed work1'],
   #                   embargo_release_date: future_date.to_datetime.iso8601,

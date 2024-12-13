@@ -9,7 +9,7 @@ RSpec.describe Hyrax::DataSetsController, skip: false do
   let(:main_app) { Rails.application.routes.url_helpers }
   let(:hyrax) { Hyrax::Engine.routes.url_helpers }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before { sign_in user }
 
@@ -31,7 +31,7 @@ RSpec.describe Hyrax::DataSetsController, skip: false do
 
     describe "forbidden", skip: true do
       before do
-        sign_in create(:user)
+        sign_in factory_bot_create_user(:user)
         resource_request
       end
       it { is_expected.to respond_forbidden }

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Updated: hyrax5
 
 FactoryBot.define do
   # Tests that create a Fedora Object are very slow.  This factory lets you control which parts of the object ecosystem
@@ -76,7 +77,7 @@ FactoryBot.define do
 
   factory :collection_lw, class: Collection do
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
 
       collection_type { nil }
       collection_type_settings { nil }
@@ -137,7 +138,7 @@ FactoryBot.define do
 
   factory :user_collection_lw, class: Collection do
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       collection_type { create(:user_collection_type) }
     end
 
@@ -153,7 +154,7 @@ FactoryBot.define do
     #   col = build(:typeless_collection, ...)
     #   col.save(validate: false)
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       with_permission_template { false }
       do_save { false }
     end

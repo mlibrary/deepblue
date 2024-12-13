@@ -22,7 +22,7 @@ RSpec.describe Hyrax::IiifManifestPresenter, skip: true do
 
       context 'and an ability' do
         let(:ability) { Ability.new(user) }
-        let(:user) { create(:user) }
+        let(:user) { factory_bot_create_user(:user) }
 
         before { presenter.ability = ability }
 
@@ -103,7 +103,7 @@ RSpec.describe Hyrax::IiifManifestPresenter, skip: true do
 
         context 'and an ability' do
           let(:ability) { Ability.new(user) }
-          let(:user) { create(:user) }
+          let(:user) { factory_bot_create_user(:user) }
 
           before { presenter.ability = ability }
 

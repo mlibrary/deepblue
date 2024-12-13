@@ -12,7 +12,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
     end
   end
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { ::Ability.new(user) }
   let(:curation_concern) { DataSet.new }
   let(:attributes) { { admin_set_id: admin_set.id } }
@@ -141,7 +141,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
           expect(curation_concern.visibility_during_embargo).to eq 'authenticated'
           expect(curation_concern.visibility_after_embargo).to eq 'open'
           expect(curation_concern.visibility).to eq 'authenticated'
-          #expect(curation_concern.reload).to be_under_embargo # fix for hyrax v3
+          expect(curation_concern.reload).to be_under_embargo unless Rails.configuration.hyrax3_spec_skip
         end
       end
 
@@ -188,7 +188,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
             embargo_release_date: one_year_from_today.to_s }
         end
 
-        it "returns false and logs error on date field", skip: true do # fix for hyrax v3
+        it "returns false and logs error on date field", skip: Rails.configuration.hyrax3_spec_skip do
           permission_template.reload
           expect(subject.create(env)).to be false
           expect(curation_concern.errors[:embargo_release_date].first).to eq 'Release date specified does not match permission template release requirements for selected AdminSet.'
@@ -228,7 +228,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
             embargo_release_date: two_years_from_today.to_s }
         end
 
-        it "returns false and logs error on date field", skip: true do # fix for hyrax v3
+        it "returns false and logs error on date field", skip: Rails.configuration.hyrax3_spec_skip do
           permission_template.reload
           expect(subject.create(env)).to be false
           expect(curation_concern.errors[:embargo_release_date].first).to eq 'Release date specified does not match permission template release requirements for selected AdminSet.'
@@ -270,7 +270,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
             visibility_after_embargo: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_AUTHENTICATED }
         end
 
-        it "returns false and logs error on visibility field", skip: true do # fix for hyrax v3
+        it "returns false and logs error on visibility field", skip: Rails.configuration.hyrax3_spec_skip do
           permission_template.reload
           expect(subject.create(env)).to be false
           expect(curation_concern.errors[:visibility_after_embargo].first).to eq 'Visibility after embargo does not match permission template visibility requirements for selected AdminSet.'
@@ -332,7 +332,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
             visibility_after_embargo: Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC }
         end
 
-        it "returns false and logs error on visibility field", skip: true do # fix for hyrax v3
+        it "returns false and logs error on visibility field", skip: Rails.configuration.hyrax3_spec_skip do
           permission_template.reload
           expect(subject.create(env)).to be false
           expect(curation_concern.errors[:visibility_after_embargo].first).to eq 'Visibility after embargo does not match permission template visibility requirements for selected AdminSet.'
@@ -457,7 +457,7 @@ RSpec.describe Hyrax::Actors::InterpretVisibilityActor, skip: false do
           expect(curation_concern.visibility_during_lease).to eq 'open'
           expect(curation_concern.visibility_after_lease).to eq 'restricted'
           expect(curation_concern.visibility).to eq 'open'
-          #expect(curation_concern.reload.lease).not_to be_new_record # fix for hyrax v3
+          expect(curation_concern.reload.lease).not_to be_new_record unless Rails.configuration.hyrax3_spec_skip
         end
       end
 

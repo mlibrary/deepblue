@@ -9,7 +9,7 @@ RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe "#index" do
-    let(:user) { FactoryBot.create(:admin) }
+    let(:user) { factory_bot_create_user(:admin) }
 
     before do
       sign_in user

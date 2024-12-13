@@ -8,7 +8,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
   routes { Hyrax::Engine.routes }
 
   describe '#show' do
-    let(:user) { create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
     let(:file_set) do
       create(:file_with_work, user: user, content: File.open(fixture_path + '/image.png'))
     end
@@ -22,7 +22,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
     end
 
     context "when user doesn't have access", skip: true do
-      let(:another_user) { create(:user) }
+      let(:another_user) { factory_bot_create_user(:user) }
 
       before { sign_in another_user }
 
@@ -119,7 +119,8 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
             it "head request" do
               request.env["HTTP_RANGE"] = 'bytes=0-15'
               head :show, params: { id: file_set, file: 'thumbnail' }
-              expect(response.headers['Content-Length']).to eq '4218'
+              #hyrax5 - expect(response.headers['Content-Length']).to eq '4218'
+              expect(response.headers['Content-Length']).to eq '16'
               expect(response.headers['Accept-Ranges']).to eq 'bytes'
               expect(response.headers['Content-Type']).to start_with 'image/png'
             end
@@ -158,7 +159,7 @@ RSpec.describe Hyrax::DownloadsController, skip: false do
           end
         end
 
-        context "that isn't persisted", skip: true do # TODO: hyrax4 fix
+        context "that isn't persisted", skip: Rails.configuration.hyrax4_spec_skip do
           it "raises an error if the requested file does not exist" do
             expect do
               get :show, params: { id: file_set, file: 'thumbnail' }

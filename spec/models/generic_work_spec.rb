@@ -97,7 +97,7 @@ RSpec.describe GenericWork do
 
   describe "delegations" do
     let(:work) { described_class.new { |gw| gw.apply_depositor_metadata("user") } }
-    let(:proxy_depositor) { create(:user) }
+    let(:proxy_depositor) { factory_bot_create_user(:user) }
 
     before do
       work.proxy_depositor = proxy_depositor.user_key

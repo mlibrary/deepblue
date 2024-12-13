@@ -182,7 +182,7 @@ RSpec.describe Hyrax::StaticController, :clean_repo, clean: true, type: :control
   #       described_class.static_controller_debug_verbose = debug_verbose
   #     end
   #     context do
-  #       let(:user) { create(:user) }
+  #       let(:user) { factory_bot_create_user(:user) }
   #
   #       describe 'about' do
   #         it_behaves_like 'shared show static page', 'about'

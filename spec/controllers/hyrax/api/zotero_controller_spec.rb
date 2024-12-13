@@ -11,7 +11,7 @@ RSpec.describe Hyrax::API::ZoteroController, type: :controller, skip: false do
   # include Devise::Test::ControllerHelpers
   # routes { Hyrax::Engine.routes }
   #
-  # let(:user) { create(:user) }
+  # let(:user) { factory_bot_create_user(:user) }
   #
   # subject { response }
   #

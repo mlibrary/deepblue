@@ -4,7 +4,7 @@ require 'cancan/matchers'
 RSpec.describe "Ability on embargos and leases" do
   subject { Ability.new(current_user) }
 
-  let(:current_user) { create(:user) }
+  let(:current_user) { factory_bot_create_user(:user) }
 
   describe "a regular user" do
     it do

@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :data_set, aliases: [:work, :data_set_work], class: ::DataSet do
 
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       # Set to true (or a hash) if you want to create an admin set
       with_admin_set { false }
     end
@@ -236,6 +236,6 @@ FactoryBot.define do
   # Doesn't set up any edit_users
   factory :data_set_without_access, class: DataSet do
     title { ['Test title'] }
-    depositor { create(:user).user_key }
+    depositor { factory_bot_create_user(:user).user_key }
   end
 end

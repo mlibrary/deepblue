@@ -7,7 +7,7 @@ RSpec.describe Hyrax::Dashboard::ProfilesController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before do
     sign_in user
@@ -36,7 +36,7 @@ RSpec.describe Hyrax::Dashboard::ProfilesController, skip: false do
     end
 
     context "when user attempts to edit another profile" do
-      let(:another_user) { create(:user) }
+      let(:another_user) { factory_bot_create_user(:user) }
 
       context 'with default abilities' do
         it "is unauthorized" do
@@ -79,7 +79,7 @@ RSpec.describe Hyrax::Dashboard::ProfilesController, skip: false do
 
   describe "#update" do
     context "the profile of another user" do
-      let(:another_user) { create(:user) }
+      let(:another_user) { factory_bot_create_user(:user) }
 
       it "does not allow other users to update" do
         post :update, params: { id: another_user.user_key, user: { avatar: nil } }

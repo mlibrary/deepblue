@@ -15,7 +15,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
 
   include ActionDispatch::TestProcess
 
-  let(:user)          { create(:user) }
+  let(:user)          { factory_bot_create_user(:user) }
   let(:file_path)     { File.join(fixture_path, 'world.png') }
   let(:file)          { fixture_file_upload(file_path, 'image/png') } # we will override for the different types of File objects
   let(:local_file)    { File.open(file_path) }
@@ -329,7 +329,7 @@ RSpec.describe Hyrax::Actors::FileSetActor, skip: false do
       let(:work_v1) { create(:data_set) } # this version of the work has no members
 
       before do # another version of the same work is saved with a member
-        work_v2 = ActiveFedora::Base.find(work_v1.id)
+        work_v2 = PersistHelper.find(work_v1.id)
         work_v2.ordered_members << create(:file_set)
         work_v2.save!
       end

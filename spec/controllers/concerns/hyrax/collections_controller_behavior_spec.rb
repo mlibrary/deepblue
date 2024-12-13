@@ -22,7 +22,7 @@ RSpec.describe Hyrax::CollectionsControllerBehavior, :clean_repo, type: :control
   end
 
   shared_context 'with a logged in user' do
-    let(:user) { FactoryBot.create(:user) }
+    let(:user) { factory_bot_create_user(:user) }
 
     before { sign_in user }
   end

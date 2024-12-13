@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Reviewed: hyrax4
+# Updated: hyrax5
 
 # monkey override Hyrax::WorkShowPresenter
 
@@ -97,6 +98,10 @@ module Hyrax
       @current_ability = current_ability
       @request = request
     end
+
+    # We cannot rely on the method missing to catch this delegation.  Because
+    # most all objects implicitly implicitly implement #to_s
+    delegate :to_s, to: :solr_document
 
     def page_title2
       "#{human_readable_type} | #{title.first} | ID: #{id} | #{I18n.t('hyrax.product_name')}"
@@ -850,11 +855,11 @@ module Hyrax
 
     # @return [Boolean] render a IIIF viewer
     def iiif_viewer?
-      representative_id.present? &&
-          representative_presenter.present? &&
-          representative_presenter.image? &&
-          Hyrax.config.iiif_image_server? &&
-          members_include_viewable_image?
+      Hyrax.config.iiif_image_server? &&
+        representative_id.present? &&
+        representative_presenter.present? &&
+        representative_presenter.image? &&
+        members_include_viewable_image?
     end
 
     alias universal_viewer? iiif_viewer?
@@ -1071,6 +1076,7 @@ module Hyrax
       # update for hyrax4
       # collections.present? ||
       #   current_ability.can?(:create_any, Hyrax.config.collection_class)
+      # collections.present? || current_ability.can?(:create_any, Collection) || current_ability.can?(:create_any, Hyrax::PcdmCollection) # hyrax5
       collections.present? || current_ability.can?(:create_any, Collection)
     end
 
@@ -1080,11 +1086,25 @@ module Hyrax
       Hyrax::ChildTypes.for(parent: solr_document.hydra_model).to_a
     end
 
+    # @return [Boolean]
+    def valkyrie_presenter?
+      solr_document.hydra_model < Valkyrie::Resource
+    end
+
     def zip_download_enabled?
       true
     end
 
     private
+
+    def method_missing(method_name, *args, &block)
+      return solr_document.public_send(method_name, *args, &block) if solr_document.respond_to?(method_name)
+      super
+    end
+
+    def respond_to_missing?(method_name, include_private = false)
+      solr_document.respond_to?(method_name, include_private) || super
+    end
 
       def anonymous_link_presenter_class
         AnonymousLinkPresenter
@@ -1094,51 +1114,52 @@ module Hyrax
         SingleUseLinkPresenter
       end
 
-      # list of item ids to display is based on ordered_ids
-      def authorized_item_ids(filter_unreadable: Flipflop.hide_private_items?)
-        @member_item_list_ids ||= filter_unreadable ? ordered_ids.reject { |id| !current_ability.can?(:read, id) } : ordered_ids
-      end
+    # list of item ids to display is based on ordered_ids
+    def authorized_item_ids(filter_unreadable: Flipflop.hide_private_items?)
+      @member_item_list_ids ||=
+        filter_unreadable ? ordered_ids.reject { |id| !current_ability.can?(:read, id) } : ordered_ids
+    end
 
-      # Uses kaminari to paginate an array to avoid need for solr documents for items here
-      def paginated_item_list(page_array:)
-        Kaminari.paginate_array(page_array, total_count: page_array.size).page(current_page).per(rows_from_params)
-      end
+    # Uses kaminari to paginate an array to avoid need for solr documents for items here
+    def paginated_item_list(page_array:)
+      Kaminari.paginate_array(page_array, total_count: page_array.size).page(current_page).per(rows_from_params)
+    end
 
-      def total_items
-        authorized_item_ids.size
-      end
+    def total_items
+      authorized_item_ids.size
+    end
 
-      def rows_from_params
-        request.params[:rows].nil? ? Hyrax.config.show_work_item_rows : request.params[:rows].to_i
-      end
+    def rows_from_params
+      request.params[:rows].nil? ? Hyrax.config.show_work_item_rows : request.params[:rows].to_i
+    end
 
-      def current_page
-        page = request.params[:page].nil? ? 1 : request.params[:page].to_i
-        page > total_pages ? total_pages : page
-      end
+    def current_page
+      page = request.params[:page].nil? ? 1 : request.params[:page].to_i
+      page > total_pages ? total_pages : page
+    end
 
-      def manifest_helper
-        @manifest_helper ||= ManifestHelper.new(request.base_url)
-      end
+    def manifest_helper
+      @manifest_helper ||= ManifestHelper.new(request.base_url)
+    end
 
-      def featured?
+    def featured?
       # only look this up if it's not boolean; ||= won't work here
-        @featured = FeaturedWork.where(work_id: solr_document.id).exists? if @featured.nil?
-        @featured
-      end
+      @featured = FeaturedWork.where(work_id: solr_document.id).exists? if @featured.nil?
+      @featured
+    end
 
-      def user_can_feature_works?
-        return false if anonymous_show?
-        current_ability.can?(:create, FeaturedWork)
-      end
+    def user_can_feature_works?
+      return false if anonymous_show?
+      current_ability.can?(:create, FeaturedWork)
+    end
 
-      def presenter_factory_arguments
-        [current_ability, request]
-      end
+    def presenter_factory_arguments
+      [current_ability, request]
+    end
 
     def member_presenter_factory_hyrax4
       @member_presenter_factory ||=
-        if solr_document.hydra_model < Valkyrie::Resource
+        if valkyrie_presenter?
           PcdmMemberPresenterFactory.new(solr_document, current_ability)
         else
           self.class
@@ -1147,19 +1168,17 @@ module Hyrax
         end
     end
 
-      def graph
+    def graph
       GraphExporter.new(solr_document, hostname: request.host).fetch
-      end
+    end
 
     # @return [Array<String>] member_of_collection_ids with current_ability access
-      def member_of_authorized_parent_collections
-        @member_of ||= Hyrax::CollectionMemberService.run(solr_document, current_ability).map(&:id)
-      end
+    def member_of_authorized_parent_collections
+      @member_of ||= Hyrax::CollectionMemberService.run(solr_document, current_ability).map(&:id)
+    end
 
-      def members_include_viewable_image?
-        file_set_presenters.any? { |presenter| presenter.image? && current_ability.can?(:read, presenter.id) }
-      end
-
+    def members_include_viewable_image?
+      file_set_presenters.any? { |presenter| presenter.image? && current_ability.can?(:read, presenter.id) }
+    end
   end
-
 end

@@ -6,7 +6,7 @@ RSpec.describe Hyrax::PagesController, type: :controller, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   before do
     sign_in user
@@ -70,7 +70,7 @@ RSpec.describe Hyrax::PagesController, type: :controller, skip: false do
     end
 
     context 'with an administrator' do
-      let(:user) { create(:admin) }
+      let(:user) { factory_bot_create_user(:admin) }
 
       describe "GET #edit" do
         it "renders breadcrumbs and dashboard layout" do

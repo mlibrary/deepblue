@@ -8,7 +8,7 @@ RSpec.describe Hyrax::Dashboard::NestCollectionsController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { FactoryBot.create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:parameters) { { child_id: child.id, parent_id: parent.id } }
 
   let(:child) do

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 # Update: hyrax4
+# Update: hyrax5
 
 FactoryBot.define do
   # Tests that create a Fedora Object are very slow.  This factory lets you control which parts of the object ecosystem
@@ -59,7 +60,7 @@ FactoryBot.define do
 
   factory :adminset_lw, class: AdminSet do
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
 
       with_permission_template { false }
       with_solr_document { false }
@@ -79,7 +80,7 @@ FactoryBot.define do
     end
 
     after(:create) do |adminset, _evaluator|
-      adminset.reset_access_controls!
+      adminset.permission_template.reset_access_controls_for(collection: adminset)
     end
 
     factory :default_adminset, class: AdminSet do
@@ -122,7 +123,7 @@ FactoryBot.define do
     # Builds a pre-Hyrax 2.1.0 adminset without edit/view grants on the admin set.
     # Do not use with create because the save will cause the solr grants to be created.
     transient do
-      user { create(:user) }
+      user { factory_bot_create_user(:user) }
       with_permission_template { true }
       with_solr_document { true }
     end

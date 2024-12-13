@@ -136,7 +136,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
   describe '.show_hit_graph?' do
 
     context "for admins" do
-      let(:user ) { FactoryBot.create(:admin) }
+      let(:user ) { factory_bot_create_user(:admin) }
       let(:ability ) { Ability.new user }
 
       context "is false when Flipflop.enable_local_analytics_ui? is false" do
@@ -160,7 +160,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
     end
 
     context "for editors" do
-      let(:user ) { FactoryBot.create(:user) }
+      let(:user ) { factory_bot_create_user(:user) }
       let(:ability ) { Ability.new user }
 
       context "is false when Flipflop.enable_local_analytics_ui? is false" do
@@ -196,7 +196,7 @@ RSpec.describe AnalyticsHelper, type: :helper do
     end
 
     context "for users" do
-      let(:user ) { FactoryBot.create(:user) }
+      let(:user ) { factory_bot_create_user(:user) }
       let(:ability ) { Ability.new user }
 
       context "is false when Flipflop.enable_local_analytics_ui? is false" do

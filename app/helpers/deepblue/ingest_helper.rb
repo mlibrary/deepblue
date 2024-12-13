@@ -252,7 +252,7 @@ module Deepblue
                                              "file_name=#{file_name}",
                                              "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       threshold_file_size = Rails.configuration.derivative_max_file_size
-      threshold_file_size > -1 && File.exist?(file_name) && File.size(file_name) > threshold_file_size
+      threshold_file_size > -1 && ::Deepblue::DiskUtilitiesHelper.file_exists?(file_name) && File.size(file_name) > threshold_file_size
     end
 
     def self.create_derivatives_duration( file_set )
@@ -286,7 +286,7 @@ module Deepblue
 
     def self.delete_file( file_path, delete_file_flag: false, msg_prefix: '', job_status: )
       return if job_status.did_delete_file?
-      if delete_file_flag && file_path.present? && File.exist?( file_path )
+      if delete_file_flag && file_path.present? && ::Deepblue::DiskUtilitiesHelper.file_exists?( file_path )
         File.delete file_path
         job_status.did_delete_file!
         Rails.logger.debug "#{msg_prefix}file deleted: #{file_path}" if ingest_helper_debug_verbose

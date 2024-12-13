@@ -8,7 +8,7 @@ RSpec.describe Hyrax::Actors::CreateWithRemoteFilesOrderedMembersActor, skip: fa
       middleware.use described_class
     end
   end
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:ability) { Ability.new(user) }
   let(:work) { create(:data_set, user: user) }
   let(:url1) { "https://dl.dropbox.com/fake/blah-blah.filepicker-demo.txt.txt" }

@@ -19,7 +19,7 @@ RSpec.describe AttachFilesToWorkJob, perform_enqueued: [AttachFilesToWorkJob] do
   let(:uploaded_file1) { build(:uploaded_file, file: file1) }
   let(:uploaded_file2) { build(:uploaded_file, file: file2) }
   let(:data_set) { create(:public_data_set) }
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
 
   shared_examples 'a file attacher', perform_enqueued: [AttachFilesToWorkJob, IngestJob] do
     let(:job) { described_class.send( :job_or_instantiate,

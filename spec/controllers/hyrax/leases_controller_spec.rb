@@ -5,7 +5,7 @@ RSpec.describe Hyrax::LeasesController, skip: false do
   include Devise::Test::ControllerHelpers
   routes { Hyrax::Engine.routes }
 
-  let(:user) { create(:user) }
+  let(:user) { factory_bot_create_user(:user) }
   let(:a_work) { create(:data_set, user: user) }
   let(:not_my_work) { create(:data_set) }
 
@@ -19,7 +19,7 @@ RSpec.describe Hyrax::LeasesController, skip: false do
       end
     end
     context 'when I am a repository manager' do
-      let(:user) { create(:user, groups: ['admin']) }
+      let(:user) { factory_bot_create_user(:user, groups: ['admin']) }
 
       it 'shows me the page' do
         expect(controller).to receive(:add_breadcrumb).with('Home', root_path)

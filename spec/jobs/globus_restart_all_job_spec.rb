@@ -114,7 +114,7 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
     context "when file does not exist" do
       before do
         allow( Rails.logger ).to receive( :debug )
-        allow( File ).to receive( :exist? ).with( job_complete_file ).and_return( false )
+        allow( ::Deepblue::DiskUtilitiesHelper ).to receive( :file_exists? ).with( job_complete_file ).and_return( false )
       end
       it "return true." do
         expect( job.send( :globus_job_complete? ) ).to eq( false )
@@ -124,7 +124,7 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
     context "when file exists and time matches" do
       before do
         allow( Rails.logger ).to receive( :debug )
-        allow( File ).to receive( :exist? ).with( job_complete_file ).and_return( true )
+        allow( ::Deepblue::DiskUtilitiesHelper ).to receive( :file_exists? ).with( job_complete_file ).and_return( true )
         # allow( File ).to receive( :birthtime ).with( job_complete_file ).and_return( time_now )
         allow( job ).to receive( :last_complete_time ).with( job_complete_file ).and_return( time_now )
         allow( GlobusJob ).to receive( :era_token_time ).with( no_args ).and_return( time_now )
@@ -138,7 +138,7 @@ describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled:
     context "when file exists and time does not match" do
       before do
         allow( Rails.logger ).to receive( :debug )
-        allow( File ).to receive( :exist? ).with( job_complete_file ).and_return( true )
+        allow( ::Deepblue::DiskUtilitiesHelper ).to receive( :file_exists? ).with( job_complete_file ).and_return( true )
         # allow( File ).to receive( :birthtime ).with( job_complete_file ).and_return( time_before_now )
         allow( job ).to receive( :last_complete_time ).with( job_complete_file ).and_return( time_before_now )
         allow( GlobusJob ).to receive( :era_token_time ).with( no_args ).and_return( time_now )
