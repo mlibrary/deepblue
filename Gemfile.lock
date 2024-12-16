@@ -117,7 +117,7 @@ GEM
     awesome_nested_set (3.8.0)
       activerecord (>= 4.0.0, < 8.1)
     aws-eventstream (1.3.0)
-    aws-partitions (1.1020.0)
+    aws-partitions (1.1023.0)
     aws-sdk-core (3.214.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -126,7 +126,7 @@ GEM
     aws-sdk-kms (1.96.0)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.176.0)
+    aws-sdk-s3 (1.176.1)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -212,13 +212,13 @@ GEM
       actionpack (>= 6.1)
       activemodel (>= 6.1)
     breadcrumbs_on_rails (3.0.1)
-    browse-everything (1.4.0)
+    browse-everything (1.5.0)
       addressable (~> 2.5)
       aws-sdk-s3
       dropbox_api (>= 0.1.20)
       google-apis-drive_v3
       googleauth (>= 0.6.6, < 2.0)
-      rails (>= 4.2, < 8.0)
+      rails (>= 4.2, < 8.1)
       ruby-box
       signet (~> 0.8)
       typhoeus
@@ -281,7 +281,7 @@ GEM
       rexml
     csl-styles (1.0.1.11)
       csl (~> 1.0)
-    csv (3.3.0)
+    csv (3.3.1)
     dalli (3.2.8)
     database_cleaner (1.99.0)
     date (3.4.1)
@@ -441,7 +441,7 @@ GEM
       mutex_m
       representable (~> 3.0)
       retriable (>= 2.0, < 4.a)
-    google-apis-drive_v3 (0.60.0)
+    google-apis-drive_v3 (0.61.0)
       google-apis-core (>= 0.15.0, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
@@ -582,7 +582,7 @@ GEM
       activesupport (>= 4)
     interception (0.5)
     io-console (0.8.0)
-    irb (1.14.1)
+    irb (1.14.2)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     iso8601 (0.9.1)
@@ -699,7 +699,7 @@ GEM
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
-    logger (1.6.2)
+    logger (1.6.3)
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -762,7 +762,7 @@ GEM
       uri
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
-    net-imap (0.5.1)
+    net-imap (0.5.2)
       date
       net-protocol
     net-ldap (0.19.0)
@@ -779,7 +779,7 @@ GEM
     noid-rails (3.2.0)
       actionpack (>= 5.0.0, < 8)
       noid (~> 0.9)
-    nokogiri (1.17.1-arm64-darwin)
+    nokogiri (1.17.2-arm64-darwin)
       racc (~> 1.4)
     nokogiri (1.17.1-x86_64-linux)
       racc (~> 1.4)
@@ -796,7 +796,7 @@ GEM
       multi_json (~> 1.3)
       multi_xml (~> 0.5)
       rack (>= 1.2, < 4)
-    oj (3.16.7)
+    oj (3.16.8)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     oj_mimic_json (1.0.1)
@@ -824,7 +824,6 @@ GEM
     parser (2.7.2.0)
       ast (~> 2.4.1)
     parslet (2.0.0)
-    pg (1.5.9)
     popper_js (1.16.1)
     posix-spawn (0.3.15)
     postrank-uri (1.0.24)
@@ -854,14 +853,14 @@ GEM
     public_suffix (2.0.5)
     puma (6.5.0)
       nio4r (~> 2.0)
-    qa (5.13.0)
+    qa (5.14.0)
       activerecord-import
       deprecation
       faraday (< 3.0, != 2.0.0)
       geocoder
       ldpath
       nokogiri (~> 1.6)
-      rails (>= 5.0, < 8.0)
+      rails (>= 5.0, < 8.1)
       rdf
     raabro (1.4.0)
     racc (1.8.1)
@@ -1028,7 +1027,7 @@ GEM
       activemodel (>= 5.0)
       reform (>= 2.3.1, < 3.0.0)
     regexp_parser (2.9.3)
-    reline (0.5.12)
+    reline (0.6.0)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -1065,7 +1064,7 @@ GEM
     retriable (3.1.2)
     reverse_markdown (3.0.0)
       nokogiri
-    rexml (3.3.9)
+    rexml (3.4.0)
     riiif (2.7.0)
       deprecation (>= 1.0.0)
       iiif-image-api (>= 0.1.0)
@@ -1234,7 +1233,7 @@ GEM
     tilt (2.4.0)
     time_difference (0.5.0)
       activesupport
-    timeout (0.4.2)
+    timeout (0.4.3)
     tinymce-rails (5.10.9)
       railties (>= 3.1.1)
     trailblazer-option (0.1.2)
@@ -1405,7 +1404,6 @@ DEPENDENCIES
   okcomputer
   omniauth (>= 1.9.2)
   omniauth-cas
-  pg (~> 1.3)
   pry-byebug
   pry-doc
   pry-rails

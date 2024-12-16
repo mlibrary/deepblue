@@ -156,7 +156,7 @@ gem 'devise-guests', '~> 0.8'
 # gemspec name: 'hyrax', path: ENV.fetch('HYRAX_ENGINE_PATH', '..')
 gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
-gem 'pg', '~> 1.3'
+#gem 'pg', '~> 1.3'
 gem 'puma'
 gem 'rails', '~> 6.1'
 gem 'riiif', '~> 2.1'
