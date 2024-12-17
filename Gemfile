@@ -427,7 +427,7 @@ gem 'down', '~> 4.4'
 gem 'cronex' # https://github.com/alpinweis/cronex
 gem 'diffy',         '>= 3.4.1' # https://github.com/samg/diffy
 gem 'jira-ruby',     '~> 1.1'
-# gem 'okcomputer',    '~> 1.17'
+gem 'okcomputer',    '~> 1.17'
 gem 'omniauth',      '>= 1.9.2'
 gem 'omniauth-cas'
 
@@ -490,7 +490,7 @@ group :development, :test do
   gem 'factory_bot', '~> 4.4'
   gem 'fcrepo_wrapper'
   gem 'mida', '~> 0.3'
-  gem 'okcomputer'
+  # gem 'okcomputer'
   #hyrax5 - gem 'pg', '~> 1.2'
 
   #hyrax5 - gem 'pry'

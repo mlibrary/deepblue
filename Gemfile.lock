@@ -781,7 +781,7 @@ GEM
       noid (~> 0.9)
     nokogiri (1.17.2-arm64-darwin)
       racc (~> 1.4)
-    nokogiri (1.17.1-x86_64-linux)
+    nokogiri (1.17.2-x86_64-linux)
       racc (~> 1.4)
     oai (1.2.1)
       builder (>= 3.1.0)
@@ -1401,7 +1401,7 @@ DEPENDENCIES
   mysql2
   net-ldap
   new_google_recaptcha
-  okcomputer
+  okcomputer (~> 1.17)
   omniauth (>= 1.9.2)
   omniauth-cas
   pry-byebug
