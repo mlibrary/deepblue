@@ -427,7 +427,7 @@ gem 'down', '~> 4.4'
 gem 'cronex' # https://github.com/alpinweis/cronex
 gem 'diffy',         '>= 3.4.1' # https://github.com/samg/diffy
 gem 'jira-ruby',     '~> 1.1'
-gem 'okcomputer',    '~> 1.17'
+gem 'okcomputer'
 gem 'omniauth',      '>= 1.9.2'
 gem 'omniauth-cas'
 
