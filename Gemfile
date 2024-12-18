@@ -158,6 +158,7 @@ gem 'jbuilder', '~> 2.5'
 gem 'jquery-rails'
 #gem 'pg', '~> 1.3'
 gem 'puma'
+gem 'railties', '> 3', '< 7'
 gem 'rails', '~> 6.1'
 gem 'riiif', '~> 2.1'
 gem 'rsolr', '>= 1.0', '< 3'
@@ -389,14 +390,13 @@ gem 'bootstrap-sass', '~> 3.4.1'
 # gem 'carrierwave',    '>= 1.3.2'
 gem 'globalid',       '>= 1.0.1'
 gem 'loofah',         '~> 2.19.1'
-# gem 'nokogiri',       '>= 1.13.10'
+gem 'nokogiri' #,       '>= 1.13.10'
 gem 'rack',           '>= 2.2.6.2'
 # gem 'rails-html-sanitizer', '>= 1.4.4'
 gem 'rubyzip',        '~> 2.0.0'
 gem 'sassc',          '>= 2.0.0'
 #hyrax5 - gem "sinatra",        '>= 3.0.4'
-#hyrax5 - gem 'sprockets',      '~> 3.7.2'
-# gem 'sprockets',      '>= 3.7.2'
+gem "sinatra"
 gem 'websocket-extensions', '>= 0.1.5'
 # End security vulnerability mitigation
 
@@ -493,7 +493,7 @@ group :development, :test do
   # gem 'okcomputer'
   #hyrax5 - gem 'pg', '~> 1.2'
 
-  #hyrax5 - gem 'pry'
+  gem 'pry'
   gem 'pry-byebug'
   #hyrax5 - gem 'pry-rails'
 
