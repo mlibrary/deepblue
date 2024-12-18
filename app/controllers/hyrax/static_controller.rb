@@ -65,6 +65,7 @@ module Hyrax
                       faq|
                       help|
                       globus-help|
+                      orcid|
                       rest-api|
                       services|
                       user-guide|
