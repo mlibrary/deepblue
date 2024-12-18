@@ -241,7 +241,7 @@ Rails.application.routes.draw do
   get 'orcid/works/publish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :publish, as: 'orcid_works_publish'
   get 'orcid/works/unpublish/:work_id/:orcid_id', controller: 'hyrax/orcid/dashboard/works', action: :unpublish, as: 'orcid_works_unpublish'
 
-  mount WillowSword::Engine => '/sword' if defined?(WillowSword) #hyrax5
+  #hyrax5 - mount WillowSword::Engine => '/sword' if defined?(WillowSword) #hyrax5
 
   # Permissions routes
   namespace :hyrax, path: :concern do

@@ -106,7 +106,7 @@ module Integrator
 
         collection_id = params["collection_id"]
         unless collection_id.blank?
-          collection_id =  WillowSword::IntegrationService.default_collection_id if collection_id.eql? "default"
+          #hyarx5 - collection_id =  WillowSword::IntegrationService.default_collection_id if collection_id.eql? "default"
           collection = Collection.find collection_id
           @object.member_of_collections << collection
           @object.save!
@@ -122,9 +122,10 @@ module Integrator
           transform_attributes.except(:id, 'id')
         end
 
+        #hyrax5
         def set_work_klass
           # Transform name of model to match across name variations
-          work_models = WillowSword.config.work_models
+          work_models = ['DataSet'] #hyrax5 - WillowSword.config.work_models
           if work_models.kind_of?(Array)
             work_models = work_models.map { |m| [m, m] }.to_h
           end
@@ -161,12 +162,12 @@ module Integrator
         # a way that is compatible with how the factory needs them.
         def transform_attributes
           # TODO: attributes are strings and not symbols
-          @attributes['visibility'] = WillowSword.config.default_visibility if @attributes.fetch('visibility', nil).blank?
-          if WillowSword.config.allow_only_permitted_attributes
-           @attributes.slice(*permitted_attributes).merge(file_attributes)
-          else
+          #hyrax5 - @attributes['visibility'] = Sword.config.default_visibility if @attributes.fetch('visibility', nil).blank?
+          #hyrax5 - if WillowSword.config.allow_only_permitted_attributes
+          #hyrax5 -  @attributes.slice(*permitted_attributes).merge(file_attributes)
+          #hyrax5 - else
            @attributes.merge(file_attributes)
-          end
+          #hyrax5 - end
         end
 
         def file_attributes
@@ -192,7 +193,7 @@ module Integrator
         end
 
         def create_file_set_with_attributes(file_attributes)
-          @file_set_klass = WillowSword.config.file_set_models.first.constantize
+          @file_set_klass = ['FileSet'] #hyrax5 - WillowSword.config.file_set_models.first.constantize
           file_set = @file_set_klass.create
           @current_user = User.batch_user unless @current_user.present?
           actor = file_set_actor.new(file_set, @current_user)
@@ -218,11 +219,11 @@ module Integrator
         end
 
         def file_set_attributes(attributes)
-          if WillowSword.config.allow_only_permitted_attributes
-            attributes.slice(*permitted_file_attributes).except(:id, 'id')
-          else
+          #hyrax5 - if WillowSword.config.allow_only_permitted_attributes
+          #hyrax5 - attributes.slice(*permitted_file_attributes).except(:id, 'id')
+          #hyrax5 - else
             attributes.except(:id, 'id')
-          end
+          #hyrax5 - end
         end
 
         def file_set_actor
