@@ -44,6 +44,7 @@ Rails.application.routes.draw do
                                                                       faq|
                                                                       help|
                                                                       globus-help|
+                                                                      orcid|
                                                                       rest-api|
                                                                       services|
                                                                       user-guide|
