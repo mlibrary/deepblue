@@ -137,7 +137,7 @@ module Deepblue
         current_dir.chomp!
         real_dir = File.dirname current_dir
         real_dir = File.join( real_dir, 'shared', 'tmp', 'scripts')
-        FileUtils.mkdir_p( real_dir ) unless Dir.exist?( real_dir )
+        FileUtilsHelper.mkdir_p( real_dir ) unless FileUtilsHelper.dir_exist?( real_dir )
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "real_dir=#{real_dir}",

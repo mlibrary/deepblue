@@ -57,7 +57,23 @@ class FileExport < ApplicationRecord
     return rv.first.event
   end
 
-  def self.find_or_create( file_sys_export:, fs:, export_status: nil )
+  def self.find_or_create( file_sys_export:, noid:, export_status: nil )
+    record = FileExport.find_or_create_by( file_sys_exports_id: file_sys_export.id, noid: noid ) do |create|
+      export_status ||= FileSysExportC::STATUS_EXPORT_NEEDED
+      create.file_sys_exports_id     = file_sys_export.id # is this necessary?
+      create.noid                    = noid
+      create.export_type             = file_sys_export.export_type
+      create.export_noid             = file_sys_export.noid
+      create.export_status           = export_status
+      create.base_noid_path          = FileSysExportService.pair_path( noid: file_sys_export.noid )
+      # create.checksum_value          = fs.checksum_value
+      # create.checksum_algorithm      = fs.checksum_algorithm
+      create.export_status_timestamp = DateTime.now
+    end
+    return record
+  end
+
+  def self.find_or_create_for_fs( file_sys_export:, fs:, export_status: nil )
     record = FileExport.find_or_create_by( file_sys_exports_id: file_sys_export.id, noid: fs.id ) do |create|
       export_status ||= FileSysExportC::STATUS_EXPORT_NEEDED
       create.file_sys_exports_id     = file_sys_export.id # is this necessary?

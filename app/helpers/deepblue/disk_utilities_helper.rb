@@ -306,7 +306,7 @@ module Deepblue
     def self.mkdirs( target_dir )
       return if Dir.exists? target_dir
       return if File.symlink? target_dir
-      FileUtils.mkdir_p target_dir
+      FileUtilsHelper.mkdir_p target_dir
     end
 
     def self.tmp_derivatives_path

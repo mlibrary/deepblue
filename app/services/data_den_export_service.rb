@@ -10,6 +10,7 @@ class DataDenExportService < AbstractFileSysExportService
                                                                              skip_export: false,
                                                                              test_mode: false } )
     w = DataSet.all.first
+    # w = DataSet.all.last
     w.file_set_ids.size
     service.export_data_set( work: w )
   end
