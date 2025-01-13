@@ -61,7 +61,12 @@ module Deepblue
       return bytes_copied
     end
 
-    def self.export_file_name( file_set:, include_id: false )
+    def self.export_file_name( file_name: )
+      rv = file_name.gsub( /[\/\?\<\>\\\:\*\|\'\"\^\;]/, '_' )
+      return rv
+    end
+
+    def self.export_file_name_fs( file_set:, include_id: false )
       title = file_set.title[0]
       file = ::Deepblue::MetadataHelper.file_from_file_set( file_set )
       if file.nil?
@@ -134,6 +139,26 @@ module Deepblue
       return bytes_expected
     end
 
+    def self.export_file_sets_fix_file_name( file_set:, files_extracted: )
+      # fix possible issues with target file name
+      file_name = file_set.label
+      file_name = '_nil_' if file_name.nil?
+      file_name = '_empty_' if file_name.empty?
+      if files_extracted.key? file_name
+        dup_count = 1
+        ext = File.extname file_name
+        basename = File.basename file_name, ext
+        file_name = basename + "_" + dup_count.to_s.rjust( 3, '0' ) + ext
+        while files_extracted.key? file_name
+          dup_count += 1
+          file_name = basename + "_" + dup_count.to_s.rjust( 3, '0' ) + ext
+        end
+      end
+      # files_extracted[file_name] = true
+      files_extracted[file_name] = file_set.id
+      return file_name
+    end
+
     def self.export_file_sets( target_dir:,
                                file_sets:,
                                log_prefix: DEFAULT_LOG_PREFIX,
@@ -149,21 +174,22 @@ module Deepblue
         if file.nil?
           Rails.logger.warn "#{log_prefix} file_set.id #{file_set.id} files[0] is nil"
         else
-          target_file_name = file_set.label
-          # fix possible issues with target file name
-          target_file_name = '_nil_' if target_file_name.nil?
-          target_file_name = '_empty_' if target_file_name.empty?
-          if files_extracted.key? target_file_name
-            dup_count = 1
-            base_ext = File.extname target_file_name
-            base_target_file_name = File.basename target_file_name, base_ext
-            target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
-            while files_extracted.key? target_file_name
-              dup_count += 1
-              target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
-            end
-          end
-          files_extracted.store( target_file_name, true )
+          # target_file_name = file_set.label
+          # # fix possible issues with target file name
+          # target_file_name = '_nil_' if target_file_name.nil?
+          # target_file_name = '_empty_' if target_file_name.empty?
+          # if files_extracted.key? target_file_name
+          #   dup_count = 1
+          #   base_ext = File.extname target_file_name
+          #   base_target_file_name = File.basename target_file_name, base_ext
+          #   target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+          #   while files_extracted.key? target_file_name
+          #     dup_count += 1
+          #     target_file_name = base_target_file_name + "_" + dup_count.to_s.rjust( 3, '0' ) + base_ext
+          #   end
+          # end
+          # files_extracted.store( target_file_name, true )
+          target_file_name = export_file_sets_fix_file_name( file_set: file_set, files_extracted: files_extracted )
           target_file = target_dir.join target_file_name
           if do_export_predicate.call( target_file_name, target_file )
             source_uri = file.uri.value
@@ -207,7 +233,7 @@ module Deepblue
       target_dir_path = Time.now.strftime( "%Y%m%d%H%M%S" )
       target_dir_path = "#{target_root_dir}#{server_part}/#{target_dir_path}"
       msg_handler.msg "Target dir is: #{target_dir_path}" unless msg_handler.nil?
-      FileUtils.mkdir_p target_dir_path unless Dir.exist? target_dir_path
+      FileUtilsHelper.mkdir_p target_dir_path unless Dir.exist? target_dir_path
       log_path = File.realpath src_dir
       cmd = "ls -l \"#{log_path}/\"*"
       rv = `#{cmd}`
