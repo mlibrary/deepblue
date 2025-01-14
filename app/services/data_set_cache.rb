@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-# TODO: delete this and start using DataSetCache
+# TODO: move to models?
 
-class Aptrust::WorkCache
+class DataSetCache
 
   attr_accessor :noid
-  attr_accessor :work
+  attr_accessor :data_set
   attr_accessor :solr
   attr_accessor :msg_handler
 
-  def initialize( noid: nil, work: nil, solr: true, msg_handler: nil )
+  def initialize( noid: nil, data_set: nil, solr: true, msg_handler: nil )
     @noid = noid
-    @work = work
+    @data_set = data_set
     @solr = solr
     @msg_handler = msg_handler
     @date_modified = nil
@@ -21,7 +21,7 @@ class Aptrust::WorkCache
     if @solr
       rv = date_modified_solr
     else
-      rv = work.date_modified
+      rv = data_set.date_modified
     end
     return rv
   end
@@ -31,25 +31,25 @@ class Aptrust::WorkCache
   end
 
   def date_modified_solr_init
-    rv = work['date_modified_dtsi']
+    rv = data_set['date_modified_dtsi']
     rv = DateTime.parse rv
     return rv
   end
 
   def file_set_ids
     if @solr
-      rv = work['file_set_ids_ssim']
+      rv = data_set['file_set_ids_ssim']
     else
-      rv = work.file_set_ids
+      rv = data_set.file_set_ids
     end
     return rv
   end
 
   def id
     if @solr
-      rv = work['id']
+      rv = data_set['id']
     else
-      rv = work.id
+      rv = data_set.id
     end
     return rv
   end
@@ -58,13 +58,13 @@ class Aptrust::WorkCache
     if @solr
       rv = published_solr?
     else
-      rv = work.published?
+      rv = data_set.published?
     end
     return rv
   end
 
   def published_solr?
-    doc = work
+    doc = data_set
     return false unless doc['visibility_ssi'] == 'open'
     return false unless doc['workflow_state_name_ssim'] = ["deposited"]
     return false if doc['suppressed_bsi']
@@ -73,25 +73,25 @@ class Aptrust::WorkCache
 
   def reset
     @noid = nil
-    @work = nil
+    @data_set = nil
     @date_modified = nil
     return self
   end
 
   def total_file_size
     if @solr
-      rv = work['total_file_size_lts']
+      rv = data_set['total_file_size_lts']
     else
-      rv = work.total_file_size
+      rv = data_set.total_file_size
     end
     return rv
   end
 
-  def work
-    @work ||= work_init
+  def data_set
+    @data_set ||= data_set_init
   end
 
-  def work_init
+  def data_set_init
     rv = nil
     begin
       if @solr
@@ -107,8 +107,8 @@ class Aptrust::WorkCache
     return rv
   end
 
-  def work_present?
-    work.present?
+  def data_set_present?
+    data_set.present?
   end
 
 end

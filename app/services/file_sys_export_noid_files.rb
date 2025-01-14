@@ -62,7 +62,6 @@ class FileSysExportNoidFiles
   end
 
   def add_file( ancillary_id:, file_name: )
-    # TODO: work
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "ancillary_id=#{ancillary_id}", "file_name=#{file_name}" ] if msg_handler.debug_verbose
     msg_handler.msg_verbose "#{msg_prefix} add ancillary_id #{ancillary_id} " if msg_handler.present?
     file_rec = @fsid_map[ ancillary_id ]
@@ -155,6 +154,35 @@ class FileSysExportNoidFiles
 
   def msg_prefix
     "FileSysExportNoidFiles(#{noid})"
+  end
+
+  def needs_export?( file_set: )
+    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    return false if file_set.nil?
+    fs_rec = find_fs_record( fs: file_set )
+    if fs_rec.nil?
+      file_exporter.add_fs( fs: file_set )
+      return true
+    end
+    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.status
+    return false
+  end
+
+  def needs_export_update?( file_set: )
+    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    return false if file_set.nil?
+    fs_rec = find_fs_record( fs: file_set )
+    if fs_rec.nil?
+      file_exporter.add_fs( fs: file_set )
+      return true
+    end
+    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.status
+    return true if ::FileSysExportC::ALL_STATUS_EXPORTING.has_key? fs_rec.status
+    # TODO: is file_set.date_modified correct here?
+    if file_set.date_modified > fs_rec.updated_at
+      return true
+    end
+    return false
   end
 
 end

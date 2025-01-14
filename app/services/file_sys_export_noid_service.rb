@@ -125,6 +125,18 @@ class FileSysExportNoidService
                                                  msg_handler: @msg_handler )
   end
 
+  def needs_update_export?
+    return true if force_export
+    FileSysExportService.data_set_needs_export_update?( export_type: @export_type,
+                                                        cc: @work,
+                                                        export_rec: @file_sys_export,
+                                                        msg_handler: @msg_handler )
+  end
+
+  def status
+    @file_sys_export.status
+  end
+
   def status!( export_status:, note: nil )
     @file_sys_export.export_status = export_status
     @file_sys_export.export_status_timestamp = DateTime.now
