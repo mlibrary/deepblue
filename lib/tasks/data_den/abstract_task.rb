@@ -4,19 +4,15 @@ require_relative '../../../app/tasks/deepblue/abstract_task'
 require_relative '../../../app/helpers/deepblue_helper'
 require_relative '../../../app/helpers/deepblue/email_helper'
 require_relative '../../../app/helpers/deepblue/report_helper'
+require_relative '../../../app/models/file_export'
+require_relative '../../../app/models/file_sys_export'
 require_relative '../../../app/services/deepblue/message_handler'
-require_relative '../../../app/services/aptrust/aptrust'
-require_relative '../../../app/services/aptrust/aptrust_config'
-require_relative '../../../app/services/aptrust/aptrust_integration_service'
-require_relative '../../../app/services/aptrust/work_cache'
-require_relative '../../../app/models/aptrust/status'
+require_relative '../../../app/services/data_set_cache'
 
-module Aptrust
+module DataDen
 
   class AbstractTask < ::Deepblue::AbstractTask
 
-    attr_accessor :aptrust_config
-    attr_accessor :aptrust_config_file
     attr_accessor :date_begin
     attr_accessor :date_end
     attr_accessor :email_results
@@ -51,22 +47,6 @@ module Aptrust
       @task_options  = options.dup # TODO: start using
       msg_handler.msg_debug( [ msg_handler.here, msg_handler.called_from,
                                "@track_status=#{@track_status}" ] ) if msg_handler.present?
-    end
-
-    def aptrust_config
-      @aptrust_config ||= aptrust_config_init
-    end
-
-    def aptrust_config_init
-      # msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
-      if @aptrust_config.blank?
-        @aptrust_config = if @aptrust_config_file.present?
-                            ::Aptrust::AptrustConfig.new( filename: @aptrust_config_filename )
-                          else
-                            ::Aptrust::AptrustConfig.new
-                          end
-      end
-      @aptrust_config
     end
 
     def human_readable_size( value )
@@ -211,12 +191,19 @@ module Aptrust
       end
     end
 
-    def status_created_at( noid: )
-      rv = ::Aptrust::Status.for_id( noid: noid )
-      return nil if rv.blank?
-      rv = rv.first
-      rv = rv.created_at
-      return rv
+    def file_sys_export( noid: )
+      rec = FileSysExport.for_id( noid: noid )
+      rec = rec[0] if rec.present?
+      return rec
+    end
+
+    def status_created_at( noid: nil )
+      return "N/A"
+      # rv = ::DataDen::Status.for_id( noid: noid )
+      # return nil if rv.blank?
+      # rv = rv.first
+      # rv = rv.created_at
+      # return rv
     end
 
     def test_dates_init

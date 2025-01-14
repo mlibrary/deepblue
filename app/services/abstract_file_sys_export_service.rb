@@ -91,13 +91,14 @@ class AbstractFileSysExportService
   end
 
   def export_all
+    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
     bold_debug [ here, called_from ] if debug_verbose
     msg_verbose "export_all starting..." if verbose
     DataSet.all.each do |work|
       noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
       export_data_set_rec( noid_service: noid_service )
     end
-    msg_verbose "export_all starting..." if verbose
+    msg_verbose "export_all finished." if verbose
   rescue Exception => e
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     bold_error [ here, called_from,
@@ -106,10 +107,11 @@ class AbstractFileSysExportService
   end
 
   def export_data_set( work: )
+    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
     msg_verbose "export_data_set starting..." if verbose
     noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
     export_data_set_rec( noid_service: noid_service )
-    msg_verbose "export_data_set starting..." if verbose
+    msg_verbose "export_data_set finished." if verbose
   rescue Exception => e
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     bold_error [ here, called_from,
@@ -126,10 +128,10 @@ class AbstractFileSysExportService
     return unless noid_service.needs_export?
     msg_verbose "exporting work #{noid_service.noid}" if verbose
     work_status_exporting( noid_service )
-    file_exporter = noid_service.file_exporter
     export_metadata_file( noid_service: noid_service )
     export_provenance_file( noid_service: noid_service )
     export_ingest_file( noid_service: noid_service )
+    file_exporter = noid_service.file_exporter
     noid_service.work.file_sets.each do |file_set|
       bold_debug [ here, called_from,
                    "noid_service.noid=#{noid_service.noid}",
@@ -458,6 +460,59 @@ class AbstractFileSysExportService
     @test_mode = value
   end
 
+  def update_export_data_set( work: )
+    msg_verbose "update_export_data_set starting..." if verbose
+    noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
+    export_data_set_rec( noid_service: noid_service )
+    msg_verbose "export_data_set finished." if verbose
+  rescue Exception => e
+    Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+    bold_error [ here, called_from,
+                 "AbstractFileSysExportService.update_export_data_set(#{work&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
+    raise
+  end
+
+  def update_export_data_set_rec( noid_service: )
+    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    bold_debug [ here, called_from, "noid_service=#{noid_service}" ] if debug_verbose
+    return unless noid_service.needs_update_export?
+    msg_verbose "updating export work #{noid_service.noid}" if verbose
+    work_status_export_updating( noid_service )
+    export_metadata_file( noid_service: noid_service )
+    export_provenance_file( noid_service: noid_service )
+    export_ingest_file( noid_service: noid_service )
+    file_exporter = noid_service.file_exporter
+    noid_service.work.file_sets.each do |file_set|
+      bold_debug [ here, called_from,
+                   "noid_service.noid=#{noid_service.noid}",
+                   "file_set.id=#{file_set&.id}" ] if debug_verbose
+      if file_set.nil?
+        msg_warn "Found nil file set for work #{noid_service.noid}"
+        next
+      end
+      if file_exporter.needs_export_update?( file_set: file_set )
+          fs_rec = file_exporter.find_fs_record( fs: file_set )
+          export_fs_rec( noid_service: noid_service, fs: file_set, fs_rec: fs_rec )
+          # TODO: since versions are static, we only care about ones that don't have an fs_rec
+          #   versions = file_set.versions
+          #   msg_verbose "#{file_set.id}: versions.count=#{versions.count}" if verbose
+          #   next if 2 > versions.count
+          #   versions.each_with_index do |ver,index|
+          #     index += 1 # not zero-based
+          #     next if index >= versions.count # skip exporting last version file as it is the current version
+          #     msg_verbose "#{file_set.id}: version index=#{index}" if verbose
+          #     export_file_set_version( noid_service: noid_service, fs_rec: fs_rec, version: ver, index: index )
+          #   end
+      end
+    end
+    export_data_set_publish_rec( noid_service: noid_service ) if noid_service.published?
+    work_status_exported( noid_service )
+  rescue Exception => e
+    msg_error "#{e}"
+    work_status_error( noid_service, note: e.message )
+    raise
+  end
+
   def validate_checksums=( value )
     @options[:validate_checksums] = value
     @validate_checksums = value
@@ -465,6 +520,7 @@ class AbstractFileSysExportService
 
   def work_status_error(     rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_ERROR,   note: note ) end
   def work_status_export_needed( rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORT_NEEDED, note: note ) end
+  def work_status_export_updating( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_UPDAING,      note: note ) end
   def work_status_exported(  rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORTED,       note: note ) end
   def work_status_exporting( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORTING,      note: note ) end
   def work_status_skipped(   rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_SKIPPED, note: note ) end
