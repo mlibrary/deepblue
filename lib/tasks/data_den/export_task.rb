@@ -25,24 +25,24 @@ module DataDen
     def run_find
       @noids = []
       test_dates_init
-      w = ::DataSetCache.new
-      w_all.each do |work|
-        w.reset.work = work
-        if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+      dsc = ::DataSetCache.new
+      dsc_all.each do |data_set|
+        dsc.reset.data_set = data_set
+        if !dsc.data_set_present?
+          msg_handler.msg_warn "Failed to load data_set with noid #{status.noid}"
           next
         end
-        next unless w&.file_set_ids.present?
-        next unless w.file_set_ids.size > 0
-        next unless w.published?
-        # msg_handler.msg_verbose "Filter w.date_modified=#{w.date_modified}"
-        # msg_handler.msg_verbose "Filter #{test_date_begin} < #{w.date_modified} < #{test_date_end} ?"
-        # msg_handler.msg_verbose "next unless #{test_date_begin} <= #{w.date_modified} = #{test_date_begin <= w.date_modified}"
-        # msg_handler.msg_verbose "next unless #{w.date_modified} <= #{test_date_end} = #{w.date_modified <= test_date_end}"
-        next unless @test_date_begin <= w.date_modified
-        next unless w.date_modified <= @test_date_end
-        # next if ::DataDen::Status.has_status?( cc: w )
-        @noids << w.id
+        # next unless dsc&.file_set_ids.present?
+        # next unless dsc.file_set_ids.size > 0
+        # next unless dsc.published?
+        # msg_handler.msg_verbose "Filter dsc.date_modified=#{dsc.date_modified}"
+        # msg_handler.msg_verbose "Filter #{test_date_begin} < #{dsc.date_modified} < #{test_date_end} ?"
+        # msg_handler.msg_verbose "next unless #{test_date_begin} <= #{dsc.date_modified} = #{test_date_begin <= dsc.date_modified}"
+        # msg_handler.msg_verbose "next unless #{dsc.date_modified} <= #{test_date_end} = #{dsc.date_modified <= test_date_end}"
+        next unless @test_date_begin <= dsc.date_modified
+        next unless dsc.date_modified <= @test_date_end
+        # next if ::DataDen::Status.has_status?( cc: dsc )
+        @noids << dsc.id
       end
     end
 

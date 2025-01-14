@@ -29,8 +29,10 @@ module DataDen
     end
 
     def csv_out_init
-      rv = CSV.open( report_file, 'wa', {:force_quotes=>true} ) if report_append
-      rv = CSV.open( report_file, 'w', {:force_quotes=>true} ) unless report_append
+      # rv = CSV.open( report_file, 'wa', {:force_quotes=>true} ) if report_append
+      # rv = CSV.open( report_file, 'w', {:force_quotes=>true} ) unless report_append
+      rv = CSV.open( report_file, 'wa', force_quotes: true ) if report_append
+      rv = CSV.open( report_file, 'w', force_quotes: true ) unless report_append
       return rv
     end
 

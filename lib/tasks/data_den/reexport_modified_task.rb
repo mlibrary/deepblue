@@ -28,18 +28,18 @@ module DataDen
     def run_find
       @noids = []
       test_dates_init
-      w = ::DataDen::DataSetCache.new( msg_handler: msg_handler )
+      dsc = DataSetCache.new( msg_handler: msg_handler )
       # ::DataDen::Status.all.each do |status|
       #   # msg_handler.msg_verbose "status=#{status.pretty_inspect}" if debug_verbose
       #   # puts "status=#{status.pretty_inspect}"
       #   next if status.event == ::DataDen::EVENT_DELETED
-      #   w.reset.noid = status.noid
-      #   if !w.work_present?
+      #   dsc.reset.noid = status.noid
+      #   if !dsc.work_present?
       #     msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
       #     next
       #   end
       #   status_create_date = status.created_at
-      #   work_modified_date = w.date_modified
+      #   work_modified_date = dsc.date_modified
       #   next if work_modified_date < status_create_date
       #
       #   # msg_handler.msg_verbose "Filter status.timestamp=#{status.timestamp}"
@@ -49,7 +49,7 @@ module DataDen
       #   next unless @test_date_begin <= status.timestamp
       #   next unless status.timestamp <= @test_date_end
       #
-      #   @noids << w.id
+      #   @noids << dsc.id
       # end
     end
 
