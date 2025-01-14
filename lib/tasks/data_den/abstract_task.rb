@@ -18,15 +18,12 @@ module DataDen
     attr_accessor :email_results
     attr_accessor :email_subject
     attr_accessor :email_targets
-    attr_accessor :export_dir
     attr_accessor :noids
     attr_accessor :test_date_begin
     attr_accessor :test_date_end
     attr_accessor :test_mode
-    attr_accessor :working_dir
 
     attr_accessor :task_options # TODO: start using
-    attr_accessor :track_status
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
@@ -40,13 +37,10 @@ module DataDen
       @email_results = task_options_value( key: 'email_results', default_value: true )
       @email_subject = task_options_value( key: 'email_subject', default_value: '' )
       @email_targets = option_email_targets
-      @export_dir    = option_path( key: 'export_dir' )
-      @track_status  = option_value( key: 'track_status', default_value: true )
-      @working_dir   = option_path( key: 'working_dir' )
       @test_mode     = option_value( key: 'test_mode', default_value: false )
       @task_options  = options.dup # TODO: start using
       msg_handler.msg_debug( [ msg_handler.here, msg_handler.called_from,
-                               "@track_status=#{@track_status}" ] ) if msg_handler.present?
+                               "@test_mode=#{@test_mode}" ] ) if msg_handler.present?
     end
 
     def human_readable_size( value )
@@ -269,7 +263,7 @@ module DataDen
       end
     end
 
-    def w_all( solr: true )
+    def dsc_all( solr: true )
       if solr
         rv = ActiveFedora::SolrService.query("+(has_model_ssim:DataSet)", rows: 100_000)
       else

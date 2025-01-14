@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative './deepblue/message_handler'
+require_relative './deepblue/message_handler_null'
+require_relative './file_sys_export_c'
+
 class AbstractFileSysExportService
 
   mattr_accessor :abstract_file_sys_export_debug_verbose, default: false
@@ -106,9 +110,12 @@ class AbstractFileSysExportService
     raise
   end
 
-  def export_data_set( work: )
+  def export_data_set( work: nil, noid: nil )
     # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
     msg_verbose "export_data_set starting..." if verbose
+    raise ArgumentError( "Expected one of work or noid to not be nil." ) if work.nil? && noid.nil?
+    work = PersistHelper.find_or_nil( noid ) if work.nil?
+    raise ArgumentError( "Could not find data set #{noid}" ) if work.nil?
     noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
     export_data_set_rec( noid_service: noid_service )
     msg_verbose "export_data_set finished." if verbose
