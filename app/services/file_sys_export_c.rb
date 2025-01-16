@@ -13,6 +13,7 @@ module FileSysExportC
 
   METADATA_REPORT_FILENAME = "metadata_report.txt" unless const_defined? :METADATA_REPORT_FILENAME
 
+  STATUS_DELETED           = 'deleted'           unless const_defined? :STATUS_DELETED
   STATUS_EXPORT_ERROR      = 'export_error'      unless const_defined? :STATUS_EXPORT_ERROR
   STATUS_EXPORT_NEEDED     = 'export_needed'     unless const_defined? :STATUS_EXPORT_NEEDED
   STATUS_EXPORT_SKIPPED    = 'export_skipped'    unless const_defined? :STATUS_EXPORT_SKIPPED

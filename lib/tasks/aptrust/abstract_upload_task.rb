@@ -74,8 +74,7 @@ module Aptrust
         end
         @noid_pairs << { noid: noid, size: w.total_file_size }
       end
-      @noid_pairs.sort! { |a,b| a[:size] < b[:size] ? 0 : 1 }
-      # @noid_pairs = @noid_pairs.select { |p| p[:size] <= max_size } if 0 < max_size
+      @noid_pairs.sort! { |a,b| a[:size] <=> b[:size] }
     end
 
     def option_max_size
@@ -83,7 +82,7 @@ module Aptrust
       opt = opt.strip if opt.is_a? String
       # opt = opt.to_i if opt.is_a? String
       opt = to_integer( num: opt ) if opt.is_a? String
-      msg_handler.debug_verbose "max_size='#{opt}'" if debug_verbose
+      msg_handler.msg_debug "max_size='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -91,7 +90,7 @@ module Aptrust
       opt = task_options_value( key: 'max_uploads', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.debug_verbose "max_uploads='#{opt}'" if debug_verbose
+      msg_handler.msg_debug "max_uploads='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -112,7 +111,7 @@ module Aptrust
           opt << n if 0 < n
         end
       end
-      msg_handler.debug_verbose "#{key}=[#{opt.join(', ')}]" if debug_verbose
+      msg_handler.msg_debug "#{key}=[#{opt.join(', ')}]" if debug_verbose
       return opt
     end
 
@@ -120,7 +119,7 @@ module Aptrust
       opt = task_options_value( key: 'sleep_secs', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.debug_verbose "sleep_secs=#{opt}" if debug_verbose
+      msg_handler.msg_debug "sleep_secs=#{opt}" if debug_verbose
       return opt
     end
 

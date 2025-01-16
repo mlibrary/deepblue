@@ -89,7 +89,7 @@ class AbstractFileSysExportService
 
   def ensure_dir_exists( path: )
     unless FileUtilsHelper.dir_exist? path
-      msg_verbose "mkdir_p #{path}"
+      msg_debug "mkdir_p #{path}" if debug_verbose
       FileUtilsHelper.mkdir_p path
     end
   end
@@ -151,12 +151,12 @@ class AbstractFileSysExportService
       fs_rec = file_exporter.add_fs( fs: file_set ) if fs_rec.nil?
       export_fs_rec( noid_service: noid_service, fs: file_set, fs_rec: fs_rec )
       versions = file_set.versions
-      msg_verbose "#{file_set.id}: versions.count=#{versions.count}" if verbose
+      msg_debug "#{file_set.id}: versions.count=#{versions.count}" if debug_verbose
       next if 2 > versions.count
       versions.each_with_index do |ver,index|
         index += 1 # not zero-based
         next if index >= versions.count # skip exporting last version file as it is the current version
-        msg_verbose "#{file_set.id}: version index=#{index}" if verbose
+        msg_debug "#{file_set.id}: version index=#{index}" if debug_verbose
         export_file_set_version( noid_service: noid_service, fs_rec: fs_rec, version: ver, index: index )
       end
     end
@@ -234,11 +234,11 @@ class AbstractFileSysExportService
   end
 
   def export_fs_status( rec, export_status, note: nil )
-    bold_debug [ here, called_from,
-                 "rec=#{rec.pretty_inspect}",
-                 "export_status=#{export_status}",
-                 "test_mode=#{test_mode}" ] if debug_verbose
-    msg_verbose "set fs export status for #{rec.noid} to '#{export_status}'" if verbose
+    # bold_debug [ here, called_from,
+    #              "rec=#{rec.pretty_inspect}",
+    #              "export_status=#{export_status}",
+    #              "test_mode=#{test_mode}" ] if debug_verbose
+    msg_debug "set fs export status for #{rec.noid} to '#{export_status}' with note=#{note}" if debug_verbose
     return export_status if test_mode
     # rec.status!( export_status, with_note: note ) # appears not to work
     rec.export_status = export_status
@@ -399,14 +399,18 @@ class AbstractFileSysExportService
   end
 
   def noid_service_status( noid_service, export_status, note: nil )
-    bold_debug [ here, called_from,
-                 "noid_service=#{noid_service}",
-                 "export_status=#{export_status}",
-                 "test_mode=#{test_mode}" ] if debug_verbose
-    msg_verbose "set work export status for #{noid_service.noid} to '#{export_status}'" if verbose
+    # bold_debug [ here, called_from,
+    #              "noid_service=#{noid_service}",
+    #              "export_status=#{export_status}",
+    #              "test_mode=#{test_mode}" ] if debug_verbose
+    msg_debug "set work export status for #{noid_service.noid} to '#{export_status}' with note=#{note}" if debug_verbose
     return export_status if test_mode
     noid_service.status!( export_status: export_status, note: note )
     return export_status
+  end
+
+  def file_sys_exports()
+    FileSysExport.for_export_type( export_type: @export_type )
   end
 
   def fs_rec_file_exists?( fs_rec: )
@@ -500,16 +504,20 @@ class AbstractFileSysExportService
       if file_exporter.needs_export_update?( file_set: file_set )
           fs_rec = file_exporter.find_fs_record( fs: file_set )
           export_fs_rec( noid_service: noid_service, fs: file_set, fs_rec: fs_rec )
-          # TODO: since versions are static, we only care about ones that don't have an fs_rec
-          #   versions = file_set.versions
-          #   msg_verbose "#{file_set.id}: versions.count=#{versions.count}" if verbose
-          #   next if 2 > versions.count
-          #   versions.each_with_index do |ver,index|
-          #     index += 1 # not zero-based
-          #     next if index >= versions.count # skip exporting last version file as it is the current version
-          #     msg_verbose "#{file_set.id}: version index=#{index}" if verbose
-          #     export_file_set_version( noid_service: noid_service, fs_rec: fs_rec, version: ver, index: index )
-          #   end
+          # since versions are static, we only care about ones that don't have an fs_rec
+          versions = file_set.versions
+          msg_debug "#{file_set.id}: versions.count=#{versions.count}" if debug_verbose
+          ver_count = versions.count
+          next if 2 > ver_count
+          version_recs = file_exporter.versions_recs( noid: file_set.id )
+          next unless ver_count > version_recs.size + 1
+          versions.each_with_index do |ver,index|
+            index += 1
+            next index >= ver_count # last version is the current file set file
+            next unless index > version_recs.size
+            msg_debug "#{file_set.id}: version index=#{index}" if debug_verbose
+            export_file_set_version( noid_service: noid_service, fs_rec: fs_rec, version: ver, index: index )
+          end
       end
     end
     export_data_set_publish_rec( noid_service: noid_service ) if noid_service.published?

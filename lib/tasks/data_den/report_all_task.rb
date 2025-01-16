@@ -35,12 +35,12 @@ module DataDen
         # writer header
         test_dates_init
         dsc = ::DataSetCache.new
-        dsc_all.each do |data_set|
-          dsc.reset.data_set = data_set
-          if !dsc.data_set_present?
-            msg_handler.msg_warn "Failed to load data_set" #" with noid #{status.noid}"
-            next
-          end
+        all_solr.each do |doc|
+          dsc.reset_with doc
+          # if !dsc.data_set_present?
+          #   msg_handler.msg_warn "Failed to load data_set" #" with noid #{data_set.noid}"
+          #   next
+          # end
           # next unless dsc&.file_set_ids.present?
           # next unless dsc.file_set_ids.size > 0
           # next unless dsc.published?
