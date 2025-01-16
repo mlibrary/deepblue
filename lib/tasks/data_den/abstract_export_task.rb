@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative './abstract_task'
+require_relative '../../../app/services/file_sys_export_c'
 require_relative '../../../app/services/data_den_export_service'
 
 module DataDen
@@ -9,6 +10,7 @@ module DataDen
 
     attr_accessor :event_start # TODO (if event hasn't occurred, skip)
     attr_accessor :event_stop # TODO
+    attr_accessor :export_draft
     attr_accessor :force_export
     attr_accessor :max_size
     attr_accessor :max_export_total_size
@@ -23,6 +25,7 @@ module DataDen
       super( msg_handler: msg_handler, options: options )
       @event_start           = option_value( key: 'event_start' )
       @event_stop            = option_value( key: 'event_stop' )
+      @export_draft          = option_value( key: 'export_draft', default_value: false )
       @force_export          = option_value( key: 'force_export', default_value: false )
       @max_size              = option_integer( key: 'max_size', default_value: -1 )
       @min_size              = option_integer( key: 'min_size', default_value: -1 )
@@ -49,20 +52,26 @@ module DataDen
       @noid_pairs=[]
       dsc = DataSetCache.new
       noids.each do |noid|
-        dsc.reset.noid = noid
+        dsc.reset_with noid
         if !dsc.data_set_present?
           msg_handler.msg_warn "Failed to load data set with noid #{noid}"
           # TODO: try loading the work from fedora and saving to solr
           next
         end
-        unless 0 < dsc.total_file_size
-          # msg_handler.msg_warn "Total file size is zero for noid #{noid}"
-          next
+        unless export_draft
+          next if dsc.draft?
         end
         @noid_pairs << { noid: noid, size: dsc.total_file_size }
       end
-      @noid_pairs.sort! { |a,b| a[:size] < b[:size] ? 0 : 1 }
-      # @noid_pairs = @noid_pairs.select { |p| p[:size] <= max_size } if 0 < max_size
+      # puts @noid_pairs.pretty_inspect
+      @noid_pairs.sort! { |a,b| a[:size] <=> b[:size] } if @noid_pairs.size > 1
+      # @noid_pairs.sort! { |a,b| sort_pair( a, b ) } if @noid_pairs.size > 1
+    end
+
+    def sort_pair( a, b )
+      a_size = a[:size]
+      b_size = b[:size]
+      a_size <=> b_size
     end
 
     def option_max_size
@@ -70,7 +79,7 @@ module DataDen
       opt = opt.strip if opt.is_a? String
       # opt = opt.to_i if opt.is_a? String
       opt = to_integer( num: opt ) if opt.is_a? String
-      msg_handler.debug_verbose "max_size='#{opt}'" if debug_verbose
+      msg_handler.msg_debug "max_size='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -78,7 +87,7 @@ module DataDen
       opt = task_options_value( key: 'max_exports', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.debug_verbose "max_exports='#{opt}'" if debug_verbose
+      msg_handler.msg_debug "max_exports='#{opt}'" if debug_verbose
       return opt
     end
 
@@ -86,7 +95,7 @@ module DataDen
       opt = task_options_value( key: 'sleep_secs', default_value: -1 )
       opt = opt.strip if opt.is_a? String
       opt = opt.to_i if opt.is_a? String
-      msg_handler.debug_verbose "sleep_secs=#{opt}" if debug_verbose
+      msg_handler.msg_debug "sleep_secs=#{opt}" if debug_verbose
       return opt
     end
 
@@ -94,9 +103,9 @@ module DataDen
       total_size = 0
       dsc = DataSetCache.new
       noids.each do |noid|
-        dsc.reset.noid = noid
+        dsc.reset_with noid
         if !dsc.data_set_present?
-          msg_handler.msg_warn "Failed to load data set with noid #{status.noid}"
+          msg_handler.msg_warn "Failed to load data set with noid #{noid}"
           next
         end
         unless 0 < dsc.total_file_size
@@ -175,10 +184,6 @@ module DataDen
       msg = "Exporting: #{noid}"
       msg += " - #{readable_sz(size)}" if size.present?
       msg_handler.msg_verbose msg
-      # msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true,
-      #                                                           verbose: verbose,
-      #                                                           debug_verbose: debug_verbose )
-      # msg_handler.msg_verbose "exporter=#{exporter.pretty_inspect}"
       msg_handler.msg_verbose "Test mode: #{test_mode?}"
       return if test_mode?
       export_service.export_data_set( noid: noid )

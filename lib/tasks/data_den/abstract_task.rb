@@ -43,6 +43,14 @@ module DataDen
                                "@test_mode=#{@test_mode}" ] ) if msg_handler.present?
     end
 
+    def all_data_sets
+      DataSet.all
+    end
+
+    def all_solr
+      ActiveFedora::SolrService.query("+(has_model_ssim:DataSet)", rows: 100_000)
+    end
+
     def human_readable_size( value )
       value = value.to_i
       return ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert( value, precision: 3 )
@@ -192,12 +200,12 @@ module DataDen
     end
 
     def status_created_at( noid: nil )
-      return "N/A"
-      # rv = ::DataDen::Status.for_id( noid: noid )
-      # return nil if rv.blank?
-      # rv = rv.first
-      # rv = rv.created_at
-      # return rv
+      # return "N/A"
+      rv = FileSysExport.for_id( noid: noid )
+      return nil if rv.blank?
+      rv = rv.first
+      rv = rv.created_at
+      return rv
     end
 
     def test_dates_init
@@ -255,21 +263,12 @@ module DataDen
         end
       else
         begin
-          return num.to.i
+          return num.to_i
         rescue ArgumentError => e
           msg_handler.msg_error "Failed parse number string '#{num}'"
           raise e if raise_errors
         end
       end
-    end
-
-    def dsc_all( solr: true )
-      if solr
-        rv = ActiveFedora::SolrService.query("+(has_model_ssim:DataSet)", rows: 100_000)
-      else
-        rv = DataSet.all
-      end
-      return rv
     end
 
   end

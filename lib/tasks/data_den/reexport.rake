@@ -6,9 +6,7 @@ namespace :data_den do
 
   # bundle exec rake data_den:reexport
   # bundle exec rake data_den:reexport['{"verbose":true\,"test_mode":true}']
-  # bundle exec rake data_den:reexport['{"verbose":true\,"event":"deposit_failed"\,"test_mode":true}']
-  # bundle exec rake data_den:reexport['{"verbose":true\,"event":"export_again"\,"test_mode":true}']
-  # bundle exec rake data_den:reexport['{"verbose":true\,"event":"export_skipped"\,"test_mode":true}']
+  # bundle exec rake data_den:reexport['{"verbose":true\,"export_status":"exported"\,"test_mode":true}']
   # bundle exec rake data_den:reexport['{"verbose":true\,"test_mode":true\,"max_size":"1_000_000"}']
   # bundle exec rake data_den:reexport['{"verbose":true\,"test_mode":true\,"max_exports":1}']
   # bundle exec rake data_den:reexport['{"date_end":"2024/03/22 00:00:00"}']

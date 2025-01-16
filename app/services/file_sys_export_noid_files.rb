@@ -185,4 +185,15 @@ class FileSysExportNoidFiles
     return false
   end
 
+  def versions_recs( noid: )
+    # TODO: possibly want to select from DB to get version recs for large numbers of files
+    version_recs = []
+    noid_prefix = "#{noid}:v"
+    file_recs.each do |file_rec|
+      next unless file_rec.noid.starts_with? noid_prefix
+      version_recs << file_rec
+    end
+    return version_recs
+  end
+
 end

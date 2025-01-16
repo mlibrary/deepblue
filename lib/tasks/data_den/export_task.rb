@@ -26,12 +26,14 @@ module DataDen
       @noids = []
       test_dates_init
       dsc = ::DataSetCache.new
-      dsc_all.each do |data_set|
-        dsc.reset.data_set = data_set
-        if !dsc.data_set_present?
-          msg_handler.msg_warn "Failed to load data_set with noid #{status.noid}"
-          next
-        end
+      msg_handler.msg_verbose "ExportTask.run_find"
+      all_solr.each do |doc|
+        # msg_handler.msg_verbose "ExportTask.run_find all_solr doc.id= #{doc.id}"
+        dsc.reset_with doc
+        # if !dsc.data_set_present?
+        #   msg_handler.msg_warn "Failed to load data_set with noid #{dsc.noid}"
+        #   next
+        # end
         # next unless dsc&.file_set_ids.present?
         # next unless dsc.file_set_ids.size > 0
         # next unless dsc.published?
@@ -41,7 +43,7 @@ module DataDen
         # msg_handler.msg_verbose "next unless #{dsc.date_modified} <= #{test_date_end} = #{dsc.date_modified <= test_date_end}"
         next unless @test_date_begin <= dsc.date_modified
         next unless dsc.date_modified <= @test_date_end
-        # next if ::DataDen::Status.has_status?( cc: dsc )
+        next if FileSysExport.has_status?( noid: dsc.id )
         @noids << dsc.id
       end
     end
