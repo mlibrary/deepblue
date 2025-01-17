@@ -89,6 +89,10 @@ class FileExport < ApplicationRecord
     return record
   end
 
+  def self.for_export_status( export_status: )
+    FileExport.where( export_status: export_status )
+  end
+
   def self.for_file_set( fs: )
     return nil unless fs.present?
     FileExport.where( noid: fs.id )

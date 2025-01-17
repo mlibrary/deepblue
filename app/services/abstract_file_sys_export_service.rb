@@ -173,7 +173,11 @@ class AbstractFileSysExportService
   def export_data_set_publish_rec( noid_service: )
     file_exporter = noid_service.file_exporter
     file_exporter.file_recs.each do |fs_rec|
-      msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid}" if verbose
+      msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
+      unless ::FileSysExportC::STATUS_EXPORTED_PRIVATE fs_rec.export_status then
+        msg_verbose "skipping publish export of fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
+        next
+      end
       if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
         msg_verbose "export_data_set_publish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
         next
@@ -207,7 +211,7 @@ class AbstractFileSysExportService
     msg_verbose "#{id} export target_path=#{file_path}" if verbose
     bytes_copied = ::Deepblue::ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: file_path )
     msg_debug "#{id} bytes_copied: #{bytes_copied}" if debug_verbose
-    return true
+    return FileUtilsHelper.file_exists? file_path
   end
 
   def export_fs_rec( noid_service:, fs:, fs_rec: )
@@ -369,8 +373,12 @@ class AbstractFileSysExportService
     return fs_status_skipped( fs_rec ) if @skip_export
     ensure_dir_exists path: published_path
     msg_verbose "FileUtilsHelper.mv( #{unpublished_path_file}, #{published_path} )"
-    FileUtilsHelper.mv( unpublished_path_file, published_path )
-    rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PUBLIC )
+    if FileUtilsHelper.file_exists? unpublished_path_file
+      FileUtilsHelper.mv( unpublished_path_file, published_path )
+      rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PUBLIC )
+    else
+      rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORT_ERROR, note: "mv unpublished file not found" )
+    end
     # FileSysExportService.checksum_validate( fs_rec: fs_rec, file_path: published_path_file, msg_handler: @msg_handler )
     return rv
   end
@@ -391,10 +399,14 @@ class AbstractFileSysExportService
                  "unpublished_path_file=#{unpublished_path_file}",
                  "published_path=#{published_path}",
                  "published_path_file=#{published_path_file}" ] if debug_verbose
-    return rv unless FileUtilsHelper.file_exists? published_path_file
+    # return rv unless FileUtilsHelper.file_exists? published_path_file
     msg_verbose "FileUtilsHelper.mv( #{published_path_file}, #{unpublished_path} )"
-    FileUtilsHelper.mv( published_path_file, unpublished_path )
-    rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
+    if FileUtilsHelper.file_exists? published_path_file
+      FileUtilsHelper.mv( published_path_file, unpublished_path )
+      rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
+    else
+      rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORT_ERROR, note: "mv published file not found" )
+    end
     return rv
   end
 
@@ -416,9 +428,9 @@ class AbstractFileSysExportService
   def fs_rec_file_exists?( fs_rec: )
     return false if fs_rec.nil?
     file_path = resolve_file_path( fs_rec: fs_rec, published: true )
-    return true if File.exist?( file_path )
+    return true if FileUtilsHelper.file_exists?( file_path )
     file_path = resolve_file_path( fs_rec: fs_rec, published: false )
-    return true if File.exist?( file_path )
+    return true if FileUtilsHelper.file_exists?( file_path )
     return false
   end
 
