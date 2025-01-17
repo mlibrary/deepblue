@@ -28,8 +28,13 @@ module FileSysExportIntegrationService
   mattr_accessor :default_export_type,            default: "data_den"
 
   mattr_accessor :data_den_export_type,           default: "data_den"
-  mattr_accessor :data_den_base_path,             default: "./data/data_den/"
-  mattr_accessor :data_den_base_path_published,   default: "./data/data_den/published/"
-  mattr_accessor :data_den_base_path_unpublished, default: "./data/data_den/unpublished/"
+
+  # mattr_accessor :data_den_base_path,             default: './data/data_den/'
+  # mattr_accessor :data_den_base_path_published,   default: './data/data_den/published/'
+  # mattr_accessor :data_den_base_path_unpublished, default: './data/data_den/unpublished/'
+
+  mattr_accessor :data_den_base_path,             default: '/Users/fritx/DataDen/'
+  mattr_accessor :data_den_base_path_published,   default: '/Users/fritx/DataDen/published/'
+  mattr_accessor :data_den_base_path_unpublished, default: '/Users/fritx/DataDen/unpublished/'
 
 end

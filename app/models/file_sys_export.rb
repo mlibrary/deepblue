@@ -65,6 +65,10 @@ class FileSysExport < ApplicationRecord
     FileSysExport.where( noid: cc.id )
   end
 
+  def self.for_export_status( export_status: )
+    FileSysExport.where( export_status: export_status )
+  end
+
   def self.for_export_type( export_type: )
     FileSysExport.where( export_type: export_type )
   end
