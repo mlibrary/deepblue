@@ -63,6 +63,7 @@ en:
       sidebar:
         aptrust_statuses:   "APTrust Upload Statuses"
         documentation:      "Manage Documentation"
+        file_sys_export:    "File System Export"
         google_analytics:   "Google Analytics"
         job_statuses:       "Job Statuses"
         manage_contact_form: "Manage Contact Form"

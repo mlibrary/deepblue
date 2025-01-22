@@ -8,7 +8,8 @@ class FileSysExport < ApplicationRecord
 
   def self.csv_row( record )
     rv = if record.blank?
-           [ 'export_type',
+           [ 'id',
+             'export_type',
              'noid',
              'published',
              'export_status',
@@ -20,7 +21,8 @@ class FileSysExport < ApplicationRecord
            ]
          else
            record = Array( record ).first
-           [ record.export_type,
+           [ record.id,
+             record.export_type,
              record.noid,
              record.published,
              record.export_status,

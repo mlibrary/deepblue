@@ -8,6 +8,32 @@ class Aptrust::Event < ApplicationRecord
 
   mattr_accessor :aptrust_event_debug_verbose, default: false
 
+  def self.csv_row( record )
+    rv = if record.blank?
+           [ 'id',
+             'timestamp',
+             'event',
+             'event_note',
+             'noid',
+             'created_at',
+             'updated_at',
+             'aptrust_status_id',
+             'service' ]
+         else
+           record = Array( record ).first
+           [ record.id,
+             record.timestamp,
+             record.event,
+             record.event_note,
+             record.noid,
+             record.created_at,
+             record.updated_at,
+             record.aptrust_status_id,
+             record.service ]
+         end
+    return rv
+  end
+
   def self.for_id( noid: )
     where( noid: noid )
   end
