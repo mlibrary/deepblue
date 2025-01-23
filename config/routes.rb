@@ -352,6 +352,16 @@ Rails.application.routes.draw do
   # get '/aptrust_statuses_not_finished/' => 'aptrust_statuses#status_not_finished'
   # get '/aptrust_statuses_started/' => 'aptrust_statuses#status_started'
 
+  resource :file_sys_export
+  get 'file_sys_exports', controller: 'file_sys_export/file_sys_exports', action: :index
+  post 'file_sys_exports', controller: 'file_sys_export/file_sys_exports', action: :index
+
+  resource :file_export
+  get 'file_exports', controller: 'file_sys_export/file_exports', action: :index
+  post 'file_exports', controller: 'file_sys_export/file_exports', action: :index
+  get '/file_export_action/', controller: 'file_sys_export/file_exports', action: :status_action
+  post '/file_export_action/', controller: 'file_sys_export/file_exports', action: :status_action
+
   get 'job_workers', to: 'job_workers#index', as: 'job_workers' # index
   put 'job_workers', to: 'job_workers#index' #, as: 'job_workers' # index
   # get '/job_statuses_failed/' => 'job_statuses#status_failed'
