@@ -2,7 +2,7 @@
 
 module FileSysExport::FileSysExportControllerBehavior
 
-  mattr_accessor :file_sys_exports_controller_behavior_debug_verbose, default: false
+  mattr_accessor :file_sys_exports_controller_behavior_debug_verbose, default: true
 
   attr_accessor :begin_date, :end_date
   attr_accessor :noid
@@ -11,7 +11,11 @@ module FileSysExport::FileSysExportControllerBehavior
   attr_accessor :file_exports
 
   def status_list
-    @status_list ||= [ 'All', 'Deleted', 'Export Error', 'Export Needed', 'Export Skipped', 'Export Updating', 'Exported', 'Exporting' ]
+    @status_list ||= status_list_init
+  end
+
+  def status_list_init
+    [ 'All' ] + ::FileSysExportC::ALL_STATUS_EXPORT.values
   end
 
   def index_with_commit( commit: )
@@ -19,26 +23,34 @@ module FileSysExport::FileSysExportControllerBehavior
                                            ::Deepblue::LoggingHelper.called_from,
                                            "commit=#{commit}",
                                            "" ] if file_sys_exports_controller_behavior_debug_verbose
-    case commit
-    when 'All'
+    if 'All' == commit
       init_file_sys_exports
-    when 'Deleted'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_DELETED )
-    when 'Export Error'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_ERROR )
-    when 'Export Needed'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_NEEDED )
-    when 'Export Skipped'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_SKIPPED )
-    when 'Export Updating'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_UPDATING )
-    when 'Exported'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTED )
-    when 'Exporting'
-      init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTING )
+    elsif ::FileSysExportC::ALL_STATUS_EXPORT_MAP.has_key?( commit )
+      status_export = ::FileSysExportC::ALL_STATUS_EXPORT_MAP[commit]
+      init_file_sys_exports( export_status: status_export )
     else
       init_file_sys_exports
     end
+    # case commit
+    # when 'All'
+    #   init_file_sys_exports
+    # when 'Deleted'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_DELETED )
+    # when 'Export Error'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_ERROR )
+    # when 'Export Needed'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_NEEDED )
+    # when 'Export Skipped'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_SKIPPED )
+    # when 'Export Updating'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_UPDATING )
+    # when 'Exported'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTED )
+    # when 'Exporting'
+    #   init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTING )
+    # else
+    #   init_file_sys_exports
+    # end
   end
 
   def init_begin_end_dates
@@ -87,6 +99,30 @@ module FileSysExport::FileSysExportControllerBehavior
                              .where.not( export_status: not_export_status )
                              .order( updated_at: :desc )
                       end
+  end
+
+  def init_file_sys_status_exported
+    raise CanCan::AccessDenied unless current_ability.admin?
+    init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTED )
+    # render 'file_sys_export/index'
+  end
+
+  def init_file_sys_status_exported_not
+    raise CanCan::AccessDenied unless current_ability.admin?
+    init_file_sys_exports( not_export_status: ::FileSysExportC::STATUS_EXPORTED )
+    # render 'file_sys_export/index'
+  end
+
+  def init_file_sys_status_exporting
+    raise CanCan::AccessDenied unless current_ability.admin?
+    init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORTING )
+    # render 'file_sys_export/index'
+  end
+
+  def init_file_sys_status_error
+    raise CanCan::AccessDenied unless current_ability.admin?
+    init_file_sys_exports( export_status: ::FileSysExportC::STATUS_EXPORT_ERROR )
+    # render 'file_sys_export/index'
   end
 
   def init_file_sys_export_id()

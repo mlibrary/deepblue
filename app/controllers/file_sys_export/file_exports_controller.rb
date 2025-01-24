@@ -4,7 +4,7 @@ class ::FileSysExport::FileExportsController < ApplicationController
 
   include ::FileSysExport::FileSysExportControllerBehavior
 
-  mattr_accessor :file_exports_controller_debug_verbose, default: false
+  mattr_accessor :file_exports_controller_debug_verbose, default: true
 
   include AdminOnlyControllerBehavior
 
@@ -31,10 +31,21 @@ class ::FileSysExport::FileExportsController < ApplicationController
     msg = case action
           # when MsgHelper.t( 'simple_form.actions.scheduler.restart' )
           when 'Delete'
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_exports_controller_debug_verbose
             action_delete
-          when 'Reupload'
-            action_reupload
+            #"Action #{action}"
+          when 'Reexport'
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_exports_controller_debug_verbose
+            action_reexport
+            #"Action #{action}"
           else
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_exports_controller_debug_verbose
             @action_error = true
             "Unkown action #{action}"
           end
@@ -87,7 +98,7 @@ class ::FileSysExport::FileExportsController < ApplicationController
                                            "params['id']=#{params['id']}",
                                            "params['noid']=#{params['noid']}",
                                            "" ] if file_exports_controller_debug_verbose
-    records = ::Aptrust::Status.where( id: params['id'] )
+    records = ::FileSysExport.where( id: params['id'] )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "records.size=#{records.size}",
@@ -102,7 +113,7 @@ class ::FileSysExport::FileExportsController < ApplicationController
     record.delete
   end
 
-  def action_reupload
+  def action_reexport
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -110,7 +121,7 @@ class ::FileSysExport::FileExportsController < ApplicationController
                                            "params['id']=#{params['id']}",
                                            "params['noid']=#{params['noid']}",
                                            "" ] if file_exports_controller_debug_verbose
-    records = ::Aptrust::Status.where( id: params['id'] )
+    records = ::FileSysExport.where( id: params['id'] )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "records.size=#{records.size}",
@@ -122,48 +133,25 @@ class ::FileSysExport::FileExportsController < ApplicationController
                                            "record.id=#{record.id}",
                                            "record.noid=#{record.noid}",
                                            "" ] if file_exports_controller_debug_verbose
-    record.event = ::Aptrust::EVENT_UPLOAD_AGAIN
+    record.event = ::FileSysExportC::STATUS_EVENT_REEXPORT
     record.event_note = ''
     record.timestamp = DateTime.now
     record.save
   end
 
-  def status_failed
-    raise CanCan::AccessDenied unless current_ability.admin?
-    init_file_sys_exports( export_status: 'failed' )
-    render 'file_sys_export/index'
-  end
-
-  def status_finished
-    raise CanCan::AccessDenied unless current_ability.admin?
-    init_file_sys_exports( export_status: ::Aptrust::EVENT_FINISHED )
-    render 'file_sys_export/index'
-  end
-
-  def status_not_finished
-    raise CanCan::AccessDenied unless current_ability.admin?
-    init_file_sys_exports( not_export_status: ::Aptrust::EVENT_FINISHED )
-    render 'file_sys_export/index'
-  end
-
-  def status_started
-    raise CanCan::AccessDenied unless current_ability.admin?
-    init_file_sys_exports( export_status: ::Aptrust::EVENT_STARTED )
-    render 'file_sys_export/index'
-  end
-
   # PATCH/PUT /file_sys_exports/1 or /file_sys_exports/1.json
   def update
-    raise CanCan::AccessDenied unless current_ability.admin?
-    respond_to do |format|
-      if @aptrust_status.update(aptrust_status_params)
-        format.html { redirect_to @aptrust_status, notice: "Aptrust status was successfully updated." }
-        format.json { render :show, event: :ok, location: @aptrust_status }
-      else
-        format.html { render :edit, event: :unprocessable_entity }
-        format.json { render json: @aptrust_status.errors, event: :unprocessable_entity }
-      end
-    end
+    # TODO
+    # raise CanCan::AccessDenied unless current_ability.admin?
+    # respond_to do |format|
+    #   if @aptrust_status.update(aptrust_status_params)
+    #     format.html { redirect_to @aptrust_status, notice: "Aptrust status was successfully updated." }
+    #     format.json { render :show, event: :ok, location: @aptrust_status }
+    #   else
+    #     format.html { render :edit, event: :unprocessable_entity }
+    #     format.json { render json: @aptrust_status.errors, event: :unprocessable_entity }
+    #   end
+    # end
   end
 
 end
