@@ -46,7 +46,7 @@
 
   <tbody>
     <% @file_sys_exports.each do |fsexp| %>
-    <%= form_tag(main_app.file_export_action_path, method: 'post') do %>
+    <%= form_tag(main_app.file_sys_exports_action_path, method: 'post') do %>
       <%= hidden_field_tag('id', fsexp.id) %>
       <%= hidden_field_tag('noid', fsexp.noid) %>
       <tr>

@@ -4,7 +4,7 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
 
   include ::FileSysExport::FileSysExportControllerBehavior
 
-  mattr_accessor :file_sys_exports_controller_debug_verbose, default: false
+  mattr_accessor :file_sys_exports_controller_debug_verbose, default: true
 
   include AdminOnlyControllerBehavior
 
@@ -27,20 +27,39 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
                                            "params[:commit]=#{params[:commit]}",
                                            "" ] if file_sys_exports_controller_debug_verbose
     action = params[:commit]
-    @action_error = false
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "action='#{action}'",
+                                           "" ] if file_sys_exports_controller_debug_verbose
+    @action_error = true
     msg = case action
           # when MsgHelper.t( 'simple_form.actions.scheduler.restart' )
           when 'Delete'
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_sys_exports_controller_debug_verbose
             action_delete
-          when 'Reupload'
-            action_reupload
+          when 'Reexport'
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_sys_exports_controller_debug_verbose
+            action_reexport
           else
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "" ] if file_sys_exports_controller_debug_verbose
             @action_error = true
-            "Unkown action #{action}"
+            "Unkown action '#{action}'"
           end
     if action_error
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if file_sys_exports_controller_debug_verbose
       redirect_to file_sys_exports_path, alert: msg
     else
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if file_sys_exports_controller_debug_verbose
       redirect_to file_sys_exports_path, notice: msg
     end
   end
@@ -62,7 +81,6 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
                                            "params[:file_sys_export_id]=#{params[:file_sys_export_id]}",
                                            "params[:commit]=#{params[:commit]}",
                                            "" ] if file_sys_exports_controller_debug_verbose
-    #@status_list = [ 'All', 'Deposited', 'Exported', 'Failed', 'Finished', 'Has Error', 'Not Finished', 'Skipped', 'Started', 'Verified' ]
     @file_sys_exports = []
     @file_exports = []
     if params[:file_sys_export_id].present?
@@ -88,6 +106,9 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
   end
 
   def action_delete
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if file_sys_exports_controller_debug_verbose
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -107,10 +128,16 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
                                            "record.id=#{record.id}",
                                            "record.noid=#{record.noid}",
                                            "" ] if file_sys_exports_controller_debug_verbose
-    record.delete
+    record.export_status = ::FileSysExportC::STATUS_DELETED
+    record.export_status_timestamp = DateTime.now
+    record.note = "UI request from #{current_user.email}"
+    record.save
   end
 
-  def action_reupload
+  def action_reexport
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "" ] if file_sys_exports_controller_debug_verbose
     raise CanCan::AccessDenied unless current_ability.admin?
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -118,23 +145,22 @@ class ::FileSysExport::FileSysExportsController < ApplicationController
                                            "params['id']=#{params['id']}",
                                            "params['noid']=#{params['noid']}",
                                            "" ] if file_sys_exports_controller_debug_verbose
-    # TODO
-    # records = ::FileSysExport.where( id: params['id'] )
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "records.size=#{records.size}",
-    #                                        "" ] if file_sys_exports_controller_debug_verbose
-    # return if records.size < 1 # TODO: error
-    # record = records[0]
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "record.id=#{record.id}",
-    #                                        "record.noid=#{record.noid}",
-    #                                        "" ] if file_sys_exports_controller_debug_verbose
-    # record.event = ::Aptrust::EVENT_UPLOAD_AGAIN
-    # record.event_note = ''
-    # record.timestamp = DateTime.now
-    # record.save
+    records = ::FileSysExport.where( id: params['id'] )
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "records.size=#{records.size}",
+                                           "" ] if file_sys_exports_controller_debug_verbose
+    return if records.size < 1 # TODO: error
+    record = records[0]
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "record.id=#{record.id}",
+                                           "record.noid=#{record.noid}",
+                                           "" ] if file_sys_exports_controller_debug_verbose
+    record.export_status = ::FileSysExportC::STATUS_REEXPORT
+    record.export_status_timestamp = DateTime.now
+    record.note = "UI request from #{current_user.email}"
+    record.save
   end
 
   def export_status_failed
