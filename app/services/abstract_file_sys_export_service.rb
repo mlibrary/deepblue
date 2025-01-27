@@ -134,7 +134,7 @@ class AbstractFileSysExportService
     bold_debug [ here, called_from, "noid_service=#{noid_service}" ] if debug_verbose
     return unless noid_service.needs_export?
     msg_verbose "exporting work #{noid_service.noid}" if verbose
-    work_status_exporting( noid_service )
+    work_status_exporting( noid_service, note: nil )
     export_metadata_file( noid_service: noid_service )
     export_provenance_file( noid_service: noid_service )
     export_ingest_file( noid_service: noid_service )
@@ -174,7 +174,7 @@ class AbstractFileSysExportService
     file_exporter = noid_service.file_exporter
     file_exporter.file_recs.each do |fs_rec|
       msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
-      unless ::FileSysExportC::STATUS_EXPORTED_PRIVATE fs_rec.export_status then
+      unless ::FileSysExportC::STATUS_EXPORTED_PRIVATE == fs_rec.export_status then
         msg_verbose "skipping publish export of fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
         next
       end
