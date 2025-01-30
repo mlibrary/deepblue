@@ -1,4 +1,4 @@
-class CreateFileExports < ActiveRecord::Migration[6.0]
+class CreateFileExports < ActiveRecord::Migration[5.2]
   def change
     begin
       #drop_table(:file_exports) if table_exists?(:file_exports)

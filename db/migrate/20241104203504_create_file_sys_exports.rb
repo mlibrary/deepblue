@@ -1,4 +1,4 @@
-class CreateFileSysExports < ActiveRecord::Migration[6.0]
+class CreateFileSysExports < ActiveRecord::Migration[5.2]
   def change
     begin
       #drop_table(:file_sys_exports) if table_exists?(:file_sys_exports)
