@@ -133,8 +133,8 @@ class FileSysExportNoidService
                                                         msg_handler: @msg_handler )
   end
 
-  def status
-    @file_sys_export.status
+  def export_status
+    @file_sys_export.export_status
   end
 
   def status!( export_status:, note: nil )

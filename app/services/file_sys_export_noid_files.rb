@@ -157,27 +157,27 @@ class FileSysExportNoidFiles
   end
 
   def needs_export?( file_set: )
-    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
     return false if file_set.nil?
     fs_rec = find_fs_record( fs: file_set )
     if fs_rec.nil?
       file_exporter.add_fs( fs: file_set )
       return true
     end
-    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.status
+    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.export_status
     return false
   end
 
   def needs_export_update?( file_set: )
-    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
     return false if file_set.nil?
     fs_rec = find_fs_record( fs: file_set )
     if fs_rec.nil?
       file_exporter.add_fs( fs: file_set )
       return true
     end
-    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.status
-    return true if ::FileSysExportC::ALL_STATUS_EXPORTING.has_key? fs_rec.status
+    return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.export_status
+    return true if ::FileSysExportC::ALL_STATUS_EXPORTING.has_key? fs_rec.export_status
     # TODO: is file_set.date_modified correct here?
     if file_set.date_modified > fs_rec.updated_at
       return true

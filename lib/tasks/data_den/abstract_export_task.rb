@@ -189,6 +189,17 @@ module DataDen
       export_service.export_data_set( noid: noid )
     end
 
+    def run_reexport( noid:, size: nil )
+      msg_handler.msg_verbose "sleeping for #{sleep_secs}" if 0 < sleep_secs
+      sleep( sleep_secs ) if 0 < sleep_secs
+      msg = "Exporting: #{noid}"
+      msg += " - #{readable_sz(size)}" if size.present?
+      msg_handler.msg_verbose msg
+      msg_handler.msg_verbose "Test mode: #{test_mode?}"
+      return if test_mode?
+      export_service.reexport_data_set( noid: noid )
+    end
+
     def sort?
       @sort
     end

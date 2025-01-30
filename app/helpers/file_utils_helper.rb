@@ -28,6 +28,10 @@ module FileUtilsHelper
     File.exist?( file_name )
   end
 
+  def self.file_symlink?( file_name )
+    File.symlink?( file_name )
+  end
+
   def self.join( string, *args )
     File.join( string, args )
   end
