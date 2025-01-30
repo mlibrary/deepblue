@@ -4,7 +4,6 @@ require_relative './export_by_noid_task'
 
 namespace :data_den do
 
-  # bundle exec rake data_den:export_by_noid
   # bundle exec rake data_den:export_by_noid['{"noids":"noid1"}']
   # bundle exec rake data_den:export_by_noid['{"noids":"noid1"\,"sleep_secs":30\,"debug_verbose":true}']
   # bundle exec rake data_den:export_by_noid['{"noids":"noid1 noid2"}']

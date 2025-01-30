@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require_relative './abstract_export_task'
+require_relative './abstract_reexport_task'
 
 module DataDen
 
-  class ReexportModifiedTask < ::DataDen::AbstractExportTask
+  class ReexportModifiedTask < ::DataDen::AbstractReexportTask
 
     attr_accessor :export_all_files
 

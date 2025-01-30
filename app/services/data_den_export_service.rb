@@ -22,6 +22,7 @@ class DataDenExportService < AbstractFileSysExportService
     super( base_path_published:   FileSysExportIntegrationService.data_den_base_path_published,
            base_path_unpublished: FileSysExportIntegrationService.data_den_base_path_unpublished,
            export_type:           FileSysExportIntegrationService.data_den_export_type,
+           link_path_to_globus:   FileSysExportIntegrationService.data_den_link_path_to_globus,
            msg_handler:           msg_handler,
            options:               options )
   end

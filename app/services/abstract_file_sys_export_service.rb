@@ -18,6 +18,8 @@ class AbstractFileSysExportService
   attr_reader   :validate_checksums
   attr_reader   :force_export
 
+  attr_reader   :link_path_to_globus
+
   delegate :debug_verbose, :verbose, to: :msg_handler
   delegate :bold_debug,
            :bold_error,
@@ -41,10 +43,16 @@ class AbstractFileSysExportService
     return msg_handler
   end
 
-  def initialize( base_path_published:, base_path_unpublished:, export_type:, msg_handler: nil, options: nil )
+  def initialize( base_path_published:,
+                  base_path_unpublished:,
+                  export_type:,
+                  link_path_to_globus:,
+                  msg_handler: nil,
+                  options: nil )
     @base_path_published   = base_path_published
     @base_path_unpublished = base_path_unpublished
     @export_type           = export_type
+    @link_path_to_globus   = link_path_to_globus
     @options               = ::Deepblue::OptionsMap.new( map: options )
     @msg_handler           = init_msg_handler( msg_handler: msg_handler, options: @options )
     @skip_export           = @options.option_value( :skip_export,        default_value: false, msg_handler: @msg_handler )
@@ -95,7 +103,7 @@ class AbstractFileSysExportService
   end
 
   def export_all
-    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
     bold_debug [ here, called_from ] if debug_verbose
     msg_verbose "export_all starting..." if verbose
     DataSet.all.each do |work|
@@ -111,13 +119,29 @@ class AbstractFileSysExportService
   end
 
   def export_data_set( work: nil, noid: nil )
-    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
     msg_verbose "export_data_set starting..." if verbose
     raise ArgumentError( "Expected one of work or noid to not be nil." ) if work.nil? && noid.nil?
     work = PersistHelper.find_or_nil( noid ) if work.nil?
     raise ArgumentError( "Could not find data set #{noid}" ) if work.nil?
     noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
     export_data_set_rec( noid_service: noid_service )
+    msg_verbose "export_data_set finished." if verbose
+  rescue Exception => e
+    Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+    bold_error [ here, called_from,
+                 "AbstractFileSysExportService.export_data_set(#{work&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
+    raise
+  end
+
+  def reexport_data_set( work: nil, noid: nil )
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
+    msg_verbose "export_data_set starting..." if verbose
+    raise ArgumentError( "Expected one of work or noid to not be nil." ) if work.nil? && noid.nil?
+    work = PersistHelper.find_or_nil( noid ) if work.nil?
+    raise ArgumentError( "Could not find data set #{noid}" ) if work.nil?
+    noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
+    update_export_data_set_rec( noid_service: noid_service )
     msg_verbose "export_data_set finished." if verbose
   rescue Exception => e
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
@@ -162,7 +186,10 @@ class AbstractFileSysExportService
     end
     # move published data set files to published dir
     msg_verbose "noid_service.published?=#{noid_service.published?}"
-    export_data_set_publish_rec( noid_service: noid_service ) if noid_service.published?
+    if noid_service.published?
+      export_data_set_publish_rec( noid_service: noid_service )
+      link_published_data_set_to_globus( noid_service: noid_service )
+    end
     work_status_exported( noid_service )
   rescue Exception => e
     msg_error "#{e}"
@@ -190,11 +217,45 @@ class AbstractFileSysExportService
     end
   end
 
+  def link_published_data_set_to_globus( noid_service: )
+    return if @link_path_to_globus.blank?
+    return if @skip_export
+    published_path = path_export_work( export_work: noid_service.work )
+    # published_path = ::FileUtilsHelper.join base_path_published, fs_rec.base_noid_path
+    msg_verbose "link from published path: '#{published_path}'" # if debug_verbose
+    globus_path = ::FileUtilsHelper.join @link_path_to_globus, "DeepblueData_#{noid_service.noid}"
+    msg_verbose "globus path: '#{globus_path}'" # if debug_verbose
+    bold_debug [ here, called_from,
+                 "noid_service.noid=#{noid_service.noid}",
+                 "published_path=#{published_path}",
+                 "globus_path=#{globus_path}" ] if debug_verbose
+    return if @skip_export
+    msg_verbose "FileUtilsHelper.symlink( #{published_path}, #{globus_path} )"
+    if ::FileUtilsHelper.dir_exists? published_path
+      if ::FileSysExportIntegrationService.globus_delete_link_to_target then
+        if ::FileUtilsHelper.dir_exist?( globus_path ) && !::FileUtilsHelper.file_symlink?( globus_path )
+          msg_verbose "Deleting directory: '#{globus_path}'" # if debug_verbose
+          ::Deepblue::DiskUtilitiesHelper.delete_dir( dir_path: globus_path, msg_handler: msg_handler )
+        end
+        # if ::FileUtilsHelper.file_exist?( globus_path )
+        #   msg_verbose "Deleting file: '#{globus_path}'" # if debug_verbose
+        #   ::Deepblue::DiskUtilitiesHelper.delete_file( file_path: globus_path, msg_handler: msg_handler )
+        # end
+      end
+      if ::FileUtilsHelper.file_exist?( globus_path )
+        msg_verbose "Skipping globus link because symlink file already exists: '#{globus_path}'" # if debug_verbose
+      else
+        ::FileUtilsHelper.symlink( published_path, globus_path )
+      end
+    end
+
+  end
+
   def export_data_set_unpublish_rec( noid_service: )
     # TODO: move files back from published directory and update records
     file_exporter = noid_service.file_exporter
     file_exporter.file_recs.each do |fs_rec|
-      msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid}" if verbose
+      msg_verbose "export_data_set_unpublish_rec fs_rec.noid=#{fs_rec.noid}" if verbose
       if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
         msg_verbose "export_data_set_unpublish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
         next
@@ -448,7 +509,7 @@ class AbstractFileSysExportService
     path = FileSysExportService.path_noid( published: export_work.published?,
                                            base_path_published: @base_path_published,
                                            base_path_unpublished: @base_path_unpublished,
-                                           noid: export_work.noid )
+                                           noid: export_work.id )
     return path
   end
 
@@ -486,7 +547,7 @@ class AbstractFileSysExportService
   def update_export_data_set( work: )
     msg_verbose "update_export_data_set starting..." if verbose
     noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
-    export_data_set_rec( noid_service: noid_service )
+    update_export_data_set_rec( noid_service: noid_service )
     msg_verbose "export_data_set finished." if verbose
   rescue Exception => e
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
@@ -496,7 +557,7 @@ class AbstractFileSysExportService
   end
 
   def update_export_data_set_rec( noid_service: )
-    # NOTE: we don't want to export if @file_sys_export.status == ::FileSysExportC::STATUS_EXPORTING
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
     bold_debug [ here, called_from, "noid_service=#{noid_service}" ] if debug_verbose
     return unless noid_service.needs_update_export?
     msg_verbose "updating export work #{noid_service.noid}" if verbose
@@ -532,7 +593,10 @@ class AbstractFileSysExportService
           end
       end
     end
-    export_data_set_publish_rec( noid_service: noid_service ) if noid_service.published?
+    if noid_service.published?
+      export_data_set_publish_rec( noid_service: noid_service )
+      link_published_data_set_to_globus( noid_service: noid_service )
+    end
     work_status_exported( noid_service )
   rescue Exception => e
     msg_error "#{e}"
@@ -547,7 +611,7 @@ class AbstractFileSysExportService
 
   def work_status_error(     rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_ERROR,   note: note ) end
   def work_status_export_needed( rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORT_NEEDED, note: note ) end
-  def work_status_export_updating( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_UPDAING,      note: note ) end
+  def work_status_export_updating( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_UPDATING,      note: note ) end
   def work_status_exported(  rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORTED,       note: note ) end
   def work_status_exporting( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORTING,      note: note ) end
   def work_status_skipped(   rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_SKIPPED, note: note ) end

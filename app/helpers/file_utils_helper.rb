@@ -28,8 +28,22 @@ module FileUtilsHelper
     File.exist?( file_name )
   end
 
+  def self.file_symlink?( file_name )
+    File.symlink?( file_name )
+  end
+
   def self.join( string, *args )
     File.join( string, args )
+  end
+
+  def self.ln_s( src, dest, force: nil, relative: false, target_directory: true, noop: nil, verbose: nil )
+    FileUtils.ln_s( src,
+                    dest,
+                    force: force,
+                    relative: relative,
+                    target_directory: target_directory,
+                    noop: noop,
+                    verbose: verbose )
   end
 
   def self.makepath( list, mode: nil, noop: nil, verbose: nil )
@@ -50,6 +64,16 @@ module FileUtilsHelper
 
   def self.mv( src, dest, force: nil, noop: nil, verbose: nil, secure: nil )
     FileUtils.mv( src, dest, noop: noop, verbose: verbose, secure: secure )
+  end
+
+  def self.symlink( src, dest, force: nil, relative: false, target_directory: true, noop: nil, verbose: nil )
+    FileUtils.symlink( src,
+                       dest,
+                       force: force,
+                       relative: relative,
+                       target_directory: target_directory,
+                       noop: noop,
+                       verbose: verbose )
   end
 
 end
