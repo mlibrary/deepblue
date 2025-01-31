@@ -10,7 +10,7 @@ FileSysExportIntegrationService.setup do |config|
       config.data_den_base_path             = '/deepbluedata-dataden/dbd-extract/prod/'
       config.data_den_base_path_published   = '/deepbluedata-dataden/dbd-extract/prod/published/'
       config.data_den_base_path_unpublished = '/deepbluedata-dataden/dbd-extract/prod/unpublished/'
-      config.data_den_link_path_to_globus   = '/deepbluedata-dataden/download/'
+      config.data_den_link_path_to_globus   = ''
     when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
       config.data_den_base_path             = '/deepbluedata-prep/DataDen/test/'
       config.data_den_base_path_published   = '/deepbluedata-prep/DataDen/test/published/'
@@ -27,7 +27,7 @@ FileSysExportIntegrationService.setup do |config|
       config.data_den_base_path             = '/Users/fritx/DataDen/'
       config.data_den_base_path_published   = '/Users/fritx/DataDen/published/'
       config.data_den_base_path_unpublished = '/Users/fritx/DataDen/unpublished/'
-      config.data_den_link_path_to_globus   = '/Users/fritx/Globus/'
+      config.data_den_link_path_to_globus   = ''
     else
 
     end

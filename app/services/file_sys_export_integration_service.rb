@@ -36,7 +36,7 @@ module FileSysExportIntegrationService
   mattr_accessor :data_den_base_path,             default: '/Users/fritx/DataDen/'
   mattr_accessor :data_den_base_path_published,   default: '/Users/fritx/DataDen/published/'
   mattr_accessor :data_den_base_path_unpublished, default: '/Users/fritx/DataDen/unpublished/'
-  mattr_accessor :data_den_link_path_to_globus,   default: '/Users/fritx/Globus/'
+  mattr_accessor :data_den_link_path_to_globus,   default: ''
 
   mattr_accessor :globus_delete_link_to_target,   default: true
 
