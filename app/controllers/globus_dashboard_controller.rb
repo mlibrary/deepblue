@@ -98,6 +98,10 @@ class GlobusDashboardController < ApplicationController
     ::Deepblue::GlobusService.globus_copy_complete?( concern_id )
   end
 
+  def self.globus_data_den_files_available?( concern_id )
+    ::Deepblue::GlobusService.globus_data_den_files_available?( concern_id )
+  end
+
   def globus_copy_job( concern_id, user_email: nil )
     ::GlobusCopyJob.perform_later( concern_id: concern_id,
          user_email: user_email,
@@ -144,6 +148,14 @@ class GlobusDashboardController < ApplicationController
 
   def globus_enabled?
     ::Deepblue::GlobusIntegrationService.globus_enabled
+  end
+
+  def globus_use_data_den?
+    ::Deepblue::GlobusIntegrationService.globus_use_data_den
+  end
+
+  def globus_always_available?
+    ::Deepblue::GlobusIntegrationService.globus_always_available
   end
 
   def globus_error_file_exists?( concern_id )

@@ -11,6 +11,10 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   # TODO: some of these are dependent and can be made readonly
 
+  config.globus_use_data_den = true # the new globus world as of 2025
+  # config.globus_enabled # see below
+  config.globus_always_available = true # set to true to force globus to show in ui
+
   ## configure for Globus
   # -- To enable Globus for development, create /deepbluedata-globus/download and /deepbluedata-globus/prep
   config.globus_era_timestamp = Time.now.freeze
@@ -38,16 +42,19 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
     config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
     config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
+    config.globus_enabled = true
   when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::TESTING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::TESTING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::TESTING
     config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
+    config.globus_enabled = config.globus_always_available
   when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::STAGING
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::STAGING
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::STAGING
     config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
+    config.globus_enabled = config.globus_always_available
   when ::Deepblue::InitializationConstants::HOSTNAME_TEST
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::TEST
     config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD,
@@ -56,46 +63,56 @@ Deepblue::GlobusIntegrationService.setup do |config|
                                                      ::Deepblue::InitializationConstants::TEST )
     config.globus_upload_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::UPLOAD,
                                                      ::Deepblue::InitializationConstants::TEST )
+    config.globus_enabled = config.globus_always_available
   when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::LOCAL
     config.globus_download_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD )
     config.globus_prep_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::PREP )
     config.globus_upload_dir = config.globus_dir.join( ::Deepblue::InitializationConstants::UPLOAD )
+    config.globus_enabled = config.globus_always_available
   else
     config.globus_dir_modifier = ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_download_dir = config.globus_download_dir.join ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_prep_dir = config.globus_prep_dir.join ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UNKNOWN
+    config.globus_enabled = config.globus_always_available
   end
   puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
   puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization
   puts "globus_upload_dir=#{config.globus_upload_dir}" if verbose_initialization
-  #if Rails.env.development? || Rails.env.test?
-  begin
-    FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
-    FileUtils.mkdir_p config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
-  rescue Exception => e # rubocop:disable Lint/RescueException
-    # ignore
-  end
-  #end
-  config.globus_enabled = true && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
   puts "globus_enabled=#{config.globus_enabled}" if verbose_initialization
-  config.globus_base_file_name = "DeepBlueData_"
+
+  if config.globus_use_data_den
+    config.globus_export = false
+    config.globus_base_file_name = ""
+  else
+    config.globus_export = config.globus_enabled && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
+    config.globus_base_file_name = "DeepBlueData_"
+  end
   puts "globus_base_file_name=#{config.globus_base_file_name}" if verbose_initialization
+  puts "globus_export=#{config.globus_export}" if verbose_initialization
+  if config.globus_export
+    begin
+      FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
+      FileUtils.mkdir_p config.globus_prep_dir unless Dir.exist? config.globus_prep_dir
+    rescue Exception => e # rubocop:disable Lint/RescueException
+      # ignore
+    end
+    config.globus_restart_all_copy_jobs_quiet = true
+    config.globus_debug_delay_per_file_copy_job_seconds = 0
+    config.globus_after_copy_job_ui_delay_seconds = 3
+    if Rails.env.production?
+      config.globus_copy_file_group = "dbdglobus"
+    else
+      config.globus_copy_file_group = nil
+    end
+    config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
+    config.globus_best_used_gt_size = 3.gigabytes
+    config.globus_best_used_gt_size_str = ::ConfigHelper.human_readable_size(config.globus_best_used_gt_size)
+  end
+
   # config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
   config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
-  config.globus_restart_all_copy_jobs_quiet = true
-  config.globus_debug_delay_per_file_copy_job_seconds = 0
-  config.globus_after_copy_job_ui_delay_seconds = 3
-  if Rails.env.production?
-    config.globus_copy_file_group = "dbdglobus"
-  else
-    config.globus_copy_file_group = nil
-  end
-  config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
-  config.globus_best_used_gt_size = 3.gigabytes
-  config.globus_best_used_gt_size_str = ::ConfigHelper.human_readable_size(config.globus_best_used_gt_size)
-
   config.globus_bounce_external_link_off_server = true
 
   if Rails.env.development?

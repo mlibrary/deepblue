@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 RSpec.configure do |config|
-  config.filter_run_excluding globus_enabled: :true unless ::Deepblue::GlobusIntegrationService.globus_enabled
+  config.filter_run_excluding globus_export: :true unless ::Deepblue::GlobusIntegrationService.globus_export
 end
 
-describe GlobusJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
+describe GlobusJob, "GlobusJob globus_export: :true", globus_export: :true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname.new "./data/globus" }
   let( :globus_download_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( 'test' ) }

@@ -15,6 +15,8 @@ class GlobusDashboardPresenter
   delegate :globus_prep_dir_du, to: :controller
   delegate :globus_prep_tmp_dir_du, to: :controller
   delegate :globus_enabled?, to: :controller
+  delegate :globus_use_data_den?, to: :controller
+  delegate :globus_always_available?, to: :controller
   delegate :globus_error_file_exists?, to: :controller
   delegate :globus_external_url, to: :controller
   delegate :globus_files_available?, to: :controller

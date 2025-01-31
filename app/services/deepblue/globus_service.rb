@@ -22,10 +22,17 @@ module Deepblue
     end
 
     def self.globus_copy_complete?( id )
-      return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
+      return false unless globus_enabled?
+      return true unless globus_export?
       dir = ::Deepblue::GlobusIntegrationService.globus_download_dir
       dir = dir.join globus_files_target_file_name( id )
       Dir.exist? dir
+    end
+
+    def self.globus_data_den_files_available?( id )
+      return false unless ::Deepblue::GlobusIntegrationService.globus_use_data_den
+      # TODO: use id to figure out path, and check for existence
+      return false
     end
 
     def self.globus_download_dir_du( concern_id: )
@@ -49,6 +56,7 @@ module Deepblue
     end
 
     def self.globus_error_file_exists?( id, write_error_to_log: false, log_prefix: '', quiet: true )
+      return false if globus_use_data_den?
       error_file = globus_error_file( id )
       error_file_exists = false
       if File.exist? error_file
@@ -70,12 +78,26 @@ module Deepblue
       "#{globus_base_url}#{globus_files_target_file_name(id)}%2F"
     end
 
+    def self.globus_enabled?
+      return ::Deepblue::GlobusIntegrationService.globus_enabled
+    end
+
+    def self.globus_export?
+      return ::Deepblue::GlobusIntegrationService.globus_export
+    end
+
+    def self.globus_use_data_den?
+      return ::Deepblue::GlobusIntegrationService.globus_use_data_den
+    end
+
     def self.globus_files_available?( concern_id )
-      return false unless ::Deepblue::GlobusIntegrationService.globus_enabled
-      globus_copy_complete? concern_id
+      return false unless globus_enabled?
+      return globus_copy_complete?( concern_id ) if globus_export?
+      return globus_data_den_files_available?( concern_id )
     end
 
     def self.globus_files_prepping?( id )
+      return false unless globus_export?
       rv = !globus_copy_complete?( id ) && globus_locked?( id )
       rv
     end

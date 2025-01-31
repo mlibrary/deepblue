@@ -28,7 +28,7 @@ END_OF_SCHEDULER_ENTRY
 
   def perform( *args )
     initialize_options_from( args: args, debug_verbose: ::Deepblue::JobTaskHelper.doi_pending_report_job_debug_verbose )
-    log( event: "globus errors report job", hostname_allowed: hostname_allowed? )
+    log( event: "doi pending report job", hostname_allowed: hostname_allowed? )
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
     reporter = ::Deepblue::DoiPendingReporter.new( msg_handler: msg_handler,
