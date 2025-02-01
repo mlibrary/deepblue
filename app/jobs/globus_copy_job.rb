@@ -14,6 +14,7 @@ class GlobusCopyJob < GlobusJob
                delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_default_delay_per_file_seconds_on_copy,
                user_email: nil )
 
+    return unless globus_export_enabled?
     globus_job_perform( concern_id: concern_id, email: user_email, log_prefix: "#{log_prefix}globus_copy_job" ) do
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin copy" unless @globus_job_quiet
       GlobusJob.error_file_delete @globus_concern_id

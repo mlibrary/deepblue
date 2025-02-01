@@ -7,6 +7,7 @@ class GlobusRestartJob < GlobusJob
   # @param [String, "Globus: "] log_prefix
   # @param [boolean, false] force_restart
   def perform( concern_id, log_prefix: "Globus: ", force_restart: false, user_email: nil )
+    return unless globus_export_enabled?
     if force_restart
       @globus_log_prefix = "#{log_prefix}globus_restart_job"
       @globus_lock_file = GlobusJob.lock_file concern_id

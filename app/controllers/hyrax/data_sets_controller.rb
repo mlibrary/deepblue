@@ -640,6 +640,18 @@ module Hyrax
       ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 
+    def globus_export?
+      ::Deepblue::GlobusIntegrationService.globus_export
+    end
+
+    def globus_use_data_den?
+      ::Deepblue::GlobusIntegrationService.globus_use_data_den
+    end
+
+    def globus_always_available?
+      ::Deepblue::GlobusIntegrationService.globus_always_available
+    end
+
     def globus_last_error_msg
       ::Deepblue::GlobusService.globus_error_file_contents curation_concern.id
     end

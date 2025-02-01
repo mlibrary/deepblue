@@ -93,6 +93,11 @@ module Hyrax
              :work_url,
              :zip_download_enabled?, to: :controller
 
+    delegate :globus_enabled?, to: :controller
+    delegate :globus_export?, to: :controller
+    delegate :globus_use_data_den?, to: :controller
+    delegate :globus_always_available?, to: :controller
+
     # def initialize( solr_document, current_ability, request = nil )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
     #                                          Deepblue::LoggingHelper.called_from,
@@ -211,10 +216,6 @@ module Hyrax
     end
 
     def globus_download_enabled?
-      ::Deepblue::GlobusIntegrationService.globus_enabled
-    end
-
-    def globus_enabled?
       ::Deepblue::GlobusIntegrationService.globus_enabled
     end
 

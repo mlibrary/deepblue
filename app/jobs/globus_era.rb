@@ -21,7 +21,7 @@ module Deepblue
           @@c_era_begin_timestamp = Time.now.to_s
           @@c_era_file_base = ".globus_era.#{Socket.gethostname}"
           # log "hostname=#{Socket.gethostname}" if @@c_era_verbose
-          if ::Deepblue::GlobusIntegrationService.globus_enabled
+          if ::Deepblue::GlobusIntegrationService.globus_export
             log "GlobusEra initializing at #{@@c_era_begin_timestamp}" if @@c_era_verbose
             @@c_era_file = ::Deepblue::GlobusIntegrationService.globus_prep_dir.join @@c_era_file_base
             log "GlobusEra era file: #{@@c_era_file} -- #{@@c_era_file.class}" if @@c_era_verbose

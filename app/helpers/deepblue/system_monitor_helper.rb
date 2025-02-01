@@ -22,6 +22,7 @@ module Deepblue
 
     def self.space_globus
       return "N/A" unless ::Deepblue::GlobusIntegrationService.globus_enabled
+      return "N/A" unless ::Deepblue::GlobusIntegrationService.globus_export
       return "N/A" if ::Deepblue::GlobusIntegrationService.globus_dir.blank?
       return "N/A" unless Dir.exist? ::Deepblue::GlobusIntegrationService.globus_dir
       space( dir: ::Deepblue::GlobusIntegrationService.globus_dir )

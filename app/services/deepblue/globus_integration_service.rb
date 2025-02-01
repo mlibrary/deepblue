@@ -28,6 +28,11 @@ module Deepblue
     mattr_accessor :globus_dashboard_controller_debug_verbose, default: false
     mattr_accessor :globus_dashboard_presenter_debug_verbose,  default: false
 
+    mattr_accessor :globus_use_data_den,                       default: true  # the new globus world as of 2025
+    mattr_accessor :globus_enabled,                            default: false
+    mattr_accessor :globus_always_available,                   default: true # set to true to force globus to show in ui
+    mattr_accessor :globus_export,                             default: false # old globus export mechanism
+
     mattr_accessor :globus_after_copy_job_ui_delay_seconds,       default: 3
     mattr_accessor :globus_base_file_name,                        default: "DeepBlueData_"
     mattr_accessor :globus_base_url,
@@ -46,7 +51,6 @@ module Deepblue
     mattr_accessor :globus_dir_modifier,                          default: ''
     mattr_accessor :globus_download_dir,
                    default: File.join( globus_dir, ::Deepblue::InitializationConstants::DOWNLOAD )
-    mattr_accessor :globus_enabled,                               default: false
     mattr_accessor :globus_era_timestamp
     mattr_accessor :globus_era_token
     mattr_accessor :globus_prep_dir,

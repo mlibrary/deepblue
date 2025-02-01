@@ -130,9 +130,14 @@ class GlobusJob < ::Hyrax::ApplicationJob
     Time.parse( timestamp )
   end
 
+  def globus_export_enabled?
+    ::Deepblue::GlobusIntegrationService.globus_export
+  end
+
   # @param [String] concern_id
   # @param [String, "Globus: "] log_prefix
   def perform( concern_id, log_prefix: "Globus: ", globus_job_quiet: true )
+    return unless globus_export_enabled?
     @globus_concern_id = concern_id
     @globus_log_prefix = log_prefix
     @globus_lock_file = GlobusJob.lock_file concern_id
@@ -215,11 +220,11 @@ class GlobusJob < ::Hyrax::ApplicationJob
     end
 
     def globus_job_perform( concern_id: '', email: nil, log_prefix: 'Globus: ', quiet: false ) # , &globus_block )
+      return unless ::Deepblue::GlobusIntegrationService.globus_enabled
       @globus_concern_id = concern_id
       @globus_log_prefix = log_prefix
       @globus_lock_file = nil
       @globus_job_quiet = quiet
-      return unless ::Deepblue::GlobusIntegrationService.globus_enabled
       begin
         if globus_job_complete?
           globus_job_perform_already_complete( email: email )
