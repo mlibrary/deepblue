@@ -13,7 +13,7 @@ module Deepblue
     TICKET_PENDING               = 'pending'.freeze      unless const_defined? :TICKET_PENDING
 
     mattr_accessor :ticket_helper_debug_verbose, default: false
-    mattr_accessor :ticket_helper_debug_emails, default: true
+    mattr_accessor :ticket_helper_debug_emails, default: false
 
     mattr_accessor :ticket_pending_timeout_delta, default: TeamdynamixIntegrationService.ticket_pending_timeout_delta
 
