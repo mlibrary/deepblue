@@ -7,9 +7,9 @@ FileSysExportIntegrationService.setup do |config|
 
     case Rails.configuration.hostname
     when ::Deepblue::InitializationConstants::HOSTNAME_PROD
-      config.data_den_base_path             = '/deepbluedata-dataden/dbd-extract/prod/'
-      config.data_den_base_path_published   = '/deepbluedata-dataden/dbd-extract/prod/published/'
-      config.data_den_base_path_unpublished = '/deepbluedata-dataden/dbd-extract/prod/unpublished/'
+      config.data_den_base_path             = '/ulib-archive-deepbluedata/prod-extract/'
+      config.data_den_base_path_published   = '/ulib-archive-deepbluedata/prod-extract/published/'
+      config.data_den_base_path_unpublished = '/ulib-archive-deepbluedata/prod-extract/unpublished/'
       config.data_den_link_path_to_globus   = ''
     when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
       config.data_den_base_path             = '/deepbluedata-prep/DataDen/test/'
@@ -32,7 +32,7 @@ FileSysExportIntegrationService.setup do |config|
 
     end
 
-    config.globus_delete_link_to_target = true
+    config.globus_delete_link_to_target = false
 
   rescue Exception => e
     puts e
