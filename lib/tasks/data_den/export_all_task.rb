@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 require_relative './abstract_export_task'
-require_relative './reexport_report_task'
-require_relative './export_report_task'
+require_relative './export_task'
+require_relative './reexport_task'
 
 module DataDen
 
-  class AllExportsReportTask < ::DataDen::AbstractExportTask
+  class ExportAllTask < ::DataDen::AbstractExportTask
 
-    mattr_accessor :all_export_report_task_debug_verbose, default: true
+    mattr_accessor :export_all_task_debug_verbose, default: true
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
@@ -21,7 +21,7 @@ module DataDen
       end
       @test_mode = true
       @email_targets = ["fritx@umich.edu"]
-      @email_subject = "All DataDen exports on %hostname% as of %now%"
+      @email_subject = "DataDen export all on %hostname% as of %now%"
       @msg_handler.msg_debug "test_mode: #{@test_mode}"
       @msg_handler.msg_debug "email_targets: #{@email_targets}"
       @msg_handler.msg_debug "email_subject: #{@email_subject}"
@@ -31,13 +31,13 @@ module DataDen
       debug_verbose
       msg_handler.msg_verbose
       msg_handler.msg_verbose "Reexports (modified since previous export):"
-      task = ReexportReportTask.new( msg_handler: msg_handler, options: { 'email_results' => false } )
+      task = ReexportModifiedTask.new( msg_handler: msg_handler, options: { 'email_results' => false } )
       task.run
       msg_handler.msg_verbose "New Exports:"
-      task = ExportReportTask.new( msg_handler: msg_handler, options: { 'email_results' => false } )
+      task = ExportTask.new( msg_handler: msg_handler, options: { 'email_results' => false } )
       task.run
-      run_email_targets( subject: @email_subject, event: 'AllExportsReport' )
-      msg_handler.msg_verbose "Finished report."
+      run_email_targets( subject: @email_subject, event: 'ExportAllTask' )
+      msg_handler.msg_verbose "Finished export all."
     end
 
   end
