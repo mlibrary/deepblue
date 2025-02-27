@@ -6,7 +6,13 @@ class JobMonitorJob < ::Deepblue::DeepblueJob
   mattr_accessor :job_monitor_job_debug_verbose, default: false
   @@bold_puts = false
 
-  def perform( job_class_name:, job_args:, wait_duration: 1 )
+  #def perform( job_class_name:, job_args:, wait_duration: 1 )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    job_class_name = args[0][:job_class_name]
+    job_args = args[0][:job_args]
+    wait_duration = args[0][:wait_duration]
+    wait_duration ||= 1
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_class_name=#{job_class_name}",

@@ -12,6 +12,7 @@ class EnsureDoiMintedJob < ::Deepblue::DeepblueJob
   # def perform( id:, current_user:, **args )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     id = args[0][:id]
     current_user = args[0][:current_user]
     args = args[0][:args]

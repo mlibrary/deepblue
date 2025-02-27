@@ -12,6 +12,7 @@ class DoiMintingJob < ::Deepblue::DeepblueJob
   #              debug_verbose: ::Deepblue::DoiMintingService.doi_minting_job_debug_verbose )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     id = args[0][:id]
     current_user = args[0][:current_user]
     job_delay = args[0][:job_delay]

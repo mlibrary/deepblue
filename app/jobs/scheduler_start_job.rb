@@ -18,6 +18,7 @@ class SchedulerStartJob < ::Deepblue::DeepblueJob
   #              options: {} )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     autostart = args[0][:autostart]
     autostart ||= false
     job_delay = args[0][:job_delay]

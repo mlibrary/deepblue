@@ -35,15 +35,30 @@ class IngestAppendScriptMonitorJob < ::Deepblue::DeepblueJob
   attr_accessor :monitor_wait_duration
   attr_accessor :monitor_wait_count
 
-  def perform( id: nil,
-               ingest_mode: 'append',
-               ingester:,
-               max_appends:,
-               max_restarts_base: ingest_append_script_max_restarts_base,
-               monitor_wait_duration: ingest_append_script_monitor_wait_duration,
-               path_to_script:,
-               restart:,
-               **options )
+  #def perform( id: nil,
+  #             ingest_mode: 'append',
+  #             ingester:,
+  #             max_appends:,
+  #             max_restarts_base: ingest_append_script_max_restarts_base,
+  #             monitor_wait_duration: ingest_append_script_monitor_wait_duration,
+  #             path_to_script:,
+  #             restart:,
+  #             **options )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    id = args[0][:id]
+    ingest_mode = args[0][:ingest_mode]
+    ingest_mode ||= 'append'
+    ingester = args[0][:ingester]
+    max_appends = args[0][:max_appends]
+    max_restarts_base = args[0][:max_restarts_base]
+    max_restarts_base ||= ingest_append_script_max_restarts_base
+    monitor_wait_duration = args[0][:monitor_wait_duration]
+    monitor_wait_duration ||= ingest_append_script_monitor_wait_duration
+    path_to_script = args[0][:path_to_script]
+    restart = args[0][:restart]
+    options = args[0][:options]
+    options ||= {}
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
