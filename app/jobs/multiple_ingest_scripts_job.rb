@@ -26,6 +26,7 @@ class MultipleIngestScriptsJob < ::Deepblue::DeepblueJob
   #              **options )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     ingest_mode = args[0][:ingest_mode]
     ingester = args[0][:ingester]
     paths_to_scripts = args[0][:paths_to_scripts]

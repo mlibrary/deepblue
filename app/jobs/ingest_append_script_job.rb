@@ -17,7 +17,17 @@ class IngestAppendScriptJob < ::Deepblue::DeepblueJob
 
   EVENT = 'ingest append script'
 
-  def perform( id:, ingest_script_path:, ingester:, max_appends:, restart:, run_count:, **options )
+  #def perform( id:, ingest_script_path:, ingester:, max_appends:, restart:, run_count:, **options )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    id = args[0][:id]
+    ingest_script_path = args[0][:ingest_script_path]
+    ingester = args[0][:ingester]
+    max_appends = args[0][:max_appends]
+    restart = args[0][:restart]
+    run_count = args[0][:run_count]
+    options = args[0][:options]
+    options ||= {}
     msg_handler.debug_verbose = msg_handler.debug_verbose || ingest_append_script_job_debug_verbose
     msg_handler.verbose = msg_handler.verbose || ingest_append_script_job_verbose
     msg_handler.msg_verbose msg_handler.here

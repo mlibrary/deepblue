@@ -15,6 +15,7 @@ class IngestScriptJob < ::Deepblue::DeepblueJob
   # def perform( ingest_mode:, ingester:, path_to_script:, id: nil, **options )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     ingest_mode = args[0][:ingest_mode]
     ingester = args[0][:ingester]
     path_to_script = args[0][:path_to_script]
