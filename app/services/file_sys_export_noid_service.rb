@@ -63,6 +63,36 @@ class FileSysExportNoidService
     return rv
   end
 
+  def clean_export_dirs()
+    published_path = FileSysExportService.path_noid( published: true,
+                                                     base_path_published: @base_path_published,
+                                                     base_path_unpublished: @base_path_unpublished,
+                                                     noid: noid )
+    unpublished_path = FileSysExportService.path_noid( published: false,
+                                                       base_path_published: @base_path_published,
+                                                       base_path_unpublished: @base_path_unpublished,
+                                                       noid: noid )
+
+    if FileUtilsHelper.dir_exists? published_path
+      files = Dir.glob( File.join( published_path, '*' ), File::FNM_DOTMATCH )
+      files = files - [ File.join( published_path, '.' ) ]
+      files = files - [ File.join( published_path, '..' ) ]
+      FileUtils.rm files
+    end
+
+    if FileUtilsHelper.dir_exists? unpublished_path
+      files = Dir.glob( File.join( unpublished_path, '*' ), File::FNM_DOTMATCH )
+      files = files - [ File.join( unpublished_path, '.' ) ]
+      files = files - [ File.join( unpublished_path, '..' ) ]
+      FileUtils.rm files
+    end
+
+    @file_sys_export.export_status = ::FileSysExportC::STATUS_EXPORT_NEEDED
+    @file_sys_export.export_status_timestamp = DateTime.now
+    @file_sys_export.note = nil
+    @file_sys_export.save!
+  end
+
   # def export_file_name( file_set: )
   #   if @exported_file_ids_to_name.has_key?( file_set.id )
   #     rv_file_name = @exported_file_ids_to_name[file_set.id]

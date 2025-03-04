@@ -69,6 +69,11 @@ class AbstractFileSysExportService
     FileExport.where( export_type: export_type )
   end
 
+  def date_set_clean( noid: )
+    noid_service = FileSysExportNoidService.new( export_service: self, noid: noid )
+    noid_service.clean_export_dirs()
+  end
+
   def data_set_publish( cc: )
     noid_service = FileSysExportNoidService.new( export_service: self, work: cc )
     data_set_publish_rec( noid_service: noid_service )

@@ -38,9 +38,9 @@ module DataDen
           msg_handler.msg_warn "Failed to load work with noid #{fs_rec.noid}"
           next
         end
-        rec_create_date = fs_rec.created_at
+        rec_date = fs_rec.export_status_timestamp
         ds_modified_date = dsc.date_modified
-        next if ds_modified_date < rec_create_date
+        next if ds_modified_date < rec_date
 
         # msg_handler.msg_verbose "Filter fs_rec.export_status_timestamp=#{fs_rec.export_status_timestamp}"
         # msg_handler.msg_verbose "Filter #{test_date_begin} < #{fs_rec.export_status_timestamp} < #{test_date_end} ?"
