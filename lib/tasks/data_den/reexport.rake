@@ -15,7 +15,7 @@ namespace :data_den do
   # bundle exec rake data_den:reexport['{"verbose":true\,"quiet":false}']
   # bundle exec rake data_den:reexport['{"verbose":true\,"debug_verbose":true}']
   # bundle exec rake data_den:reexport['{"quiet":true}']
-  desc 'Export to APTrust by list of noids'
+  desc 'Export to DataDen by list of noids'
   task :reexport, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
     task = ::DataDen::ReexportTask.new( options: args[:options] )
