@@ -10,9 +10,9 @@ module DataDen
       super( msg_handler: msg_handler, options: options )
     end
 
-    def run_export( noid:, size: nil )
-      run_reexport( noid: noid, size: size )
-    end
+    #def run_export( noid:, size: nil )
+    #  run_reexport( noid: noid, size: size )
+    #end
 
   end
 
