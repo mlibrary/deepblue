@@ -864,7 +864,7 @@ GEM
       rdf
     raabro (1.4.0)
     racc (1.8.1)
-    rack (2.2.10)
+    rack (2.2.13)
     rack-linkeddata (3.3.0)
       linkeddata (~> 3.3)
       rack (>= 2.2, < 4)
