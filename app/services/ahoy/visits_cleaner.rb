@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './abstract_cleaner'
+
 module Ahoy
 
   class VisitsCleaner < AbstractCleaner

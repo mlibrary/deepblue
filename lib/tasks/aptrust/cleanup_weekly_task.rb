@@ -4,6 +4,26 @@ require_relative './cleanup_all_task'
 
 module Aptrust
 
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+aptrust_weekly_cleanup:
+  # Run Wednesday and Friday at 6 or 7 PM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 23 * *  3,5'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:all_uploads_report
+  args:
+    by_request_only: false
+    hostnames:
+       - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload_report
+    rake_task: "aptrust:cleanup_weekly"
+
+END_OF_SCHEDULER_ENTRY
+
   class CleanupWeeklyTask < ::Aptrust::CleanupAllTask
 
     mattr_accessor :cleanup_weekly_task_debug_verbose, default: true
