@@ -6,6 +6,26 @@ require_relative './export_report_task'
 
 module DataDen
 
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+dataden_export_report:
+  # Run Monday and Wednesday at 10 or 11 AM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M  H D Mo WDay
+  cron: '36 5 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task dataden:all_exports_report
+  args:
+    by_request_only: false
+    hostnames:
+       - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: dataden_export_report
+    rake_task: "data_den:all_exports_report"
+
+END_OF_SCHEDULER_ENTRY
+
   class AllExportsReportTask < ::DataDen::AbstractExportTask
 
     mattr_accessor :all_export_report_task_debug_verbose, default: true

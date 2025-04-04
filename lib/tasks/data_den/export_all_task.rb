@@ -6,6 +6,26 @@ require_relative './reexport_task'
 
 module DataDen
 
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+dataden_export_all:
+  # Run Tuesday and Thursday starting at 9 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 14 * *  2,5'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task dataden:export_all
+  args:
+    by_request_only: false
+    hostnames:
+       - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: dataden_export_all
+    rake_task: "data_den:export_all"
+
+END_OF_SCHEDULER_ENTRY
+
   class ExportAllTask < ::DataDen::AbstractExportTask
 
     mattr_accessor :export_all_task_debug_verbose, default: true
