@@ -5,22 +5,22 @@ class DeepblueMailer < ApplicationMailer
 
   layout "mailer.html"
 
-  def send_an_email( to:, cc: nil, bcc: nil, from:, subject:, body:, content_type: nil )
+  def self.send_an_email( to:, cc: nil, bcc: nil, from:, subject:, body:, content_type: nil )
     if content_type.present?
-      mail( to: to, cc: cc, bcc: bcc, from: from, subject: subject, body: body, content_type: content_type )
+      ActionMailer::Base.mail( { to: to, cc: cc, bcc: bcc, from: from, subject: subject, body: body, content_type: content_type } ).deliver
     else
-      mail( to: to, cc: cc, bcc: bcc, from: from, subject: subject, body: body )
+      ActionMailer::Base.mail( { to: to, cc: cc, bcc: bcc, from: from, subject: subject, body: body } ).deliver
     end
   end
 
-  def send_an_email_html( to:, cc: nil, bcc: nil, from:, subject:, body: )
-    mail( to: to,
+  def self.send_an_email_html( to:, cc: nil, bcc: nil, from:, subject:, body: )
+    ActionMailer::Base.mail( to: to,
           cc: cc,
           bcc: bcc,
           from: from,
           body: body,
           content_type: ::Deepblue::EmailHelper::TEXT_HTML,
-          subject: subject )
+          subject: subject ).deliver
   end
 
 end
