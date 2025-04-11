@@ -54,7 +54,7 @@ RSpec.describe Deepblue::JobTaskHelper, type: :helper do
 
   describe 'module variables' do
     it { expect( described_class.allowed_job_tasks ).to eq( [ '-T', 'tmp:clean' ] ) }
-    it { expect( described_class.allowed_job_task_matching ).to eq( [ /aptrust\:[a-z_]+/, /blacklight\:delete_old_searches\[\d+\]/ ] ) }
+    it { expect( described_class.allowed_job_task_matching ).to eq( [ /aptrust\:[a-z_]+/, /blacklight\:delete_old_searches\[\d+\]/, /data_den\:[a-z_]+/  ] ) }
     it { expect( described_class.job_failure_email_subscribers ).to eq( [ 'fritx@umich.edu' ] ) }
   end
 
