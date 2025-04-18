@@ -269,13 +269,10 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email_to,
                                                     lines: lines,
                                                     subject: subject + " (RDS)" ) if notify_managers
-      # ::Deepblue::JiraHelper.jira_add_comment( curation_concern: work,
-      #                                          event: "Attach Files to Work",
-      #                                          comment: lines.join( "\n" ) )
-      # ::Deepblue::TicketHelper.ticket_add_comment( curation_concern: work,
-      #                                              comment: lines.join( "\n" ),
-      #                                              test_mode: false,
-      #                                              msg_handler: ::Deepblue::MessageHandlerNull.new() )
+      ::Deepblue::TicketHelper.ticket_add_comment( curation_concern: work,
+                                                   comment: lines.join( "\n" ),
+                                                   test_mode: false,
+                                                   msg_handler: ::Deepblue::MessageHandlerNull.new() )
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
