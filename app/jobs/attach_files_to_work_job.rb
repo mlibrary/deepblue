@@ -177,7 +177,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     def file_stats( uploaded_file )
       file_set_id = ::PersistHelper.uri_to_id uploaded_file.file_set_uri
       file_set = FileSet.find file_set_id
-      return file_set.original_name_value, file_set.file_size_value
+      file_name = file_set.original_filename
+      file_name = File.basename( Deepblue::UploadHelper.uploaded_file_path( uploaded_file ) ) if file_name.blank?
+      return file_name, file_set.file_size_value
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       return e.to_s, ''
@@ -209,26 +211,47 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                           file_count_phrase: file_count_phrase,
                                           title: ::Deepblue::EmailHelper.escape_html( title ),
                                           work_url: work_url )
-
-      unless failed_uploads.empty?
+      # it's possible that a file has failed to upload, yet is in the suscessful uploads,
+      # the clue to this is that the file_name, file_size pair will have a blank file_size
+      # x
+      # separate the empty sizes?
+      failed_file_list = []
+      successful_uploads.each do |uploaded_file|
+        file_name, file_size = file_stats( uploaded_file )
+        #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
+        if file_size.blank?
+          failed_file_list << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
+                                                          file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
+                                                          file_size: file_size )
+        end
+      end
+      if failed_uploads.present? || failed_file_list.present?
         lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.total_failed_html",
                                             file_count: failed_uploads.size )
         lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_failed_html" )
         lines << "<ol>"
         failed_uploads.each do |uploaded_file|
           file_name, file_size = file_stats( uploaded_file )
-          lines << Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_html",
+          #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
+          lines << Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_failed_html",
                                             file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
                                             file_size: file_size )
         end
+        lines += failed_file_list
         lines << "</ol>"
       end
       file_list = []
       successful_uploads.each do |uploaded_file|
         file_name, file_size = file_stats( uploaded_file )
-        file_list << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
-                                                file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
-                                                file_size: file_size )
+        #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
+        unless file_size.blank?
+          file_list << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
+                                                   file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
+                                                   file_size: file_size )
+          file_list << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
+                                                   file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
+                                                   file_size: file_size )
+        end
       end
       file_list.sort!
       lines << "<ol>"
@@ -246,9 +269,13 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       attach_files_to_work_job_complete_email_user( email: Deepblue::EmailHelper.notification_email_to,
                                                     lines: lines,
                                                     subject: subject + " (RDS)" ) if notify_managers
-      ::Deepblue::JiraHelper.jira_add_comment( curation_concern: work,
-                                               event: "Attach Files to Work",
-                                               comment: lines.join( "\n" ) )
+      # ::Deepblue::JiraHelper.jira_add_comment( curation_concern: work,
+      #                                          event: "Attach Files to Work",
+      #                                          comment: lines.join( "\n" ) )
+      # ::Deepblue::TicketHelper.ticket_add_comment( curation_concern: work,
+      #                                              comment: lines.join( "\n" ),
+      #                                              test_mode: false,
+      #                                              msg_handler: ::Deepblue::MessageHandlerNull.new() )
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
       ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
