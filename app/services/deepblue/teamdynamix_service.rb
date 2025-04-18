@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+#
+require_relative '../../services/deepblue/message_handler_debug_only'
 
 module Deepblue
 
@@ -60,6 +62,16 @@ module Deepblue
 
     RESPONSE_ID      = 'ID'
     RESPONSE_MESSAGE = 'Message'
+
+    TDX_STATUS_NULL                 = 0
+    TDX_STATUS_NEW                  = 77
+    TDX_STATUS_OPEN                 = 78
+    TDX_STATUS_IN_PROCESS           = 79
+    TDX_STATUS_AWAITING_USER_INFO   = 84
+    TDX_STATUS_AWAITING_THIRD_PARTY = 85
+    TDX_STATUS_SCHEDULED            = 86
+    TDX_STATUS_CLOSED               = 81
+    TDX_STATUS_CANCELLED            = 82
 
     TEXT_PLAIN = 'text/plain'
 
@@ -654,6 +666,18 @@ module Deepblue
       return rv
     end
 
+    def get_ticket_field( ticket_id:, field_id: , ticket_body: nil )
+      ticket_body ||= get_ticket_body( ticket_id: ticket_id )
+      return nil if ticket_body.blank?
+      return ticket_body[field_id]
+    end
+
+    def get_ticket_status_id( ticket_id:, ticket_body: nil )
+      ticket_body ||= get_ticket_body( ticket_id: ticket_id )
+      return nil if ticket_body.blank?
+      return ticket_body[KEY_STATUS_ID]
+    end
+
     def group_search( name_like: DEFAULT_GROUP_SEARCH_NAME_LIKE )
       parms = '/um/it/groups/search'
       headers = build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: TEXT_PLAIN )
@@ -1194,6 +1218,57 @@ module Deepblue
                                      "status=#{status}",
                                      "body=#{response_inspect_body body}",
                                      "" ] if msg_handler.debug_verbose
+      return status, body
+    end
+
+    def update_ticket_feed( ticket_id:, comments:, notify: [], is_rich_html: true, new_status_id: TDX_STATUS_NULL )
+      # new_status_id = 0 is no change
+      # https://docs.google.com/document/d/14G-E5Zb2208cHcE5genW5mW0bVEEEtfCTH1N6erP0gA/edit?tab=t.0
+      #       curl --location --request
+      #       POST 'https:/gw-test.api.it.umich.edu/um/it/31/tickets/425/feed' \
+      #              --header 'Accept: application/json' \
+      #         --header 'Authorization: Bearer access_token' \
+      #         --header 'Content-Type: text/plain' \
+      #         --data-raw '{
+      # "Comments":  "<i>Adding</i> comments via api test",
+      # "NewStatusID":  79,
+      # "Notify":  [“xxx@umich.edu, yyy@umich.edu”],
+      # "IsRichHtml": true
+      # }'
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "comments=#{comments}",
+                                   "notify=#{notify}",
+                                   "is_rich_html=#{is_rich_html}",
+                                   "new_status_id=#{new_status_id}",
+                                   "" ] if msg_handler.debug_verbose
+      #fields ||= {}
+      build_access_token
+      build_bearer
+      parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}/feed"
+      headers=build_headers( auth: bearer,
+                             accept: APPLICATION_JSON,
+                             content_type: TEXT_PLAIN,
+                             charset: 'utf-8' )
+      data = build_tdx_data( account_id: account_id )
+      comments = EmailHelper.clean_str comments if EmailHelper.clean_str_needed? comments
+      data['Comments'] = comments
+      if notify.blank?
+
+      end
+      data['Notify'] = notify
+      data['IsRichHtml'] = is_rich_html
+      data['NewStatusID'] = new_status_id
+      #data.merge! fields
+      status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
+                           parms: parms,
+                           data: data )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "status=#{status}",
+                                   "body=#{response_inspect_body body}",
+                                   "" ] if msg_handler.debug_verbose
       return status, body
     end
 
