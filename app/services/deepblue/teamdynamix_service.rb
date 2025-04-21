@@ -1249,8 +1249,12 @@ module Deepblue
       parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}/feed"
       headers=build_headers( auth: bearer,
                              accept: APPLICATION_JSON,
-                             content_type: TEXT_PLAIN,
-                             charset: 'utf-8' )
+                             content_type: APPLICATION_JSON ) #,
+      #charset: 'utf-8' )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "headers=#{headers.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
       data = build_tdx_data( account_id: account_id )
       comments = EmailHelper.clean_str comments if EmailHelper.clean_str_needed? comments
       data['Comments'] = comments
@@ -1261,13 +1265,17 @@ module Deepblue
       data['IsRichHtml'] = is_rich_html
       data['NewStatusID'] = new_status_id
       #data.merge! fields
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "data=#{data.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
       status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
                            parms: parms,
                            data: data )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
                                    "status=#{status}",
-                                   "body=#{response_inspect_body body}",
+                                   "body=#{response_inspect_body( body, debug_verbose: msg_handler.debug_verbose )}",
                                    "" ] if msg_handler.debug_verbose
       return status, body
     end
