@@ -1,5 +1,5 @@
-<!-- div class="col-sm-12">
-  <h2 class="panel-title">Active Ingest Append Script</h2>
+<!-- div class="col-12">
+  <h2 class="card-title">Active Ingest Append Script</h2>
   <%# path = @presenter.active_ingest_append_script %>
   <%# if path.present? %>
     <code><a href="<%#= @presenter.ingest_append_script_prep_path( path: path ) %>" ><%#= File.basename path %></a></code>
@@ -7,16 +7,16 @@
     No append script currently running.
   <%# end %>
 </div -->
-<div class="col-xs-12">
+<div class="col-12">
   <div class="ingest-append-script-files">
-    <div id="ingest_append_script_controls" class="panel panel-ingest-append-scripts">
-      <div class="panel-heading">
+    <div id="ingest_append_script_controls" class="card panel-ingest-append-scripts">
+      <div class="card-header">
         <a data-toggle="collapse" href="#ingest_append_script_controls_collapse">
-          <h2 class="panel-title"><%= t('hyrax.base.ingest_append_scripts.actions.header') %>
+          <h2 class="card-title"><%= t('hyrax.base.ingest_append_scripts.actions.header') %>
             <i class="fa fa-chevron-right pull-right"></i></h2>
         </a>
       </div>
-      <div id="ingest_append_script_controls_collapse" class="panel-body panel-collapse collapse panel-ingest-append-scripts">
+      <div id="ingest_append_script_controls_collapse" class="card-body collapse panel-ingest-append-scripts">
         <% if @presenter.ingest_append_script_files.empty? %>
           <%= t('hyrax.base.ingest_append_scripts.empty', type: "Work" ) %>
         <% else %>

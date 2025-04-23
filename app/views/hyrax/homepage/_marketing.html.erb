@@ -1,17 +1,17 @@
 <section class="image-masthead">
   <h1 class="sr-only"><%= t('hyrax.site_marketing_header') %></h1>
     <div class="splash-text">
-      <div class="splash-container">
-        <div class="container">
-          <div class="col-sm-6">
+      <div class="container splash-container">
+        <div class="row">
+          <div class="col-lg-6 col-sm-12">
             <div class="splash-text--medium">
             <p><%= t('hyrax.site_splash_text') %></p>
             </div>
           </div>
-        <div class="col-sm-6">
-          <div class="splash-text--medium">
+        <div class="col-lg-6 col-sm-12">
+          <div class="splash-buttons">
             <!--Placeholder for Browse + Deposit/Share your work buttons-->
-              <%= link_to "<em class=\"glyphicon glyphicon-search\" aria-hidden=\"true\"></em> #{t('hyrax.browse')}".html_safe,
+              <%= link_to "#{t('hyrax.browse')}".html_safe,
                           main_app.search_catalog_path, class: "btn btn-primary btn-lg browse-btn", id: "browse_link" %>
 
               <% if @presenter.display_share_button? %>
@@ -20,22 +20,22 @@
                     <% if signed_in? %>
                       <% if @presenter.create_many_work_types? %>
                         <%= link_to '#',
-                          class: "btn btn-primary btn-lg",
+                          class: "btn btn-primary btn-lg share-btn",
                           data: { behavior: 'select-work', target: '#worktypes-to-create', 'create-type' => 'single' } do %>
-                          <em class="glyphicon glyphicon-upload" aria-hidden="true"></em> <%= t('hyrax.share_button') %>
+                          <%= t('hyrax.share_button') %>
                         <% end %>
                       <% else # simple link to the first work type %>
                         <% if !Flipflop.disable_desposits_and_edits? %>
                           <%= link_to new_polymorphic_path([main_app, @presenter.first_work_type]),
-                              class: 'btn btn-primary btn-lg' do %>
-                            <em class="glyphicon glyphicon-upload" aria-hidden="true"></em> <%= t('hyrax.share_button') %>
+                              class: 'btn btn-primary btn-lg share-btn' do %>
+                             <%= t('hyrax.share_button') %>
                           <% end %>
                         <% end %>
                       <% end %>
                     <% else %>
                         <%= link_to hyrax.my_works_path,
                           class: "btn btn-primary btn-lg" do %>
-                          <i class="glyphicon glyphicon-upload" aria-hidden="true"></i> <%= t('hyrax.share_button') %>
+                          <%= t('hyrax.share_button') %>
                         <% end %>
                     <% end %>
                   </div>

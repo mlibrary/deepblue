@@ -36,7 +36,6 @@
                   <div class="row-2-cells">
                     <div class="cell-narrow">
                       <span id="addfolder" class="btn btn-success fileinput-button">
-                        <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                         <span><%=  t(".add_folder") %></span>
                         <input type="file" name="files[]" multiple directory webkitdirectory />
                       </span>
@@ -53,7 +52,6 @@
                                  'data-toggle' => 'browse-everything',
                                  'data-route' => browse_everything_engine.root_path,
                                  'data-target' => "#{f.object.persisted? ? "#edit_#{f.object.model.model_name.param_key}_#{f.object.model.id}" : "#new_#{f.object.model.model_name.param_key}"}" ) do %>
-                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
                     <%= t('hyrax.upload.browse_everything.browse_files_button') %>
                   <% end %>
                 <% end %>

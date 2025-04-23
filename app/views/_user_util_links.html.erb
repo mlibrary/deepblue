@@ -99,7 +99,6 @@
           <li class="dropdown-menu-indent"><%= link_to t('hyrax.admin.sidebar.technical'),
                                                hyrax.admin_features_path %>
         <% end %>
-        <li class="divider"></li>
         <li><%= link_to t("hyrax.toolbar.profile.logout"), main_app.destroy_user_session_path %></li>
 
         <% if Rails.configuration.authentication_method == "iu" %>
