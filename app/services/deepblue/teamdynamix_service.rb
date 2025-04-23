@@ -64,14 +64,15 @@ module Deepblue
     RESPONSE_MESSAGE = 'Message'
 
     TDX_STATUS_NULL                 = 0
-    TDX_STATUS_NEW                  = 77
-    TDX_STATUS_OPEN                 = 78
-    TDX_STATUS_IN_PROCESS           = 79
+    TDX_STATUS_NEW                  = 1012 # originally: 77
+    TDX_STATUS_OPEN                 = 1013 # originally: 78 # status not used by DBRRDS
+    TDX_STATUS_IN_PROCESS           = 1014 # originally: 79
     TDX_STATUS_AWAITING_USER_INFO   = 84
     TDX_STATUS_AWAITING_THIRD_PARTY = 85
     TDX_STATUS_SCHEDULED            = 86
-    TDX_STATUS_CLOSED               = 81
-    TDX_STATUS_CANCELLED            = 82
+    TDX_STATUS_CLOSED               = 1016 # originally 81
+    TDX_STATUS_CANCELLED            = 1017 # originally 82
+    TDX_STATUS_WAITING              = 1865
 
     TEXT_PLAIN = 'text/plain'
 
@@ -482,7 +483,7 @@ module Deepblue
       parms="/um/it/#{ulib_app_id}/tickets"
       headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: APPLICATION_JSON )
       data = build_tdx_data( account_id: account_id )
-      data[KEY_STATUS_ID] = 1012 # TODO: config
+      data[KEY_STATUS_ID] = TDX_STATUS_NEW # TODO: config
       data[KEY_PRIORITY_ID] = 20 # TODO: config
       data[KEY_SOURCE_ID] = 8 # TODO: config
       data[KEY_RESPONSIBLE_GROUP_ID] = responsible_group_id
@@ -1243,6 +1244,25 @@ module Deepblue
                                    "is_rich_html=#{is_rich_html}",
                                    "new_status_id=#{new_status_id}",
                                    "" ] if msg_handler.debug_verbose
+
+      if msg_handler.debug_verbose
+        ticket_status = get_ticket_status_id( ticket_id: ticket_id )
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "ticket_status=#{ticket_status}",
+                                     "" ] if msg_handler.debug_verbose
+      end
+
+      if comments.blank?
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "skipping attach comment because comment is empty",
+                                     "" ] if msg_handler.debug_verbose
+        return 0, {}
+      end
+
       #fields ||= {}
       build_access_token
       build_bearer

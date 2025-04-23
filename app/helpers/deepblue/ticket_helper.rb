@@ -216,6 +216,67 @@ module Deepblue
       return false
     end
 
+    def self.ticket_add_comment_with_status_update( curation_concern: nil,
+                                                    cc_id: nil,
+                                                    comment:,
+                                                    notify: [],
+                                                    test_mode: false,
+                                                    msg_handler: nil,
+                                                    debug_verbose: ticket_helper_debug_verbose )
+
+      debug_verbose = debug_verbose || ticket_helper_debug_verbose
+      msg_handler ||= ::Deepblue::MessageHandlerDebugOnly.new()
+      active = TeamdynamixIntegrationService.teamdynamix_service_active
+      msg_handler.bold_debug( [ msg_handler.here, msg_handler.called_from,
+                                "TeamdynamixIntegrationService.teamdynamix_service_active=#{active}",
+                                "ticket_allow_add_comment=#{ticket_allow_add_comment}",
+                                "curation_concern.present?=#{curation_concern.present?}",
+                                "" ] ) if debug_verbose
+      return false unless active
+      return false unless ticket_allow_add_comment
+      curation_concern ||= ::PersistHelper.find_or_nil( cc_id )
+      return false unless curation_concern.present?
+      msg_handler.bold_debug( [ msg_handler.here, msg_handler.called_from,
+                                "curation_concern.id=#{curation_concern.id}",
+                                "curation_concern.curation_notes_admin=#{curation_concern.curation_notes_admin}",
+                                "curation_concern.ticket=#{curation_concern.ticket}",
+                                "test_mode=#{test_mode}",
+                                "" ] ) if debug_verbose
+      ticket = curation_concern.ticket
+      return false if ticket_pending?( ticket: ticket )
+      curation_concern = ensure_not_solr_document curation_concern
+      return true if test_mode
+
+      msg = 'Add comment to teamdynamix ticket with status update.'
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "msg=#{msg}",
+                               "" ] if msg_handler.debug_verbose
+      msg_handler.msg_verbose msg
+      ticket_id = ticket_id_for( curation_concern: curation_concern )
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
+                               "work_id=#{curation_concern.id}",
+                               "ticket_id=#{ticket_id}",
+                               "" ] if msg_handler.debug_verbose
+      return unless ticket_id.present?
+      tdx = ::Deepblue::TeamdynamixService.new( msg_handler: msg_handler )
+      # return unless tdx.has_service_request_ticket_for( curation_concern: work )
+      ticket_status = tdx.get_ticket_status_id( ticket_id: ticket_id )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "ticket_status.class.name=#{ticket_status.class.name}",
+                                   "ticket_status=#{ticket_status}",
+                                   "" ] if msg_handler.debug_verbose
+      if ::Deepblue::TeamdynamixService.TDX_STATUS_NEW == ticket_status
+        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_IN_PROGRESS
+      elsif ::Deepblue::TeamdynamixService.TDX_STATUS_WAITING == ticket_status
+        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_IN_PROGRESS
+      else
+        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_NULL
+      end
+      tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: new_status_id, notify: notify )
+    end
+
     def self.ticket_add_comment( curation_concern: nil,
                                  cc_id: nil,
                                  comment:,
@@ -248,8 +309,6 @@ module Deepblue
       curation_concern = ensure_not_solr_document curation_concern
       return true if test_mode
 
-      # TODO: notify = [::Deepblue::EmailHelper.notification_email_workflow_to]
-
       msg = 'Add comment to teamdynamix ticket.'
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "msg=#{msg}",
@@ -263,7 +322,16 @@ module Deepblue
       return unless ticket_id.present?
       tdx = ::Deepblue::TeamdynamixService.new( msg_handler: msg_handler )
       # return unless tdx.has_service_request_ticket_for( curation_concern: work )
-      tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, notify: notify )
+      if msg_handler.debug_verbose
+        ticket_status = tdx.get_ticket_status_id( ticket_id: ticket_id )
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "ticket_status.class.name=#{ticket_status.class.name}",
+                                     "ticket_status=#{ticket_status}",
+                                     "" ] if msg_handler.debug_verbose
+      end
+      tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: new_status_id, notify: notify )
     end
 
     def self.ticket_id_for( curation_concern: )
