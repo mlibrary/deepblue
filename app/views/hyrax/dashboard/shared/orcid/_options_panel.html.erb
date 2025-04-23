@@ -7,7 +7,7 @@
 
 <% icon = image_tag 'orcid.png', alt: t('hyrax.user_profile.orcid.alt'), class: "profile brand-logo" %>
 
-<div id="orcid-options-panel" class="list-group col-lg-7 col-md-6 col-sm-12">
+<div id="orcid-options-panel" class="list-group col-lg-6 col-sm-12">
   <% if current_user&.orcid_identity? %>
     <div class="list-group-item">
       <b><%= t("hyrax.orcid.preferences.title") %></b>

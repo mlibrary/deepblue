@@ -1,6 +1,4 @@
-<div class="panel-heading work-description-panel-heading">
-  <div class="row">
-    <div class="col-sm-12">
+<div class="card-header work-description-panel-heading">
       <%= render 'work_hits_header_cc', presenter: @presenter, css: 'graph-container-narrow' %>
       <span class="work-description-title">
         <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -10,9 +8,7 @@
         <h1 class="work-description">Work Description</h1>
       </span>
     </div>
-  </div>
-</div>
-<div class="panel-heading work-panel-heading">
+<div class="work-panel-heading">
   <span itemprop="name">
     <%= render 'work_title', presenter: @presenter %>
   </span>

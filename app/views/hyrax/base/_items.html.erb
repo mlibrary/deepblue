@@ -3,10 +3,11 @@
 <!--<h2><%= t('.header') %></h2>-->
 
 <% if @presenter.member_presenters.present? %>
-<div class="panel panel-default panel-items">
-  <div class="panel-heading">
+<div class="card">
+  <div class="card-header">
     <h2>Files (Count: <%= @presenter.total_file_count %>;  Size: <%= @presenter.total_file_size_human_readable %>)</h2>
   </div>
+  <div class="card-body">
     <div class="table-scroll--container">
       <table class="table table-striped related-files">
         <thead>
@@ -31,6 +32,7 @@
         </tbody>
       </table>
     </div>
+</div>
 </div>
 <% elsif @presenter.can_edit_work? %>
     <div class="alert alert-warning" role="alert"><%= t('.empty', type: @presenter.human_readable_type) %></div>

@@ -18,10 +18,10 @@
 <% end %>
 
 <div class="row">
-  <div class="col-md-12">
-    <div class="panel panel-default<%= ' tabs' if can?(:read, :admin_dashboard) %>">
+  <div class="col-12">
+    <div class="card panel-default<%= ' tabs' if can?(:read, :admin_dashboard) %>">
       <%= render 'tabs' if can?(:read, :admin_dashboard) %>
-      <div class="panel-body">
+      <div class="card-body">
         <%= render 'search_header' %>
         <h2 class="sr-only">Works listing</h2>
         <%= render 'document_list' %>

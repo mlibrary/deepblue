@@ -6,11 +6,11 @@
   <%= hidden_field_tag :search_field, 'all_fields' %>
   <div class="form-group row">
 
-    <label class="col-sm-3 mb-0" for="search-field-header">
+    <label class="col-sm-3 mb-0 sr-only" for="search-field-header">
       <%= t("hyrax.search.form.q.label", application_name: application_name) %>
     </label>
 
-    <div class="input-group col-sm-9">
+    <div class="input-group col-sm-12">
       <%= text_field_tag :q, current_search_parameters , class: "q form-control", id: "search-field-header", placeholder: t("hyrax.search.form.q.placeholder") %>
 
       <div class="input-group-append">

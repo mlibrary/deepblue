@@ -4,11 +4,11 @@
     <% show_actions_DEBUG_VERBOSE = @presenter&.show_actions_debug_verbose %>
     <% show_actions_BOLD_PUTS = @presenter&.show_actions_bold_puts %>
 
-    <div class="panel panel-default panel-download">
-      <div class="panel-heading">
+    <div class="card panel-download">
+      <div class="card-header">
         <h2><%= t('hyrax.work.download.header') %></h2>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         <% if Hyrax.config.download_files %>
           <% if @presenter.can_download_zip_maybe? %>
             <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
@@ -123,14 +123,15 @@
           <% end %>
         <% end %>
       </div>
+      </div>
     </div> <!--End Download panel-->
 
     <% if @presenter.can_edit_work? %>
-      <div class="panel panel-default panel-edit">
-        <div class="panel-heading">
+      <div class="card panel-edit">
+        <div class="card-header">
           <h2><%= t("hyrax.work.update.header") %></h2>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="button-set">
             <%= link_to t('simple_form.actions.data_set.edit_work'),
                         edit_polymorphic_path([main_app, @presenter]),
@@ -161,11 +162,11 @@
     <% end %>
 
     <% if Hyrax.config.analytics? && !@presenter.anonymous_show? && current_user && !@presenter.draft_mode? %>
-      <div class="panel panel-default panel-analytics">
-        <div class="panel-heading">
+      <div class="card panel-analytics">
+        <div class="card-header">
           <h2 id="analytics"><%= t('simple_form.labels.data_set.analytics') %></h2>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <div class="button-set">
           <%= link_to t('simple_form.actions.data_set.analytics'),
                       @presenter.relative_url_root + @presenter.stats_path,
@@ -193,11 +194,11 @@
     <% end %>
 
     <% if !@presenter.anonymous_show? && @presenter.current_ability.admin? %>
-      <div class="panel panel-default panel-admin">
-        <div class="panel-heading">
+      <div class="card panel-admin">
+        <div class="card-header">
           <h2><%= t('simple_form.labels.data_set.admin_actions') %></h2>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <%= link_to t('simple_form.actions.ingest_append.prep'),
                       main_app.ingest_append_script_prep_hyrax_data_set_path(@presenter.id), class: 'btn btn-subtle' %>
           <%# if @presenter.display_provenance_log_enabled? %>

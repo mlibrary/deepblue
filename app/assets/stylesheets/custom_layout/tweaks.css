@@ -699,22 +699,12 @@ table.datatable thead th.no-sort {
 }
 
 .subheader-default {
-    background-color: rgb(235, 255, 200);
-    border-top: 2px solid rgb(235, 255, 241);
+    background-color: var(--color-green-100);
+    color: #000;
 }
 
-.subheader-inner {
-    background-color : rgb(255, 138, 10);
-    border-bottom: 0px;
-    color: black;
-    text-align: center;
-}
-
-.subheader-section-default {
-    background-color : rgb(235, 255, 241);
-    border-bottom: 0px;
-    color: black;
-    text-align: center;
+.subheader-section-default{
+  padding-left: 0 !important;
 }
 
 .update-alert--warning {

@@ -1,7 +1,7 @@
 <% if current_ability.admin? && @presenter.present? && @presenter.deleted_ids.present? %>
-  <div class="panel panel-default panel-items panel-provenance-log-entries">
+  <div class="card panel-provenance-log-entries">
     <% if @presenter.deleted_ids.present? %>
-      <div class="panel-heading">
+      <div class="card-header">
         <h3>Deleted Works (<%= @presenter.deleted_ids.size %>)</h3>
       </div>
       <div class="table-scroll--container provenance-log-container">
