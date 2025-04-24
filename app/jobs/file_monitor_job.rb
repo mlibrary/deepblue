@@ -6,7 +6,13 @@ class FileMonitorJob < ::Deepblue::DeepblueJob
   mattr_accessor :file_monitor_job_debug_verbose, default: false
   @@bold_puts = false
 
-  def perform( file_path:, wait_duration: 1, wait_for: )
+  #def perform( file_path:, wait_duration: 1, wait_for: )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    file_path = args[0][:file_path]
+    wait_duration = args[0][:wait_duration]
+    wait_duration ||= 1
+    wait_for = args[0][:wait_for]
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "file_path=#{file_path}",

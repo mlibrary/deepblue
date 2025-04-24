@@ -5,7 +5,15 @@ class JiraNewTicketJob < ::Deepblue::DeepblueJob
   mattr_accessor :jira_new_ticket_job_debug_verbose,
                  default: ::Deepblue::JobTaskHelper.jira_new_ticket_job_debug_verbose
 
-  def perform( work_id:, current_user: nil, job_delay: 0, debug_verbose: jira_new_ticket_job_debug_verbose )
+  #def perform( work_id:, current_user: nil, job_delay: 0, debug_verbose: jira_new_ticket_job_debug_verbose )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    work_id = args[0][:work_id]
+    current_user = args[0][:current_user]
+    job_delay = args[0][:job_delay]
+    job_delay ||= 0
+    debug_verbose = args[0][:debug_verbose]
+    debug_verbose ||= jira_new_ticket_job_debug_verbose
     debug_verbose = debug_verbose || jira_new_ticket_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

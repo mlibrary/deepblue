@@ -147,6 +147,7 @@ module Deepblue
         if versions.count > 1
           versions.each_with_index do |ver,index|
             index += 1 # not zero-based
+            next if index >= versions.count # skip exporting last version file as it is the current version
             yaml_item( out, indent, ":version#{index}:" )
             # yaml_item( out, indent + indent_base, ":version_id:", ver.uri )
             vc = Hyrax::VersionCommitter.where( version_id: ver.uri )
@@ -265,7 +266,7 @@ module Deepblue
     def yaml_export_file_path( target_dirname:, file_set: )
       # export_file_name = yaml_export_file_name( file_set: file_set )
       # filename = "#{file_set.id}_#{export_file_name}"
-      filename = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set, include_id: true )
+      filename = ::Deepblue::ExportFilesHelper.export_file_name_fs( file_set: file_set, include_id: true )
       puts filename if DEBUG_VERBOSE
       target_dirname.join filename
      end
@@ -273,7 +274,7 @@ module Deepblue
     def yaml_import_file_path( target_dirname:, file_set: )
       # export_file_name = yaml_export_file_name( file_set: file_set )
       # filename = "#{file_set.id}_#{export_file_name}"
-      filename = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set, include_id: true )
+      filename = ::Deepblue::ExportFilesHelper.export_file_name_fs( file_set: file_set, include_id: true )
       puts filename if DEBUG_VERBOSE
       if MetadataHelper::MODE_BAG == mode
         filename = File.basename filename

@@ -274,15 +274,35 @@ module Deepblue
       end
     end
 
+    def metadata_report_out( out:, depth: metadata_report_default_depth )
+      report_title = metadata_report_title( depth: depth )
+      out.puts report_title
+      ignore_blank_values, metadata_keys = metadata_report_keys
+      metadata = metadata_hash( metadata_keys: metadata_keys, ignore_blank_values: ignore_blank_values )
+      metadata_report_to( out: out, metadata_hash: metadata, depth: depth )
+      # Don't include metadata reports for contained objects, such as file_sets
+      # contained_objects = metadata_report_contained_objects
+      # if contained_objects.count.positive?
+      #   contained_objects.each do |obj|
+      #     next unless obj.respond_to? :metadata_report
+      #     out.puts
+      #     obj.metadata_report( out: out, depth: depth + 1 )
+      #   end
+      # end
+      return nil
+    end
+
     def metadata_report_contained_objects
       []
     end
 
-    def metadata_report_filename( pathname_dir:,
-                                  filename_pre:,
+    def metadata_report_filename( pathname_dir: nil,
+                                  filename_pre: '',
                                   filename_post: metadata_report_default_filename_post,
                                   filename_ext: metadata_report_default_filename_ext )
 
+      return "#{filename_pre}#{for_metadata_id}#{filename_post}#{filename_ext}" if pathname_dir.nil?
+      pathname_dir = Pathname.new( pathname_dir ) if pathname_dir.is_a? String
       pathname_dir.join "#{filename_pre}#{for_metadata_id}#{filename_post}#{filename_ext}"
     end
 

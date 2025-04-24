@@ -90,6 +90,8 @@ module Deepblue
       email_key_values.each_pair do |key, value|
         label = for_email_label key
         value = for_email_value( key, value, content_type: content_type )
+        # clean the string
+        value = EmailHelper.clean_str value if EmailHelper.clean_str_needed? value
         body.puts "#{label}#{value}"
       end
       body.puts "</pre>" if ::Deepblue::EmailHelper.content_html? content_type
@@ -565,6 +567,7 @@ module Deepblue
                                                                   to_note: to_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values )
         end
+        subject = EmailHelper.clean_str subject if EmailHelper.clean_str_needed? subject
         event_attributes_cache_write( event: event, id: id, behavior: :EmailBehavior )
         body = email_compose_body( message: message, email_key_values: email_key_values, content_type: content_type )
         email_sent = false

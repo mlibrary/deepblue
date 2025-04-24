@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../helpers/deepblue/options_helper.rb'
+
 module Deepblue
 
   class MessageHandler

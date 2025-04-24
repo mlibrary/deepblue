@@ -10,15 +10,17 @@ class Aptrust::Status < ApplicationRecord
 
   def self.csv_row( record )
     rv = if record.blank?
-           [ '', # record.timestamp,
-             '', # record.event,
-             '', # record.event_note,
-             '', # record.noid,
-             '', # record.created_at,
-             '' ] # record.updated_at ]
+           [ 'id',
+             'timestamp',
+             'event',
+             'event_note',
+             'noid',
+             'created_at',
+             'updated_at' ]
          else
            record = Array( record ).first
-           [ record.timestamp,
+           [ record.id,
+             record.timestamp,
              record.event,
              record.event_note,
              record.noid,

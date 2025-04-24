@@ -6,6 +6,26 @@ require_relative './upload_report_task'
 
 module Aptrust
 
+SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
+
+aptrust_upload_report:
+  # Run Monday and Wednesday at 9 or 10 AM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '36 4 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:all_uploads_report
+  args:
+    by_request_only: false
+    hostnames:
+       - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload_report
+    rake_task: "aptrust:all_uploads_report"
+
+END_OF_SCHEDULER_ENTRY
+
   class AllUploadsReportTask < ::Aptrust::AbstractUploadTask
 
     mattr_accessor :reupload_report_task_debug_verbose, default: true

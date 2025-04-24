@@ -78,10 +78,12 @@
                   </a>
                 </p>
               <% elsif !@presenter.globus_files_prepping? %>
+                <% if @presenter.globus_export? %>
                 <br/>
                 <%= submit_tag(t('simple_form.actions.data_set.globus_download'),
                                class: 'btn btn-primary', disabled: @presenter.does_work_have_no_files) %>
                 <br/>
+                <% end %>
                 <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                 <a href="<%= main_app.static_path( doc: 'globus-help' ) %>" target="_blank">
                   <%= t('simple_form.hints.data_set.globus_help') %>
@@ -104,6 +106,7 @@
               <% end %>
             <% end %>
             <% if @presenter.globus_files_prepping? %>
+              <% if @presenter.globus_export? %>
               <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
                 <br/>
                 <%= hidden_field_tag('data_set[nop]') %>
@@ -114,6 +117,7 @@
                 <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
                   <%= t('simple_form.hints.data_set.globus_help') %>
                 </a>
+              <% end %>
               <% end %>
             <% end %>
           <% end %>

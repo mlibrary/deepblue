@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+require_relative './abstract_export_task'
+
+module DataDen
+
+  class ExportByNoidTask < ::DataDen::AbstractExportTask
+
+    def initialize( msg_handler: nil, options: {} )
+      super( msg_handler: msg_handler, options: options )
+    end
+
+    def run
+      msg_handler.msg_verbose
+      noids_sort
+      if noid_pairs.present?
+        run_pair_exports
+      else
+        run_noids_export
+      end
+      msg_handler.msg_verbose "Finished."
+      run_email_targets( subject: 'DataDen::ExportByNoid', event: 'ExportByNoid' )
+    end
+
+  end
+
+end

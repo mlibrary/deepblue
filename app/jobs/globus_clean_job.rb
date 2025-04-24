@@ -8,6 +8,7 @@ class GlobusCleanJob < GlobusJob
   # @param [boolean, false] clean_download
   # @param [boolean, false] start_globus_copy_after_clean
   def perform( concern_id, log_prefix: "Globus: ", clean_download: false, start_globus_copy_after_clean: false )
+    return unless globus_export_enabled?
     @globus_concern_id = concern_id
     @globus_log_prefix = log_prefix
     @globus_lock_file = nil

@@ -5,6 +5,7 @@ class GlobusRestartAllJob < GlobusJob
 
   # @param [String, "Globus: "] log_prefix
   def perform( log_prefix: "Globus: ", quiet: false )
+    return unless globus_export_enabled?
     ::Deepblue::LoggingHelper.debug "#{log_prefix}globus_restart_all_job starting..." unless quiet
     globus_job_perform( concern_id: "Restart_All", log_prefix: "#{log_prefix}globus_restart_all_job", quiet: quiet ) do
       ::Deepblue::LoggingHelper.debug "#{@globus_log_prefix} begin restart all" unless @globus_job_quiet

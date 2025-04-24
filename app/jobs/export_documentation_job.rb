@@ -31,9 +31,16 @@ export_log_files_job:
 
   EVENT = "export documentation"
 
-  def perform( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
-               export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
-               user_email: nil )
+  #def perform( id: ::Deepblue::WorkViewContentService.content_documentation_collection_id,
+  #             export_path: ::Deepblue::WorkViewContentService.export_documentation_path,
+  #             user_email: nil )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    id = args[0][:id]
+    id ||= ::Deepblue::WorkViewContentService.content_documentation_collection_id
+    export_path = args[0][:export_path]
+    export_path ||= ::Deepblue::WorkViewContentService.export_documentation_path
+    user_email = args[0][:user_email]
     initialize_with( id: id, debug_verbose: export_documentation_job_debug_verbose )
     @from_dashboard = user_email
     allowed = hostname_allowed?

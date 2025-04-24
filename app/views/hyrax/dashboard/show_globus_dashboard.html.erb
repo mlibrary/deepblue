@@ -17,6 +17,8 @@
 <h2 class="title-header"><%= t('hyrax.dashboard.globus.heading.status') %></h2>
   <ul>
     <li>Globus enabled: <%= ::Deepblue::GlobusIntegrationService.globus_enabled %></li>
+    <li>Globus use data den: <%= ::Deepblue::GlobusIntegrationService.globus_use_data_den %></li>
+    <li>Globus export: <%= ::Deepblue::GlobusIntegrationService.globus_export %></li>
     <li>Globus dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_dir %></code></li>
     <li>Globus dowload dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_download_dir %></code></li>
     <li>Globus prep dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_prep_dir %></code></li>

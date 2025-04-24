@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+#
+require_relative '../../services/deepblue/message_handler_debug_only'
 
 module Deepblue
 
@@ -60,6 +62,17 @@ module Deepblue
 
     RESPONSE_ID      = 'ID'
     RESPONSE_MESSAGE = 'Message'
+
+    TDX_STATUS_NULL                 = 0
+    TDX_STATUS_NEW                  = 1012 # originally: 77
+    TDX_STATUS_OPEN                 = 1013 # originally: 78 # status not used by DBRRDS
+    TDX_STATUS_IN_PROCESS           = 1014 # originally: 79
+    TDX_STATUS_AWAITING_USER_INFO   = 84
+    TDX_STATUS_AWAITING_THIRD_PARTY = 85
+    TDX_STATUS_SCHEDULED            = 86
+    TDX_STATUS_CLOSED               = 1016 # originally 81
+    TDX_STATUS_CANCELLED            = 1017 # originally 82
+    TDX_STATUS_WAITING              = 1865
 
     TEXT_PLAIN = 'text/plain'
 
@@ -470,7 +483,7 @@ module Deepblue
       parms="/um/it/#{ulib_app_id}/tickets"
       headers=build_headers( auth: bearer, accept: APPLICATION_JSON, content_type: APPLICATION_JSON )
       data = build_tdx_data( account_id: account_id )
-      data[KEY_STATUS_ID] = 1012 # TODO: config
+      data[KEY_STATUS_ID] = TDX_STATUS_NEW # TODO: config
       data[KEY_PRIORITY_ID] = 20 # TODO: config
       data[KEY_SOURCE_ID] = 8 # TODO: config
       data[KEY_RESPONSIBLE_GROUP_ID] = responsible_group_id
@@ -652,6 +665,18 @@ module Deepblue
       rv = {}
       rv = body if 200 == status
       return rv
+    end
+
+    def get_ticket_field( ticket_id:, field_id: , ticket_body: nil )
+      ticket_body ||= get_ticket_body( ticket_id: ticket_id )
+      return nil if ticket_body.blank?
+      return ticket_body[field_id]
+    end
+
+    def get_ticket_status_id( ticket_id:, ticket_body: nil )
+      ticket_body ||= get_ticket_body( ticket_id: ticket_id )
+      return nil if ticket_body.blank?
+      return ticket_body[KEY_STATUS_ID]
     end
 
     def group_search( name_like: DEFAULT_GROUP_SEARCH_NAME_LIKE )
@@ -1194,6 +1219,84 @@ module Deepblue
                                      "status=#{status}",
                                      "body=#{response_inspect_body body}",
                                      "" ] if msg_handler.debug_verbose
+      return status, body
+    end
+
+    def update_ticket_feed( ticket_id:, comments:, notify: [], is_rich_html: true, new_status_id: TDX_STATUS_NULL )
+      # new_status_id = 0 is no change
+      # https://docs.google.com/document/d/14G-E5Zb2208cHcE5genW5mW0bVEEEtfCTH1N6erP0gA/edit?tab=t.0
+      #       curl --location --request
+      #       POST 'https:/gw-test.api.it.umich.edu/um/it/31/tickets/425/feed' \
+      #              --header 'Accept: application/json' \
+      #         --header 'Authorization: Bearer access_token' \
+      #         --header 'Content-Type: text/plain' \
+      #         --data-raw '{
+      # "Comments":  "<i>Adding</i> comments via api test",
+      # "NewStatusID":  79,
+      # "Notify":  [“xxx@umich.edu, yyy@umich.edu”],
+      # "IsRichHtml": true
+      # }'
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "ticket_id=#{ticket_id}",
+                                   "comments=#{comments}",
+                                   "notify=#{notify}",
+                                   "is_rich_html=#{is_rich_html}",
+                                   "new_status_id=#{new_status_id}",
+                                   "" ] if msg_handler.debug_verbose
+
+      if msg_handler.debug_verbose
+        ticket_status = get_ticket_status_id( ticket_id: ticket_id )
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "ticket_status=#{ticket_status}",
+                                     "" ] if msg_handler.debug_verbose
+      end
+
+      if comments.blank?
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "ticket_id=#{ticket_id}",
+                                     "skipping attach comment because comment is empty",
+                                     "" ] if msg_handler.debug_verbose
+        return 0, {}
+      end
+
+      #fields ||= {}
+      build_access_token
+      build_bearer
+      parms="/um/it/#{ulib_app_id}/tickets/#{ticket_id}/feed"
+      headers=build_headers( auth: bearer,
+                             accept: APPLICATION_JSON,
+                             content_type: APPLICATION_JSON ) #,
+      #charset: 'utf-8' )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "headers=#{headers.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      data = build_tdx_data( account_id: account_id )
+      comments = EmailHelper.clean_str comments if EmailHelper.clean_str_needed? comments
+      data['Comments'] = comments
+      if notify.blank?
+
+      end
+      data['Notify'] = notify
+      data['IsRichHtml'] = is_rich_html
+      data['NewStatusID'] = new_status_id
+      #data.merge! fields
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "data=#{data.pretty_inspect}",
+                                   "" ] if msg_handler.debug_verbose
+      status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
+                           parms: parms,
+                           data: data )
+      msg_handler.msg_debug_bold [ msg_handler.here,
+                                   msg_handler.called_from,
+                                   "status=#{status}",
+                                   "body=#{response_inspect_body( body, debug_verbose: msg_handler.debug_verbose )}",
+                                   "" ] if msg_handler.debug_verbose
       return status, body
     end
 

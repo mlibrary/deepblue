@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require_relative './aptrust'
-require_relative '../../models/aptrust/status'
+# TODO: delete this and start using DataSetCache
 
 class Aptrust::WorkCache
 

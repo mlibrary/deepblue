@@ -12,6 +12,7 @@ class WorkFindAndFixJob < ::Deepblue::DeepblueJob
   # def perform( id:, **args )
   # hyrax4 / ruby3 upgrade
   def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
     id = args[0][:id]
     args = args[0][:args]
     args ||= {}

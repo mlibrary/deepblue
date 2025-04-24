@@ -8,7 +8,8 @@ class FileSysExport < ApplicationRecord
 
   def self.csv_row( record )
     rv = if record.blank?
-           [ 'export_type',
+           [ 'id',
+             'export_type',
              'noid',
              'published',
              'export_status',
@@ -20,7 +21,8 @@ class FileSysExport < ApplicationRecord
            ]
          else
            record = Array( record ).first
-           [ record.export_type,
+           [ record.id,
+             record.export_type,
              record.noid,
              record.published,
              record.export_status,
@@ -65,6 +67,14 @@ class FileSysExport < ApplicationRecord
     FileSysExport.where( noid: cc.id )
   end
 
+  def self.for_export_status( export_status: )
+    FileSysExport.where( export_status: export_status )
+  end
+
+  def self.for_export_type( export_type: )
+    FileSysExport.where( export_type: export_type )
+  end
+
   def self.for_id( noid: )
     return nil unless noid.present?
     FileSysExport.where( noid: noid )
@@ -76,12 +86,15 @@ class FileSysExport < ApplicationRecord
   end
 
   def self.has_status?( cc: nil, noid: nil, export_status: nil )
-    return false if export_status.blank?
+    # return false if export_status.blank?
     rv = []
-    rv = for_curation_concern( cc: cc ) if cc.present?
+    noid = cc.id if cc.present?
+    # puts "FileSysExport.has_status? noid=#{noid}"
     rv = for_id( noid: noid ) if noid.present?
     return false if rv.blank?
-    return rv.first.export_status == status
+    # puts ">>>>>>>> FileSysExport.has_status? rv=#{rv}"
+    return true if export_status.nil?
+    return rv.first.export_status == export_status
   end
 
   def self.note_update( noid:, note:, append: true )

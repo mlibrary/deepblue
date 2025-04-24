@@ -9,11 +9,13 @@ class RegisterDoiOldJob < ::Deepblue::DeepblueJob
   # @param model [ActiveFedora::Base]
   # @param registrar [String] Note this is a string and not a symbol because ActiveJob cannot serialize a symbol
   # @param registrar_opts [Hash]
-  def perform(model,
-              current_user: nil,
-              debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
-              registrar: nil,
-              registrar_opts: {})
+  #def perform(model,
+  #            current_user: nil,
+  #            debug_verbose: ::Deepblue::DoiMintingService.register_doi_job_debug_verbose,
+  #            registrar: nil,
+  #            registrar_opts: {})
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
 
     initialize_no_args_hash( id: model&.id, debug_verbose: debug_verbose )
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

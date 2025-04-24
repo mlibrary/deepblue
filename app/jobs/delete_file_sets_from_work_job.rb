@@ -19,7 +19,12 @@ class DeleteFileSetsFromWorkJob < ::Deepblue::DeepblueJob
 
   # @param [ActiveFedora::Base] work - the work object
   # @param [Array<Hyrax::UploadedFile>] uploaded_files - an array of files to attach
-  def perform( work:, file_set_ids:, user_key: )
+  #def perform( work:, file_set_ids:, user_key: )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    work = args[0][:work]
+    file_set_ids = args[0][:file_set_ids]
+    user_key = args[0][:user_key]
     debug_verbose = delete_files_from_work_job_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,

@@ -5,7 +5,10 @@ class SleepJob < ::Deepblue::DeepblueJob
   mattr_accessor :sleep_job_debug_verbose, default: false
   @@bold_puts = false
 
-  def perform( job_delay_in_seconds: )
+  #def perform( job_delay_in_seconds: )
+  def perform( *args )
+    args = [{}] if args.nil? || args[0].nil?
+    job_delay_in_seconds = args[0][:job_delay_in_seconds]
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "job_delay_in_seconds=#{job_delay_in_seconds}",

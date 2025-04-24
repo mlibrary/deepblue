@@ -4,10 +4,10 @@ require 'rails_helper'
 # require 'uri'
 
 RSpec.configure do |config|
-  config.filter_run_excluding globus_enabled: :true unless ::Deepblue::GlobusIntegrationService.globus_enabled
+  config.filter_run_excluding globus_export: :true unless ::Deepblue::GlobusIntegrationService.globus_export
 end
 
-describe GlobusRestartAllJob, "GlobusJob globus_enabled: :true", globus_enabled: :true do # rubocop:disable RSpec/DescribeMethod
+describe GlobusRestartAllJob, "GlobusJob globus_export: :true", globus_export: :true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname "./data/globus" }
   let( :target_name ) { "DeepBlueData_Restart_All" }

@@ -8,11 +8,14 @@ class FileSysExportNoidService
   attr_reader   :base_path_unpublished
   attr_reader   :export_type
   attr_reader   :file_sys_export
-  attr_accessor :files
+  attr_accessor :file_exporter
   attr_reader   :noid
   attr_reader   :work
   attr_accessor :msg_handler
   attr_reader   :options
+
+  attr_reader   :exported_file_names_to_id
+  attr_reader   :exported_file_ids_to_name
 
   attr_accessor :force_export, :skip_export, :test_mode
 
@@ -48,7 +51,9 @@ class FileSysExportNoidService
     @force_export          = @options.option_value( :force_export,       default_value: false, msg_handler: @msg_handler )
     @test_mode             = @options.option_value( :test_mode,          default_value: false, msg_handler: @msg_handler )
     @file_sys_export = init_file_sys_export
-    @files = FileSysExportNoidFiles.new( export_service: self, file_sys_export: @file_sys_export )
+    @file_exporter = FileSysExportNoidFiles.new( export_service: self, file_sys_export: @file_sys_export )
+    @exported_file_names_to_id = {}
+    @exported_file_ids_to_name = {}
   end
 
   def init_file_sys_export
@@ -58,6 +63,47 @@ class FileSysExportNoidService
     return rv
   end
 
+  def clean_export_dirs()
+    published_path = FileSysExportService.path_noid( published: true,
+                                                     base_path_published: @base_path_published,
+                                                     base_path_unpublished: @base_path_unpublished,
+                                                     noid: noid )
+    unpublished_path = FileSysExportService.path_noid( published: false,
+                                                       base_path_published: @base_path_published,
+                                                       base_path_unpublished: @base_path_unpublished,
+                                                       noid: noid )
+
+    if FileUtilsHelper.dir_exists? published_path
+      files = Dir.glob( File.join( published_path, '*' ), File::FNM_DOTMATCH )
+      files = files - [ File.join( published_path, '.' ) ]
+      files = files - [ File.join( published_path, '..' ) ]
+      FileUtils.rm files
+    end
+
+    if FileUtilsHelper.dir_exists? unpublished_path
+      files = Dir.glob( File.join( unpublished_path, '*' ), File::FNM_DOTMATCH )
+      files = files - [ File.join( unpublished_path, '.' ) ]
+      files = files - [ File.join( unpublished_path, '..' ) ]
+      FileUtils.rm files
+    end
+
+    @file_sys_export.export_status = ::FileSysExportC::STATUS_EXPORT_NEEDED
+    @file_sys_export.export_status_timestamp = DateTime.now
+    @file_sys_export.note = nil
+    @file_sys_export.save!
+  end
+
+  # def export_file_name( file_set: )
+  #   if @exported_file_ids_to_name.has_key?( file_set.id )
+  #     rv_file_name = @exported_file_ids_to_name[file_set.id]
+  #   else
+  #     rv_file_name = ::Deepblue::ExportFilesHelper.export_file_sets_fix_file_name( file_set: file_set,
+  #                                                                                  files_extracted: @exported_file_names_to_id )
+  #     @exported_file_ids_to_name[file_set.id] = rv_file_name
+  #   end
+  #   return rv_file_name
+  # end
+
   def file_path( fs_rec: )
     file_path = fs_rec.file_path
     file_path = if work.published?
@@ -66,6 +112,18 @@ class FileSysExportNoidService
                   File.join( base_path_published, file_path )
                 end
     return file_path
+  end
+
+  def ingest_filename()
+    return "w_#{work.id}_populate.yml"
+  end
+
+  def metadata_report_filename()
+    return ::FileSysExportC::METADATA_REPORT_FILENAME
+  end
+
+  def provenance_log_filename()
+    return "w_#{work.id}_provenance.log"
   end
 
   def noid_path
@@ -84,7 +142,7 @@ class FileSysExportNoidService
     export_status = fs_rec.export_status
     return true if export_status.blank?
     return true if FileSysExportC::STATUS_EXPORT_NEEDED
-    file_path = file_path( fs_rec )
+    file_path = file_path( fs_rec: fs_rec )
     rv = !File.exist?( file_path )
     return rv
   end
@@ -95,6 +153,18 @@ class FileSysExportNoidService
                                                  cc: @work,
                                                  export_rec: @file_sys_export,
                                                  msg_handler: @msg_handler )
+  end
+
+  def needs_update_export?
+    return true if force_export
+    FileSysExportService.data_set_needs_export_update?( export_type: @export_type,
+                                                        cc: @work,
+                                                        export_rec: @file_sys_export,
+                                                        msg_handler: @msg_handler )
+  end
+
+  def export_status
+    @file_sys_export.export_status
   end
 
   def status!( export_status:, note: nil )

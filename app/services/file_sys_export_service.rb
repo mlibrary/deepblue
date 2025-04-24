@@ -2,14 +2,7 @@
 
 module FileSysExportService
 
-  STATUS_EXPORT_ERROR   = 'export_error'   unless const_defined? :STATUS_EXPORT_ERROR
-  STATUS_EXPORT_NEEDED  = 'export_needed'  unless const_defined? :STATUS_EXPORT_NEEDED
-  STATUS_EXPORT_SKIPPED = 'export_skipped' unless const_defined? :STATUS_EXPORT_SKIPPED
-  STATUS_EXPORTED       = 'exported'       unless const_defined? :STATUS_EXPORTED
-  STATUS_EXPORTING      = 'exporting'      unless const_defined? :STATUS_EXPORTING
-
   mattr_accessor :file_sys_export_service_debug_verbose, default: false
-
   mattr_accessor :data_den_base_path, default: FileSysExportIntegrationService.data_den_base_path
 
   def self.checksum_clear_validation( fs_rec:, save: true )
@@ -19,6 +12,8 @@ module FileSysExportService
 
   def self.checksum_validate( fs_rec:, file_path:, msg_handler: )
     debug_verbose = msg_handler.debug_verbose
+    return unless fs_rec.checksum_algorithm.present?
+    return unless fs_rec.checksum_value.present?
     checksum_clear_validation( fs_rec: fs_rec )
     algorithm = fs_rec.checksum_algorithm
     fs_checksum = fs_rec.checksum_value
@@ -54,7 +49,21 @@ module FileSysExportService
   def self.data_set_needs_export?( export_type:, cc:, export_rec: nil, msg_handler: nil )
     debug_verbose = msg_handler.nil? ? false : msg_handler.debug_verbose
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_type=#{export_type}", "cc.id=#{cc.id}" ] if debug_verbose
-    export_rec = FileSysExportNoidService.find_or_create( export_type: export_type, cc: cc ) if export_rec.nil?
+    export_rec = FileSysExport.find_or_create_from_cc( export_type: export_type, cc: cc ) if export_rec.nil?
+    export_status = export_rec.export_status
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_status=#{export_status}" ] if debug_verbose
+    return rv_msg_verbose_if( true, "needs export? export_status is blank", msg_handler ) if export_status.blank?
+    return rv_msg_verbose_if( true, "needs export? export needed",          msg_handler ) if export_status == FileSysExportC::STATUS_EXPORT_NEEDED
+    return rv_msg_verbose_if( true, "needs export? date modified newer",    msg_handler ) if cc.date_modified > export_rec.export_status_timestamp
+    # TODO: other statuses?
+    # TODO: check for missing and extra?
+    return rv_msg_verbose_if( false, "needs export? default false", msg_handler )
+  end
+
+  def self.data_set_needs_export_update?( export_type:, cc:, export_rec: nil, msg_handler: nil )
+    debug_verbose = msg_handler.nil? ? false : msg_handler.debug_verbose
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_type=#{export_type}", "cc.id=#{cc.id}" ] if debug_verbose
+    export_rec = FileSysExport.find_or_create_from_cc( export_type: export_type, cc: cc ) if export_rec.nil?
     export_status = export_rec.export_status
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_status=#{export_status}" ] if debug_verbose
     return rv_msg_verbose_if( true, "needs export? export_status is blank", msg_handler ) if export_status.blank?
@@ -72,13 +81,11 @@ module FileSysExportService
     end
   end
 
-  def self.export_file_name_for( file_sys_export_noid_files:, file_set:, file_rec:, save: true )
+  def self.export_file_name_for( file_sys_export_noid_files:, export_file_name:, file_rec:, save: true )
     msg_handler = file_sys_export_noid_files.msg_handler
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if msg_handler.debug_verbose
-    export_file_name = file_rec.export_file_name
-    return export_file_name if export_file_name.present?
-    export_file_name = ::Deepblue::ExportFilesHelper.export_file_name( file_set: file_set )
-    # now probe for it aleady being defined
+    rec_export_file_name = file_rec.export_file_name
+    return rec_export_file_name if rec_export_file_name.present?
     file_export_name_map = file_sys_export_noid_files.file_export_name_map
     unless file_sys_export_noid_files.file_export_name_map.has_key?( export_file_name )
       file_rec.export_file_name = export_file_name
@@ -98,6 +105,18 @@ module FileSysExportService
     file_rec.save if save
     file_sys_export_noid_files.add_to_file_export_map( file_rec: file_rec )
     return new_export_file_name
+  end
+
+  def self.export_file_name_for_fs( file_sys_export_noid_files:, file_set:, file_rec:, save: true )
+    msg_handler = file_sys_export_noid_files.msg_handler
+    msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from ] if msg_handler.debug_verbose
+    rec_export_file_name = file_rec.export_file_name
+    return rec_export_file_name if rec_export_file_name.present?
+    export_file_name = ::Deepblue::ExportFilesHelper.export_file_name_fs( file_set: file_set )
+    return export_file_name_for( file_sys_export_noid_files: file_sys_export_noid_files,
+                                 export_file_name: export_file_name,
+                                 file_rec: file_rec,
+                                 save: save )
   end
 
   # def self.file_set_needs_export?( export_rec:, fs_rec: )

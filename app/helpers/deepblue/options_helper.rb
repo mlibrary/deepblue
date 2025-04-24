@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative './options_map'
+
 module Deepblue
 
   module OptionsHelper

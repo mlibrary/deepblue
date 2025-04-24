@@ -1,0 +1,127 @@
+<% provide :page_header do %>
+  <h1><%= "File System Exports" %></h1>
+<% end %>
+
+<%= form_tag( main_app.file_sys_exports_path, method: 'post' ) do %>
+  <table style="width:40em;">
+    <tr>
+      <td><%= label_tag(:begin_date_label, 'Begin Date') %></td>
+      <td>
+        <%= date_field_tag( :begin_date, @presenter.begin_date_parm, class: 'datepicker form-control') %>
+      </td>
+      <td><%= label_tag(:end_date_label, 'End Date') %></td>
+      <td>
+        <%= date_field_tag( :end_date, @presenter.end_date_parm, class: 'datepicker form-control') %>
+      </td>
+    </tr>
+  </table>
+  <table style="width:40em;">
+    <tr>
+      <% @presenter.status_list.each do |e| %>
+        <td> <%= submit_tag( e, class: 'btn btn-primary' ) %>&nbsp;</td>
+      <% end %>
+    </tr>
+  </table>
+<% end %> <%# end of form %>
+
+<% zone = ActiveSupport::TimeZone.new("Eastern Time (US & Canada)") %>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Export Type</th>
+      <th>NOID</th>
+      <th>Published</th>
+      <th>Export Status</th>
+      <th>Export Status Timestamp</th>
+      <th>Base NOID Path</th>
+      <th>Note</th>
+      <th>Updated</th>
+      <th>Created</th>
+      <th>Reexport</th>
+      <th>Delete</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @file_sys_exports.each do |fsexp| %>
+    <%= form_tag(main_app.file_sys_exports_action_path, method: 'post') do %>
+      <%= hidden_field_tag('id', fsexp.id) %>
+      <%= hidden_field_tag('noid', fsexp.noid) %>
+      <tr>
+        <td>
+          <%= link_to "#{fsexp.id}", main_app.file_exports_url( file_sys_export_id: fsexp.id ) %>
+        </td>
+        <td><%= fsexp.export_type %></td>
+        <td><%= link_to fsexp.noid, hyrax_data_set_path(id: fsexp.noid) %></td>
+        <td><%= fsexp.published %></td>
+        <td><%= fsexp.export_status %></td>
+        <td><%= fsexp.export_status_timestamp %></td>
+        <td><%= fsexp.base_noid_path %></td>
+        <td><%= fsexp.note %></td>
+        <td><%= fsexp.updated_at.in_time_zone(zone) %></td>
+        <td><%= fsexp.created_at.in_time_zone(zone) %></td>
+        <td><%= submit_tag( 'Reexport',
+                            class: 'btn btn-primary',
+                            id: "reexport_#{fsexp.id}",
+                            data: { confirm: "Reexport #{fsexp.noid}?" } ) %>
+        </td>
+        <td><%= submit_tag( 'Delete',
+                            class: 'btn btn-primary',
+                            id: "delete_#{fsexp.id}",
+                            data: { confirm: "Delete #{fsexp.noid} fsexp record?" } ) %>
+        </td>
+      </tr>
+    <% end %>
+    <% end %>
+  </tbody>
+</table>
+
+<% if @file_exports.present? %>
+  <h2><%= "File Exports" %></h2>
+  <table>
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Export Type</th>
+      <th>Export Noid</th>
+      <th>NOID</th>
+      <th>Export Status</th>
+      <th>Export Status Timestamp</th>
+      <th>Base NOID Path</th>
+      <th>Checksum Value</th>
+      <th>Checksum Algorithm</th>
+      <th>Checksum Validated</th>
+      <th>Export File Name</th>
+      <th>FileSysExports ID</th>
+      <th>Note</th>
+      <th>Created</th>
+      <th>Updated</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <% @file_exports.each do |fexp| %>
+      <tr>
+        <td><%= fexp.id %></td>
+        <td><%= fexp.export_type %></td>
+        <td><%= fexp.export_noid %></td>
+        <td><%= link_to fexp.noid, hyrax_data_set_path(id: fexp.noid) %></td>
+        <td><%= fexp.export_status %></td>
+        <td><%= fexp.export_status_timestamp %></td>
+        <td><%= fexp.base_noid_path %></td>
+        <td><%= fexp.checksum_value %></td>
+        <td><%= fexp.checksum_algorithm %></td>
+        <td><%= fexp.checksum_validated %></td>
+        <td><%= fexp.export_file_name %></td>
+        <td><%= fexp.file_sys_exports_id %></td>
+        <td><%= fexp.note %></td>
+        <td><%= fexp.updated_at.in_time_zone(zone) %></td>
+        <td><%= fexp.created_at.in_time_zone(zone) %></td>
+      </tr>
+    <% end %>
+    </tbody>
+  </table>
+
+<% end %>

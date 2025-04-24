@@ -1,6 +1,10 @@
 require 'rails_helper'
 
-RSpec.describe GlobusStatusReportJob do
+RSpec.configure do |config|
+  config.filter_run_excluding globus_export: :true unless ::Deepblue::GlobusIntegrationService.globus_export
+end
+
+RSpec.describe GlobusStatusReportJob, "GlobusJob globus_export: :true", globus_export: :true do
 
   let(:debug_verbose)   {false}
 

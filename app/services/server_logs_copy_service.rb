@@ -22,7 +22,7 @@ class ServerLogsCopyService
     # server_part = ::Deepblue::ExportFilesHelper.export_server_part
     # target_dir_path = Time.now.strftime( "%Y%m%d%H%M%S" )
     # target_dir_path = "#{@target_root_dir}#{server_part}/#{target_dir_path}"
-    # FileUtils.mkdir_p target_dir_path unless Dir.exist? target_dir_path
+    # FileUtilsHelper.mkdir_p target_dir_path unless Dir.exist? target_dir_path
     # log_path = File.realpath @src_dir
     # rv = `cp #{log_path}/* #{target_dir_path}`
     # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
