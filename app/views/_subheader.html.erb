@@ -1,9 +1,9 @@
 <%# Updated: Hyrax4 %>
 <% ::Deepblue::ThreadedVarService.ensure_i18n_templates_are_fresh %>
 <% if Flipflop.display_subheader? %>
-  <div class="container">
+  <div class="container-fluid">
     <div class="<%= t( "hyrax.subheader.css_outer" ) %>">
-      <div class="<%= t( "hyrax.subheader.css_inner" ) %>">
+      <div class="container <%= t( "hyrax.subheader.css_inner" ) %>">
         <section class="<%= t( "hyrax.subheader.css_section_default" ) %>">
           <%= t( "hyrax.subheader.default_html" ) %>
         </section>

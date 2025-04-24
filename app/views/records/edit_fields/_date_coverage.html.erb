@@ -14,16 +14,15 @@
   <%= content_tag(:p, t('simple_form.labels.data_set.date_coverage'), class: "text-bold") %>
   <%= content_tag(:p, t('simple_form.hints.data_set.date_coverage'), class: "help-block") %>  
 
-  <div class="row">
-    <div class="col-md-6">
-      <div class="row">
+  <div class="row justify-content-between">
 
         <fieldset>
-          <div class="col-md-12 date-coverage-element <% if !cov_year_end %>hidden<% end %>">
+          <div class="date-coverage-element <% if !cov_year_end %>hidden<% end %>">
             <legend class="legend-label">Start Date</legend>
           </div>
 
-          <div class="col-sm-4">
+          <div class="d-flex coverage-start-group">
+          <div>
             <label for="date_coverage_begin_year" data-label="Date">Year</label>
             <input type="text"
                    id="date_coverage_begin_year"
@@ -34,34 +33,32 @@
             </input>
           </div>
 
-          <div class="col-sm-3">
+          <div >
             <label for="date_coverage_begin_month">Month</label>
             <%= select_tag :date_coverage_begin_month, options_for_select(wmon,cov_month_begin), { class: 'form-control'} %>
           </div>
 
-          <div class="col-sm-3">
+          <div>
             <label for="date_coverage_begin_day">Day</label>
             <%= select_tag :date_coverage_begin_day, options_for_select(wday,cov_day_begin), { class: 'form-control'} %>
           </div>
+          </div>
         </fieldset>
 
-      </div>
-    </div>
-
-    <div class="col-md-6 date-coverage-element <% if cov_year_end %>hidden<% end %>">
+    <div class="date-coverage-element <% if cov_year_end %>hidden<% end %>">
       <button type="button" class="btn btn-link date-add-coverage-button">Add Date Range</button>
     </div>
 
-    <div class="col-md-6 date-coverage-element date-coverage-end-date <% if !cov_year_end %>hidden<% end %>">
+    <div class="date-coverage-element date-coverage-end-date <% if !cov_year_end %>hidden<% end %>">
 
       <div class="row">
 
         <fieldset>
-          <div class="col-md-12">
+          <div >
             <%= content_tag(:legend, t('simple_form.labels.generic_work.date_coverage_end'), class: "legend-label") %>
           </div>
-
-          <div class="col-sm-4">
+          <div class="d-flex coverage-end-group">
+          <div>
             <label for="date_coverage_end_year" data-label="Date">Year</label>
             <input type="text"
                    id="date_coverage_end_year"
@@ -72,14 +69,15 @@
             </input>
           </div>
 
-          <div class="col-sm-3">
+          <div>
             <label for="date_coverage_end_month">Month</label>
             <%= select_tag :date_coverage_end_month, options_for_select(wmon,cov_month_end), { class: 'form-control'} %>
           </div>
 
-          <div class="col-sm-3">
+          <div>
             <label for="date_coverage_end_day">Day</label>
             <%= select_tag :date_coverage_end_day, options_for_select(wday,cov_day_end), { class: 'form-control'} %>
+          </div>
           </div>
         </fieldset>
 
@@ -87,7 +85,7 @@
     </div>
 
 
-<div class="col-md-12 date-coverage-element <% if !cov_year_end %>hidden<% end %>">
+<div class="date-coverage-element <% if !cov_year_end %>hidden<% end %>">
       <%= button_tag( t('simple_form.actions.generic_work.remove.coverage_end'), class: "btn btn-link date-reset", type: "button") %>
     </div>
   </div>

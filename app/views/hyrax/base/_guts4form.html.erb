@@ -9,11 +9,11 @@
 
 <div class="row">
   <div class="col-xs-12 col-sm-8">
-    <div class="panel panel-default tabs" role="main">
+    <div class="card tabs" role="main">
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
         <% tabs.each_with_index do | tab, i | %>
-          <li role="presentation" <%= i == 0 ? 'class="active"' : '' %> >
+          <li role="presentation" <%= i == 0 ? 'class=active' : '' %> >
             <a href="#<%= tab %>" aria-controls="<%= tab %>" role="tab" data-toggle="tab">
               <%= t("hyrax.works.form.tab.#{tab}") %>
             </a>
@@ -22,7 +22,7 @@
       </ul>
 
       <!-- Tab panes -->
-      <div class="tab-content">
+      <div class="card-body tab-content">
         <% tabs.each_with_index do | tab, i | %>
             <% if 'share' == tab %>
               <div role="tabpanel"

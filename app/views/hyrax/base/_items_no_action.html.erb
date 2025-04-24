@@ -2,8 +2,8 @@
 <%#= form_tag( main_app.works_file_sets_run_test_path, method: 'post' ) do %>
 <%# here for list of files %>
 <% if @presenter.member_presenters.present? %>
-<div class="panel panel-default panel-items">
-  <div class="panel-heading">
+<div class="card">
+  <div class="card-header">
     <h2>Files (Count: <%= @presenter.total_file_count %>;  Size: <%= @presenter.total_file_size_human_readable %>)</h2>
     <% if Rails.configuration.work_edit_delete_file_sets_enabled && current_ability.admin? %>
       <input type="hidden" name="bulk file sets delete" value="admin"/>

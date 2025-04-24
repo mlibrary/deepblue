@@ -77,11 +77,6 @@
     --radius-default: 4px;
 }
 
-.jose_test_uh
-{
-      font-style: italic;  
-}
-
 :root {
   --viewport-margin: var(--space-medium);
   --page-heading-size: var(--space-xx-large);

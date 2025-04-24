@@ -1,11 +1,11 @@
 <div class="form-admin-actions">
 
   <% if !@presenter.anonymous_show? && @presenter.current_ability.admin? %>
-    <div class="panel panel-default panel-admin">
-      <div class="panel-heading">
+    <div class="card panel-admin">
+      <div class="card-header">
         <h2><%= t('simple_form.labels.file_set.admin_actions') %></h2>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         <% if @presenter.can_mint_doi_file? %>
           <p>
             <button class="btn btn-primary" data-target="#mintDoiId" data-toggle="modal">

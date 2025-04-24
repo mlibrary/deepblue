@@ -1,9 +1,11 @@
 <%# Reviewed: hyrax4 %>
-<div class="panel panel-default panel-relationships">
-<div class="panel-heading">
+<div class="card panel-relationships">
+<div class="card-header">
   <h2><%= t('.header') %></h2>
 </div>
+<div class="card-body">
 <dl class="work-show">
 <%= render 'relationships_parent_rows', presenter: presenter %>
 </dl>
+</div>
 </div>
