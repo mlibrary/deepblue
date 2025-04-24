@@ -6,9 +6,11 @@
     <li id="read_me_display_link">
       <a href="#read_me_display" data-toggle="tab"> <%= t('show.labels.tab_read_me') %></a>
     </li>
+    <% if @presenter.display_provenance_log_enabled? %>
     <li id="provenance_log_display_link">
       <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
     </li>
+    <% end %>
   </ul>
   <div class="tab-content">
     <div id="items_display" class="tab-pane active">
