@@ -8,9 +8,11 @@
         <a href="#file_contents_display" data-toggle="tab"> <%= t('show.labels.tab_file_contents') %></a>
       </li>
     < % end % -->
+    <% if @presenter.display_provenance_log_enabled? %>
     <li id="provenance_log_display_link">
       <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
     </li>
+    <% end %>
   </ul>
   <div class="tab-content">
     <div id="user_activity_log" class="tab-pane active">
