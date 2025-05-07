@@ -35,8 +35,8 @@ class AbstractFileSysExportService
   def init_msg_handler( msg_handler:, options: )
     msg_handler
     if msg_handler.nil?
-      msg_handler_options = { debug_verbose: abstract_file_sys_export_debug_verbose }
-      msg_handler         = MessageHandler.new( options: msg_handler_options )
+      #msg_handler_options = { debug_verbose: abstract_file_sys_export_debug_verbose }
+      msg_handler         = ::Deepblue::MessageHandler.new( debug_verbose: abstract_file_sys_export_debug_verbose )
     end
     msg_handler.verbose       = options.option_value( :verbose       ) if options.option? :verbose
     msg_handler.debug_verbose = options.option_value( :debug_verbose ) if options.option? :debug_verbose
