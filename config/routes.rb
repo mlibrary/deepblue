@@ -41,6 +41,7 @@ Rails.application.routes.draw do
                                                                       agreement|
                                                                       dbd-glossary|
                                                                       depositor-guide|
+                                                                      desirablechar|
                                                                       faq|
                                                                       help|
                                                                       globus-help|
