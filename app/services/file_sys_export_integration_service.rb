@@ -26,6 +26,7 @@ module FileSysExportIntegrationService
   mattr_accessor :file_sys_export_integration_debug_verbose, default: false
 
   mattr_accessor :default_export_type,            default: "data_den"
+  mattr_accessor :automatic_set_deleted_status,   default: true
 
   mattr_accessor :data_den_export_type,           default: "data_den"
 
