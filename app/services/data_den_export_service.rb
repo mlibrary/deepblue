@@ -18,6 +18,10 @@ class DataDenExportService < AbstractFileSysExportService
     service.export_data_set( work: w )
   end
 
+  def self.tombstone_work( cc:, msg_handler: nil )
+    DataDenExportService.new( msg_handler: msg_handler ).data_set_unpublish( cc: cc )
+  end
+
   def initialize( msg_handler: nil, options: nil )
     super( base_path_published:   FileSysExportIntegrationService.data_den_base_path_published,
            base_path_unpublished: FileSysExportIntegrationService.data_den_base_path_unpublished,
