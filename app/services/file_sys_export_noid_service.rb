@@ -93,6 +93,20 @@ class FileSysExportNoidService
     @file_sys_export.save!
   end
 
+  def delete_work_logical( note: nil )
+    return if ::FileSysExportC::STATUS_DELETED == export_status
+    if published?
+      export_service.export_data_set_unpublish_rec( noid_service: this )
+    end
+    status!( export_status: ::FileSysExportC::STATUS_DELETED, note: note )
+  end
+
+  def unpublish_work()
+    if published?
+      export_service.export_data_set_unpublish_rec( noid_service: this )
+    end
+  end
+
   # def export_file_name( file_set: )
   #   if @exported_file_ids_to_name.has_key?( file_set.id )
   #     rv_file_name = @exported_file_ids_to_name[file_set.id]

@@ -34,10 +34,7 @@ module DataDen
         # puts "fs_rec=#{fs_rec.pretty_inspect}"
         next if fs_rec.export_status == ::FileSysExportC::STATUS_DELETED
         dsc.reset_with fs_rec.noid
-        if !dsc.data_set_present?
-          msg_handler.msg_warn "Failed to load work with noid #{fs_rec.noid}"
-          next
-        end
+        next if handled_missing_work?( fs_rec: fs_rec, dsc: dsc )
         rec_date = fs_rec.export_status_timestamp
         ds_modified_date = dsc.date_modified
         next if ds_modified_date < rec_date

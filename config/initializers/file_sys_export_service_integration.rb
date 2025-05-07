@@ -32,6 +32,7 @@ FileSysExportIntegrationService.setup do |config|
 
     end
 
+    config.automatic_set_deleted_status = true
     config.globus_delete_link_to_target = false
 
   rescue Exception => e

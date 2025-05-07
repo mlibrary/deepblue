@@ -3,10 +3,13 @@
 require_relative './deepblue/message_handler'
 require_relative './deepblue/message_handler_null'
 require_relative './file_sys_export_c'
+require_relative './file_sys_export_integration_service'
 
 class AbstractFileSysExportService
 
   mattr_accessor :abstract_file_sys_export_debug_verbose, default: false
+  mattr_accessor :automatic_set_deleted_status, default: FileSysExportIntegrationService.automatic_set_deleted_status
+
 
   attr_reader   :base_path_published
   attr_reader   :base_path_unpublished
@@ -35,8 +38,8 @@ class AbstractFileSysExportService
   def init_msg_handler( msg_handler:, options: )
     msg_handler
     if msg_handler.nil?
-      msg_handler_options = { debug_verbose: abstract_file_sys_export_debug_verbose }
-      msg_handler         = MessageHandler.new( options: msg_handler_options )
+      #msg_handler_options = { debug_verbose: abstract_file_sys_export_debug_verbose }
+      msg_handler         = ::Deepblue::MessageHandler.new( debug_verbose: abstract_file_sys_export_debug_verbose )
     end
     msg_handler.verbose       = options.option_value( :verbose       ) if options.option? :verbose
     msg_handler.debug_verbose = options.option_value( :debug_verbose ) if options.option? :debug_verbose
@@ -70,6 +73,11 @@ class AbstractFileSysExportService
   end
 
   def date_set_clean( noid: )
+    noid_service = FileSysExportNoidService.new( export_service: self, noid: noid )
+    noid_service.clean_export_dirs()
+  end
+
+  def date_set_delete( noid: )
     noid_service = FileSysExportNoidService.new( export_service: self, noid: noid )
     noid_service.clean_export_dirs()
   end
@@ -257,7 +265,6 @@ class AbstractFileSysExportService
   end
 
   def export_data_set_unpublish_rec( noid_service: )
-    # TODO: move files back from published directory and update records
     file_exporter = noid_service.file_exporter
     file_exporter.file_recs.each do |fs_rec|
       msg_verbose "export_data_set_unpublish_rec fs_rec.noid=#{fs_rec.noid}" if verbose
