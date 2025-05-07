@@ -37,6 +37,18 @@ module DataDen
       @export_service = nil
     end
 
+    def handled_missing_work?( fs_rec:, dsc: )
+      return false if dsc.data_set_present?
+      if FileSysExportIntegrationService.automatic_set_deleted_status
+        if PersistHelper.gone_id? dsc.noid
+          export_service.delete_work_logical( noid: dsc.noid )
+          return true
+        end
+      end
+      msg_handler.msg_warn "Failed to load work with noid: #{fs_rec.noid}"
+      return true
+    end
+
     def noid_pairs
       @noid_pairs ||= noid_pairs_init
     end

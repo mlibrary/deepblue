@@ -35,7 +35,7 @@ module Aptrust
         next if status.event == ::Aptrust::EVENT_DELETED
         w.reset.noid = status.noid
         if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
           next
         end
         status_create_date = status.created_at

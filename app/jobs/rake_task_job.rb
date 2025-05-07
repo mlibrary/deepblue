@@ -65,7 +65,7 @@ END_OF_SCHEDULER_ENTRY
       ::Deepblue::EmailHelper.send_email_fritx( subject: "Skipping RakeTaskJob #{rake_task} on #{hostname}",
                                                 messages: [ "#{hostname}",
                                                             "Skipping RakeTaskJob because not allowed job task:",
-                                                            "#{rake_task}" ] ) if true || debug_verbose
+                                                            "#{rake_task}" ] ) if debug_verbose
       return
     end
     ::Deepblue::SchedulerHelper.log( class_name: self.class.name, event_note: rake_task )

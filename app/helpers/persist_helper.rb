@@ -60,6 +60,15 @@ module PersistHelper
     false
   end
 
+  def self.gone_id?( id, use_valkyrie: false )
+    ::ActiveFedora::Base.find( uri )
+    false
+  rescue Ldp::Gone
+    true
+  rescue ::Hyrax::ObjectNotFoundError
+    false
+  end
+
   def self.id_to_uri( id )
     ::Hyrax::Base.id_to_uri( id )
   end
