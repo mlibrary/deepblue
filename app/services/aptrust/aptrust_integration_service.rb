@@ -28,6 +28,7 @@ module Aptrust
     mattr_accessor :aptrust_integration_debug_verbose, default: false
 
     mattr_accessor :allow_deposit,             default: true
+    mattr_accessor :automatic_set_deleted_status, default: true
     #mattr_accessor :deposit_context,           default: 'localhost-'
     mattr_accessor :deposit_context,           default: ''
     mattr_accessor :repository,                default: 'umich.edu'
