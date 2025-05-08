@@ -507,6 +507,7 @@ RSpec.describe Hyrax::DataSetsController, :clean_repo do
             allow(dummy_class).to receive(:anonymous_link?).and_return false
             allow(dummy_class).to receive(:current_ability).and_return test_object
             allow(test_object).to receive(:can?).and_return true
+            allow(test_object).to receive(:admin_set_id).and_return ""
 
             allow(dummy_class).to receive(:curation_concern).and_return test_object
             allow(test_object).to receive(:id).and_return "abc"
