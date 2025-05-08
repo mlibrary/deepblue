@@ -162,6 +162,7 @@ RSpec.describe Hyrax::WorkShowPresenter, clean_repo: true do
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
         allow( presenter ).to receive( :workflow ).and_return workflow
+        allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       end
       it { is_expected.to be false }
     end

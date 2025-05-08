@@ -614,8 +614,9 @@ module Deepblue
                                              "and workflow_state != 'deposited'=#{workflow_state != 'deposited'}",
                                              "" ] if deepblue_works_controller_behavior_debug_verbose
       return false if anonymous_link?
-      return true if current_ability.admin?
       return true if editor? && workflow_state != 'deposited'
+      return true if current_ability.admin?
+      # return true if editor? && workflow_state != 'deposited'
       false
     end
 
@@ -689,7 +690,7 @@ module Deepblue
     end
 
     def has_service_request?
-      rv = NewServiceRequestTicketJob.has_service_request? self
+      rv = NewServiceRequestTicketJob.has_service_request? curation_concern: self
       return rv
     end
 
@@ -705,7 +706,20 @@ module Deepblue
 
     # TODO: move to work_permissions_behavior
     def editor?
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "false if anonymous_link?=#{anonymous_link?}",
+      #                                        "" ] if deepblue_works_controller_behavior_debug_verbose
       return false if anonymous_link?
+      draft_admin_set_id = ::Deepblue::DraftAdminSetService.draft_admin_set_id
+      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                        ::Deepblue::LoggingHelper.called_from,
+      #                                        "draft_admin_set_id=#{draft_admin_set_id}",
+      #                                        "curation_concern.admin_set_id=#{curation_concern.admin_set_id}",
+      #                                        "current_ability.current_user=#{current_ability.current_user}",
+      #                                        "curation_concern.depositor=#{curation_concern.depositor}",
+      #                                        "" ] if deepblue_works_controller_behavior_debug_verbose
+      return true if draft_admin_set_id == curation_concern.admin_set_id && current_ability.current_user == curation_concern.depositor
       current_ability.can?(:edit, curation_concern.id)
     end
 

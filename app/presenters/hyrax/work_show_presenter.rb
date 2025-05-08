@@ -393,14 +393,31 @@ module Hyrax
                                              "false if anonymous_show?=#{anonymous_show?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "false if tombstoned?=#{tombstoned?}",
-                                             "true if editor?=#{editor?}",
-                                             "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "true if can_edit_work_editor?=#{can_edit_work_editor?}",
                                              "" ] if work_show_presenter_debug_verbose
       return false if anonymous_show?
       return true if current_ability.admin?
       return false if tombstoned?
       return true if editor? && workflow.state != 'deposited'
+      return true if can_edit_work_editor?
       false
+    end
+
+    def can_edit_work_editor?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false if anonymous_show? = #{anonymous_show?}",
+                                             "false if workflow.state == 'deposited'=#{workflow.state == 'deposited'}",
+                                             "and workflow.state != 'deposited'=#{workflow.state != 'deposited'}",
+                                             "true if current_ability.can?(:edit, solr_document) =#{current_ability.can?(:edit, solr_document)}",
+                                             "true if draft_mode? = #{draft_mode?}",
+                                             "and depositor = current_ability.current_user.email =#{depositor == current_ability.current_user.email} ",
+                                             "" ] if work_show_presenter_debug_verbose
+      return false if anonymous_show?
+      return false if workflow.state == 'deposited'
+      return true if current_ability.can?(:edit, solr_document)
+      return true if draft_mode? && depositor == current_ability.current_user.email
+      return false
     end
 
     def can_mint_doi_work?

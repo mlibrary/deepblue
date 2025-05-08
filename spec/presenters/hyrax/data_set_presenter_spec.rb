@@ -639,6 +639,7 @@ END_TARGET
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( presenter ).to receive( :embargoed? ).and_return true
+        allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       end
       it { is_expected.to be false }
     end
@@ -650,6 +651,7 @@ END_TARGET
         allow( current_ability ).to receive( :admin? ).and_return false
         allow( presenter ).to receive( :editor? ).and_return false
         allow( presenter ).to receive( :embargoed? ).and_return false
+        allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       end
       it { is_expected.to be true }
     end
@@ -689,6 +691,7 @@ END_TARGET
         expect( presenter ).to receive( :editor? ).at_least(:once).and_return true
         expect( workflow ).to receive( :state ).at_least(:once).and_return "pending_review"
         expect( presenter ).to receive( :workflow ).at_least(:once).and_return workflow
+        allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       end
       it { is_expected.to be true }
     end
@@ -709,6 +712,7 @@ END_TARGET
         allow( presenter ).to receive( :editor? ).and_return false
         allow( workflow ).to receive( :state ).and_return "pending_review"
         allow( presenter ).to receive( :workflow ).and_return workflow
+        allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       end
       it { is_expected.to be false }
     end

@@ -39,6 +39,7 @@ RSpec.describe 'hyrax/base/_show_actions.html.erb', type: :view do
       allow(ability).to receive(:admin?).and_return false
       allow(presenter).to receive(:editor?).and_return false
       allow(presenter).to receive(:tombstone).and_return nil
+      allow( presenter ).to receive( :can_edit_work_editor? ).and_return false
       render 'hyrax/base/show_actions.html.erb', presenter: presenter, curation_concern: curation_concern
     end
 
