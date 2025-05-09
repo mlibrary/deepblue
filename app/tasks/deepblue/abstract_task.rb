@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../../../app/helpers/deepblue/report_helper'
+
 module Deepblue
 
   # rubocop:disable Rails/Output
@@ -56,6 +58,22 @@ module Deepblue
 
     def task_options_value( key:, default_value: nil )
       TaskHelper.task_options_value( @options, key: key, default_value: default_value, msg_handler: msg_handler )
+    end
+
+    def to_datetime( date:, format: nil, raise_errors: true, msg_postfix: '' )
+      # date: when /^now\s+([+-])\s*([0-9]+)\s+(minutes?|hours?|days?|weeks?|months?|years?)$/
+      if date.start_with?( 'now' )
+        ReportHelper.to_datetime( date: date,
+                                  msg_handler: @msg_handler,
+                                  raise_errors: raise_errors,
+                                  msg_postfix: msg_postfix )
+      else
+        ReportHelper.to_datetime( date: date,
+                                  format: format,
+                                  msg_handler: @msg_handler,
+                                  raise_errors: raise_errors,
+                                  msg_postfix: msg_postfix )
+      end
     end
 
     protected

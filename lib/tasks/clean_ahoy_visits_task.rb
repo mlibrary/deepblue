@@ -27,9 +27,27 @@ END_OF_SCHEDULER_ENTRY
 
   class CleanAhoyVisitsTask < AbstractTask
 
+    attr_accessor :begin_date
+    attr_accessor :trim_date
+    attr_accessor :inc
+    attr_accessor :opt_debug_verbose
+
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
       # see: Aptrust::UploadLimitedAllTask for version that sets msg_handler and other tracking vars
+      if msg_handler.nil?
+        @verbose = true
+        @msg_handler.verbose = @verbose
+        @msg_handler.msg_queue = []
+      else
+        @verbose = @msg_handler.verbose
+      end
+      @begin_date = task_options_value( key: 'begin_date', default_value: DateTime.now - 40.days ) # i.e. 'now - 40 days'
+      @begin_date = to_datetime( date: @begin_date ) if @begin_date.is_a?( String )
+      @trim_date = task_options_value( key: 'trim_date', default_value: DateTime.now - 4.days ) # i.e. 'now - 4 days'
+      @trim_date = to_datetime( date: @trim_date ) if @trim_date.is_a?( String )
+      @inc = task_options_value( key: 'trim_date', default_value: 4.days ) # i.e. 'now - 4 days'
+      @inc = to_datetime( date: @inc ) if @inc.is_a?( String )
     end
 
     def run
@@ -41,7 +59,13 @@ END_OF_SCHEDULER_ENTRY
       # cleaner.run
       # cleaner = Ahoy::VisitsCleaner.new( begin_date: DateTime.now - 180.days, trim_date: DateTime.now - 4.days, inc: 4.days, delete: true, verbose: true, debug_verbose: false, msg_handler: ::Deepblue::MessageHandler.msg_handler_for( task: true ) )
       # cleaner.run
-      cleaner = Ahoy::VisitsCleaner.new( begin_date: DateTime.now - 40.days, trim_date: DateTime.now - 4.days, inc: 4.days, delete: true, verbose: true, debug_verbose: false, msg_handler: ::Deepblue::MessageHandler.msg_handler_for( task: true ) )
+      cleaner = Ahoy::VisitsCleaner.new( begin_date: @begin_date,
+                                         trim_date: @trim_date,
+                                         inc: @inc,
+                                         delete: true,
+                                         verbose: true,
+                                         debug_verbose: false,
+                                         msg_handler: ::Deepblue::MessageHandler.msg_handler_for( task: true ) )
       cleaner.run
     end
 
