@@ -29,7 +29,7 @@ module Aptrust
       w_all.each do |work|
         w.reset.work = work
         if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
           next
         end
         next unless w&.file_set_ids.present?

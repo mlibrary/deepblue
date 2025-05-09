@@ -7,6 +7,7 @@ Aptrust::AptrustIntegrationService.setup do |config|
   config.aptrust_integration_debug_verbose = false
 
   config.allow_deposit            = true
+  config.automatic_set_deleted_status = true
   config.repository               = 'umich.edu'
   config.local_repository         = 'deepbluedata'
   config.storage_option           = 'Glacier-Deep-OR'

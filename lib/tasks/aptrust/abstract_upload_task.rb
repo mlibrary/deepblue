@@ -64,7 +64,7 @@ module Aptrust
       noids.each do |noid|
         w.reset.noid = noid
         if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid #{noid}"
+          msg_handler.msg_warn "Failed to load work with noid: #{noid}"
           # TODO: try loading the work from fedora and saving to solr
           next
         end
@@ -129,7 +129,7 @@ module Aptrust
       noids.each do |noid|
         w.reset.noid = noid
         if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid #{status.noid}"
+          msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
           next
         end
         unless 0 < w.total_file_size
