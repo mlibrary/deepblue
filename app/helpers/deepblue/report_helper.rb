@@ -120,6 +120,77 @@ module Deepblue
       end
     end
 
+    # duration: number string of seconds
+    # duration: '+/-? # minute/hour/day/week/month/year'
+    def self.to_duration( duration:, raise_errors: true, msg_postfix: '' )
+      return 0 if duration.blank?
+      case duration
+      when /^([+-]?)\s*([0-9_]+)\s+(minutes?|hours?|days?|weeks?|months?|years?)$/
+        plus_minus = Regexp.last_match 1
+        number = Regexp.last_match 2
+        number = Integer( number )
+        units = Regexp.last_match 3
+        if '-' == plus_minus
+          case units
+          when 'minute'
+            return number.minute
+          when 'minutes'
+            return - number.minutes
+          when 'hour'
+            return - number.hour
+          when 'hours'
+            return - number.hours
+          when 'day'
+            return - number.day
+          when 'days'
+            return - number.days
+          when 'week'
+            return - number.week
+          when 'weeks'
+            return - number.weeks
+          when 'month'
+            return - number.month
+          when 'months'
+            return - number.months
+          when 'year'
+            return - number.year
+          when 'years'
+            return - number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        else
+          case units
+          when 'day'
+            return  number.day
+          when 'days'
+            return  number.days
+          when 'week'
+            return  number.week
+          when 'weeks'
+            return  number.weeks
+          when 'month'
+            return  number.month
+          when 'months'
+            return  number.months
+          when 'year'
+            return  number.year
+          when 'years'
+            return  number.years
+          else
+            raise RuntimeError 'Should never get here.'
+          end
+        end
+      else
+        begin
+          return Integer( duration ).seconds
+        rescue ArgumentError => e
+          msg_handler.msg_error "Failed to parse integer duration string '#{duration}'#{msg_postfix}"
+          raise e if raise_errors
+        end
+      end
+    end
+
   end
 
 end

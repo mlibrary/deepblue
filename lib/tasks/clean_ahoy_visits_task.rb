@@ -46,8 +46,8 @@ END_OF_SCHEDULER_ENTRY
       @begin_date = to_datetime( date: @begin_date ) if @begin_date.is_a?( String )
       @trim_date = task_options_value( key: 'trim_date', default_value: DateTime.now - 4.days ) # i.e. 'now - 4 days'
       @trim_date = to_datetime( date: @trim_date ) if @trim_date.is_a?( String )
-      @inc = task_options_value( key: 'trim_date', default_value: 4.days ) # i.e. 'now - 4 days'
-      @inc = to_datetime( date: @inc ) if @inc.is_a?( String )
+      @inc = task_options_value( key: 'inc', default_value: 4.days ) # i.e. 'now - 4 days'
+      @inc = to_duration( duration: @inc ) if @inc.is_a?( String )
     end
 
     def run

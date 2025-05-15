@@ -76,6 +76,12 @@ module Deepblue
       end
     end
 
+    # duration: number string of seconds
+    # duration: '+/-? # minute/hour/day/week/month/year'
+    def to_duration( duration:, raise_errors: true, msg_postfix: '' )
+      return ReportHelper.to_duration( duration: duration, raise_errors: raise_errors, msg_postfix: msg_postfix )
+    end
+
     protected
 
       def logger_initialize
