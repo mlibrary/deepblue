@@ -7,6 +7,7 @@ module DataDen
 
   class AbstractReportTask < ::DataDen::AbstractTask
 
+    attr_accessor :event
     attr_accessor :report_append
     attr_accessor :report_file
     attr_accessor :report_dir
@@ -15,9 +16,13 @@ module DataDen
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
+      init_report_class_args()
+    end
+
+    def init_report_class_args
       @report_append = option_value( key: 'report_append', default_value: false )
       @report_dir = option_value( key: 'report_dir', default_value: './data' )
-      @report_file = report_file_init
+      report_file_init
       msg_handler.msg_debug( [ msg_handler.here, msg_handler.called_from,
                                "@report_append=#{@report_append}",
                                "@report_dir=#{@report_dir}",
@@ -52,6 +57,16 @@ module DataDen
       rv = File.open( report_file, 'wa' ) if report_append
       rv = File.open( report_file, 'w' ) unless report_append
       return rv
+    end
+
+    def run
+      debug_verbose
+      msg_handler.msg_verbose
+      msg_handler.msg_verbose "#{event}"
+      run_report
+      body = "<pre>\n#{event} file:\n#{@report_file}\n</pre>"
+      run_email_targets( subject: @email_subject, event: "#{event}", body: body )
+      msg_handler.msg_verbose "Finished #{event}."
     end
 
   end
