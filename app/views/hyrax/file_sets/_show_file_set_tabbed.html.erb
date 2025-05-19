@@ -1,6 +1,6 @@
 <div class="card tabs">
   <ul class="nav nav-tabs" role="tablist">
-    <li id="user_activity_log_link" class="active">
+    <li id="items_display_link" class="nav-item">
       <a href="#user_activity_log" data-toggle="tab"> <%= t('show.labels.tab_user_activity_log') %></a>
     </li>
     <!-- % if @presenter.can_display_file_contents? %>
@@ -9,7 +9,7 @@
       </li>
     < % end % -->
     <% if @presenter.display_provenance_log_enabled? %>
-    <li id="provenance_log_display_link">
+    <li id="provenance_log_display_link" class="nav-item">
       <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
     </li>
     <% end %>

@@ -12,7 +12,8 @@
 
         <!-- Add group form -->
         <div class="form-add-sharing-wrapper" data-id="<%= @form.id %>">
-          <%= simple_form_for @form.permission_template,
+          <%# = simple_form_for @form.permission_template, %>
+          <%= simple_form_for collection_permission_template_form_for(form: @form),
                               url: [hyrax, :dashboard, @form, :permission_template],
                               html: { id: 'group-participants-form' } do |f| %>
             <div class="clearfix spacer">
@@ -51,7 +52,8 @@
 
         <!-- Add user form -->
         <div class="form-add-sharing-wrapper" data-id="<%= @form.id %>">
-          <%= simple_form_for @form.permission_template,
+          <%# = simple_form_for @form.permission_template, %>
+          <%= simple_form_for collection_permission_template_form_for(form: @form),
                               url: [hyrax, :dashboard, @form, :permission_template],
                               html: { id: 'user-participants-form' } do |f| %>
             <div class="clearfix spacer">
