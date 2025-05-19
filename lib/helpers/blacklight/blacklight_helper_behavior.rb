@@ -325,7 +325,7 @@ module Blacklight::BlacklightHelperBehavior
   # TODO: Move this to the controller. It can just pass a presenter or set of presenters.
   # @   deprecated
   # @return [Blacklight::DocumentPresenter]
-  def presenter(document)
+  def presenter(document=@document)
     # Deprecation.warn(Blacklight::BlacklightHelperBehavior, '#presenter is deprecated; use #document_presenter instead')
 
     # As long as the presenter methods haven't been overridden, we can use the new behavior
