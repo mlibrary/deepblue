@@ -1,5 +1,6 @@
 <%# Reviewed: heliotrope %>
 <%# Reviewed: hyrax4 -- revisit? %>
+<!-- _guts4form.html.erb -->
 <% # we will yield to content_for for each tab, e.g. :files_tab %>
 <% if current_ability.admin? %>
   <% tabs = %w[metadata files uploaded relationships share] %>
@@ -13,16 +14,16 @@
       <!-- Nav tabs -->
       <ul class="nav nav-tabs" role="tablist">
         <% tabs.each_with_index do | tab, i | %>
-          <li role="presentation" <%= i == 0 ? 'class=active' : '' %> >
-            <a href="#<%= tab %>" aria-controls="<%= tab %>" role="tab" data-toggle="tab">
-              <%= t("hyrax.works.form.tab.#{tab}") %>
+          <li role="presentation" class="nav-item">
+            <a class="nav-link <% if i == 0 %>active<% end %>" href="#<%= tab %>" aria-controls="<%= tab %>" role="tab" data-toggle="tab">
+              <%= form_tab_label_for(form: f.object, tab: tab) %>
             </a>
           </li>
         <% end %>
       </ul>
 
       <!-- Tab panes -->
-      <div class="card-body tab-content">
+      <div class="tab-content card">
         <% tabs.each_with_index do | tab, i | %>
             <% if 'share' == tab %>
               <div role="tabpanel"
@@ -51,7 +52,7 @@
     </div>
   </div>
 
-  <div id="savewidget" class="col-xs-12 col-sm-4 fixedsticky" role="complementary">
+  <div id="savewidget" class="col-12 col-sm-4 fixedsticky" role="complementary">
     <%= render 'form_progress', f: f %>
   </div>
 </div>
