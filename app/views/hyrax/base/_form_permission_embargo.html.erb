@@ -11,7 +11,24 @@
          value="open" />
   <bold><%= t( 'hyrax.visibility.restricted.text' ) %></bold>
   <%= t( 'hyrax.visibility.until' ) %>
-  <% embargo_release_date = f.object.embargo_release_date || Date.tomorrow %>
+  <%
+    embargo_release_date = f.object.embargo_release_date || Date.tomorrow
+    embargo_release_date ||= Date.tomorrow
+    debug_verbose = false
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "embargo_release_date=#{embargo_release_date} embargo_release_date.class.name=#{embargo_release_date.class.name}",
+                                           "" ] if debug_verbose
+    if embargo_release_date.is_a? String
+      if '' == embargo_release_date.strip
+        embargo_release_date = Date.tomorrow
+      else
+        embargo_release_date = DateTime.parse( embargo_release_date )
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "embargo_release_date=#{embargo_release_date} embargo_release_date.class.name=#{embargo_release_date.class.name}",
+                                             "" ] if debug_verbose
+    end
+  %>
   <%= f.date_field( :embargo_release_date,
                     wrapper: :inline,
                     value: embargo_release_date.strftime("%Y-%m-%d"),

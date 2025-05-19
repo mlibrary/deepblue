@@ -1,13 +1,12 @@
 <%# Reviewed: heliotrope %>
 <% edit_debug_verbose = false %>
-
 <%
   ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                         ::Deepblue::LoggingHelper.called_from,
                                         ""] if edit_debug_verbose
 %>
 
-<% provide :page_title, curation_concern_page_title(curation_concern) %>
+<% provide :page_title, title_presenter(curation_concern).page_title %>
 <% provide :page_header do %>
   <h1><span class="fa fa-edit" aria-hidden="true"></span><%= t('.header', file_set: curation_concern) %></h1>
 <% end %>
@@ -22,39 +21,39 @@
                                             "curation_concern.class.name=#{curation_concern.class.name}",
                                             ""] if edit_debug_verbose
     %>
-    <%= media_display( curation_concern.to_presenter, current_ability, @presenter ) %>
+  <%= render media_display_partial(@presenter.solr_document), file_set: @presenter.solr_document %>
   </div>
   <% if !Flipflop.disable_desposits_and_edits? %>
-    <!-- div class="col-sm-8" --><div style="width: 66.7%; min-width: 700px; float: left;">
-      <div class="card tabs">
-        <ul class="nav nav-tabs" role="tablist">
-          <li id="edit_descriptions_link" class="active">
-            <a href="#descriptions_display" data-toggle="tab">
-              <i class="fa fa-tags" aria-hidden="true"></i> <%= t('.descriptions') %>
-            </a>
-          </li>
-          <li id="edit_versioning_link">
-            <a href="#versioning_display" data-toggle="tab">
-              <i class="fa fa-sitemap" aria-hidden="true"></i> <%= t('.versions') %>
-            </a>
-          </li>
-          <li id="edit_permissions_link">
-            <a href="#permissions_display" data-toggle="tab">
-              <i class="fa fa-key" aria-hidden="true"></i> <%= t('.permissions') %>
-            </a>
-          </li>
-        </ul>
-        <div class="panel-body">
-          <div class="tab-content">
-            <div id="descriptions_display" class="tab-pane active">
-              <!-- h2><%#= t('.descriptions') %></h2 -->
-              <%= render "form" %>
-            </div>
-            <%= render "permission", file_set: curation_concern %>
-            <%= render "versioning", file_set: curation_concern %>
+  <div class="col-12 col-sm-8">
+    <div class="card tabs">
+      <ul class="nav nav-tabs" role="tablist">
+        <li id="edit_descriptions_link" class="nav-item">
+          <a href="#descriptions_display" data-toggle="tab" class="nav-link active nav-safety-confirm">
+            <i class="fa fa-tags" aria-hidden="true"></i> <%= t('.descriptions') %>
+          </a>
+        </li>
+        <li id="edit_versioning_link" class="nav-item">
+          <a href="#versioning_display" data-toggle="tab" class="nav-link nav-safety-confirm">
+            <i class="fa fa-sitemap" aria-hidden="true"></i> <%= t('.versions') %>
+          </a>
+        </li>
+        <li id="edit_permissions_link" class="nav-item">
+          <a href="#permissions_display" data-toggle="tab" class="nav-link nav-safety-confirm">
+            <i class="fa fa-key" aria-hidden="true"></i> <%= t('.permissions') %>
+          </a>
+        </li>
+      </ul>
+      <div class="card-body">
+        <div class="tab-content">
+          <div id="descriptions_display" class="tab-pane show active">
+            <h2><%= t('.descriptions') %></h2>
+            <%= render "form" %>
           </div>
+          <%= render "permission", file_set: curation_concern, form_object: @form %>
+          <%= render "versioning", file_set: curation_concern %>
         </div>
-      </div><!-- /.col-sm-8 -->
-    </div><!-- /.row -->
-  <% end %>
+      </div>
+    </div><!-- /.col-sm-8 -->
+  </div><!-- /.row -->
+<% end %>
 </div>

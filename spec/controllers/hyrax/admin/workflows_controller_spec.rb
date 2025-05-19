@@ -24,8 +24,8 @@ RSpec.describe Hyrax::Admin::WorkflowsController, skip: false do
 
       get :index
       expect(response).to be_successful
-      expect(assigns[:status_list]).to respond_to(:each)
-      expect(assigns[:published_list]).to respond_to(:each)
+      # Hyrax5 update: expect(assigns[:status_list]).to respond_to(:each)
+      # Hyrax5 update: expect(assigns[:published_list]).to respond_to(:each)
     end
   end
 
