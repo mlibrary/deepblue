@@ -24,6 +24,11 @@ module Blacklight::RenderConstraintsHelperBehavior
   end
   # deprecation_deprecate query_has_constraints?: 'use search_state#has_constraints?'
 
+  def query_has_constraints2?(params_or_search_state = search_state)
+    search_state = convert_to_search_state(params_or_search_state)
+    search_state.has_constraints?
+  end
+
   ##
   # Render the actual constraints, not including header or footer
   # info.

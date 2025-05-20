@@ -27,4 +27,9 @@ module Blacklight::HashAsHiddenFieldsHelperBehavior
     render Blacklight::HiddenSearchStateComponent.new(params: hash)
   end
   # deprecation_deprecate render_hash_as_hidden_fields: 'Use Blacklight::HiddenSearchStateComponent instead'
+
+  def render_hash_as_hidden_fields2(hash)
+    render Blacklight::HiddenSearchStateComponent.new(params: hash)
+  end
+
 end
