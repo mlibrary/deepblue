@@ -70,7 +70,10 @@ module Ahoy
         if 0 == rows.size
           msg_handler.msg "  Skipped: >= #{@begin_date} to < #{end_date}"
         else
-          msg_handler.msg "  Processing #{rows.size} rows..."
+          # https://stackoverflow.com/questions/1078347/rails-is-there-a-rails-trick-to-adding-commas-to-large-numbers
+          rows_size = number_with_delimiter(rows.size, :delimiter => ',')
+          # or: rows_size = rows.size.to_s.reverse.gsub(/(\d{3})(?=\d)/, '\\1,').reverse
+          msg_handler.msg "  Processing #{rows_size} rows..."
           save_rows( "#{@report_dir}#{@begin_date.strftime('%Y%m%d')}_#{@report_base_filename}", rows )
           save_ips( "#{@report_dir}#{@begin_date.strftime('%Y%m%d')}_ip_#{@report_base_filename}" )
           summarize_ips( @report_summary, @ips, @begin_date, end_date)

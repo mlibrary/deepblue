@@ -11,7 +11,9 @@ clean_ahoy_visits:
   # Note: all parameters are set in the rake task job
   # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #       M H D
-  cron: '6 4 * * 6'
+  # cron: '6 4 * * 6'
+  # run daily
+  cron: '6 4 * * *'
   class: RakeTaskJob
   queue: scheduler
   description: Run rake task deepblue:clean_ahoy_visits
@@ -42,11 +44,11 @@ END_OF_SCHEDULER_ENTRY
       else
         @verbose = @msg_handler.verbose
       end
-      @begin_date = task_options_value( key: 'begin_date', default_value: DateTime.now - 40.days ) # i.e. 'now - 40 days'
+      @begin_date = task_options_value( key: 'begin_date', default_value: DateTime.now - 30.days ) # i.e. 'now - 30 days'
       @begin_date = to_datetime( date: @begin_date ) if @begin_date.is_a?( String )
-      @trim_date = task_options_value( key: 'trim_date', default_value: DateTime.now - 4.days ) # i.e. 'now - 4 days'
+      @trim_date = task_options_value( key: 'trim_date', default_value: DateTime.now - 1.day ) # i.e. 'now - 1 days'
       @trim_date = to_datetime( date: @trim_date ) if @trim_date.is_a?( String )
-      @inc = task_options_value( key: 'inc', default_value: 4.days ) # i.e. 'now - 4 days'
+      @inc = task_options_value( key: 'inc', default_value: 3.days ) # i.e. 'now - 3 days'
       @inc = to_duration( duration: @inc ) if @inc.is_a?( String )
     end
 
@@ -66,6 +68,7 @@ END_OF_SCHEDULER_ENTRY
                                          verbose: true,
                                          debug_verbose: false,
                                          msg_handler: ::Deepblue::MessageHandler.msg_handler_for( task: true ) )
+      cleaner.allow_visits_equal_events_delete = true
       cleaner.run
     end
 
