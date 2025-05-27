@@ -28,6 +28,8 @@ module Ahoy
     attr_accessor :span_days
     attr_accessor :trim_date
 
+    attr_accessor :allow_visits_equal_events_delete
+
     def initialize( begin_date:,
                     trim_date:,
                     delete:,
@@ -45,9 +47,7 @@ module Ahoy
       @debug_verbose = debug_verbose
       @task = task
       @msg_handler = msg_handler
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
-                               "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
 
       @span_days = span_days
 
@@ -56,6 +56,8 @@ module Ahoy
       @high_visit_count_per_day = 99
       #@high_visit_event_count = 999
       @high_visit_event_count_per_day = 24
+
+      @allow_visits_equal_events_delete = true
 
       @inc = inc
       @span = span
@@ -97,6 +99,7 @@ module Ahoy
       return "high_visit_count" if high_visit_count?(ip)
       return "high_visit_event_count" if high_visit_event_count?(ip)
       return "high_event_count" if high_event_count?(ip)
+      return "visits_equal_events_count" if visits_equal_events_count?(ip)
       return ""
     end
 
@@ -214,8 +217,8 @@ module Ahoy
         if reason.present?
           visits_targeted_for_delete += ip_info[:visit_ids].size
           events_targeted_for_delete += ip_info[:event_count]
-          deletes["visit_#{reason}"] += ip_info[:visit_ids].size
-          deletes["event_#{reason}"] += ip_info[:event_count]
+          deletes["visit_#{reason}"] += ip_info[:visit_ids].size if deletes["visit_#{reason}"].present?
+          deletes["event_#{reason}"] += ip_info[:event_count] if deletes["event_#{reason}"].present?
         end
       end
       deletes2 = [];deletes.keys.each { |key| deletes2 << deletes[key] }
@@ -232,6 +235,12 @@ module Ahoy
 
     def visits( begin_date, end_date )
       ::Ahoy::Visit.where(['started_at >= ? AND started_at < ?', begin_date, end_date])
+    end
+
+    def visits_equal_events_count?(ip)
+      return false unless @allow_visits_equal_events_delete
+      # return @ips[ip][:visit_ids].size == @ips[ip][:event_count]
+      return @ips[ip][:visit_ids].size <= @ips[ip][:event_count]
     end
 
   end

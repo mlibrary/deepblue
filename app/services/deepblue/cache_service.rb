@@ -23,7 +23,7 @@ module Deepblue
     end
 
     def self.init_cache_available
-      puts "Rails.env.test?=#{Rails.env.test?}"
+      # puts "Rails.env.test?=#{Rails.env.test?}"
       return false if Rails.env.test?
       return false unless Rails.env.production?
       is_cache_available?
