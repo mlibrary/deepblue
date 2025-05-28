@@ -247,6 +247,7 @@ en:
         subject_other:        "Subject"
         tag:                  "Keywords"
         title:                "Title"
+        ticket:               "Ticket"
       provenance_log:
         find_id:              "Find ID"
         find_id_placeholder:  "Search ID"
@@ -368,6 +369,9 @@ en:
           Select the disciplines(s) associated with the research for which the data were collected.
         subject_other: >
           Subject Other
+        ticket: >
+          Admin edit field for a work's ticket. Either leave blank, or a full link to the a ticket. May be used to
+          replace a link to a ticket with to a new merged ticket's link.
         title: >
           Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
           the methods, discipline, and topic associated with your research.

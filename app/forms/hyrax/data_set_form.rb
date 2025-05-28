@@ -27,6 +27,7 @@ module Hyrax
         rights_license
         rights_license_other
         subject_discipline
+        ticket
         curation_notes_admin
         curation_notes_user
         access_deepblue
@@ -53,6 +54,7 @@ module Hyrax
         keyword
         language
         referenced_by
+        ticket
         curation_notes_admin
         curation_notes_user
         access_deepblue
