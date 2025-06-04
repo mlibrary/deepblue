@@ -34,8 +34,8 @@ module Deepblue
     end
 
     def report_section_data_set( header:, ids: )
-      return if hash.nil?
-      return if quiet && !hash.present?
+      # return if hash.nil?
+      # return if quiet && !hash.present?
       r_header( header )
       unless ids.present?
         r_line "None."
@@ -49,8 +49,8 @@ module Deepblue
     end
 
     def report_section_file_set( header:, ids: )
-      return if hash.nil?
-      return if quiet && !hash.present?
+      # return if hash.nil?
+      # return if quiet && !hash.present?
       r_header( header )
       unless ids.present?
         r_line "None."
