@@ -312,6 +312,8 @@ module Deepblue
       str = ActionView::Base.full_sanitizer.sanitize( str )
       str.gsub!( 'DATA', 'D.A.T.A.' )
       str.gsub!( 'EXEC', 'E.X.E.C.' )
+      str.gsub!( /data:/i, 'data-' )
+      str.gsub!( /exec:/i, 'exec-' )
       str = ::Deepblue::EmailHelper.clean_str( str )
       return str
     end
