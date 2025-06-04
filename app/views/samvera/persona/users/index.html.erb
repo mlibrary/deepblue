@@ -20,7 +20,11 @@
         <tbody>
         <% @presenter.users.each do |user| %>
           <tr>
-            <td><%= user.email %></td>
+            <%
+               email = user.email
+               email.gsub!( /@/, '(at)')
+            %>
+            <td><%= email %></td>
             <td>
               <% roles = @presenter.user_roles(user) %>
               <ul>
