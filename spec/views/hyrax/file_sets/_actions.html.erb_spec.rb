@@ -50,6 +50,7 @@ RSpec.describe 'hyrax/file_sets/_actions.html.erb', type: :view do
       allow( presenter ).to receive( :can_view_file? ).and_return true
       allow( presenter ).to receive( :can_download_file? ).and_return true
       allow( presenter ).to receive( :anonymous_show? ).and_return false
+      allow( presenter ).to receive( :embargoed? ).and_return false
       allow( ability ).to receive( :can? ).with( :destroy, presenter.id ).and_return false
       allow( ability ).to receive( :can? ).with( :download, presenter.id ).and_return true
       allow( ability ).to receive( :can? ).with( :edit, presenter.id ).and_return false
