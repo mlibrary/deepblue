@@ -31,9 +31,7 @@ END_OF_SCHEDULER_ENTRY
     log( event: "doi pending report job", hostname_allowed: hostname_allowed? )
     return job_finished unless by_request_only? && from_dashboard.present?
     return job_finished unless hostname_allowed?
-    reporter = ::Deepblue::DoiPendingReporter.new( msg_handler: msg_handler,
-                                                   debug_verbose: debug_verbose,
-                                                   options: options )
+    reporter = ::Deepblue::DoiPendingReporter.new( msg_handler: msg_handler, options: options )
     reporter.run
     if reporter.out.present? && !suppress_if_quiet
       event = "doi pending report job"

@@ -132,8 +132,9 @@ module Bolognese
 
               # TODO: this needs to come from "creator_orcid"
               # TODO: orcid can be nil
+              orcid.downcase! if orcid.present?
               t << { "nameIdentifier" => { "nameIdentifierScheme" => "orcid",
-                                           "__content__" => orcid.downcase },
+                                           "__content__" => orcid },
                      "#{type}Name" => value }
 
             end

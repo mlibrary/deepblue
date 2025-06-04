@@ -781,7 +781,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
       msg_handler.msg_verbose {"visit_id_to_ip_map[#{visit_id}]=#{ip}"} if verbose
       if ip.nil?
         visit = Ahoy::Visit.where( id: visit_id )
-        next if visit.nil?
+        next if visit.empty?
         ip = visit.first.ip
         next if ip.blank?
         msg_handler.msg_verbose {"Map #{visit_id} to #{ip}"} if verbose
