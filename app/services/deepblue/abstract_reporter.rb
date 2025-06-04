@@ -19,6 +19,24 @@ module Deepblue
       @out ||= []
     end
 
+    def all_data_sets( solr: true )
+      if solr
+        rv = ActiveFedora::SolrService.query("+(has_model_ssim:DataSet)", rows: 100_000)
+      else
+        rv = DataSet.all
+      end
+      return rv
+    end
+
+    def all_file_sets( solr: true )
+      if solr
+        rv = ActiveFedora::SolrService.query("+(has_model_ssim:FileSet)", rows: 100_000)
+      else
+        rv = FileSet.all
+      end
+      return rv
+    end
+
     def run
       return if @options_error.present?
       initialize_report_values

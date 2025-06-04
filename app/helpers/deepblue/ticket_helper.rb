@@ -122,6 +122,7 @@ module Deepblue
                                               "" ] if debug_verbose
       return if cc_id.blank? && curation_concern.blank?
       curation_concern ||= ::PersistHelper.find( cc_id )
+      return unless curation_concern.is_a? DataSet
       ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
                                      id: curation_concern.id,
                                      event: :new_ticket_if_necessary,
