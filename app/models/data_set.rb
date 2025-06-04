@@ -377,7 +377,9 @@ class DataSet < ActiveFedora::Base
   end
 
   def embargoed?
-    visibility == 'embargo'
+    return true if visibility == 'embargo'
+    return true if embargo_release_date.present?
+    return false
   end
 
   def for_email_route

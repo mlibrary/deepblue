@@ -454,7 +454,9 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "solr_document.visibility=#{solr_document.visibility}",
                                              "" ] if ds_file_set_presenter_debug_verbose
-      solr_document.visibility == 'embargo'
+      return true if solr_document.visibility == 'embargo'
+      return true if solr_document['embargo_release_date_dtsi'].present?
+      return false
     end
 
     def file_name( parent_presenter, link_to )
