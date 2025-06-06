@@ -4,6 +4,10 @@ module DeepbluePresenterHelper
 
   mattr_accessor :deepblue_presenter_helper_debug_verbose, default: false
 
+  def self.fix_email_protected_hack( str )
+    return str.gsub( /@/, '(at)')
+  end
+
   def self.ld_json_creator( curation_concern )
     if curation_concern.respond_to? :parent
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

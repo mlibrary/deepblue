@@ -20,11 +20,7 @@
         <tbody>
         <% @presenter.users.each do |user| %>
           <tr>
-            <%
-               email = user.email
-               email.gsub!( /@/, '(at)')
-            %>
-            <td><%= email %></td>
+            <td><%= DeepbluePresenterHelper.fix_email_protected_hack( user.email ) %></td>
             <td>
               <% roles = @presenter.user_roles(user) %>
               <ul>
