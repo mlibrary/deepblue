@@ -945,4 +945,8 @@ log-class-name {
     text-align: center;
 }
 
+.hidden {
+    visibility: hidden;
+}
+
 /* End Add file formatting. */
