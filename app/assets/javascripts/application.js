@@ -26,6 +26,7 @@
 //= require blacklight/blacklight
 //= require blacklight_gallery
 //= require turbolinks
+//= require vue
 //= require browse_everything
 //
 //= require date_coverage_field
