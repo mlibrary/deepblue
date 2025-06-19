@@ -8,7 +8,7 @@
         <a href="#file_contents_display" data-toggle="tab"> <%= t('show.labels.tab_file_contents') %></a>
       </li>
     < % end % -->
-    <% if @presenter.display_provenance_log_enabled? %>
+    <% if @presenter.can_display_provenance_log? %>
     <li id="provenance_log_display_link" class="nav-item">
       <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
     </li>

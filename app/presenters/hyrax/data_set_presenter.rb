@@ -39,7 +39,7 @@ module Hyrax
 
     delegate :analytics_subscribed?,
              :active_ingest_append_script,
-             :can_display_provenance_log?,
+             #:can_display_provenance_log?,
              :can_display_read_me?,
              :can_subscribe_to_analytics_reports?,
              :current_user,
@@ -89,6 +89,7 @@ module Hyrax
              :read_me_text,
              :read_me_text_html,
              :read_me_text_simple_format,
+             :single_use_link_request?,
              :tombstone_permissions_hack?,
              :work_url,
              :zip_download_enabled?, to: :controller
@@ -122,6 +123,32 @@ module Hyrax
 
     def controller_class
       controller.class
+    end
+
+    def anonymous_show?
+      anonymous_use_show? || single_use_show?
+    end
+
+    def anonymous_use_show?
+      cc_anonymous_link.present?
+    end
+
+    def single_use_show?
+      cc_single_use_link.present?
+    end
+
+    def can_display_provenance_log?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
+                                             "false if anonymous_show?=#{anonymous_show?}",
+                                             "false if single_use_link_request?=#{single_use_link_request?}",
+                                             "true if current_ability.admin?=#{current_ability.admin?}",
+                                             "" ] if data_sets_controller_debug_verbose
+      return false unless display_provenance_log_enabled?
+      return false if anonymous_show?
+      return false if single_use_link_request?
+      current_ability.admin?
     end
 
     # begin box
