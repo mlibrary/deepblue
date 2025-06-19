@@ -31,8 +31,11 @@ module Deepblue
 
     def self.globus_data_den_files_available?( id )
       return false unless ::Deepblue::GlobusIntegrationService.globus_use_data_den
-      # TODO: use id to figure out path, and check for existence
-      return false
+      rec = FileSysExport.for_id( noid: noid )
+      return false unless rec.present?
+      rec = rec[0]
+      return false unless rec.published
+      return true
     end
 
     def self.globus_download_dir_du( concern_id: )

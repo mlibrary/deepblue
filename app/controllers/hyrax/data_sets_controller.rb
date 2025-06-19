@@ -437,18 +437,6 @@ module Hyrax
 
     # end depositor_creator
 
-    def can_display_provenance_log?
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
-                                             "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
-                                             "false if single_use_link_request?=#{single_use_link_request?}",
-                                             "true if current_ability.admin?=#{current_ability.admin?}",
-                                             "" ] if data_sets_controller_debug_verbose
-      return false unless display_provenance_log_enabled?
-      return false if single_use_link_request?
-      current_ability.admin?
-    end
-
     def can_display_read_me?
       @curation_concern = _curation_concern_type.find(params[:id]) unless curation_concern.present?
       read_me_file_set_id = curation_concern.read_me_file_set_id

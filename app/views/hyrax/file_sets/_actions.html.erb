@@ -67,8 +67,16 @@
         <%= link_to t('.view_details'), member.show_path_link( main_app: main_app ), method: :get %>
       </li>
     <% end %>
-
-    <% if member. can_download_file_maybe? %>
+    <!--
+      member.can_download_file_maybe? = <%= member.can_download_file_maybe? %>
+      @presenter.respond_to?( 'globus_enabled?' ) = <%= @presenter.respond_to?( 'globus_enabled?' ) %>
+      @presenter.globus_enabled? = <%= @presenter&.globus_enabled? %>
+      @presenter.embargoed? = <%= @presenter.embargoed? %>
+      @presenter.globus_files_available? = <%= @presenter.globus_files_available? %>
+      @presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %>
+      @presenter.globus_files_prepping? = <%= @presenter.globus_files_prepping? %>
+    -->
+    <% if member.can_download_file_maybe? %>
 
       <% unless member.file_size_too_large_to_download? %>
           <li role="menuitem" tabindex="-1">

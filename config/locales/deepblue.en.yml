@@ -121,7 +121,7 @@ en:
           total_size:       'Total size'
           total_size_print: 'Total size print'
           discipline:       'Discipline'
-          subject_discipline: "Discipline"
+          subject_discipline: 'Discipline'
           creators:         'Creators'
           work_ids:         'Work ids'
         file_set:
@@ -154,7 +154,7 @@ en:
           title:           'Title'
           parent_ids:      'Parent ids'
           discipline:      'Discipline'
-          subject_discipline: "Discipline"
+          subject_discipline: 'Discipline'
           creators:        'Creators'
           license:         'License'
           license_other:   'License Other'

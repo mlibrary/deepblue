@@ -44,6 +44,14 @@
               <% end %>
             <% end %>
           <% end %>
+          <!--
+            @presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %>
+            @presenter.globus_enabled? = <%= @presenter&.globus_enabled? %>
+            @presenter.embargoed? = <%= @presenter.embargoed? %>
+            @presenter.globus_files_available? = <%= @presenter.globus_files_available? %>
+            @presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %>
+            @presenter.globus_files_prepping? = <%= @presenter.globus_files_prepping? %>
+          -->
           <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "@presenter.class.name=#{@presenter.class.name}",
@@ -52,6 +60,9 @@
                                                    "@presenter.globus_files_available?=#{@presenter.globus_files_available?}",
                                                    "@presenter.globus_files_prepping?=#{@presenter.globus_files_prepping?}",
                                                    ""], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE %>
+          <#% if @presenter&.globus_data_den %>
+
+          <#% end %>
           <% if @presenter.can_download_using_globus_maybe? %>
             <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
