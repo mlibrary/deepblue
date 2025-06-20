@@ -393,8 +393,8 @@ en:
       css_inner: subheader-inner
       css_section_default: subheader-section-default container-fluid
       default_html:
-        Need language around using Deep Blue Data as a repository for your NIH data sharing plan? See
-        <a href="https://deepblue.lib.umich.edu/data/services#boilerplate">Data Sharing Boilerplate</a>
+        <span>Need language around using Deep Blue Data as a repository for your NIH data sharing plan? See
+        <a href="https://deepblue.lib.umich.edu/data/services#boilerplate">Data Sharing Boilerplate</a></span>
     masthead_banner:
       standard_html: >
           We've recently updated Deep Blue Data--for more about our upgrade to Hyrax 2.0, please see
