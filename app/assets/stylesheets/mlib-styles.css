@@ -767,12 +767,17 @@ code.code-tag {
   vertical-align: top; }
 
 .site-title-flex {
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
   display: flex; 
-  height: 60px; 
-  align-items: center; }
+  flex-flow: row wrap;
+  align-items: center; 
+  gap: .5rem;
+}
+
+@media (max-width: 990px) {
+  .site-title-flex {
+  padding: .5rem 0;
+ }
+}
 
 .site-link {
   color: white;

@@ -38,7 +38,6 @@ caption {
 .margin0 {
   margin: 0 !important;
 }
-
 /** Buttons **/
 
 .btn-default {
@@ -135,6 +134,11 @@ nav#masthead {
   background-color: var(--color-blue-400) !important;
 }
 
+#masthead > .d-flex {
+  align-items: center;
+  justify-content: space-between;
+}
+
 .navbar-inverse {
   background-color: var(--color-blue-400) !important;
   border: 0;
@@ -151,7 +155,7 @@ nav#masthead {
     color: #fff;
   }
 
-  :hover {
+  li > a:hover {
   text-decoration: underline;
   }
 }
@@ -175,10 +179,14 @@ button.nav-link.dropdown-toggle.language-dropdown {
   padding: 0;
 }
 
+#masthead > div > button > .navbar-toggler-icon {
+  display: block;
+}
+
 /* Menu dropdown */
 
 #user_utility_links > .dropdown > ul.dropdown-menu {
-  padding: .5rem;
+  padding: .5rem 1rem;
 }
 
 .btn-group > ul.dropdown-menu {
@@ -232,16 +240,15 @@ button.nav-link.dropdown-toggle.language-dropdown {
 }
 
 .splash-container {
-  margin: 0 auto;
-  padding: 1rem;
-  max-width: 60rem;
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
 
   .splash-text--medium {
     color: #fff;
     font-size: 1.35em;
     font-weight: 300;
     line-height: 30px;
-    padding: 2em 0;
     text-align: center;
   }
 
@@ -250,7 +257,7 @@ button.nav-link.dropdown-toggle.language-dropdown {
     font-size: 1.35em;
     font-weight: 300;
     line-height: 30px;
-    padding: 2em 0;
+    padding: 1.5em 0;
     text-align: center;
   }
 }
@@ -383,11 +390,28 @@ nav.breadcrumb ol li a {
   color: $primary-link;
 }
 
+/* Sidebar */
+
+.sidebar .h5 {
+  font-size: 1rem;
+}
+
+.sidebar .nav li {
+  padding: .25rem;
+}
+
+
+ .sidebar .nav-pills > li > a {
+  text-decoration: none;
+}
+
 /* Badges */
 
 /* In Dashboard */
 .list-group-item > .badge, 
-.list-group-item > li> .badge.badge-optional {
+.list-group-item > li> .badge.badge-optional,
+.views-downloads-dashboard > li> .badge.badge-optional
+ {
   display: inline-block;
   min-width: 10px;
   padding: 3px 7px;
@@ -457,8 +481,11 @@ ol.list-group.list-group-striped li:nth-of-type(odd) {
 }
 
 #homeTabs {
-  margin-bottom: 5px;
-  padding: .5rem 0;
+  margin-bottom: 0;
+
+  .nav-item {
+  padding: 1rem 0 0;
+  }
 
   li.active > a {
     background: #337ab7;
@@ -492,7 +519,14 @@ span.collection-tag {
   font-size: 1.05em;
   margin-left: auto;
   padding-right: .5em;
-  
+}
+
+.collection-tag > span.label, td.collection_type > span.label {
+  color: var(--color-neutral-400);
+  background-color: var(--color-neutral-100) !important;
+  border-radius:4px;
+  padding: .25rem;
+  font-weight: 600;
 }
 
 .search-widgets > .view-type {
@@ -574,6 +608,10 @@ table.table.table-striped.related-files  {
   text-decoration: none;
 }
 
+.recent-item .recent-label {
+  color: #6a737b;
+}
+
 /* Works Tabs - Admin */
 
 ul#my_nav {
@@ -590,6 +628,28 @@ ul#my_nav {
 
 .nav-item {
   padding: 1rem 0;
+}
+
+.card.tabs.work-tabs > ul.nav.nav-tabs > .nav-item {
+  padding: 1rem 0;
+}
+
+.card.tabs.work-tabs > ul.nav.nav-tabs > .nav-item {
+  color: #126DC1;
+  font-size: 1rem;
+  text-decoration: none;
+}
+
+ul.nav.nav-tabs > .nav-item {
+  padding: 0;
+  }
+
+.nav-tabs .nav-link:hover {
+   border-color: transparent;
+}
+
+a.nav-link.active:hover {
+  border-top: 4px solid #126DC1;
 }
 
 .nav-item > a:hover, #new_data_set .nav-tabs > li > a:hover {
@@ -617,8 +677,13 @@ ul#my_nav {
 
 #new_data_set {
   .nav-tabs {
-    padding: 1rem 1rem 1rem 0;
+    padding: 0;
   }
+
+  .nav-item {
+    padding: 0;
+  }
+
   .nav-tabs > li.active > a {
     text-decoration: underline;
     border-top: 4px solid #126DC1;
@@ -634,10 +699,12 @@ ul#my_nav {
 
   .form-tab-content {
     font-size: 1rem;
+    padding: 0 0.75em 0.75em;
   }
 
   .tab-content {
     background-color: #fff;
+    margin-bottom: 0;
   }
 }
 
@@ -681,7 +748,7 @@ ul#my_nav {
   left: 5px;
 }
 
-.control-label {
+.control-label, #labelFormFileMultiple{
   font-weight: bold;
 }
 
@@ -1365,9 +1432,10 @@ div.facets h3 {
 }
 
 @media (max-width: 767px) {
-  .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
-    color: #fff !important;
-  }
+  ul.dropdown-menu.dropdown-menu-right.show {
+    color: var(--color-neutral-400);
+    border: 0;
+}
 }
 
 .ingest-append-script-files {

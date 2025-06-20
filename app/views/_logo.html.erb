@@ -1,10 +1,5 @@
 <%# Reviewed: hyrax4 %>
-<span class="site-title-flex">
-  <a href="<%= t( "hyrax.site_logo_href" ) %>" class="site-link">
-    <%= t( "hyrax.site_logo_img_html" ) %>
-    <!-- span class="site-title"><%= application_name %></span -->
-  </a>
-  <a href='<%= Rails.configuration.relative_url_root %>' class="site-link">
+  <a href='<%= Rails.configuration.relative_url_root %>' class="site-title-flex site-link">
+    <%= image_tag("m-library-logo.svg", class: "logo-svg", alt:"University of Michigan Library", 'aria-hidden'=> "false") %>
     <span class="site-title"><%= application_name %></span>
   </a>
-</span>

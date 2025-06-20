@@ -700,11 +700,28 @@ table.datatable thead th.no-sort {
 
 .subheader-default {
     background-color: var(--color-green-100);
-    color: #000;
+    color: #212b36;
 }
 
-.subheader-section-default{
-  padding-left: 0 !important;
+.subheader-inner {
+  display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.subheader-section-default {
+  display: flex;
+  align-items: center;
+  flex-flow: row wrap;
+  gap: .25rem;
+  padding: .35rem 0 !important;
+}
+
+@media screen and (max-width: 990px) {
+    
+  .subheader-section-default > svg {
+  display: none;
+}
 }
 
 .update-alert--warning {
