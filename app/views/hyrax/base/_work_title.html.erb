@@ -20,7 +20,7 @@
       <div class="badge-separator"></div>
       <span class="__dimensions_badge_embed__" data-style="large_rectangle" data-hide-zero-citations="true" data-doi="<%=doi_plain%>"></span>
       <div class="badge-separator"></div>
-      <data-metrics-badge doi="<%=doi_plain%>" display="small"></data-metrics-badge>
+      <!-- data-metrics-badge doi="<%=doi_plain%>" display="small"></data-metrics-badge -->
       <% if Rails.configuration.badge_irus_enabled %>
       <script id="irus_ir_widget" src="https://irus.jisc.ac.uk/r5/js/irus_ir_widget.js?requestor_id=<%=Rails.configuration.badge_irus_requestor_id%>&platform=<%=Rails.configuration.badge_irus_registry_id%>&item_id=<%=@presenter.doi_url%>"></script>
       <div id="irus_widget_container"></div>
