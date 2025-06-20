@@ -480,7 +480,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
     let(:solr_doc) { SolrDocument.new(id: '123') }
 
     let(:banner_info) do
-      CollectionBrandingInfo.new(
+      CollectionBrandingInfo.create(
         collection_id: "123",
         filename: "banner.gif",
         role: "banner",
@@ -489,7 +489,7 @@ RSpec.describe Hyrax::CollectionPresenter, skip: false do
     end
 
     let(:logo_info) do
-      CollectionBrandingInfo.new(
+      CollectionBrandingInfo.create(
         collection_id: "123",
         filename: "logo.gif",
         role: "logo",

@@ -5,19 +5,34 @@ class CollectionBrandingInfo < ApplicationRecord
   attr_accessor :filename, :alt_txt
   after_initialize :set_collection_attributes
 
-  def initialize(collection_id:,
-                 filename:,
-                 role:,
-                 alt_txt: "",
-                 target_url: "")
+  def self.create( collection_id:,
+                   filename:,
+                   role:,
+                   alt_txt: "",
+                   target_url: "" )
 
-    super()
-    self.collection_id = collection_id
-    self.role = role
-    self.alt_text = alt_txt
-    self.target_url = target_url
-    self.local_path = File.join(role, filename)
+    rec = CollectionBrandingInfo.new()
+    rec.collection_id = collection_id
+    rec.role = role
+    rec.alt_text = alt_txt
+    rec.target_url = target_url
+    rec.local_path = File.join(role, filename)
+    return rec
   end
+
+  # def initialize(collection_id:,
+  #                filename:,
+  #                role:,
+  #                alt_txt: "",
+  #                target_url: "")
+  #
+  #   super()
+  #   self.collection_id = collection_id
+  #   self.role = role
+  #   self.alt_text = alt_txt
+  #   self.target_url = target_url
+  #   self.local_path = File.join(role, filename)
+  # end
 
   def save(file_location, upload_file = true)
     filename = File.split(local_path).last

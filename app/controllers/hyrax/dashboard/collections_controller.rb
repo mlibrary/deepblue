@@ -232,7 +232,7 @@ module Hyrax
         #                                        "@collection.id = #{@collection.id}",
         #                                        "f.file_url = #{f.file_url}",
         #                                        "" ] if dashboard_collections_controller_debug_verbose
-        banner_info = CollectionBrandingInfo.new(
+        banner_info = CollectionBrandingInfo.create(
             collection_id: @collection.id,
             filename: File.split(f.file_url).last,
             role: "banner",
