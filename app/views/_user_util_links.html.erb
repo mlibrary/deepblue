@@ -15,6 +15,7 @@
                 aria: current_page?(hyrax.contact_path) ? {current: 'page'} : nil %></li>
   <!-- End About, Help, Contact Us -->
 
+  <%= render 'shared/locale_picker' if available_translations.size > 1 %>
   <% if user_signed_in? %>
     <li class="nav-item">
         <span class="sr-only">Notifications</span>

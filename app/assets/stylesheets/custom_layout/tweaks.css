@@ -95,8 +95,10 @@ form#new_collection,
 }
 
 .describe_sub {
-  margin: 1em;
-  padding: 0 0.5em 0.5em;
+  padding: 1rem;
+  background-color: var(--color-blue-100);
+  border: solid 1px var(--color-blue-200);
+  border-radius: 4px;
 }
 
 .help-block {
@@ -754,6 +756,7 @@ table.datatable thead th.no-sort {
 
 footer.page-footer {
         background: var(--color-blue-400);
+        clear: both;
 }
 
 footer.page-footer > ul {

@@ -2,6 +2,8 @@
   <h1><%= "Job Statuses" %></h1>
 <% end %>
 
+<div class="card">
+<div class="card-body">
 <%= form_tag( main_app.job_statuses_path, method: 'post' ) do %>
   <table style="width:40em;">
     <tr>
@@ -66,7 +68,7 @@
     <% end %>
   </tbody>
 </table>
-
+</div>
+</div>
 <br>
-
 <%#= link_to 'New Job Status', new_job_status_path %>
