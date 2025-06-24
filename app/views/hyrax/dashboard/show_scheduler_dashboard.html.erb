@@ -1,7 +1,8 @@
 <% provide :page_header do %>
   <h1><%= t("hyrax.dashboard.scheduler.title") %></h1>
 <% end %>
-
+<div class="card">
+<div class="card-body">
 <h2 class="title-header"><%= t('hyrax.jobs.running_header') %></h2>
 <label><%= raw ::Deepblue::JobsHelper.jobs_running_msg %></label>
 <br/>
@@ -130,4 +131,6 @@
   <%= submit_tag(t('simple_form.actions.scheduler.update_schedule'),
                  class: 'btn btn-primary',
                  data: {confirm: t('simple_form.confirm.scheduler.update_schedule')} ) %>&nbsp;
+  </div>
+</div>
 <% end %>

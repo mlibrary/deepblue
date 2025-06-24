@@ -56,8 +56,9 @@ body {
 }
 
 *:focus {
-  outline: 3px solid #ffcb05;
-  outline-offset: 0;
+    outline: 0 !important;
+    box-shadow: 0 0 0 2px var(--color-maize-400), 0 0 0 3px var(--color-neutral-400) !important;
+    border-radius: 2px !important;
 }
 
 .highlight-alt {
@@ -218,19 +219,7 @@ input[type="submit"] {
   border-bottom-width: 3px;
   border-bottom-style: solid;
 }
-.button:focus,
-input[type="submit"]:focus {
-  background: #126DC1;
-  /*border: 5px solid hotpink;*/
-}
-.button:hover,
-input[type="submit"]:hover {
-  cursor: pointer;
-  background: #1060aa;
-  /*border-color: #0e5392;*/
-  /*border: 5px solid greenyellow;*/
-  color: white;
-}
+
 .button:visited,
 input[type="submit"]:visited {
   color: white;

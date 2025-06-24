@@ -4,13 +4,13 @@
 
 <% depositor = f.object.depositor %>
 
-<div class="alert alert-info hidden" id="save_perm_note">
+<div class="alert alert-info d-none" id="save_perm_note">
   <%= t('hyrax.base.form_share.save_permissions_instructions_html',
         save_work: t('hyrax.base.form_share.save_work'),
         update_work: t('hyrax.base.form_share.update_work') ) %>
 </div>
 
-<div class="alert alert-warning hidden" role="alert" id="permissions_error">
+<div class="alert alert-warning d-none" role="alert" id="permissions_error">
   <span id="permissions_error_text"></span>
 </div>
 

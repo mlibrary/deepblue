@@ -2,6 +2,8 @@
   <h1><%= "APTrust Statuses" %></h1>
 <% end %>
 
+<div class="card">
+<div class="card-body">
 <%= form_tag( main_app.aptrust_statuses_path, method: 'post' ) do %>
   <table style="width:40em;">
     <tr>
@@ -104,5 +106,7 @@
     <% end %>
     </tbody>
   </table>
-
+</div>
+</div>
+<br>
 <% end %>

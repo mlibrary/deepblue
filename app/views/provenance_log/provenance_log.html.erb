@@ -1,7 +1,8 @@
 <% provide :page_header do %>
   <h1><%= t('provenance_log.title') %></h1>
 <% end %>
-<div>
+<div class="card">
+<div class="card-body">
   <% if current_ability.admin? %>
     <% if @presenter.id.present? %>
       <%= t('provenance_log.id') %>&nbsp;<%= @presenter.id %>
@@ -95,4 +96,5 @@
     <% end %>
     <br/><br/>
   <% end %>
+</div>
 </div>

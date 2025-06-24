@@ -2,6 +2,8 @@
   <h1><%= t("hyrax.dashboard.report.title") %></h1>
 <% end %>
 
+<div class="card">
+<div class="card-body reports">
 <h2 class="title-header"><%= t('hyrax.report.report_file_paths') %></h2>
 <%= form_tag(main_app.report_dashboard_run_action_path, method: 'post') do %>
   <div class="documentation-div">
@@ -41,3 +43,5 @@
                  class: 'btn btn-primary',
                  data: {confirm: t('simple_form.confirm.report.run_save_report_script')} ) %>
 <% end %>
+</div>
+</div>

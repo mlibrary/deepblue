@@ -97,11 +97,6 @@ caption {
   text-decoration: none !important;
 }
 
-.btn-subtle:focus,
-.btn-subtle:hover {
-  background: #B2BEC9;
-}
-
 .add-files-link button {
   padding: 0.3rem 0.75rem;
   border-radius: 4px;
@@ -110,6 +105,11 @@ caption {
   text-decoration: none;
   border-bottom: 3px solid rgb(12, 82, 146) !important;
   color: #fff;
+}
+
+button:hover, 
+.btn:hover {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--color-neutral-400);
 }
 
 /** Breadcrumb **/
@@ -164,6 +164,7 @@ button.nav-link.dropdown-toggle.language-dropdown {
   background-color: var(--color-blue-400);
   color: #fff;
   border: 0;
+  display: none;
 }
 
 .dropdown-menu > li > a, .twitter-typeahead .tt-menu > li > a {
@@ -433,6 +434,14 @@ nav.breadcrumb ol li a {
 
 span.state.state-pending_review.badge.badge-primary {
   background-color: #337ab7;
+}
+
+td.status span.enabled {
+  background-color: #198539;
+}
+
+td.status span.disabled {
+  background-color: #777777;
 }
 
 /* Custom select dashboard */
@@ -710,15 +719,38 @@ a.nav-link.active:hover {
 
 .form-progress > .card-header > h2.card-title {
   color: #4e4a42;
-  font-size: 1rem;
+  font-size: 1.15rem;
   font-weight: 600;
   line-height: 30px;
 }
 
-#metadata {
-  .form-control {
-    border: solid 1px #000 !important;
-  }
+.users-listing > .card-header {
+  font-size: 20px;
+}
+
+.form-progress.card, 
+.form-progress > .card-footer {
+  font-size: 1rem;
+}
+
+.form-progress > .card-footer > label {
+  font-weight: bold;
+  padding-bottom: 1.25rem;;
+}
+
+.form-progress > .card-footer > input,
+.form-progress > .card-footer > a {
+   margin: .25rem 0;
+}
+
+.form-progress > .card-footer input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+
+li.radio > label > input[type="radio"] {
+    width: 18px;
+    height: 18px;
 }
 
 .required-tag {
@@ -776,9 +808,18 @@ input[type="radio"] {
   border-radius: 0;
 }
 
-.controls-add-text::before {
-  font-family: FontAwesome;
-  content: '\2b';
+.btn-link.add {
+    display: flex;
+    align-items: center;
+}
+
+span.glyphicon.glyphicon-plus {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background: no-repeat center url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23337ab7" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>');
+    background-size: contain;
+    margin-right: 0 !important;
 }
 
 /* Search Results */
@@ -839,16 +880,30 @@ div.branding-banner-row {
   color: var(--color-neutral-400);
   text-align: left;
   font-size: 1.5rem;
-  text-decoration: underline;
+  text-decoration: none;
 }
 
 #workflow_controls > .card-header > a{
   color: var(--color-neutral-400);
 }
 
-#job_statuses_controls > .card-header, 
-#ingest_append_script_controls > .card-header {
+#job_statuses_controls > button,
+#ingest_append_script_controls > button {
+  border: 0;
+  padding: 0;
   font-size: .75rem;
+  text-align: left;
+}
+
+#job_statuses_controls > button > .card-header,
+#ingest_append_script_controls > button > .card-header {
+  border: 0;
+}
+
+.card-body.ingest > h2.title-header,
+.card-body.reports >  h2.title-header,
+.card-body.scheduler >  h2.title-header {
+    padding-left: 0;
 }
 
 .work-panel-heading {
@@ -876,6 +931,11 @@ div.branding-banner-row {
 
 .work-show.data_set {
   background-color: #f2f2f2;
+}
+
+.work-show.data_set > span[itemprop="url"],
+span[itemprop="license"]  {
+  display: none;
 }
 
 ul.tabular {
@@ -1227,6 +1287,11 @@ div.facets h3 {
   }
 }
 
+.static-page-main,
+.static-page-sidebar {
+  float: left;
+}
+
 .static-page-main {
   h1 {
     font-size: 1.65em;
@@ -1446,17 +1511,13 @@ div.facets h3 {
   background-color: #f8f8f8;
 }
 
-.btn:focus,
-.btn:hover,
 .add-files-link button:focus,
 .add-files-link button:hover,
 .form-control:focus,
 .form-control:hover,
 .radio-button-span:focus,
-.radio-button-span:hover {
-  /* border: 3px solid $u-m-yellow !important; */
-  /* border: 5px solid hotpink !important; */
-  outline: 3px solid $u-m-yellow !important;
-  outline-offset: 0 !important;
-  z-index: 99999;
+.radio-button-span:hover,
+.btn:not([disabled]):active, 
+.btn:not([disabled]):hover {
+    box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--color-neutral-400);
 }

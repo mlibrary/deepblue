@@ -1,12 +1,12 @@
 <div id="job_statuses_controls" class="card panel-job-statuses">
-  <div class="card-header">
-    <a data-toggle="collapse" href="#job_statuses_controls_collapse">
+    <button data-toggle="collapse" href="#job_statuses_controls_collapse"  class="btn">
+      <div class="card-header">
       <h2 class="card-title"><%= t('hyrax.base.job_statuses.actions.header') %>
         <i class="fa fa-chevron-right pull-right"></i></h2>
-    </a>
-  </div>
+          </div>
+    </button>
   <%#= form_tag main_app.hyrax_workflow_action_path(presenter), method: :put do %>
-    <div id="job_statuses_controls_collapse" class="panel-body panel-collapse collapse panel-job-statuses">
+    <div id="job_statuses_controls_collapse" class="card-body panel-collapse collapse panel-job-statuses">
       <% if @presenter.job_statuses.empty? %>
         <%= t('hyrax.base.job_statuses.empty', type: "Work" ) %>
       <% else %>
