@@ -6,7 +6,7 @@ module Aptrust
 
   class ReuploadLimitedTask < ::Aptrust::ReuploadModifiedTask
 
-    mattr_accessor :reupload_limited_task_debug_verbose, default: true
+    mattr_accessor :reupload_limited_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

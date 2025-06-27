@@ -7,7 +7,7 @@ module DataDen
 
   class ReexportReportTask < ::DataDen::ReexportModifiedTask
 
-    mattr_accessor :reexport_report_task_debug_verbose, default: true
+    mattr_accessor :reexport_report_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

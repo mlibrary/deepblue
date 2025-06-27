@@ -4,7 +4,7 @@ class ::FileSysExport::FileExportsController < ApplicationController
 
   include ::FileSysExport::FileSysExportControllerBehavior
 
-  mattr_accessor :file_exports_controller_debug_verbose, default: true
+  mattr_accessor :file_exports_controller_debug_verbose, default: false
 
   include AdminOnlyControllerBehavior
 

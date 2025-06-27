@@ -2,7 +2,7 @@
 
 module FileSysExport::FileSysExportControllerBehavior
 
-  mattr_accessor :file_sys_exports_controller_behavior_debug_verbose, default: true
+  mattr_accessor :file_sys_exports_controller_behavior_debug_verbose, default: false
 
   attr_accessor :begin_date, :end_date
   attr_accessor :noid

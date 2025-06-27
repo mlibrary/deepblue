@@ -102,6 +102,9 @@ module Hyrax
       # @param repository [Blacklight::Solr::Repository] the solr repository
       def initialize(model, current_ability, repository)
         super(model)
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if collection_form_debug_verbose
         @scope = ProxyScope.new(current_ability, repository, blacklight_config)
       end
 
@@ -157,10 +160,9 @@ module Hyrax
       end
 
       def list_child_collections
-        debug_verbose = collection_form_debug_verbose
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if debub_verbose
+                                               "" ] if collection_form_debug_verbose
         collection_member_service.available_member_subcollections.documents
       end
 

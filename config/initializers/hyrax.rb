@@ -387,7 +387,7 @@ Hyrax.config do |config|
   # config.collection_model = 'Hyrax::PcdmCollection' # collection without basic metadata
   # config.collection_model = 'CollectionResource'    # collection with basic metadata
   # config.admin_set_model = 'Hyrax::AdministrativeSet'
-
+  config.collection_model = 'Collection'
   config.disable_wings = false # hyrax5
 
 end

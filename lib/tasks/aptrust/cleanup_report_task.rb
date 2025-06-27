@@ -6,7 +6,7 @@ module Aptrust
 
   class CleanupReportTask < ::Aptrust::CleanupAllTask
 
-    mattr_accessor :cleanup_report_task_debug_verbose, default: true
+    mattr_accessor :cleanup_report_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

@@ -91,7 +91,7 @@ module Hyrax
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "override doi_redirect_after",
-                                               "" ] if doi_controller_behavior_debug_verbose
+                                               "" ] if dashboard_collections_controller_debug_verbose
         # redirect_to [main_app, curation_concern], notice: msg
         redirect_to url_for(action: 'show'), notice: msg
       end
@@ -112,16 +112,31 @@ module Hyrax
 
 
       def update
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@collection.class.name=#{@collection.class.name}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         case @collection
         when ActiveFedora::Base
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if dashboard_collections_controller_debug_verbose
           update_active_fedora_collection
         else
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "" ] if dashboard_collections_controller_debug_verbose
           update_valkyrie_collection
         end
       end
+
       # This method was monkey patched becuase we wanted the users to go back to
       # the collection page, rather than stay in Edit collection page as hyrax does.
       def update2
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "override doi_redirect_after",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         unless params[:update_collection].nil?
           process_banner_input
           process_logo_input
@@ -139,9 +154,28 @@ module Hyrax
         end
       end
 
+      def update_active_fedora_collection
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if dashboard_collections_controller_debug_verbose
+        process_member_changes
+        process_branding
+
+        @collection.visibility = Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE unless Hyrax::CollectionType.for(collection: @collection).discoverable?
+        if @collection.update(collection_params.except(:members))
+          after_update_response
+        else
+          after_update_errors(@collection.errors)
+        end
+      end
+
       ## end monkey patch overrides
 
       def destroy
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "override doi_redirect_after",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         case @collection
         when Valkyrie::Resource
           valkyrie_destroy
@@ -180,6 +214,9 @@ module Hyrax
       after_action :provenance_log_update_after, only: [:update]
 
       def curation_concern
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if dashboard_collections_controller_debug_verbose
         # @collection ||= ::PersistHelper.find(params[:id]) # hyax v2 version
         # Query Solr for the collection.
         # run the solr query to find the collection members
@@ -200,10 +237,10 @@ module Hyrax
       ## begin monkey patch banner
 
       def process_banner_input
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@collection.id = #{@collection.id}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         return update_existing_banner if params["banner_unchanged"] == "true"
         remove_banner
         uploaded_file_ids = params["banner_files"]
@@ -221,11 +258,11 @@ module Hyrax
       end
 
       def add_new_banner(uploaded_file_ids)
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "uploaded_file_ids = #{uploaded_file_ids}",
-        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@collection.id = #{@collection.id}",
+                                               "uploaded_file_ids = #{uploaded_file_ids}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         f = uploaded_files(uploaded_file_ids).first
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
@@ -243,10 +280,10 @@ module Hyrax
       end
 
       def remove_banner
-        # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-        #                                        ::Deepblue::LoggingHelper.called_from,
-        #                                        "@collection.id = #{@collection.id}",
-        #                                        "" ] if dashboard_collections_controller_debug_verbose
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "@collection.id = #{@collection.id}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
         banner_info = collection_banner_info( id: @collection.id )
         # banner_info = CollectionBrandingInfo.where(collection_id: @collection.id.to_s).where(role: "banner")
         banner_info&.delete_all

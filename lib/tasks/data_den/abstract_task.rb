@@ -13,6 +13,8 @@ module DataDen
 
   class AbstractTask < ::Deepblue::AbstractTask
 
+    mattr_accessor :data_den_abstract_aptrust_debug_verbose, default: false
+
     attr_accessor :date_begin
     attr_accessor :date_end
     attr_accessor :email_results
@@ -173,7 +175,7 @@ module DataDen
       body ||= msg_handler_queue_to_html
       ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                             "subject=#{subject}",
-                                            "body=#{body}" ] if true
+                                            "body=#{body}" ] if data_den_abstract_aptrust_debug_verbose
       email_targets.each do |email|
         email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                          subject: subject,

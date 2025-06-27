@@ -28,7 +28,7 @@ END_OF_SCHEDULER_ENTRY
 
   class AllUploadsReportTask < ::Aptrust::AbstractUploadTask
 
-    mattr_accessor :reupload_report_task_debug_verbose, default: true
+    mattr_accessor :reupload_report_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
