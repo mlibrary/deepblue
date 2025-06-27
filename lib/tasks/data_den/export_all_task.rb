@@ -28,7 +28,7 @@ END_OF_SCHEDULER_ENTRY
 
   class ExportAllTask < ::DataDen::AbstractExportTask
 
-    mattr_accessor :export_all_task_debug_verbose, default: true
+    mattr_accessor :export_all_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

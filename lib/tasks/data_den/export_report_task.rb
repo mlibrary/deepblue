@@ -6,7 +6,7 @@ module DataDen
 
   class ExportReportTask < ::DataDen::ExportTask
 
-    mattr_accessor :export_report_task_debug_verbose, default: true
+    mattr_accessor :export_report_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

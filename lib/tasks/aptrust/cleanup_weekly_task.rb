@@ -26,7 +26,7 @@ END_OF_SCHEDULER_ENTRY
 
   class CleanupWeeklyTask < ::Aptrust::CleanupAllTask
 
-    mattr_accessor :cleanup_weekly_task_debug_verbose, default: true
+    mattr_accessor :cleanup_weekly_task_debug_verbose, default: false
 
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )

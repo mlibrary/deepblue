@@ -15,6 +15,8 @@ module Aptrust
 
   class AbstractTask < ::Deepblue::AbstractTask
 
+    mattr_accessor :aptrust_abstract_aptrust_debug_verbose, default: false
+
     attr_accessor :aptrust_config
     attr_accessor :aptrust_config_file
     attr_accessor :date_begin
@@ -191,7 +193,7 @@ module Aptrust
       body ||= msg_handler_queue_to_html
       ::Deepblue::LoggingHelper.bold_puts [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                             "subject=#{subject}",
-                                            "body=#{body}" ] if true
+                                            "body=#{body}" ] if aptrust_abstract_aptrust_debug_verbose
       email_targets.each do |email|
         email_sent = ::Deepblue::EmailHelper.send_email( to: email,
                                                          subject: subject,
