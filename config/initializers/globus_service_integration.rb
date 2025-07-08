@@ -3,6 +3,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   verbose_initialization = false && Rails.configuration.program_name != 'resque-pool'
 
+  puts ">>>>> globus initalization starting..." if verbose_initialization
+
   config.globus_integration_service_debug_verbose = false
   config.globus_dashboard_controller_debug_verbose = false
   config.globus_dashboard_presenter_debug_verbose = false
@@ -11,7 +13,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
 
   # TODO: some of these are dependent and can be made readonly
 
-  config.globus_use_data_den = true # the new globus world as of 2025
+  config.globus_use_data_den = false # the new globus world as of 2025 --> use Feature Flipflop.globus_use_data_den
   # config.globus_enabled # see below
   config.globus_always_available = true # set to true to force globus to show in ui
 
@@ -37,6 +39,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
   config.globus_prep_dir = config.globus_dir.join ::Deepblue::InitializationConstants::PREP
   config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UPLOAD
   puts "globus init with hostname = #{Rails.configuration.hostname}" if verbose_initialization
+  puts "globus_always_available=#{config.globus_always_available}"
   case Rails.configuration.hostname
   when ::Deepblue::InitializationConstants::HOSTNAME_PROD
     config.globus_download_dir = config.globus_dir.join ::Deepblue::InitializationConstants::DOWNLOAD
@@ -77,20 +80,23 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_upload_dir = config.globus_dir.join ::Deepblue::InitializationConstants::UNKNOWN
     config.globus_enabled = config.globus_always_available
   end
-  puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
-  puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization
-  puts "globus_upload_dir=#{config.globus_upload_dir}" if verbose_initialization
-  puts "globus_enabled=#{config.globus_enabled}" if verbose_initialization
+  # puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
+  # puts "globus_prep_dir=#{config.globus_prep_dir}" if verbose_initialization
+  # puts "globus_upload_dir=#{config.globus_upload_dir}" if verbose_initialization
+  # puts "globus_enabled=#{config.globus_enabled}" if verbose_initialization
+  # puts "globus_export=#{config.globus_export}" if verbose_initialization
 
+  puts "globus_use_data_den=#{config.globus_use_data_den}" if verbose_initialization
   if config.globus_use_data_den
     config.globus_export = false
-    config.globus_base_file_name = ""
   else
     config.globus_export = config.globus_enabled && Dir.exist?( config.globus_download_dir ) && Dir.exist?( config.globus_prep_dir )
     config.globus_base_file_name = "DeepBlueData_"
   end
-  puts "globus_base_file_name=#{config.globus_base_file_name}" if verbose_initialization
-  puts "globus_export=#{config.globus_export}" if verbose_initialization
+
+  puts "globus final values:" if verbose_initialization
+  puts "globus_download_dir=#{config.globus_download_dir}" if verbose_initialization
+
   if config.globus_export
     begin
       FileUtils.mkdir_p config.globus_download_dir unless Dir.exist? config.globus_download_dir
@@ -109,6 +115,14 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_copy_file_permissions = "u=rw,g=rw,o=r"
     config.globus_best_used_gt_size = 3.gigabytes
     config.globus_best_used_gt_size_str = ::ConfigHelper.human_readable_size(config.globus_best_used_gt_size)
+    if verbose_initialization
+      puts "globus_restart_all_copy_jobs_quiet=#{config.globus_restart_all_copy_jobs_quiet}"
+      puts "globus_debug_delay_per_file_copy_job_seconds=#{config.globus_debug_delay_per_file_copy_job_seconds}"
+      puts "globus_after_copy_job_ui_delay_seconds=#{config.globus_after_copy_job_ui_delay_seconds}"
+      puts "globus_copy_file_permissions=#{config.globus_copy_file_permissions}"
+      puts "globus_best_used_gt_size=#{config.globus_best_used_gt_size}"
+      puts "globus_best_used_gt_size_str=#{config.globus_best_used_gt_size_str}"
+    end
   end
 
   # config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
@@ -127,5 +141,20 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_dashboard_display_all_works = false
     config.globus_dashboard_display_report = false
   end
+  if verbose_initialization
+    puts "globus_download_dir=#{config.globus_download_dir}"
+    puts "globus_prep_dir=#{config.globus_prep_dir}"
+    puts "globus_upload_dir=#{config.globus_upload_dir}"
+    puts "globus_export=#{config.globus_export}"
+    puts "globus_base_file_name=#{config.globus_base_file_name}"
+    puts "globus_base_url=#{config.globus_base_url}"
+    puts "globus_dashboard_display_all_works=#{config.globus_dashboard_display_all_works}"
+    puts "globus_dashboard_display_report=#{config.globus_dashboard_display_report}"
+    puts "globus_dashboard_controller_debug_verbose=#{config.globus_dashboard_controller_debug_verbose}"
+    puts "globus_always_available=#{config.globus_always_available}"
+    puts "globus_use_data_den=#{config.globus_use_data_den}"
+    puts "globus_enabled=#{config.globus_enabled}"
+  end
+  puts ">>>>> globus initalization finished." if verbose_initialization
 
 end

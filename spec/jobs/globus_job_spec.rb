@@ -24,6 +24,17 @@ describe GlobusJob, "GlobusJob globus_export: :true", globus_export: :true do # 
     end
   end
 
+  def self.error_file( id )
+    ::Deepblue::GlobusService.globus_error_file( id )
+  end
+
+  describe "GlobusJob#error_file" do
+    it "returns an error file." do
+      error_file = GlobusJob.error_file "id321"
+      expect( error_file ).to eq( Pathname "./data/globus/download-prep/test/.test.error.DeepBlueData_id321" )
+    end
+  end
+
   describe "GlobusJob#external_url" do
     it "returns a globus external url." do
       url = GlobusJob.external_url "id321"

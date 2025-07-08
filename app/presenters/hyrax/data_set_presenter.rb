@@ -94,10 +94,25 @@ module Hyrax
              :work_url,
              :zip_download_enabled?, to: :controller
 
-    delegate :globus_enabled?, to: :controller
-    delegate :globus_export?, to: :controller
-    delegate :globus_use_data_den?, to: :controller
     delegate :globus_always_available?, to: :controller
+    delegate :globus_base_url, to: :controller
+    delegate :globus_bounce_external_link_off_server?, to: :controller
+    delegate :globus_controller_behavior_debug_verbose, to: :controller
+    delegate :globus_controller_behavior_presenter_debug_verbose, to: :controller
+    delegate :globus_copy_complete?, to: :controller
+    delegate :globus_data_den_files_available?, to: :controller
+    delegate :globus_data_den_published_dir, to: :controller
+    delegate :globus_debug_verbose?, to: :controller
+    delegate :globus_download_enabled?, to: :controller
+    delegate :globus_enabled?, to: :controller
+    delegate :globus_error_file_exists?, to: :controller
+    delegate :globus_export?, to: :controller
+    delegate :globus_external_url, to: :controller
+    delegate :globus_files_available?, to: :controller
+    delegate :globus_files_prepping?, to: :controller
+    delegate :globus_files_target_file_name, to: :controller
+    delegate :globus_last_error_msg, to: :controller
+    delegate :globus_use_data_den?, to: :controller
 
     # def initialize( solr_document, current_ability, request = nil )
     #   ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
@@ -238,37 +253,15 @@ module Hyrax
 
     # begin globus
 
-    def globus_bounce_external_link_off_server?
-      ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server
-    end
-
-    def globus_download_enabled?
-      ::Deepblue::GlobusIntegrationService.globus_enabled
-    end
-
-    def globus_external_url
-      concern_id = @solr_document.id
-      ::Deepblue::GlobusService.globus_external_url concern_id
-    end
-
-    def globus_files_available?
-      concern_id = @solr_document.id
-      ::Deepblue::GlobusService.globus_files_available? concern_id
-    end
-
-    def globus_files_prepping?
-      concern_id = @solr_document.id
-      ::Deepblue::GlobusService.globus_files_prepping? concern_id
-    end
-
-    def globus_last_error_msg
-      concern_id = @solr_document.id
-      ::Deepblue::GlobusService.globus_error_file_contents concern_id
-    end
-
-    def globus_error_file_exists?
-      concern_id = @solr_document.id
-      ::Deepblue::GlobusService.globus_error_file_exists? concern_id
+    def globus_simple_form_link_str
+      rv = ::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')
+      return rv unless globus_debug_verbose?
+      if globus_use_data_den?
+        rv += " from DataDen"
+      else
+        rv += " from Legacy"
+      end
+      rv
     end
 
     # end globus

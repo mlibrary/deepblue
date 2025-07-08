@@ -10,6 +10,7 @@ class GlobusDashboardController < ApplicationController
   include Blacklight::AccessControls::Catalog
   include Hyrax::Breadcrumbs
   include AdminOnlyControllerBehavior
+  include ::Deepblue::GlobusControllerBehavior
 
   with_themed_layout 'dashboard'
 
@@ -24,6 +25,12 @@ class GlobusDashboardController < ApplicationController
   # attr_accessor :controller_path, :request
   # @controller_path = ''
   # @request = {}
+
+  def globus_clean_msg( dir )
+    dirs = dir.join( MsgHelper.t( 'data_set.globus_clean_join_html' ) )
+    rv = MsgHelper.t( 'data_set.globus_clean', dirs: dirs )
+    return rv
+  end
 
   def globus_status
     @globus_status ||= globus_status_init
@@ -67,7 +74,7 @@ class GlobusDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params[:work_id]=#{params[:work_id]}",
                                            "" ] if globus_dashboard_controller_debug_verbose
-    dirs = globus_clean_download( params[:work_id] )
+    dirs = globus_clean_download( id: params[:work_id] )
     redirect_to( globus_dashboard_path, notice: globus_clean_msg( dirs ) )
   end
 
@@ -76,7 +83,7 @@ class GlobusDashboardController < ApplicationController
                                            ::Deepblue::LoggingHelper.called_from,
                                            "params[:work_id]=#{params[:work_id]}",
                                            "" ] if globus_dashboard_controller_debug_verbose
-    globus_copy_job( params[:work_id] )
+    globus_copy_job( id: params[:work_id] )
     redirect_to( globus_dashboard_path, notice: "Globus copy job started for work id '#{params[:work_id]}'" )
   end
 
@@ -88,102 +95,6 @@ class GlobusDashboardController < ApplicationController
     @presenter = presenter_class.new( controller: self, current_ability: current_ability )
     @view_presenter = @presenter
     render 'hyrax/dashboard/show_globus_dashboard'
-  end
-
-  def globus_bounce_external_link_off_server?
-    ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server
-  end
-
-  def globus_copy_complete?( concern_id )
-    ::Deepblue::GlobusService.globus_copy_complete?( concern_id )
-  end
-
-  def self.globus_data_den_files_available?( concern_id )
-    ::Deepblue::GlobusService.globus_data_den_files_available?( concern_id )
-  end
-
-  def globus_copy_job( concern_id, user_email: nil )
-    ::GlobusCopyJob.perform_later( concern_id: concern_id,
-         user_email: user_email,
-         delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
-    globus_ui_delay
-  end
-
-  def globus_clean_download( concern_id )
-    ::GlobusCleanJob.perform_later( concern_id, clean_download: true )
-    dirs = []
-    dirs << ::Deepblue::GlobusService.globus_target_download_dir( concern_id )
-    dirs << ::Deepblue::GlobusService.globus_target_prep_dir( concern_id )
-    dirs << ::Deepblue::GlobusService.globus_target_prep_tmp_dir( concern_id )
-    globus_ui_delay
-    return dirs
-  end
-
-  def globus_clean_msg( dir )
-    dirs = dir.join( MsgHelper.t( 'data_set.globus_clean_join_html' ) )
-    rv = MsgHelper.t( 'data_set.globus_clean', dirs: dirs )
-    return rv
-  end
-
-  def globus_clean_prep( concern_id )
-    ::GlobusCleanJob.perform_later( concern_id, clean_download: false )
-    globus_ui_delay
-  end
-
-  def globus_download_enabled?
-    ::Deepblue::GlobusIntegrationService.globus_enabled
-  end
-
-  def globus_download_dir_du( concern_id: )
-    ::Deepblue::GlobusService.globus_download_dir_du( concern_id: concern_id )
-  end
-
-  def globus_prep_dir_du( concern_id: )
-    ::Deepblue::GlobusService.globus_prep_dir_du( concern_id: concern_id )
-  end
-
-  def globus_prep_tmp_dir_du( concern_id: )
-    ::Deepblue::GlobusService.globus_prep_tmp_dir_du( concern_id: concern_id )
-  end
-
-  def globus_enabled?
-    ::Deepblue::GlobusIntegrationService.globus_enabled
-  end
-
-  def globus_use_data_den?
-    ::Deepblue::GlobusIntegrationService.globus_use_data_den
-  end
-
-  def globus_always_available?
-    ::Deepblue::GlobusIntegrationService.globus_always_available
-  end
-
-  def globus_error_file_exists?( concern_id )
-    ::Deepblue::GlobusService.globus_error_file_exists? concern_id
-  end
-
-  def globus_external_url( concern_id )
-    ::Deepblue::GlobusService.globus_external_url concern_id
-  end
-
-  def globus_files_available?( concern_id )
-    ::Deepblue::GlobusService.globus_files_available? concern_id
-  end
-
-  def globus_files_prepping?( concern_id )
-    ::Deepblue::GlobusService.globus_files_prepping? concern_id
-  end
-
-  def globus_last_error_msg( concern_id )
-    ::Deepblue::GlobusService.globus_error_file_contents concern_id
-  end
-
-  def globus_locked?( concern_id )
-    ::Deepblue::GlobusService.globus_locked?( concern_id )
-  end
-
-  def globus_ui_delay( delay_seconds: ::Deepblue::GlobusIntegrationService.globus_after_copy_job_ui_delay_seconds )
-    sleep delay_seconds if delay_seconds.positive?
   end
 
 end

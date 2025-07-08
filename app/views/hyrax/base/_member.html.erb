@@ -55,6 +55,7 @@
     <td class="attribute attribute-permission"><%= member.permission_badge %></td>
     <td>
       <% if !Flipflop.disable_desposits_and_edits? %>
+        <!-- render hyrax/file_sets/_actions -->
         <%= render 'hyrax/file_sets/actions', member: member %>
       <% else %>
         &nbsp;

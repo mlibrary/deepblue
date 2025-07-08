@@ -28,7 +28,7 @@ module Deepblue
     mattr_accessor :globus_dashboard_controller_debug_verbose, default: false
     mattr_accessor :globus_dashboard_presenter_debug_verbose,  default: false
 
-    mattr_accessor :globus_use_data_den,                       default: true  # the new globus world as of 2025
+    mattr_accessor :globus_use_data_den,                       default: false  # the new globus world as of 2025
     mattr_accessor :globus_enabled,                            default: false
     mattr_accessor :globus_always_available,                   default: true # set to true to force globus to show in ui
     mattr_accessor :globus_export,                             default: false # old globus export mechanism
