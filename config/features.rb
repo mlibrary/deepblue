@@ -28,12 +28,19 @@ Flipflop.configure do
             default: false,
             description: "Allow user to upload files for work from a directory."
 
-
     feature :enable_local_analytics_ui,
             default: false,
             # reference to I18n does not work from here:
             # description: I18n.t( "flipflop.feature_description.enable_local_analytics_ui" )
             description: "Enable local analytics access through the UI."
+
+    feature :globus_debug_verbose,
+            default: false,
+            description: "Globus debug verbose."
+
+    feature :globus_use_data_den,
+            default: false,
+            description: "Globus uses DataDen."
 
     feature :open_analytics_report_subscriptions,
             default: false,

@@ -7,22 +7,32 @@ class GlobusDashboardPresenter
   mattr_accessor :globus_dashboard_presenter_debug_verbose,
                  default: ::Deepblue::GlobusIntegrationService.globus_dashboard_presenter_debug_verbose
 
-  delegate :globus_status, to: :controller
-
-  delegate :globus_copy_complete?, to: :controller
   delegate :globus_du_for, to: :controller
   delegate :globus_download_dir_du, to: :controller
   delegate :globus_prep_dir_du, to: :controller
   delegate :globus_prep_tmp_dir_du, to: :controller
-  delegate :globus_enabled?, to: :controller
-  delegate :globus_use_data_den?, to: :controller
+  delegate :globus_locked?, to: :controller
+  delegate :globus_status, to: :controller
+
   delegate :globus_always_available?, to: :controller
+  delegate :globus_base_url, to: :controller
+  delegate :globus_bounce_external_link_off_server?, to: :controller
+  delegate :globus_controller_behavior_debug_verbose, to: :controller
+  delegate :globus_controller_behavior_presenter_debug_verbose, to: :controller
+  delegate :globus_copy_complete?, to: :controller
+  delegate :globus_debug_verbose?, to: :controller
+  delegate :globus_data_den_files_available?, to: :controller
+  delegate :globus_data_den_published_dir, to: :controller
+  delegate :globus_download_enabled?, to: :controller
+  delegate :globus_enabled?, to: :controller
   delegate :globus_error_file_exists?, to: :controller
+  delegate :globus_export?, to: :controller
   delegate :globus_external_url, to: :controller
   delegate :globus_files_available?, to: :controller
   delegate :globus_files_prepping?, to: :controller
+  delegate :globus_files_target_file_name, to: :controller
   delegate :globus_last_error_msg, to: :controller
-  delegate :globus_locked?, to: :controller
+  delegate :globus_use_data_den?, to: :controller
 
   attr_accessor :controller, :current_ability
 
@@ -30,6 +40,17 @@ class GlobusDashboardPresenter
     @controller = controller
     @current_ability = current_ability
     @id_to_work_map = {}
+  end
+
+  def globus_simple_form_link_str
+    rv = ::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')
+    return rv unless globus_debug_verbose?
+    if globus_use_data_den?
+      rv += " from DataDen"
+    else
+      rv += " from Legacy"
+    end
+    rv
   end
 
   def run_button

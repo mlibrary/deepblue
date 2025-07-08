@@ -14,6 +14,7 @@ module Hyrax
     include ::Deepblue::WorksControllerBehavior
     include ::Deepblue::ZipDownloadControllerBehavior
     include IrusAnalytics::Controller::AnalyticsBehaviour
+    include ::Deepblue::GlobusControllerBehavior
 
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
@@ -514,148 +515,6 @@ module Hyrax
 
     ## Globus
 
-    def globus_add_email
-      if user_signed_in?
-        user_email = Deepblue::EmailHelper.user_email_from( current_user )
-        globus_copy_job( user_email: user_email, delay_per_file_seconds: 0 )
-        flash_and_go_back globus_files_prepping_msg( user_email: user_email )
-        # msg = globus_files_prepping_msg( user_email: user_email )
-        # redirect_to [main_app, curation_concern], notice: msg
-      elsif params[:user_email_one].present? || params[:user_email_two].present?
-        user_email_one = params[:user_email_one].present? ? params[:user_email_one].strip : ''
-        user_email_two = params[:user_email_two].present? ? params[:user_email_two].strip : ''
-        # if user_email_one === user_email_two
-        if user_email_one == user_email_two
-          globus_copy_job( user_email: user_email_one, delay_per_file_seconds: 0 )
-          flash_and_redirect_to_main_cc globus_files_prepping_msg( user_email: user_email_one )
-        else
-          flash.now[:error] = emails_did_not_match_msg( user_email_one, user_email_two )
-          render 'globus_download_add_email_form'
-        end
-      else
-        flash_and_redirect_to_main_cc globus_status_msg
-      end
-    end
-
-    def globus_clean_download
-      ::GlobusCleanJob.perform_later( curation_concern.id, clean_download: true )
-      globus_ui_delay
-      dirs = []
-      dirs << ::Deepblue::GlobusService.globus_target_download_dir( curation_concern.id )
-      dirs << ::Deepblue::GlobusService.globus_target_prep_dir( curation_concern.id )
-      dirs << ::Deepblue::GlobusService.globus_target_prep_tmp_dir( curation_concern.id )
-      flash_and_redirect_to_main_cc globus_clean_msg( dirs )
-    end
-
-    def globus_clean_prep
-      ::GlobusCleanJob.perform_later( curation_concern.id, clean_download: false )
-      globus_ui_delay
-    end
-
-    def globus_complete?
-      ::Deepblue::GlobusService.globus_copy_complete? curation_concern.id
-    end
-
-    def globus_copy_job( user_email: nil,
-                         delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
-
-      ::GlobusCopyJob.perform_later( concern_id: curation_concern.id,
-                                     user_email: user_email,
-                                     delay_per_file_seconds: delay_per_file_seconds )
-      globus_ui_delay
-    end
-
-    def globus_download
-      if globus_complete?
-        flash_and_redirect_to_main_cc globus_files_available_here
-      else
-        user_email = Deepblue::EmailHelper.user_email_from( current_user, user_signed_in: user_signed_in? )
-        msg = if globus_prepping?
-                globus_files_prepping_msg( user_email: user_email )
-              else
-                globus_file_prep_started_msg( user_email: user_email )
-              end
-        if user_signed_in?
-          globus_copy_job( user_email: user_email )
-          flash_and_redirect_to_main_cc msg
-        else
-          globus_copy_job( user_email: nil )
-          render 'globus_download_notify_me_form'
-        end
-      end
-    end
-
-    def globus_download_add_email
-      if user_signed_in?
-        globus_add_email
-      else
-        render 'globus_download_add_email_form'
-      end
-    end
-
-    def globus_download_enabled?
-      ::Deepblue::GlobusIntegrationService.globus_enabled
-    end
-
-    def globus_download_redirect
-      redirect_to ::Deepblue::GlobusService.globus_external_url( params[:id] )
-    end
-
-    def globus_download_notify_me
-      if user_signed_in?
-        user_email = Deepblue::EmailHelper.user_email_from( current_user )
-        globus_copy_job( user_email: user_email )
-        flash_and_go_back globus_file_prep_started_msg( user_email: user_email )
-      elsif params[:user_email_one].present? || params[:user_email_two].present?
-        user_email_one = params[:user_email_one].present? ? params[:user_email_one].strip : ''
-        user_email_two = params[:user_email_two].present? ? params[:user_email_two].strip : ''
-        # if user_email_one === user_email_two
-        if user_email_one == user_email_two
-          globus_copy_job( user_email: user_email_one )
-          flash_and_redirect_to_main_cc globus_file_prep_started_msg( user_email: user_email_one )
-        else
-          # flash_and_go_back emails_did_not_match_msg( user_email_one, user_email_two )
-          flash.now[:error] = emails_did_not_match_msg( user_email_one, user_email_two )
-          render 'globus_download_notify_me_form'
-        end
-      else
-        globus_copy_job( user_email: nil )
-        flash_and_redirect_to_main_cc globus_file_prep_started_msg
-      end
-    end
-
-    def globus_enabled?
-      ::Deepblue::GlobusIntegrationService.globus_enabled
-    end
-
-    def globus_export?
-      ::Deepblue::GlobusIntegrationService.globus_export
-    end
-
-    def globus_use_data_den?
-      ::Deepblue::GlobusIntegrationService.globus_use_data_den
-    end
-
-    def globus_always_available?
-      ::Deepblue::GlobusIntegrationService.globus_always_available
-    end
-
-    def globus_last_error_msg
-      ::Deepblue::GlobusService.globus_error_file_contents curation_concern.id
-    end
-
-    def globus_prepping?
-      ::Deepblue::GlobusService.globus_files_prepping? curation_concern.id
-    end
-
-    def globus_ui_delay( delay_seconds: ::Deepblue::GlobusIntegrationService.globus_after_copy_job_ui_delay_seconds )
-      sleep delay_seconds if delay_seconds.positive?
-    end
-
-    def globus_url
-      ::Deepblue::GlobusService.globus_external_url curation_concern.id
-    end
-
     ## end Globus
 
 
@@ -873,13 +732,13 @@ module Hyrax
       end
 
       def globus_files_available_here
-        MsgHelper.t!( 'data_set.globus_files_available_here', globus_url: globus_url.to_s )
+        MsgHelper.t!( 'data_set.globus_files_available_here', globus_url: globus_url( params[:id] ) )
       end
 
       def globus_status_msg( user_email: nil )
         msg = if globus_complete?
                 globus_files_available_here
-              elsif globus_prepping?
+              elsif globus_prepping?( params[:id] )
                 globus_files_prepping_msg( user_email: user_email )
               else
                 globus_file_prep_started_msg( user_email: user_email )

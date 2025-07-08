@@ -26,9 +26,9 @@
         <td><%= @view_presenter.globus_error_file_exists?( work.id ) %></td>
         <td><%= @view_presenter.globus_files_prepping?( work.id ) %></td>
         <td><%= @view_presenter.globus_locked?( work.id ) %></td>
-        <td><%= @view_presenter.globus_download_dir_du( concern_id: work.id ) %></td>
-        <td><%= @view_presenter.globus_prep_dir_du( concern_id: work.id ) %></td>
-        <td><%= @view_presenter.globus_prep_tmp_dir_du( concern_id: work.id ) %></td>
+        <td><%= @view_presenter.globus_download_dir_du( cc_id: work.id ) %></td>
+        <td><%= @view_presenter.globus_prep_dir_du( work.id ) %></td>
+        <td><%= @view_presenter.globus_prep_tmp_dir_du( work.id ) %></td>
         <td><%= @view_presenter.globus_last_error_msg( work.id ) %></td>
         <td>
           <%= submit_tag( t('hyrax.globus.submit.clean'), class: 'btn btn-primary', id: "clean_#{work.id}" ) %>&nbsp;

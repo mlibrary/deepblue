@@ -44,40 +44,99 @@
               <% end %>
             <% end %>
           <% end %>
+          <% if @presenter.globus_debug_verbose? %>
+          <div>
+            <ul>
+              <li>_show_actions</li>
+              <li>@presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %></li>
+              <li>@presenter.globus_enabled? = <%= @presenter&.globus_enabled? %></li>
+              <li>@presenter.embargoed? = <%= @presenter.embargoed? %></li>
+              <li>@presenter.globus_files_available? @presenter.id = <%= @presenter.globus_files_available? @presenter.id %></li>
+              <li>@presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %></li>
+              <li>@presenter.globus_data_den_files_available? @presenter.id = <%= @presenter.globus_data_den_files_available? @presenter.id %></li>
+              <li>@presenter.globus_data_den_published_dir @presenter.id = <%= @presenter.globus_data_den_published_dir @presenter.id %></li>
+              <li>@presenter.globus_files_prepping? @presenter.id = <%= @presenter.globus_files_prepping? @presenter.id %></li>
+              <li>@presenter.globus_external_url @presenter.id = <%= @presenter.globus_external_url @presenter.id %></li>
+              <li>@presenter.globus_files_target_file_name @presenter.id = <%= @presenter.globus_files_target_file_name @presenter.id %></li>
+              <li>::Deepblue::GlobusIntegrationService.globus_dir_modifier = <%= ::Deepblue::GlobusIntegrationService.globus_dir_modifier %></li>
+              <li>::Deepblue::GlobusIntegrationService.globus_upload_dir = <%= ::Deepblue::GlobusIntegrationService.globus_upload_dir %></li>
+              <li>FileSysExportService.pair_path( noid: @presenter.id ) = <%= FileSysExportService.pair_path( noid: @presenter.id ) %></li>
+              <li>@presenter&.globus_use_data_den?=<%= @presenter&.globus_use_data_den? %></li>
+            </ul>
+          </div>
           <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "@presenter.class.name=#{@presenter.class.name}",
                                                    "@presenter&.id=#{@presenter&.id}",
+                                                   "@presenter&.globus_use_data_den?=#{@presenter&.globus_use_data_den?}",
                                                    "@presenter.can_download_using_globus_maybe?=#{@presenter.can_download_using_globus_maybe?}",
-                                                   "@presenter.globus_files_available?=#{@presenter.globus_files_available?}",
-                                                   "@presenter.globus_files_prepping?=#{@presenter.globus_files_prepping?}",
                                                    ""], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE %>
-          <% if @presenter.can_download_using_globus_maybe? %>
+          <% end %>
+          <% if @presenter&.globus_use_data_den? %>
+            <p>Filter by published works / works that have been exported to DataDen published directory.</p>
             <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
               <%= hidden_field_tag('data_set[nop]') %>
-              <% if @presenter.globus_files_available? %>
+              <p> &nbsp;
+                <% if @presenter.globus_bounce_external_link_off_server? %>
+                  <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
+                <% else %>
+                  <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+                <% end %>
+                <br/>
+                <%= link_to @presenter.globus_simple_form_link_str,
+                            use_globus_url,
+                            class: 'btn btn-primary',
+                            target: "_blank",
+                            title: @presenter.globus_simple_form_link_str %>
+                <br/>
+                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
+                <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
+                  <%= t('simple_form.hints.data_set.globus_help') %>
+                </a>
+              </p>
+            <% end %>
+            <% if @presenter.current_ability.admin? %>
+              <% last_globus_error = @presenter.globus_last_error_msg @presenter.id %>
+              <% if last_globus_error %>
+                <p><%= "Last globus error: #{last_globus_error}" %></p>
+              <% end %>
+              <% if @presenter.globus_files_available?(@presenter.id) || @presenter.globus_error_file_exists?(@presenter.id) %>
+                <%= form_tag( main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete' ) do %>
+                  <br/>
+                  <%= hidden_field_tag('data_set[nop]') %>
+                  <%= submit_tag(t('simple_form.actions.data_set.globus_clean_download'),
+                                 class: 'btn btn-primary',
+                                 data: {confirm: t('simple_form.confirm.data_set.delete_all_globus_download_files')}) %>
+                <% end %>
+              <% end %>
+            <% end %>
+          <% elsif @presenter.can_download_using_globus_maybe? %>
+            <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+              <%= hidden_field_tag('data_set[nop]') %>
+              <% if @presenter.globus_files_available?(@presenter.id) %>
                 <p><%= t('simple_form.hints.data_set.globus_files_are_ready') %> &nbsp;
                   <% if @presenter.globus_bounce_external_link_off_server? %>
-                    <%= link_to t('simple_form.hints.data_set.globus_link'),
-                                main_app.globus_download_redirect_hyrax_data_set_path(@presenter.id),
-                                class: 'btn btn-primary',
-                                target: "_blank",
-
-                                title: t('simple_form.hints.data_set.globus_link') %>
+                    <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path(@presenter.id) %>
                   <% else %>
-                    <%= link_to t('simple_form.hints.data_set.globus_link'),
-                                @presenter.globus_external_url,
-                                class: 'btn btn-primary',
-                                target: "_blank",
-                                title: t('simple_form.hints.data_set.globus_link') %>
+                    <% use_globus_url = @presenter.globus_external_url @presenter.id %>
                   <% end %>
                   <br/>
                   <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                   <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
                     <%= t('simple_form.hints.data_set.globus_help') %>
                   </a>
+                  <%= link_to @presenter.globus_simple_form_link_str,
+                              use_globus_url,
+                              class: 'btn btn-primary',
+                              target: "_blank",
+                              title: @presenter.globus_simple_form_link_str %>
+                  <br/>
+                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
+                  <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
+                    <%= t('simple_form.hints.data_set.globus_help') %>
+                  </a>
                 </p>
-              <% elsif !@presenter.globus_files_prepping? %>
+              <% elsif !@presenter.globus_files_prepping? @presenter.id %>
                 <% if @presenter.globus_export? %>
                 <br/>
                 <%= submit_tag(t('simple_form.actions.data_set.globus_download'),
@@ -91,11 +150,11 @@
               <% end %>
             <% end %>
             <% if @presenter.current_ability.admin? %>
-              <% last_globus_error = @presenter.globus_last_error_msg %>
+              <% last_globus_error = @presenter.globus_last_error_msg @presenter.id %>
               <% if last_globus_error %>
                 <p><%= "Last globus error: #{last_globus_error}" %></p>
               <% end %>
-              <% if @presenter.globus_files_available? || @presenter.globus_error_file_exists? %>
+              <% if @presenter.globus_files_available?(@presenter.id) || @presenter.globus_error_file_exists?(@presenter.id) %>
                 <%= form_tag( main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete' ) do %>
                   <br/>
                   <%= hidden_field_tag('data_set[nop]') %>
@@ -105,7 +164,7 @@
                 <% end %>
               <% end %>
             <% end %>
-            <% if @presenter.globus_files_prepping? %>
+            <% if @presenter.globus_files_prepping? @presenter.id %>
               <% if @presenter.globus_export? %>
               <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
                 <br/>

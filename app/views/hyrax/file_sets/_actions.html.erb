@@ -67,61 +67,51 @@
         <%= link_to t('.view_details'), member.show_path_link( main_app: main_app ), method: :get %>
       </li>
     <% end %>
-
-    <% if member. can_download_file_maybe? %>
-
-      <% unless member.file_size_too_large_to_download? %>
-          <li role="menuitem" tabindex="-1">
-          <%= link_to t('.download'),
-                      @presenter.download_path_link( main_app: main_app, curation_concern: member ),
-                      title: t('.download_title', file_set: member),
-                      target: "_blank",
-                      id: "file_download",
-                      data: { label: member.id } %>
+    <% if false && member.can_download_file_maybe? && member.file_size_too_large_to_download? %>
+      <li role="menuitem" tabindex="-1">
+        <%= link_to t('.download'),
+                    @presenter.download_path_link( main_app: main_app, curation_concern: member ),
+                    title: t('.download_title', file_set: member),
+                    target: "_blank",
+                    id: "file_download",
+                    data: { label: member.id } %>
+      </li>
+    <% end %>
+    <% if false && @presenter&.globus_use_data_den? %>
+      <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+        <%= hidden_field_tag('data_set[nop]') %>
+        <% if @presenter.globus_bounce_external_link_off_server? %>
+          <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
+        <% else %>
+          <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+        <% end %>
+        <li role="menuitem" tabindex="-1">
+        <%= link_to @presenter.globus_simple_form_link_str,
+                    use_globus_url,
+                    class: 'btn btn-primary',
+                    target: "_blank",
+                    title: @presenter.globus_simple_form_link_str %>
         </li>
-      <% else %>
-
-        <% if @presenter.respond_to?( 'globus_enabled?' ) &&
-            @presenter.globus_enabled? &&
-            !@presenter.embargoed? %>
-
-          <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-            <%= hidden_field_tag('data_set[nop]') %>
-            <% if @presenter.globus_files_available? %>
-              <% if @presenter.globus_bounce_external_link_off_server? %>
-                <%= link_to t('simple_form.hints.data_set.globus_link'),
-                            main_app.globus_download_redirect_hyrax_data_set_path(@presenter.id),
-                            class: 'btn btn-primary',
-                            target: "_blank",
-                            title: t('simple_form.hints.data_set.globus_link') %>
-              <% else %>
-                  <%= link_to t('simple_form.hints.data_set.globus_link'),
-                              @presenter.globus_external_url,
-                              class: 'btn btn-primary',
-                              target: "_blank",
-                              title: t('simple_form.hints.data_set.globus_link') %>
-              <% end %>
-              <br/>
-            <% elsif !@presenter.globus_files_prepping? %>
-              <% if @presenter.globus_export? %>
-              <br/>
-              <%= submit_tag(t('simple_form.actions.data_set.globus_download'), class: 'btn btn-primary') %>
-              <br/>
-              <% end %>
+      <% end %>
+    <% elsif false && member.can_download_file_maybe? %>
+      <% if @presenter.respond_to?( 'globus_enabled?' ) && @presenter.globus_enabled? && !@presenter.embargoed? %>
+        <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+          <%= hidden_field_tag('data_set[nop]') %>
+          <% if @presenter.globus_files_available?(@presenter.id) %>
+            <% if @presenter.globus_bounce_external_link_off_server? %>
+              <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
+            <% else %>
+              <% use_globus_url = @presenter.globus_external_url @presenter.id %>
             <% end %>
-          <% end %>
-          <% if @presenter.globus_files_prepping? %>
-            <% if @presenter.globus_export? %>
-            <%= form_tag( main_app.globus_download_add_email_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-              <br/>
-              <%= hidden_field_tag('data_set[nop]') %>
-              <%= submit_tag(t('simple_form.actions.data_set.globus_download_add_email'), class: 'btn btn-primary') %>
-              <br/>
-            <% end %>
-            <% end %>
+            <li role="menuitem" tabindex="-1">
+            <%= link_to @presenter.globus_simple_form_link_str,
+                        use_globus_url,
+                        class: 'btn btn-primary',
+                        target: "_blank",
+                        title: @presenter.globus_simple_form_link_str %>
+            </li>
           <% end %>
         <% end %>
-
       <% end %>
     <% end %>
 

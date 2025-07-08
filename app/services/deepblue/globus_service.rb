@@ -4,6 +4,15 @@ module Deepblue
 
   module GlobusService
 
+    mattr_accessor :globus_service_debug_verbose, default: false
+
+    def self.file_sys_export( id: )
+      rec = FileSysExport.for_id( noid: noid )
+      return nil unless rec.present?
+      rec = rec[0]
+      return rec
+    end
+
     def self.get_du( path: )
       path = path.to_s # in case its a Pathname
       return ['N/A', path] unless File.exist? path
@@ -21,6 +30,18 @@ module Deepblue
       return rv.flatten
     end
 
+    def self.globus_always_available?
+      ::Deepblue::GlobusIntegrationService.globus_always_available
+    end
+
+    def self.globus_base_url
+      ::Deepblue::GlobusIntegrationService.globus_base_url
+    end
+
+    def self.globus_bounce_external_link_off_server?
+      ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server
+    end
+
     def self.globus_copy_complete?( id )
       return false unless globus_enabled?
       return true unless globus_export?
@@ -30,13 +51,28 @@ module Deepblue
     end
 
     def self.globus_data_den_files_available?( id )
-      return false unless ::Deepblue::GlobusIntegrationService.globus_use_data_den
-      # TODO: use id to figure out path, and check for existence
-      return false
+      return false unless globus_use_data_den?
+      rec = FileSysExport.for_id( noid: id )
+      return false unless rec.present?
+      rec = rec[0]
+      return false unless rec.published
+      return true
     end
 
-    def self.globus_download_dir_du( concern_id: )
-      dir = globus_target_download_dir( concern_id )
+    def self.globus_debug_verbose?
+      Flipflop.globus_debug_verbose? || ::Deepblue::GlobusService::globus_service_debug_verbose
+    end
+
+    def self.globus_data_den_published_dir( cc_id )
+      FileSysExportIntegrationService.data_den_base_path_published + FileSysExportService.pair_path( noid: cc_id )
+    end
+
+    def self.globus_download_enabled?
+      ::Deepblue::GlobusIntegrationService.globus_enabled
+    end
+
+    def self.globus_download_dir_du( cc_id: )
+      dir = globus_target_download_dir( cc_id )
       rv = get_du( path: dir ).first
       rv
     end
@@ -71,11 +107,17 @@ module Deepblue
     end
 
     def self.globus_external_url( id )
-      globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
-      globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
-      file_name = globus_files_target_file_name(id)
-      return "#{globus_base_url}#{globus_dir_modifier}%2F#{file_name}%2F" if globus_dir_modifier.present?
-      "#{globus_base_url}#{globus_files_target_file_name(id)}%2F"
+      if globus_use_data_den?
+        globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
+        file_name = globus_files_target_file_name( id )
+        "#{globus_base_url}#{globus_dir_modifier}#{file_name}"
+      else
+        globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
+        globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
+        file_name = globus_files_target_file_name(id)
+        return "#{globus_base_url}#{globus_dir_modifier}%2F#{file_name}%2F" if globus_dir_modifier.present?
+        "#{globus_base_url}#{globus_files_target_file_name(id)}%2F"
+      end
     end
 
     def self.globus_enabled?
@@ -87,7 +129,7 @@ module Deepblue
     end
 
     def self.globus_use_data_den?
-      return ::Deepblue::GlobusIntegrationService.globus_use_data_den
+      return Flipflop.globus_use_data_den? # && ::Deepblue::GlobusIntegrationService.globus_use_data_den
     end
 
     def self.globus_files_available?( concern_id )
@@ -102,8 +144,14 @@ module Deepblue
       rv
     end
 
-    def self.globus_files_target_file_name( id = '' )
-      "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}"
+    def self.globus_files_target_file_name( id )
+      if globus_use_data_den?
+        data_den_path = FileSysExportService.pair_path( noid: id )
+        data_den_path.gsub!( '/', '%2F' )
+        "%2F#{data_den_path}"
+      else
+        "#{::Deepblue::GlobusIntegrationService.globus_base_file_name}#{id}"
+      end
     end
 
     def self.globus_job_complete?( concern_id:, debug_verbose: globus_integration_service_debug_verbose )
@@ -139,12 +187,12 @@ module Deepblue
                                    globus_target_base_name( id ) )
     end
 
-    def self.globus_locked?( concern_id, log_prefix: '', quiet: true )
-      return false if globus_error_file_exists?( concern_id,
+    def self.globus_locked?( cc_id, log_prefix: '', quiet: true )
+      return false if globus_error_file_exists?( cc_id,
                                                  write_error_to_log: true,
                                                  log_prefix: log_prefix,
                                                  quiet: quiet )
-      lock_file = globus_lock_file concern_id
+      lock_file = globus_lock_file cc_id
       return false unless File.exist? lock_file
       current_token = ::GlobusJob.era_token
       lock_token = globus_read_token lock_file
@@ -153,16 +201,16 @@ module Deepblue
       rv
     end
 
-    def self.globus_prep_dir_du( concern_id: )
-      dir = globus_target_prep_dir( concern_id )
+    def self.globus_prep_dir_du( cc_id )
+      dir = globus_target_prep_dir( cc_id )
       return get_du( path: dir ).first if File.exist? dir
-      dir = globus_target_prep_dir( concern_id, prefix: nil )
+      dir = globus_target_prep_dir( cc_id, prefix: nil )
       rv = get_du( path: dir ).first
       # get_du2( paths: [globus_target_prep_dir( concern_id ), globus_target_prep_dir( concern_id, prefix: nil )] )
       rv
     end
 
-    def self.globus_prep_tmp_dir_du( concern_id: )
+    def self.globus_prep_tmp_dir_du( concern_id )
       dir = globus_target_prep_tmp_dir( concern_id )
       return get_du( path: dir ).first if File.exist? dir
       dir = globus_target_prep_tmp_dir( concern_id, prefix: nil )
@@ -197,6 +245,17 @@ module Deepblue
       rv = GlobusStatus.new( msg_handler: msg_handler, skip_ready: errors_report, auto_populate: false )
       rv.populate
       return rv.reporter
+    end
+
+    def self.globus_simple_form_link_str
+      rv = ::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')
+      return rv unless globus_debug_verbose?
+      if globus_use_data_den?
+        rv += " from DataDen"
+      else
+        rv += " from Legacy"
+      end
+      rv
     end
 
     def self.globus_target_base_name( id = '', prefix: '', postfix: '' )

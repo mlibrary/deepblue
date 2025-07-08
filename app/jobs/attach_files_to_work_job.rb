@@ -177,7 +177,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     def file_stats( uploaded_file )
       file_set_id = ::PersistHelper.uri_to_id uploaded_file.file_set_uri
       file_set = FileSet.find file_set_id
-      file_name = file_set.original_filename
+      file_name = file_set&.original_file&.original_name # file_set.original_filename
       file_name = File.basename( Deepblue::UploadHelper.uploaded_file_path( uploaded_file ) ) if file_name.blank?
       return file_name, file_set.file_size_value
     rescue Exception => e # rubocop:disable Lint/RescueException

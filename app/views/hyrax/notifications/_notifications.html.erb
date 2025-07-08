@@ -15,7 +15,6 @@
             <td>
                 <%= DeepblueHelper.display_timestamp msg.last_message.created_at %>
             </td>
-            <td><%= msg.last_message.subject.html_safe %></td>
             <td><%= DeepbluePresenterHelper.fix_email_protected_hack( msg.last_message.body ).html_safe %></td>
             <td>
               <%= link_to hyrax.notification_path(msg.id),
