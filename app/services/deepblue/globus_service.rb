@@ -13,6 +13,12 @@ module Deepblue
       return rec
     end
 
+    def self.file_sys_export_record( id: )
+      rec = FileSysExport.for_id( noid: id )
+      return [] unless rec.present?
+      FileSysExport.csv_row( rec )
+    end
+
     def self.get_du( path: )
       path = path.to_s # in case its a Pathname
       return ['N/A', path] unless File.exist? path
