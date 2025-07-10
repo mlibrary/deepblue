@@ -48,20 +48,24 @@
           <div>
             <ul>
               <li>_show_actions</li>
-              <li>@presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %></li>
-              <li>@presenter.globus_enabled? = <%= @presenter&.globus_enabled? %></li>
+              <li>@presenter.deposited? = <%= @presenter.deposited? %></li>
               <li>@presenter.embargoed? = <%= @presenter.embargoed? %></li>
+              <li>@presenter.globus_enabled? = <%= @presenter&.globus_enabled? %></li>
+              <li>@presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %></li>
               <li>@presenter.globus_files_available? @presenter.id = <%= @presenter.globus_files_available? @presenter.id %></li>
               <li>@presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %></li>
-              <li>@presenter.globus_data_den_files_available? @presenter.id = <%= @presenter.globus_data_den_files_available? @presenter.id %></li>
-              <li>@presenter.globus_data_den_published_dir @presenter.id = <%= @presenter.globus_data_den_published_dir @presenter.id %></li>
               <li>@presenter.globus_files_prepping? @presenter.id = <%= @presenter.globus_files_prepping? @presenter.id %></li>
               <li>@presenter.globus_external_url @presenter.id = <%= @presenter.globus_external_url @presenter.id %></li>
               <li>@presenter.globus_files_target_file_name @presenter.id = <%= @presenter.globus_files_target_file_name @presenter.id %></li>
               <li>::Deepblue::GlobusIntegrationService.globus_dir_modifier = <%= ::Deepblue::GlobusIntegrationService.globus_dir_modifier %></li>
               <li>::Deepblue::GlobusIntegrationService.globus_upload_dir = <%= ::Deepblue::GlobusIntegrationService.globus_upload_dir %></li>
-              <li>FileSysExportService.pair_path( noid: @presenter.id ) = <%= FileSysExportService.pair_path( noid: @presenter.id ) %></li>
               <li>@presenter&.globus_use_data_den?=<%= @presenter&.globus_use_data_den? %></li>
+              <% if @presenter.globus_use_data_den? %>
+                <li>FileSysExportService.pair_path( noid: @presenter.id ) = <%= FileSysExportService.pair_path( noid: @presenter.id ) %></li>
+                <li>@presenter.file_sys_export_record( id: @presenter.id ) = <%= @presenter.file_sys_export_record( id: @presenter.id ) %></li>
+                <li>@presenter.globus_data_den_published_dir @presenter.id = <%= @presenter.globus_data_den_published_dir @presenter.id %></li>
+                <li>@presenter.globus_data_den_files_available? @presenter.id = <%= @presenter.globus_data_den_files_available? @presenter.id %></li>
+              <% end %>
             </ul>
           </div>
           <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
@@ -73,41 +77,28 @@
                                                    ""], bold_puts: show_actions_BOLD_PUTS if show_actions_DEBUG_VERBOSE %>
           <% end %>
           <% if @presenter&.globus_use_data_den? %>
-            <p>Filter by published works / works that have been exported to DataDen published directory.</p>
-            <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
-              <%= hidden_field_tag('data_set[nop]') %>
-              <p> &nbsp;
-                <% if @presenter.globus_bounce_external_link_off_server? %>
-                  <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
-                <% else %>
-                  <% use_globus_url = @presenter.globus_external_url @presenter.id %>
-                <% end %>
-                <br/>
-                <%= link_to @presenter.globus_simple_form_link_str,
-                            use_globus_url,
-                            class: 'btn btn-primary',
-                            target: "_blank",
-                            title: @presenter.globus_simple_form_link_str %>
-                <br/>
-                <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
-                <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
-                  <%= t('simple_form.hints.data_set.globus_help') %>
-                </a>
-              </p>
-            <% end %>
-            <% if @presenter.current_ability.admin? %>
-              <% last_globus_error = @presenter.globus_last_error_msg @presenter.id %>
-              <% if last_globus_error %>
-                <p><%= "Last globus error: #{last_globus_error}" %></p>
-              <% end %>
-              <% if @presenter.globus_files_available?(@presenter.id) || @presenter.globus_error_file_exists?(@presenter.id) %>
-                <%= form_tag( main_app.globus_clean_download_hyrax_data_set_path(@presenter.id), method: 'delete' ) do %>
+            <% if @presenter.deposited? %>
+              <!-- p>Filter by published works / works that have been exported to DataDen published directory.</p -->
+              <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+                <%= hidden_field_tag('data_set[nop]') %>
+                <p> &nbsp;
+                  <% if @presenter.globus_bounce_external_link_off_server? %>
+                    <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
+                  <% else %>
+                    <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+                  <% end %>
                   <br/>
-                  <%= hidden_field_tag('data_set[nop]') %>
-                  <%= submit_tag(t('simple_form.actions.data_set.globus_clean_download'),
-                                 class: 'btn btn-primary',
-                                 data: {confirm: t('simple_form.confirm.data_set.delete_all_globus_download_files')}) %>
-                <% end %>
+                  <%= link_to @presenter.globus_simple_form_link_str,
+                              use_globus_url,
+                              class: 'btn btn-primary',
+                              target: "_blank",
+                              title: @presenter.globus_simple_form_link_str %>
+                  <br/>
+                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
+                  <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
+                    <%= t('simple_form.hints.data_set.globus_help') %>
+                  </a>
+                </p>
               <% end %>
             <% end %>
           <% elsif @presenter.can_download_using_globus_maybe? %>

@@ -45,6 +45,7 @@ module Hyrax
              :current_user,
              :current_user_can_edit?,
              :current_user_can_read?,
+             :deposited?,
              :edit_groups,
              :edit_users,
              :ingest_allowed_base_directories,
@@ -94,6 +95,7 @@ module Hyrax
              :work_url,
              :zip_download_enabled?, to: :controller
 
+    delegate :file_sys_export_record, to: :controller
     delegate :globus_always_available?, to: :controller
     delegate :globus_base_url, to: :controller
     delegate :globus_bounce_external_link_off_server?, to: :controller

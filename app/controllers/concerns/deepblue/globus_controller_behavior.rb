@@ -7,6 +7,10 @@ module Deepblue
     mattr_accessor :globus_controller_behavior_debug_verbose, default: true
     mattr_accessor :globus_controller_behavior_presenter_debug_verbose, default: false
 
+    def file_sys_export_record( id: )
+      ::Deepblue::GlobusService.file_sys_export_record( id: id )
+    end
+
     def globus_add_email
       cc_id ||= id
       if user_signed_in?
