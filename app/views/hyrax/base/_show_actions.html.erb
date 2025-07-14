@@ -44,7 +44,7 @@
               <% end %>
             <% end %>
           <% end %>
-          <% if @presenter.globus_debug_verbose? %>
+          <% if @presenter.current_ability.admin? && @presenter.globus_debug_verbose? %>
           <div>
             <ul>
               <li>_show_actions</li>
