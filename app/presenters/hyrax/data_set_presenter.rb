@@ -257,7 +257,7 @@ module Hyrax
 
     def globus_simple_form_link_str
       rv = ::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')
-      return rv unless globus_debug_verbose?
+      return rv unless current_ability.admin? && globus_debug_verbose?
       if globus_use_data_den?
         rv += " from DataDen"
       else
