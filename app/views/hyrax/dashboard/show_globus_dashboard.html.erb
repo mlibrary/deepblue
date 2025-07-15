@@ -26,12 +26,13 @@
     <li>Globus prep dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_prep_dir %></code></li>
     <li>Globus upload dir: <code><%= ::Deepblue::GlobusIntegrationService.globus_upload_dir %></code></li>
     <li>Globus base file name: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_file_name %></code></li>
-    <li>Globus base url: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_url %></code></li>
+    <li>Globus base url legacy: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_url_legacy %></code></li>
+    <li>Globus base url data den: <code><%= ::Deepblue::GlobusIntegrationService.globus_base_url_data_den %></code></li>
     <li>Globus best used gt size: <%= ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str %></li>
     <li>Globus bounce external link: <%= ::Deepblue::GlobusIntegrationService.globus_bounce_external_link_off_server %></li>
     <li>Globus debug job delay per file copy job: <%= ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds %></li>
   </ul>
-  <% if ::Deepblue::GlobusService..globus_use_data_den? %>
+  <% if ::Deepblue::GlobusService.globus_use_data_den? %>
   TODO: Globus using DataDen reports...
   <% elsif ::Deepblue::GlobusIntegrationService.globus_dashboard_display_report %>
     <% if @view_presenter.globus_status.msg_handler.verbose %>

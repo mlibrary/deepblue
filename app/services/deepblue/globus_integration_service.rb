@@ -28,6 +28,7 @@ module Deepblue
     mattr_accessor :globus_dashboard_controller_debug_verbose, default: false
     mattr_accessor :globus_dashboard_presenter_debug_verbose,  default: false
 
+    mattr_accessor :globus_allow_legacy,                       default: true  # the old globus world as of 2025
     mattr_accessor :globus_use_data_den,                       default: false  # the new globus world as of 2025
     mattr_accessor :globus_enabled,                            default: false
     mattr_accessor :globus_always_available,                   default: true # set to true to force globus to show in ui
@@ -35,9 +36,10 @@ module Deepblue
 
     mattr_accessor :globus_after_copy_job_ui_delay_seconds,       default: 3
     mattr_accessor :globus_base_file_name,                        default: "DeepBlueData_"
-    mattr_accessor :globus_base_url,
+    mattr_accessor :globus_base_url_legacy,
                    default: 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
-                   # default: 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+    mattr_accessor :globus_base_url_data_den,
+                   default: 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
     mattr_accessor :globus_best_used_gt_size,                     default: 3.gigabytes
     mattr_accessor :globus_best_used_gt_size_str,
                    default: ::ConfigHelper.human_readable_size(globus_best_used_gt_size)

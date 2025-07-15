@@ -36,12 +36,20 @@ module Deepblue
       return rv.flatten
     end
 
+    def self.globus_allow_legacy?
+      ::Deepblue::GlobusIntegrationService.globus_allow_legacy
+    end
+
     def self.globus_always_available?
       ::Deepblue::GlobusIntegrationService.globus_always_available
     end
 
     def self.globus_base_url
-      ::Deepblue::GlobusIntegrationService.globus_base_url
+      if globus_use_data_den?
+        ::Deepblue::GlobusIntegrationService.globus_base_url_data_den
+      else
+        ::Deepblue::GlobusIntegrationService.globus_base_url_legacy
+      end
     end
 
     def self.globus_bounce_external_link_off_server?
@@ -52,7 +60,7 @@ module Deepblue
       return false unless globus_enabled?
       return true unless globus_export?
       dir = ::Deepblue::GlobusIntegrationService.globus_download_dir
-      dir = dir.join globus_files_target_file_name( id )
+      dir = dir.join globus_files_target_file_name( id, data_den: globus_use_data_den? )
       Dir.exist? dir
     end
 
@@ -113,16 +121,14 @@ module Deepblue
     end
 
     def self.globus_external_url( id )
+      base_dir = globus_base_url
+      globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
+      file_name = globus_files_target_file_name( id, data_den: globus_use_data_den? )
       if globus_use_data_den?
-        globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
-        file_name = globus_files_target_file_name( id )
-        "#{globus_base_url}#{globus_dir_modifier}#{file_name}"
+        "#{base_dir}#{globus_dir_modifier}#{file_name}"
       else
-        globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url
-        globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
-        file_name = globus_files_target_file_name(id)
-        return "#{globus_base_url}#{globus_dir_modifier}%2F#{file_name}%2F" if globus_dir_modifier.present?
-        "#{globus_base_url}#{globus_files_target_file_name(id)}%2F"
+        return "#{base_dir}#{globus_dir_modifier}%2F#{file_name}%2F" if globus_dir_modifier.present?
+        "#{base_dir}#{file_name}%2F"
       end
     end
 
@@ -131,6 +137,7 @@ module Deepblue
     end
 
     def self.globus_export?
+      return false if globus_use_data_den?
       return ::Deepblue::GlobusIntegrationService.globus_export
     end
 
@@ -150,8 +157,8 @@ module Deepblue
       rv
     end
 
-    def self.globus_files_target_file_name( id )
-      if globus_use_data_den?
+    def self.globus_files_target_file_name( id, data_den: )
+      if data_den || globus_use_data_den?
         data_den_path = FileSysExportService.pair_path( noid: id )
         data_den_path.gsub!( '/', '%2F' )
         "%2F#{data_den_path}"

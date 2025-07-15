@@ -125,8 +125,8 @@ Deepblue::GlobusIntegrationService.setup do |config|
     end
   end
 
-  # config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
-  config.globus_base_url = 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
+  config.globus_base_url_legacy = 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
+  config.globus_base_url_data_den = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
   config.globus_bounce_external_link_off_server = true
 
   if Rails.env.development?
@@ -142,12 +142,14 @@ Deepblue::GlobusIntegrationService.setup do |config|
     config.globus_dashboard_display_report = false
   end
   if verbose_initialization
+    puts "globus_allow_legacy=#{config.globus_allow_legacy}"
     puts "globus_download_dir=#{config.globus_download_dir}"
     puts "globus_prep_dir=#{config.globus_prep_dir}"
     puts "globus_upload_dir=#{config.globus_upload_dir}"
     puts "globus_export=#{config.globus_export}"
     puts "globus_base_file_name=#{config.globus_base_file_name}"
-    puts "globus_base_url=#{config.globus_base_url}"
+    puts "globus_base_url_data_den=#{config.globus_base_url_legacy}"
+    puts "globus_base_url_legacy=#{config.globus_base_url_legacy}"
     puts "globus_dashboard_display_all_works=#{config.globus_dashboard_display_all_works}"
     puts "globus_dashboard_display_report=#{config.globus_dashboard_display_report}"
     puts "globus_dashboard_controller_debug_verbose=#{config.globus_dashboard_controller_debug_verbose}"

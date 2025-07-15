@@ -5,16 +5,6 @@ class GlobusJob < ::Hyrax::ApplicationJob
   @@globus_era_timestamp = ::Deepblue::GlobusIntegrationService.globus_era_timestamp
   @@globus_era_token = ::Deepblue::GlobusIntegrationService.globus_era_token.freeze
 
-  # @@globus_enabled = ::Deepblue::GlobusIntegrationService.globus_enabled.freeze
-  # @@globus_base_file_name = ::Deepblue::GlobusIntegrationService.globus_base_file_name.freeze
-  # @@globus_base_url = ::Deepblue::GlobusIntegrationService.globus_base_url.freeze
-  # @@globus_download_dir = ::Deepblue::GlobusIntegrationService.globus_download_dir.freeze
-  # @@globus_prep_dir = ::Deepblue::GlobusIntegrationService.globus_prep_dir.freeze
-  # @@globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier.freeze
-
-  # @@globus_copy_file_group = ::Deepblue::GlobusIntegrationService.globus_copy_file_group.freeze
-  # @@globus_copy_file_permissions = ::Deepblue::GlobusIntegrationService.globus_copy_file_permissions.freeze
-
   def self.copy_complete?( id )
     ::Deepblue::GlobusService.globus_copy_complete?( id )
   end
@@ -66,7 +56,11 @@ class GlobusJob < ::Hyrax::ApplicationJob
   end
 
   def self.files_target_file_name( id = '' )
-    ::Deepblue::GlobusService.globus_files_target_file_name( id )
+    ::Deepblue::GlobusService.globus_files_target_file_name( id, data_den: globus_use_data_den? )
+  end
+
+  def self.globus_use_data_den?
+    ::Deepblue::GlobusService.globus_use_data_den?
   end
 
   def self.lock( concern_id, log_prefix, quiet: )
