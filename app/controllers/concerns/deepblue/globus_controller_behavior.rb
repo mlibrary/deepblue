@@ -203,8 +203,8 @@ module Deepblue
       ::Deepblue::GlobusService.globus_files_prepping? cc_id
     end
 
-    def globus_files_target_file_name( id )
-     ::Deepblue::GlobusService.globus_files_target_file_name( id )
+    def globus_files_target_file_name( id, data_den: )
+     ::Deepblue::GlobusService.globus_files_target_file_name( id, data_den: data_den )
     end
 
     def globus_last_error_msg( cc_id )
