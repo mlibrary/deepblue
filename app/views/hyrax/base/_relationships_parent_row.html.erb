@@ -7,10 +7,10 @@
       <ul class="tabular">
         <% items.each do |item| %>
           <li class='attribute attribute-title'>
-            puts
-            puts "item.class.name=#{item.class.name}"
-            puts "item=#{item}"
-            puts
+            <!-- -->
+            <!-- <%= "item.class.name=#{item.class.name}" %> -->
+            <!-- <%= "item=#{item}" %> -->
+            <!-- -->
             <%#= Updated: hyrax4 # link_to item.title.first, url_for_document(item) %>
             <%= link_to item.title.first, search_state.url_for_document(item) %>
           </li>

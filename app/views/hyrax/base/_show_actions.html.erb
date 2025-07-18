@@ -116,10 +116,6 @@
                     <% use_globus_url = @presenter.globus_external_url @presenter.id %>
                   <% end %>
                   <br/>
-                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
-                  <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
-                    <%= t('simple_form.hints.data_set.globus_help') %>
-                  </a>
                   <%= link_to @presenter.globus_simple_form_link_str,
                               use_globus_url,
                               class: 'btn btn-primary',
