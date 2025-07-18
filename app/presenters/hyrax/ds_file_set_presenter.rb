@@ -247,12 +247,10 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "false unless display_provenance_log_enabled?=#{display_provenance_log_enabled?}",
                                              "false if anonymous_show?=#{anonymous_show?}",
-                                             "false if single_use_link_request?=#{single_use_link_request?}",
                                              "true if current_ability.admin?=#{current_ability.admin?}",
                                              "" ] if ds_file_set_presenter_debug_verbose
       return false unless display_provenance_log_enabled?
       return false if anonymous_show?
-      return false if single_use_link_request?
       current_ability.admin?
     end
 
