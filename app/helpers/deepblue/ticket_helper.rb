@@ -268,12 +268,12 @@ module Deepblue
                                    "ticket_status.class.name=#{ticket_status.class.name}",
                                    "ticket_status=#{ticket_status}",
                                    "" ] if msg_handler.debug_verbose
-      if ::Deepblue::TeamdynamixService.TDX_STATUS_NEW == ticket_status
-        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_IN_PROGRESS
-      elsif ::Deepblue::TeamdynamixService.TDX_STATUS_WAITING == ticket_status
-        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_IN_PROGRESS
+      if ::Deepblue::TeamdynamixService::TDX_STATUS_NEW == ticket_status
+        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROGRESS
+      elsif ::Deepblue::TeamdynamixService::TDX_STATUS_WAITING == ticket_status
+        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROGRESS
       else
-        ticket_status = ::Deepblue::TeamdynamixService.TDX_STATUS_NULL
+        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_NULL
       end
       tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: new_status_id, notify: notify )
     end
