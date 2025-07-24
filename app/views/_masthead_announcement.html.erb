@@ -5,8 +5,8 @@
 <% warning_icon = "<m-icon innerhtml=\"<svg xmlns=&quot;#{icon_svg_url}&quot; role=&quot;presentation&quot; width=&quot;16&quot; height=&quot;16&quot; fill=&quot;currentColor&quot; viewBox=&quot;0 0 24 24&quot;><path d=&quot;#{icon_path}&quot;/></svg>\" class=\"hydrated\"><svg xmlns=\"#{icon_svg_url}\" width=\"16\" height=\"16\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"#{icon_path}\"></path></svg></m-icon>" %>
 <% if Flipflop.display_masthead_banner_standard? %>
     <div class="row ribbon-content banner-content-std">
-      <div class="update-alert-container">
-        <section class="update-alert--std container-fluid">
+      <div class="update-alert-container viewport-container">
+        <section class="update-alert--std">
           <%= t( "hyrax.masthead_banner.standard_html" ) %>
         </section>
       </div>
@@ -14,8 +14,8 @@
 <% end %>
 <% if Flipflop.display_masthead_banner_maintenance? %>
     <div class="row ribbon-content banner-content">
-      <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+      <div class="update-alert-container viewport-container">
+        <section class="update-alert--warning">
           <%= raw(warning_icon) if !icon_displayed %><% icon_displayed = true %>
           <%= t( "hyrax.masthead_banner.maintenance_html" ) %>
         </section>
@@ -24,8 +24,8 @@
 <% end %>
 <% if Flipflop.display_masthead_banner_slow? %>
     <div class="row ribbon-content banner-content">
-      <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+      <div class="update-alert-container viewport-container">
+        <section class="update-alert--warning">
           <%= raw(warning_icon) if !icon_displayed %><% icon_displayed = true %>
           <%= t( "hyrax.masthead_banner.slow_html" ) %>
         </section>
@@ -34,8 +34,8 @@
 <% end %>
 <% if Flipflop.display_masthead_banner_outage? %>
     <div class="row ribbon-content banner-content">
-      <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+      <div class="update-alert-container viewport-container">
+        <section class="update-alert--warning">
           <%= raw(warning_icon) if !icon_displayed %><% icon_displayed = true %>
           <%= t( "hyrax.masthead_banner.outage_banner_html" ) %>
         </section>
@@ -44,8 +44,8 @@
 <% end %>
 <% if Flipflop.disable_desposits_and_edits? %>
     <div class="row ribbon-content banner-content">
-      <div class="update-alert-container">
-        <section class="update-alert--warning container-fluid">
+      <div class="update-alert-container viewport-container">
+        <section class="update-alert--warning">
           <%= raw(warning_icon) if !icon_displayed %><% icon_displayed = true %>
           <%= t( "hyrax.masthead_banner.access_banner_html" ) %>
         </section>

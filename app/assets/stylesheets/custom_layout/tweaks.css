@@ -674,9 +674,6 @@ table.datatable thead th.no-sort {
     padding: 2px
 }
 
-.citation-author {
-}
-
 .citation-title {
     font-style: italic;
 }
@@ -685,14 +682,12 @@ table.datatable thead th.no-sort {
     background-color : rgb(235, 255, 241);
     border-bottom: 0px;
     color: black;
-    text-align: center;
 }
 
 .update-alert--warning-std {
   background-color : #FFF1EB;
   border-bottom: 0px;
   color: black;
-  text-align: center;
 }
 
 .banner-content-std {
@@ -730,7 +725,6 @@ table.datatable thead th.no-sort {
   background-color : rgb(255, 138, 88);
   border-bottom: 0px;
   color: black;
-  text-align: center;
 }
 
 .banner-content {
@@ -880,6 +874,13 @@ footer.page-footer p a :hover {
         display: inline-block;
 }
 /* Add file formatting */
+
+.dropzone {
+  height: 3rem !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 .dropzone-more {
   margin: 2em 0;

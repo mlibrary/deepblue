@@ -87,6 +87,25 @@ caption {
   //text-decoration: none;
 }
 
+.btn-outline-secondary {
+  color: #212B36;
+  border-color: #212B36;
+}
+
+.btn-outline-secondary:hover,
+a.btn.btn-default:hover  {
+  box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--color-neutral-400);
+  color: #212B36;
+  border-color: #212B36;
+  background-color: #fff;
+}
+
+.btn-outline-secondary:not(:disabled):not(.disabled):active, .btn-outline-secondary.active:not(:disabled):not(.disabled), .show > .btn-outline-secondary.dropdown-toggle {
+  color: #212B36;
+  border-color: #212B36;
+  background-color: #fff;
+}
+
 .btn-subtle {
   background: transparent;
   background-color: #E5E9ED;
@@ -95,6 +114,10 @@ caption {
   font-size: 1em !important;
   padding: 0.5rem 1rem !important;
   text-decoration: none !important;
+}
+
+.btn-outline-secondary {
+  color: #212B36;
 }
 
 .add-files-link button {
@@ -110,6 +133,10 @@ caption {
 button:hover, 
 .btn:hover {
   box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--color-neutral-400);
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  background-color: #00274C;
 }
 
 /** Breadcrumb **/
@@ -137,6 +164,7 @@ nav#masthead {
 #masthead > .d-flex {
   align-items: center;
   justify-content: space-between;
+  flex-flow: row wrap;
 }
 
 .navbar-inverse {
@@ -188,6 +216,10 @@ button.nav-link.dropdown-toggle.language-dropdown {
 
 #user_utility_links > .dropdown > ul.dropdown-menu {
   padding: .5rem 1rem;
+}
+
+#user_utility_links {
+  flex-direction: row;
 }
 
 .btn-group > ul.dropdown-menu {
@@ -401,7 +433,6 @@ nav.breadcrumb ol li a {
   padding: .25rem;
 }
 
-
  .sidebar .nav-pills > li > a {
   text-decoration: none;
 }
@@ -441,7 +472,7 @@ td.status span.enabled {
 }
 
 td.status span.disabled {
-  background-color: #777777;
+  background-color: #4d4d4d;
 }
 
 /* Custom select dashboard */
@@ -518,6 +549,33 @@ ol.list-group.list-group-striped li:nth-of-type(odd) {
 }
 
 /** Catalog **/
+
+.search-results {
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 4fr;
+  grid-template-areas:
+  "sidebar content";
+  gap: 2rem;
+}
+
+@media (max-width: 575.98px) {
+.search-results {
+  grid-template-columns: 1fr;
+  grid-template-areas:
+  "sidebar" 
+  "content";
+}
+}
+
+.sidebar {
+  grid-area: sidebar;
+}
+
+#content {
+  grid-area: content;
+}
+
 h2.search-result-title a {
   color: $primary-link;
   font-size: 1.2em;
@@ -536,6 +594,10 @@ span.collection-tag {
   border-radius:4px;
   padding: .25rem;
   font-weight: 600;
+}
+
+.search-result-wrapper .collection-counts-wrapper .collection-counts-item {
+    border: solid 1px #e0e0e0;
 }
 
 .search-widgets > .view-type {
@@ -788,10 +850,19 @@ li.radio > label > input[type="radio"] {
   font-weight: bold;
 }
 
-input[type="radio"] {
-  margin-right: .5rem;
-  width: .75rem;
-  height: .75rem;
+input[type="radio"], input[type="checkbox"] {
+    box-sizing: border-box;
+    width: 18px;
+    height: 18px;
+}
+
+#collections-list-table input.disabled {
+    margin: 10px 10px 2px 10px;
+    padding: 0px;
+}
+
+.table-responsive {
+  overflow-x: scroll !important;
 }
 
 .coverage-start-group, .coverage-end-group {
@@ -820,12 +891,6 @@ span.glyphicon.glyphicon-plus {
     background: no-repeat center url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="%23337ab7" class="bi bi-plus" viewBox="0 0 16 16"><path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/></svg>');
     background-size: contain;
     margin-right: 0 !important;
-}
-
-/* Search Results */
-
-.search-results {
-  padding-top: 1rem;
 }
 
 /** Edit Work/User Collection **/
@@ -1070,6 +1135,10 @@ ul.tabular li.attribute-fundedby {
 }
 
 /** Facets **/
+
+.sidenav> .facets-header > button.navbar-toggler.navbar-toggler-right {
+  display: none;
+}
 
 .top-panel-heading.panel-heading, .facets-header{
   background-color: #fafafa;
@@ -1520,4 +1589,53 @@ div.facets h3 {
 .btn:not([disabled]):active, 
 .btn:not([disabled]):hover {
     box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--color-neutral-400);
+}
+
+.radio-button-span {
+  display: grid;
+  gap: .25rem;
+  margin: .25rem 0;
+  justify-items: start;
+  justify-content: start;
+  grid-template:
+  "input badge"
+  ".      radiotext"
+  " .      collapse";
+}
+
+.radio-button-span > input {
+  grid-area: input;
+}
+
+.radio-button-span > span.badge {
+  grid-area: badge;
+}
+
+.radio-button-span > span.radio-text {
+  grid-area: radiotext;
+}
+
+.radio-button-span > .collapse.show {
+  grid-area: collapse;
+}
+
+.form-inline {
+ gap: 0 .25rem;
+}
+
+.form-tab-content h2 {
+  font-size: 1.25rem;
+  font-weight: semibold;
+}
+
+td.name > h2 {
+  font-size: 1rem;
+  font-weight: var(--semibold);
+}
+
+/* Pagination */
+
+.page-item.active .page-link {
+    background-color: #337ab7;
+    border-color: #337ab7;
 }
