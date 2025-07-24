@@ -92,6 +92,7 @@ module Deepblue
                          delay_per_file_seconds: ::Deepblue::GlobusIntegrationService.globus_debug_delay_per_file_copy_job_seconds )
 
       cc_id ||= id
+      #::GlobusCopyJob.perform_later( cc_id,
       ::GlobusCopyJob.perform_later( concern_id: cc_id,
                                      user_email: user_email,
                                      delay_per_file_seconds: delay_per_file_seconds )
