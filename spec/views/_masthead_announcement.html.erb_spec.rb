@@ -2,9 +2,9 @@ require 'rails_helper'
 
 RSpec.describe '/_masthead_announcement.html.erb', type: :view, skip: false do
 
-  let( :section_std_class ) { '<section class="update-alert--std container-fluid">' }
-  let( :section_warning_class ) { '<section class="update-alert--warning container-fluid">' }
-  let( :section_warning_std_class ) { '<section class="update-alert--warning-std container-fluid">' }
+  let( :section_std_class ) { '<section class="update-alert--std">' }
+  let( :section_warning_class ) { '<section class="update-alert--warning">' }
+  let( :section_warning_std_class ) { '<section class="update-alert--warning-std">' }
 
   before do
   end
