@@ -247,6 +247,24 @@ module Hyrax
         add_new_banner(uploaded_file_ids) if uploaded_file_ids
       end
 
+      def process_branding
+        process_banner_input
+        process_logo_input
+      end
+
+      def process_logo_input
+        uploaded_file_ids = params["logo_files"]
+        public_files = []
+
+        if uploaded_file_ids.nil?
+          remove_redundant_files public_files
+          return
+        end
+
+        public_files = process_logo_records uploaded_file_ids
+        remove_redundant_files public_files
+      end
+
       def update_existing_banner
         # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
         #                                        ::Deepblue::LoggingHelper.called_from,
@@ -276,7 +294,25 @@ module Hyrax
             alt_txt: "",
             target_url: ""
         )
-        banner_info.save f.file_url
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "banner_info.collection_id=#{banner_info.collection_id}",
+                                               "banner_info.role=#{banner_info.role}",
+                                               "banner_info.alt_text=#{banner_info.alt_text}",
+                                               "banner_info.target_url=#{banner_info.target_url}",
+                                               "banner_info.local_path=#{banner_info.local_path}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
+        rv = banner_info.save f.file_url
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "banner_info.id=#{banner_info.id}",
+                                               "banner_info.collection_id=#{banner_info.collection_id}",
+                                               "banner_info.role=#{banner_info.role}",
+                                               "banner_info.alt_text=#{banner_info.alt_text}",
+                                               "banner_info.target_url=#{banner_info.target_url}",
+                                               "banner_info.local_path=#{banner_info.local_path}",
+                                               "" ] if dashboard_collections_controller_debug_verbose
+        rv
       end
 
       def remove_banner
