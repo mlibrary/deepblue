@@ -39,9 +39,30 @@ module Deepblue
     end
 
     def fix_include?( curation_concern: )
-      return true if filter.nil?
-      return filter.include?( curation_concern.date_modified ) if curation_concern.date_modified.present?
-      return default_filter_in
+      # return true if filter.nil?
+      # return filter.include?( curation_concern.date_modified ) if curation_concern.date_modified.present?
+      # return default_filter_in
+      begin # until true for break
+        if filter.nil?
+          rv = true
+          rvReason = "filter nil"
+          break
+        end
+        if curation_concern.date_modified.present?
+          rv = filter.include?( curation_concern.date_modified )
+          rvReason = "cc filter.include? curation_concern.date_modified"
+          break
+        end
+        rv = default_filter_in
+        rvReason = "default_filter_in"
+      end until true # for break
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "curation_concern.id=#{curation_concern.id}",
+                                             "rv=#{rv}",
+                                             "rvReason=#{rvReason}",
+                                             "" ] if abstract_fixer_debug_verbose
+      return rv
     end
 
     def msg( msg )

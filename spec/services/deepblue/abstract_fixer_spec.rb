@@ -134,7 +134,7 @@ RSpec.describe ::Deepblue::AbstractFixer do
 
       context 'filter in' do
         before do
-          allow(curation_concern).to receive(:date_modified).and_return fake_date
+          expect(curation_concern).to receive(:date_modified).twice.and_return fake_date
           allow(filter).to receive(:include?).with(fake_date).and_return true
         end
         it 'adds the message to msg_handler' do
@@ -144,7 +144,7 @@ RSpec.describe ::Deepblue::AbstractFixer do
 
       context 'filter out' do
         before do
-          allow(curation_concern).to receive(:date_modified).and_return fake_date
+          expect(curation_concern).to receive(:date_modified).twice.and_return fake_date
           allow(filter).to receive(:include?).with(fake_date).and_return false
         end
         it 'adds the message to msg_handler' do

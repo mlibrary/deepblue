@@ -13,7 +13,9 @@ module Deepblue
       dur = duration_millis_as_arr( (t1 - t0) * 1000, ignore_seconds: ignore_seconds, ignore_millis: ignore_millis )
       if msg_handler.present?
         label ||= 'Duration: '
-        msg_handler.msg "#{label}#{dur.join(' ')}"
+        dur_str = dur.join( ' ' ).strip
+        dur_str = "effectively 0" if "" == dur_str
+        msg_handler.msg "#{label}#{dur_str}"
       else
         return dur
       end

@@ -110,7 +110,19 @@ module Deepblue
                                "msg_handler=#{msg_handler}",
                                "" ] if debug_verbose
       fixer = FindAndFix.new( id: id, msg_handler: msg_handler )
-      FindAndFixHelper.duration( label: "Run duration: ", msg_handler: msg_handler ) { fixer.run }
+      FindAndFixHelper.duration(label: "Run duration: ", msg_handler: msg_handler ) do
+        msg_handler.bold_debug [ msg_handler.here,
+                                 msg_handler.called_from,
+                                 "id=#{id}",
+                                 "Starting...",
+                                 "" ] if debug_verbose
+        fixer.run
+      end
+      msg_handler.bold_debug [ msg_handler.here,
+                               msg_handler.called_from,
+                               "id=#{id}",
+                               "Finished.",
+                               "" ] if debug_verbose
     end
 
   end
