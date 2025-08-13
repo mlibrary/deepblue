@@ -20,7 +20,7 @@ module Deepblue
     end
 
     def debug_verbose
-      works_ordered_members_nils_fixer_debug_verbose && msg_handler.debug_verbose
+      works_ordered_members_nils_fixer_debug_verbose || msg_handler.debug_verbose
     end
 
     def fix_include?( curation_concern: )

@@ -21,6 +21,7 @@ Deepblue::JobTaskHelper.setup do |config|
   config.rake_task_job_debug_verbose                    = false
   config.scheduler_start_job_debug_verbose              = false
   config.update_condensed_events_job_debug_verbose      = false
+  config.work_find_and_fix_job_debug_verbose            = false
   config.works_report_job_debug_verbose                 = false
 
   config.allowed_job_tasks             = [ '-T', 'tmp:clean' ].freeze

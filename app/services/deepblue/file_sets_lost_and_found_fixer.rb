@@ -20,7 +20,7 @@ module Deepblue
     end
 
     def debug_verbose
-      file_sets_lost_and_found_fixer_debug_verbose && msg_handler.debug_verbose
+      file_sets_lost_and_found_fixer_debug_verbose || msg_handler.debug_verbose
     end
 
     def fix_include?( curation_concern: )

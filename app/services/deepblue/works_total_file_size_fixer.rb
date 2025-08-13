@@ -20,12 +20,12 @@ module Deepblue
     def initialize( filter: FindAndFixService.find_and_fix_default_filter, msg_handler: )
       msg_handler.bold_debug [ msg_handler.here,
                                msg_handler.called_from,
-                               "" ] if works_total_file_size_fixer_debug_verbose && msg_handler.debug_verbose
+                               "" ] if works_total_file_size_fixer_debug_verbose || msg_handler.debug_verbose
       super( filter: filter, prefix: PREFIX, msg_handler: msg_handler )
     end
 
     def debug_verbose
-      works_total_file_size_fixer_debug_verbose && msg_handler.debug_verbose
+      works_total_file_size_fixer_debug_verbose || msg_handler.debug_verbose
     end
 
     def fix_include?( curation_concern: )

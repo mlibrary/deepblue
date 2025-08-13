@@ -22,7 +22,7 @@ module Deepblue
                                "id=#{id}",
                                "filter=#{filter}",
                                "msg_handler=#{msg_handler}",
-                               "" ] if find_and_fix_job_debug_verbose && msg_handler.debug_verbose
+                               "" ] if find_and_fix_job_debug_verbose || msg_handler.debug_verbose
       @id = id
       @filter = filter
       @ids_fixed = {}
@@ -32,7 +32,7 @@ module Deepblue
     end
 
     def debug_verbose
-      find_and_fix_job_debug_verbose && msg_handler.debug_verbose
+      find_and_fix_job_debug_verbose || msg_handler.debug_verbose
     end
 
     def init_fixer( fixer_class_name )

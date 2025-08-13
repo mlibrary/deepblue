@@ -208,7 +208,7 @@ module Deepblue
     end
 
     def build_access_token
-      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = authentication_debug_verbose || msg_handler.debug_verbose
       # build_bearer_basic
       build_basic
       headers = build_headers( auth: bearer_basic, content_type: 'application/x-www-form-urlencoded' )
@@ -237,7 +237,7 @@ module Deepblue
     end
 
     def build_bearer
-      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = authentication_debug_verbose || msg_handler.debug_verbose
       rv = "Bearer #{access_token}"
       msg_handler.msg_debug_bold [ msg_handler.here,
                                msg_handler.called_from,
@@ -248,7 +248,7 @@ module Deepblue
     end
 
     def build_basic
-      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = authentication_debug_verbose || msg_handler.debug_verbose
       rv = "Basic #{Base64.strict_encode64(authentication)}"
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
@@ -259,7 +259,7 @@ module Deepblue
     end
 
     def build_bearer_basic
-      debug_verbose = authentication_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = authentication_debug_verbose || msg_handler.debug_verbose
       rv = "Bearer Basic #{Base64.strict_encode64(authentication)}"
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
@@ -319,7 +319,7 @@ module Deepblue
     end
 
     def build_data( data: )
-      debug_verbose = build_data_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = build_data_debug_verbose || msg_handler.debug_verbose
       return nil if data.nil?
       rv = data
       rv = JSON.dump(data) unless data.is_a? String
@@ -330,7 +330,7 @@ module Deepblue
     end
 
     def build_headers( accept: APPLICATION_JSON, auth:, content_type: TEXT_PLAIN, charset: nil )
-      debug_verbose = build_headers_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = build_headers_debug_verbose || msg_handler.debug_verbose
       msg_handler.msg_debug_bold [ msg_handler.here,
                                 msg_handler.called_from,
                                 "accept=#{accept}",
@@ -444,7 +444,7 @@ module Deepblue
                         service_id: @service_id,
                         type_id: @type_id )
 
-      debug_verbose = build_data_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = build_data_debug_verbose || msg_handler.debug_verbose
       data ||= {}
       data[KEY_ACCOUNT_ID] = account_id if account_id.present?
       data["TypeID"] = type_id if type_id.present?
@@ -652,7 +652,7 @@ module Deepblue
     end
 
     def get_ticket_body( ticket_id: )
-      debug_verbose = get_ticket_body_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = get_ticket_body_debug_verbose || msg_handler.debug_verbose
       msg_handler.msg_debug_bold [ msg_handler.here,
                                              msg_handler.called_from,
                                              "ticket_id=#{ticket_id}",
@@ -926,13 +926,13 @@ module Deepblue
 
     def response_inspect_body( body, debug_verbose: response_debug_verbose )
       debug_verbose ||= response_debug_verbose
-      debug_verbose = debug_verbose && msg_handler.debug_verbose
+      debug_verbose = debug_verbose || msg_handler.debug_verbose
       return body.pretty_inspect if debug_verbose
       "body present? #{body.present?}"
     end
 
     def response_parse_body( index: nil, response: nil )
-      debug_verbose = response_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = response_debug_verbose || msg_handler.debug_verbose
       response = response_is( index: index, response: response )
       msg_handler.msg_debug_bold [ msg_handler.here,
                                    msg_handler.called_from,
@@ -970,7 +970,7 @@ module Deepblue
     end
 
     def response_value( index: nil, key:, response: nil )
-      debug_verbose = response_debug_verbose && msg_handler.debug_verbose
+      debug_verbose = response_debug_verbose || msg_handler.debug_verbose
       return nil if key.blank?
       body = response_body( index: index, response: response )
       return nil unless body.is_a? Hash
