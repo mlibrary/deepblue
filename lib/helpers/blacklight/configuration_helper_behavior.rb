@@ -188,7 +188,11 @@ module Blacklight::ConfigurationHelperBehavior
   # Check if there are alternative views configuration
   # @return [Boolean]
   def has_alternative_views?
-    document_index_views.keys.length > 1
+    doc_index_views = document_index_views
+    return false unless doc_index_views.blank?
+    keys = document_index_views.keys
+    return false if keys.blank?
+    doc_index_views.keys.length > 1
   end
   # deprecation_deprecate has_alternative_views?: 'Moving to Blacklight::Response::ViewTypeComponent'
 

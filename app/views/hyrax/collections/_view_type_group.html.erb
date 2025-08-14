@@ -1,4 +1,16 @@
-<% if has_alternative_views? -%>
+<% rv_has_alt_views = false
+begin
+  rv_has_alt_views = has_alternative_views?
+rescue Exception => e
+  ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                         ::Deepblue::LoggingHelper.called_from,
+                                         "ERROR",
+                                         "e=#{e.class.name}",
+                                         "e.message=#{e.message}",
+                                         "e.backtrace:" ] + e.backtrace[0..10]
+end
+%>
+<% if rv_has_alt_views %>
 <div class="view-type pull-right">
   <span class="sr-only"><%= t('blacklight.search.view_title') %></span>
   <div class="view-type-group btn-group">
