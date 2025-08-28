@@ -8,8 +8,17 @@ module Hyrax
       mattr_accessor :creator_attribute_renderer_debug_verbose, default: false
 
       def self.render_for_collection( links )
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "links=#{links}",
+                                               "links.count=#{links.count}",
+                                               "" ] if creator_attribute_renderer_debug_verbose
         lines = []
-        if 5 >= links.count
+        if 1 == links.count
+          lines << %(<span itemprop="creator">)
+          lines << %(<span itemprop="name">#{links[0]}</span>)
+          lines << %(</span>)
+        elsif 5 >= links.count
           lines << %(<span itemprop="creator" class="moreauthor">)
           last = links.size - 1
           links.each_with_index do |link, index|
