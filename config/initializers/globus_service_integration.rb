@@ -126,7 +126,7 @@ Deepblue::GlobusIntegrationService.setup do |config|
   end
 
   config.globus_base_url_legacy = 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
-  config.globus_base_url_data_den = 'https://app.globus.org/file-manager?origin_id=99d8c648-a9ff-11e7-aedd-22000a92523b&origin_path=%2Fdownload%2F'
+  config.globus_base_url_data_den = 'https://app.globus.org/file-manager?origin_id=cc387c09-b0e5-422b-a384-0d96e7ffdc73&origin_path='
   config.globus_bounce_external_link_off_server = true
 
   if Rails.env.development?
