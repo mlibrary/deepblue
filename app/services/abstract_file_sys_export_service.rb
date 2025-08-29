@@ -284,6 +284,7 @@ class AbstractFileSysExportService
     msg_verbose "#{id} export target_path=#{file_path}" if verbose
     bytes_copied = ::Deepblue::ExportFilesHelper.export_file_uri( source_uri: source_uri, target_file: file_path )
     msg_debug "#{id} bytes_copied: #{bytes_copied}" if debug_verbose
+    FileUtils.chmod( "u=rw,g=rw,o=r", file_path )
     return FileUtilsHelper.file_exists? file_path
   end
 
@@ -305,6 +306,7 @@ class AbstractFileSysExportService
     unless export_file_set( noid_service: noid_service, file_set: fs, file_path: file_path )
       return fs_status_error( fs_rec, note: "export_fs_rec failed" )
     end
+    FileUtils.chmod( "u=rw,g=rw,o=r", file_path )
     rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
     FileSysExportService.checksum_validate( fs_rec: fs_rec, file_path: file_path, msg_handler: @msg_handler )
     return rv
@@ -347,6 +349,7 @@ class AbstractFileSysExportService
     target_file = FileUtilsHelper.join target_dir, v_filename
     bytes_copied = ::Deepblue::ExportFilesHelper.export_file_uri( source_uri: version.uri, target_file: target_file )
     msg_debug "#{noid} bytes_copied: #{bytes_copied}" if debug_verbose
+    FileUtils.chmod( "u=rw,g=rw,o=r", target_file )
     rv = export_fs_status( v_fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
   end
 
