@@ -226,6 +226,10 @@ class AbstractFileSysExportService
         msg_verbose "export_data_set_publish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
+      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+        msg_verbose "export_data_set_publish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
+        next
+      end
       move_export_rec( fs_rec: fs_rec )
     end
   end
@@ -270,6 +274,14 @@ class AbstractFileSysExportService
       msg_verbose "export_data_set_unpublish_rec fs_rec.noid=#{fs_rec.noid}" if verbose
       if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
         msg_verbose "export_data_set_unpublish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
+        next
+      end
+      if fs_rec.noid.match( /^.+\:v\d+$/ ) then
+        msg_verbose "export_data_set_unpublish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
+        next
+      end
+      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+        msg_verbose "export_data_set_unpublish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
       move_export_unpublish_rec( fs_rec: fs_rec )
