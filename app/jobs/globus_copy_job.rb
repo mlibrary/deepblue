@@ -27,7 +27,7 @@ class GlobusCopyJob < GlobusJob
       move_destination = GlobusJob.target_file_name( @target_prep_dir, metadata_file.basename )
       Deepblue::LoggingHelper.debug "#{@globus_log_prefix} mv #{metadata_file} to #{move_destination}" unless @globus_job_quiet
       FileUtils.move( metadata_file, move_destination )
-      file_sets = curation_concern.file_sets
+      file_sets = curation_concern.file_sets.select { |fs| ::Deepblue::ExportFilesHelper.export_file_set?( fs: fs ) }
       do_copy_predicate = ->(target_file_name, _target_file) { globus_do_copy?( target_file_name ) }
       ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: @target_prep_dir_tmp,
                                 file_sets: file_sets,

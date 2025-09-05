@@ -85,8 +85,9 @@ module Deepblue
         Zip::File.open( target_zipfile.to_s, Zip::File::CREATE ) do |zipfile|
           metadata_filename = curation_concern.metadata_report( dir: target_dir )
           zipfile.add( metadata_filename.basename, metadata_filename )
+          file_sets = curation_concern.file_sets.select { |fs| ::Deepblue::ExportFilesHelper.export_file_set?( fs: fs ) }
           ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
-                  file_sets: curation_concern.file_sets,
+                  file_sets: file_sets,
                   log_prefix: "Zip: ",
                   do_export_predicate: ->(_target_file_name, _target_file) { true },
                   quiet: !zip_download_controller_behavior_debug_verbose ) do |file_set, target_file_name, target_file|

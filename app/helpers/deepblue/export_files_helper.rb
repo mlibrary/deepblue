@@ -159,6 +159,18 @@ module Deepblue
       return file_name
     end
 
+    def self.export_file_set?( fs:, filter_viruses: true )
+      return false if file_set.blank?
+      return true if !filter_viruses
+      fs.virus_check_status != ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
+    end
+
+    def self.export_file_set_id?( id:, filter_viruses: true )
+      # TODO: Solr version
+      return false if id.blank?
+      export_file_set?( fs: PersistHelper.find_or_nil( id: id, filter_viruses: filter_viruses ) )
+    end
+
     def self.export_file_sets( target_dir:,
                                file_sets:,
                                log_prefix: DEFAULT_LOG_PREFIX,

@@ -681,9 +681,12 @@ module Hyrax
                                log_prefix: "",
                                do_export_predicate: ->(_target_file_name, _target_file) { true },
                                quiet: false,
+                               filter_viruses: true,
                                &block )
 
-        file_sets = curation_concern.file_sets
+        file_sets = curation_concern.file_sets.select do |fs|
+          ::Deepblue::ExportFilesHelper.export_file_set?( fs: fs, filter_viruses: filter_viruses )
+        end
         ::Deepblue::ExportFilesHelper.export_file_sets( target_dir: target_dir,
                                                         file_sets: file_sets,
                                                         log_prefix: log_prefix,

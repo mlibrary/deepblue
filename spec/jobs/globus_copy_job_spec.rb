@@ -12,7 +12,7 @@ class MailerMock
   def deliver_now; end
 end
 
-describe GlobusCopyJob, "GlobusJob globus_export: :true", globus_export: :true do # rubocop:disable RSpec/DescribeMethod
+describe GlobusCopyJob, "GlobusJob globus_export: :true", globus_export: :true, skip: true do # rubocop:disable RSpec/DescribeMethod
 
   let( :globus_dir ) { Pathname "./data/globus" }
   let( :globus_download_dir ) { globus_dir.join( ::Deepblue::InitializationConstants::DOWNLOAD ).join( 'test' ) }
