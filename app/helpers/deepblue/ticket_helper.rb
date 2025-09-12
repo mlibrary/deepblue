@@ -269,13 +269,23 @@ module Deepblue
                                    "ticket_status=#{ticket_status}",
                                    "" ] if msg_handler.debug_verbose
       if ::Deepblue::TeamdynamixService::TDX_STATUS_NEW == ticket_status
-        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROGRESS
+        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROCESS
       elsif ::Deepblue::TeamdynamixService::TDX_STATUS_WAITING == ticket_status
-        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROGRESS
+        ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_IN_PROCESS
       else
         ticket_status = ::Deepblue::TeamdynamixService::TDX_STATUS_NULL
       end
-      tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: new_status_id, notify: notify )
+      tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: ticket_status, notify: notify )
+    rescue Exception => e
+      ::Deepblue::EmailHelper.send_email_fritx( subject: "ticket_add_comment_with_status_update failed",
+                                                messages: [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "curation_concern&.id=#{curation_concern&.id}",
+                                                            "cc_id=#{cc_id}",
+                                                            "comment=#{comment}",
+                                                            "Threw exception:",
+                                                            "#{e.class}: #{e.message}",
+                                                            "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
     end
 
     def self.ticket_add_comment( curation_concern: nil,
@@ -333,6 +343,16 @@ module Deepblue
                                      "" ] if msg_handler.debug_verbose
       end
       tdx.update_ticket_feed( ticket_id: ticket_id, comments: comment, new_status_id: new_status_id, notify: notify )
+    rescue Exception => e
+      ::Deepblue::EmailHelper.send_email_fritx( subject: "ticket_add_comment failed",
+                                                messages: [ ::Deepblue::LoggingHelper.here,
+                                                            ::Deepblue::LoggingHelper.called_from,
+                                                            "curation_concern&.id=#{curation_concern&.id}",
+                                                            "cc_id=#{cc_id}",
+                                                            "comment=#{comment}",
+                                                            "Threw exception:",
+                                                            "#{e.class}: #{e.message}",
+                                                            "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
     end
 
     def self.ticket_id_for( curation_concern: )
