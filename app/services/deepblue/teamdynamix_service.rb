@@ -1291,14 +1291,34 @@ module Deepblue
                                    msg_handler.called_from,
                                    "data=#{data.pretty_inspect}",
                                    "" ] if msg_handler.debug_verbose
-      status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
-                           parms: parms,
-                           data: data )
-      msg_handler.msg_debug_bold [ msg_handler.here,
-                                   msg_handler.called_from,
-                                   "status=#{status}",
-                                   "body=#{response_inspect_body( body, debug_verbose: msg_handler.debug_verbose )}",
-                                   "" ] if msg_handler.debug_verbose
+      status = nil
+      body = nil
+      begin
+        status, body = post( connection: build_connection( uri: tdx_rest_url, headers: headers ),
+                             parms: parms,
+                             data: data )
+        msg_handler.msg_debug_bold [ msg_handler.here,
+                                     msg_handler.called_from,
+                                     "status=#{status}",
+                                     "body=#{response_inspect_body( body, debug_verbose: msg_handler.debug_verbose )}",
+                                     "" ] if msg_handler.debug_verbose
+        ::Deepblue::EmailHelper.send_email_fritx( subject: "update_ticket_feed",
+                                                  messages: [ ::Deepblue::LoggingHelper.here,
+                                                              ::Deepblue::LoggingHelper.called_from,
+                                                              "ticket_id=#{ticket_id}",
+                                                              "comments=#{comments}",
+                                                              "body=#{body}",
+                                                              "status=#{status}" ] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+      rescue Exception => e
+        ::Deepblue::EmailHelper.send_email_fritx( subject: "update_ticket_feed failed",
+                                                  messages: [ ::Deepblue::LoggingHelper.here,
+                                                              ::Deepblue::LoggingHelper.called_from,
+                                                              "ticket_id=#{ticket_id}",
+                                                              "comments=#{comments}",
+                                                              "Threw exception:",
+                                                              "#{e.class}: #{e.message}",
+                                                              "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+      end
       return status, body
     end
 
