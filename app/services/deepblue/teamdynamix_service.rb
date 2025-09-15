@@ -1308,7 +1308,7 @@ module Deepblue
                                                               "ticket_id=#{ticket_id}",
                                                               "comments=#{comments}",
                                                               "body=#{body}",
-                                                              "status=#{status}" ] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+                                                              "status=#{status}" ] ) if ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
       rescue Exception => e
         ::Deepblue::EmailHelper.send_email_fritx( subject: "update_ticket_feed failed",
                                                   messages: [ ::Deepblue::LoggingHelper.here,
