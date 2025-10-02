@@ -83,7 +83,7 @@
         <% if @presenter.globus_bounce_external_link_off_server? %>
           <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
         <% else %>
-          <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+          <% use_globus_url = @presenter.globus_external_url( @presenter.id ) %>
         <% end %>
         <li role="menuitem" tabindex="-1">
         <%= link_to @presenter.globus_simple_form_link_str,
@@ -101,7 +101,7 @@
             <% if @presenter.globus_bounce_external_link_off_server? %>
               <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
             <% else %>
-              <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+              <% use_globus_url = @presenter.globus_external_url( @presenter.id ) %>
             <% end %>
             <li role="menuitem" tabindex="-1">
             <%= link_to @presenter.globus_simple_form_link_str,

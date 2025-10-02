@@ -192,8 +192,8 @@ module Deepblue
       ::Deepblue::GlobusIntegrationService.globus_export
     end
 
-    def globus_external_url( cc_id )
-      ::Deepblue::GlobusService.globus_external_url cc_id
+    def globus_external_url( cc_id, admin_only: false )
+      ::Deepblue::GlobusService.globus_external_url( cc_id, admin_only: admin_only )
     end
 
     def globus_files_available?( cc_id )
@@ -236,8 +236,8 @@ module Deepblue
       ::Deepblue::GlobusService.globus_use_data_den?
     end
 
-    def globus_url( cc_id )
-      ::Deepblue::GlobusService.globus_external_url cc_id
+    def globus_url( cc_id, admin_only: false )
+      ::Deepblue::GlobusService.globus_external_url( cc_id, admin_only: admin_only )
     end
 
   end

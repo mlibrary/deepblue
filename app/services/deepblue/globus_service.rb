@@ -120,11 +120,14 @@ module Deepblue
       error_file_exists
     end
 
-    def self.globus_external_url( id )
+    def self.globus_external_url( id, admin_only: false )
       base_dir = globus_base_url
       globus_dir_modifier = ::Deepblue::GlobusIntegrationService.globus_dir_modifier
       file_name = globus_files_target_file_name( id, data_den: globus_use_data_den? )
       if globus_use_data_den?
+        if admin_only
+          base_dir = ::Deepblue::GlobusIntegrationService.globus_base_url_data_den_private
+        end
         "#{base_dir}#{globus_dir_modifier}#{file_name}"
       else
         return "#{base_dir}#{globus_dir_modifier}%2F#{file_name}%2F" if globus_dir_modifier.present?

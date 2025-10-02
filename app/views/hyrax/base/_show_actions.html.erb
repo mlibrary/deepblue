@@ -58,7 +58,8 @@
               <li>@presenter.globus_files_prepping? @presenter.id = <%= @presenter.globus_files_prepping? @presenter.id %></li>
               <li>::Deepblue::GlobusIntegrationService.globus_base_url_legacy = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_legacy %></li>
               <li>::Deepblue::GlobusIntegrationService.globus_base_url_data_den = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_data_den %></li>
-              <li>@presenter.globus_external_url @presenter.id = <%= @presenter.globus_external_url @presenter.id %></li>
+              <li>@presenter.globus_external_url( @presenter.id ) = <%= @presenter.globus_external_url( @presenter.id ) %></li>
+              <li>@presenter.globus_external_url( @presenter.id, admin_only: true ) = <%= @presenter.globus_external_url( @presenter.id, admin_only: true ) %></li>
               <li>@presenter.globus_files_target_file_name( @presenter.id, data_den: true ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: true ) %></li>
               <li>@presenter.globus_files_target_file_name( @presenter.id, data_den: false ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: false ) %></li>
               <li>::Deepblue::GlobusIntegrationService.globus_dir_modifier = <%= ::Deepblue::GlobusIntegrationService.globus_dir_modifier %></li>
@@ -89,7 +90,7 @@
                   <% if @presenter.globus_bounce_external_link_off_server? %>
                     <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path @presenter.id %>
                   <% else %>
-                    <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+                    <% use_globus_url = @presenter.globus_external_url( @presenter.id ) %>
                   <% end %>
                   <br/>
                   <%= link_to @presenter.globus_simple_form_link_str,
@@ -97,6 +98,25 @@
                               class: 'btn btn-primary',
                               target: "_blank",
                               title: @presenter.globus_simple_form_link_str %>
+                  <br/>
+                  <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
+                  <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
+                    <%= t('simple_form.hints.data_set.globus_help') %>
+                  </a>
+                </p>
+              <% end %>
+            <% end %>
+            <% if @presenter.current_ability.admin? %>
+              <%= form_tag( main_app.globus_download_hyrax_data_set_path(@presenter.id), method: 'post' ) do %>
+                <%= hidden_field_tag('data_set[nop]') %>
+                <p> &nbsp;
+                  <% use_globus_url = @presenter.globus_external_url( @presenter.id, admin_only: true ) %>
+                  <br/>
+                  <%= link_to @presenter.globus_simple_form_link_str( admin_only: true ),
+                              use_globus_url,
+                              class: 'btn btn-primary',
+                              target: "_blank",
+                              title: @presenter.globus_simple_form_link_str( admin_only: true) %>
                   <br/>
                   <%= t('simple_form.hints.data_set.globus_is_for_large_datasets', larger_than: ::Deepblue::GlobusIntegrationService.globus_best_used_gt_size_str ) %> &nbsp;
                   <a href="<%= main_app.static_path( doc: 'globus-help') %>" target="_blank">
@@ -113,7 +133,7 @@
                   <% if @presenter.globus_bounce_external_link_off_server? %>
                     <% use_globus_url = main_app.globus_download_redirect_hyrax_data_set_path(@presenter.id) %>
                   <% else %>
-                    <% use_globus_url = @presenter.globus_external_url @presenter.id %>
+                    <% use_globus_url = @presenter.globus_external_url( @presenter.id ) %>
                   <% end %>
                   <br/>
                   <%= link_to @presenter.globus_simple_form_link_str,

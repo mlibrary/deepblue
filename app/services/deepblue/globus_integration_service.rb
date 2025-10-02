@@ -40,6 +40,8 @@ module Deepblue
                    default: 'https://app.globus.org/file-manager?origin_id=4db576d9-f052-4494-93eb-1d6c0008f358&origin_path=%2F'
     mattr_accessor :globus_base_url_data_den,
                    default: 'https://app.globus.org/file-manager?origin_id=cc387c09-b0e5-422b-a384-0d96e7ffdc73&origin_path='
+    mattr_accessor :globus_base_url_data_den_private,
+                   default: 'https://app.globus.org/file-manager?origin_id=7f619618-05e8-4e38-a8ad-8d7e22e1be2f&origin_path='
     mattr_accessor :globus_best_used_gt_size,                     default: 3.gigabytes
     mattr_accessor :globus_best_used_gt_size_str,
                    default: ::ConfigHelper.human_readable_size(globus_best_used_gt_size)

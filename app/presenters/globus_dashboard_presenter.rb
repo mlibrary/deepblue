@@ -42,8 +42,10 @@ class GlobusDashboardPresenter
     @id_to_work_map = {}
   end
 
-  def globus_simple_form_link_str
-    rv = ::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')
+  def globus_simple_form_link_str( admin_only: false)
+    and_admin = ""
+    and_admin = " (admin)" if admin_only
+    rv = "#{::Deepblue::EmailHelper.t('simple_form.hints.data_set.globus_link')}#{and_admin}"
     return rv unless current_ability.admin? && globus_debug_verbose?
     if globus_use_data_den?
       rv += " from DataDen"
