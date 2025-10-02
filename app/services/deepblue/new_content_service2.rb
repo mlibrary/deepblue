@@ -229,6 +229,19 @@ module Deepblue
         return true
       end
 
+      def add_embargo( work_hash:, work: )
+        embargo_release_date = work_hash[:embargo_release_date]
+        return unless embargo_release_date.present?
+        embargo_release_date = build_date( hash: work_hash, key: :embargo_release_date )
+        return unless embargo_release_date.present?
+        visibility_during_embargo = hash[:visibility_during_embargo]
+        visibility_during_embargo ||= Rails.configuration.embargo_visibility_during_default_status
+        visibility_after_embargo = hash[:visibility_after_embargo]
+        visibility_after_embargo ||= Rails.configuration.embargo_visibility_after_default_status
+        # TODO: test
+        work.apply_embargo( embargo_release_date, visibility_during=visibility_during_embargo, visibility_after=visibility_after_embargo )
+      end
+
       def add_file_set_to_work( work:, file_set: )
         return if file_set.parent.present? && work.id == file_set.parent_id
         # TODO: probably should lock the work here.
@@ -897,12 +910,13 @@ module Deepblue
         mode = work_hash[:mode]
         mode = MODE_BUILD if id.blank?
         work = nil
-        work = find_work_using_id( id ) if MODE_APPEND == mode
+        work = find_work_using_id( id: id ) if MODE_APPEND == mode
         work = build_work( id: id, work_hash: work_hash, parent: parent ) if work.nil?
         return nil if work.nil?
         log_object work if work.present?
         add_file_sets_to_work( work_hash: work_hash, work: work )
         add_work_to_parent_ids( work_hash: work_hash, work: work )
+        add_embargo( work_hash: work_hash, work: work )
         doi_mint( curation_concern: work )
         @ingest_urls << work.data_set_url if work.present?
         return work
