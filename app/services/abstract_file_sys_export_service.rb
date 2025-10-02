@@ -77,9 +77,9 @@ class AbstractFileSysExportService
     noid_service.clean_export_dirs()
   end
 
-  def date_set_delete( noid: )
+  def data_set_delete_logical( noid: )
     noid_service = FileSysExportNoidService.new( export_service: self, noid: noid )
-    noid_service.clean_export_dirs()
+    noid_service.delete_work_logical( note: nil )
   end
 
   def data_set_publish( cc: )
@@ -268,6 +268,63 @@ class AbstractFileSysExportService
 
   end
 
+  def self.export_data_set_unpublish( file_sys_export: )
+    #file_exporter = noid_service.file_exporter
+    # file_exporter.file_recs.each do |fs_rec|
+    records = FileExport.for_file_sys_export( file_sys_export: file_sys_export )
+    records.each do |fs_rec|
+      if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
+        next
+      end
+      if fs_rec.noid.match( /^.+\:v\d+$/ ) then
+        next
+      end
+      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+        next
+      end
+      move_export_unpublish_rec( fs_rec )
+    end
+  end
+
+  def self.move_export_unpublish_rec( fs_rec )
+    export_fs_status_rec( fs_rec, ::FileSysExportC::STATUS_EXPORTING_PRIVATE )
+    unpublished_path = export_path_rec( fs_rec, published: false )
+    published_path = export_path_rec( fs_rec, published: true )
+    unpublished_path = FileUtilsHelper.join unpublished_path, fs_rec.base_noid_path
+    published_path = FileUtilsHelper.join published_path, fs_rec.base_noid_path
+    unpublished_path_file = FileUtilsHelper.join unpublished_path, fs_rec.export_file_name
+    published_path_file = FileUtilsHelper.join published_path, fs_rec.export_file_name
+    if FileUtilsHelper.file_exists? published_path_file
+      FileUtilsHelper.mv( published_path_file, unpublished_path )
+      rv = export_fs_status_rec( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
+    else
+      rv = export_fs_status_rec( fs_rec, ::FileSysExportC::STATUS_EXPORT_ERROR, note: "mv published file not found" )
+    end
+    return rv
+  end
+
+  def self.export_path_rec( fs_rec, published: )
+    if fs_rec.export_type = FileSysExportIntegrationService.data_den_export_type
+      base_path_published = FileSysExportIntegrationService.data_den_base_path_published
+      base_path_unpublished = FileSysExportIntegrationService.data_den_base_path_unpublished
+    else
+      base_path_published = FileSysExportIntegrationService.data_den_base_path_published
+      base_path_unpublished = FileSysExportIntegrationService.data_den_base_path_unpublished
+    end
+    fs_rec.export_type
+    FileSysExportService.path( published: published,
+                               base_path_published: base_path_published,
+                               base_path_unpublished: base_path_unpublished )
+  end
+
+  def self.export_fs_status_rec( fs_rec, export_status, note: nil )
+    fs_rec.export_status = export_status
+    fs_rec.export_status_timestamp = DateTime.now
+    fs_rec.note = note if note.present?
+    fs_rec.save!
+    return export_status
+  end
+
   def export_data_set_unpublish_rec( noid_service: )
     file_exporter = noid_service.file_exporter
     file_exporter.file_recs.each do |fs_rec|
@@ -318,8 +375,8 @@ class AbstractFileSysExportService
     unless export_file_set( noid_service: noid_service, file_set: fs, file_path: file_path )
       return fs_status_error( fs_rec, note: "export_fs_rec failed" )
     end
-    FileUtils.chmod( "u=rw,g=rw,o=r", file_path )
     rv = export_fs_status( fs_rec, ::FileSysExportC::STATUS_EXPORTED_PRIVATE )
+    FileUtils.chmod( "u=rw,g=rw,o=r", file_path )
     FileSysExportService.checksum_validate( fs_rec: fs_rec, file_path: file_path, msg_handler: @msg_handler )
     return rv
   end
