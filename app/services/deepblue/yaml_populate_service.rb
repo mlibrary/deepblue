@@ -185,7 +185,7 @@ module Deepblue
           end
         end
 
-        skip = %w[ prior_identifier title file_size ]
+        skip = %w[ prior_identifier title file_size embargo_id ]
         attribute_names_file_set.each do |name|
           next if skip.include? name
           yaml_item_file_set( out, indent, file_set, name: name )
@@ -247,7 +247,12 @@ module Deepblue
       yaml_item( out, indent, ":state:", curation_concern.state_str )
       yaml_item( out, indent, ":visibility:", curation_concern.visibility )
       yaml_item( out, indent, ":workflow_state:", curation_concern.workflow_state )
-      skip = %w[ admin_set_id prior_identifier rights rights_license subject subject_discipline total_file_size ]
+      if curation_concern.embargoed?
+        yaml_item( out, indent, ":embargo_release_date:", curation_concern.embargo_release_date, escape: true )
+        yaml_item( out, indent, ":visibility_during_embargo:", curation_concern.visibility_during_embargo )
+        yaml_item( out, indent, ":visibility_after_embargo:", curation_concern.visibility_after_embargo )
+      end
+      skip = %w[ admin_set_id prior_identifier rights rights_license subject subject_discipline total_file_size embargo_id ]
       attribute_names_work.each do |name|
         next if skip.include? name
         yaml_item_work( out, indent, curation_concern, name: name )
