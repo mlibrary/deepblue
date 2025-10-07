@@ -41,12 +41,36 @@ module DataDen
       return false if dsc.data_set_present?
       if FileSysExportIntegrationService.automatic_set_deleted_status
         if PersistHelper.gone_id? dsc.noid
-          export_service.delete_work_logical( noid: dsc.noid )
+          #export_service.data_set_delete_logical( noid: dsc.noid ) # NOTE: if work is gone, can't instantiate export service
+          delete_work_logical( noid: dsc.noid )
           return true
         end
       end
       msg_handler.msg_warn "Failed to load work with noid: #{fs_rec.noid}"
       return true
+    end
+
+    def delete_work_logical( noid: )
+      file_sys_export = FileSysExport.where( noid: noid )
+      return if file_sys_export.blank?
+      file_sys_export = file_sys_export.first
+      return if ::FileSysExportC::STATUS_DELETED == file_sys_export.export_status
+      if file_sys_export.published
+        # TODO:
+        # export_service.export_data_set_unpublish_rec( noid_service: this )
+        # AbstractFileSysExportService.export_data_set_unpublish( file_sys_export: file_sys_export )
+      end
+      #status!( export_status: ::FileSysExportC::STATUS_DELETED, note: note )
+      file_sys_export.export_status = ::FileSysExportC::STATUS_DELETED
+      file_sys_export.export_status_timestamp = DateTime.now
+      #file_sys_export.note = note if note.present?
+      file_sys_export.save!
+    end
+
+    def unpublish_work()
+      if published?
+        export_service.export_data_set_unpublish_rec( noid_service: this )
+      end
     end
 
     def noid_pairs

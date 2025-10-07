@@ -47,6 +47,9 @@ module PersistHelper
     nil
   rescue ::ActiveFedora::ObjectNotFoundError
     nil
+  rescue ArgumentError => e
+    puts "ArgumentError: e=#{e} id=#{id}"
+    nil
   end
 
   # Allows the user to find out if an id has been used in the system and then been deleted
@@ -61,7 +64,7 @@ module PersistHelper
   end
 
   def self.gone_id?( id, use_valkyrie: false )
-    ::ActiveFedora::Base.find( uri )
+    ::ActiveFedora::Base.find( id )
     false
   rescue Ldp::Gone
     true
