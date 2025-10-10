@@ -100,12 +100,24 @@ class AbstractFileSysExportService
     # TODO
   end
 
-  def data_set_update( cc:, error_if_work_record_missing: true )
-    # TODO
+  def data_set_update( noid:, error_if_work_record_missing: true )
+    # TODO:
+    # get file_sys_rec and check if the status is deleted
+    work_status = FileSysExport.export_status_for( noid: noid )
+    if FileSysExportC::STATUS_DELETED == work_status
+      return false
+    end
     # TODO: get work_rec for cc
+    work = PersistHelper.find_or_nil( noid )
+    if work.nil?
+      # TODO: logically delete it
+      return false
+    end
+    noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
     # TODO: get file_sets_delta
     # TODO: process missing
     # TODO: process extra
+    return false # TODO: return true
   end
 
   def ensure_dir_exists( path: )
@@ -144,6 +156,33 @@ class AbstractFileSysExportService
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     bold_error [ here, called_from,
                  "AbstractFileSysExportService.export_data_set(#{work&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
+    raise
+  end
+
+  def export_file_set( file_set: nil, fs_noid: nil )
+    # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
+    msg_verbose "export_file_set starting..." if verbose
+    raise ArgumentError( "Expected one of file_set or fs_noid to not be nil." ) if file_set.nil? && fs_noid.nil?
+    file_set = PersistHelper.find_or_nil( fs_noid ) if file_set.nil?
+    raise ArgumentError( "Could not find file set #{fs_noid}" ) if work.nil?
+    work = file_set.parent
+    noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
+    file_exporter = noid_service.file_exporter
+    fs_rec = file_exporter.find_fs_record( fs: file_set )
+    export_fs_rec( noid_service: noid_service, fs: file_set, fs_rec: fs_rec ) # this will take time
+    if noid_service.published?
+      # delete the published record
+      published_path = service.export_path( published: true )
+      published_path_file = FileUtilsHelper.join published_path, fs_rec.export_file_name
+      FileUtils.remove_file( published_path_file ) if FileUtilsHelper.file_exist? published_path_file
+      # service.export_data_set_publish_rec( noid_service: noid_service )
+      export_file_set_publish_rec( service: self, fs_rec: fs_rec )
+    end
+    msg_verbose "export_file_set finished." if verbose
+  rescue Exception => e
+    Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
+    bold_error [ here, called_from,
+                 "AbstractFileSysExportService.export_file_set(#{file_set&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
     raise
   end
 
@@ -343,6 +382,29 @@ class AbstractFileSysExportService
       end
       move_export_unpublish_rec( fs_rec: fs_rec )
     end
+  end
+
+
+  def export_file_set_publish_rec( service:, fs_rec: )
+    msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
+    unless ::FileSysExportC::STATUS_EXPORTED_PRIVATE == fs_rec.export_status then
+      #msg_verbose "skipping publish export of fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
+      return false
+    end
+    if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
+      msg_verbose "export_data_set_publish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
+      return false
+    end
+    if fs_rec.noid.match( /^.+\:v\d+$/ ) then
+      msg_verbose "export_data_set_publish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
+      return false
+    end
+    unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+      msg_verbose "export_data_set_publish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
+      return false
+    end
+    service.move_export_rec( fs_rec: fs_rec )
+    return true
   end
 
   def export_file_set( noid_service:, file_set:, file_path: )
@@ -579,6 +641,7 @@ class AbstractFileSysExportService
     return false
   end
 
+  def fs_status_deleted(   rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_DELETED,   note: note   ) end
   def fs_status_error(     rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORT_ERROR,   note: note   ) end
   def fs_status_export_needed( rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORT_NEEDED, note: note ) end
   def fs_status_exported(  rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORTED,       note: note   ) end
@@ -693,6 +756,7 @@ class AbstractFileSysExportService
     @validate_checksums = value
   end
 
+  def work_status_deleted(   rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_DELETED,        note: note ) end
   def work_status_error(     rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_ERROR,   note: note ) end
   def work_status_export_needed( rec, note: nil ) export_fs_status( rec, FileSysExportC::STATUS_EXPORT_NEEDED, note: note ) end
   def work_status_export_updating( rec, note: nil ) noid_service_status( rec, FileSysExportC::STATUS_EXPORT_UPDATING,      note: note ) end
