@@ -72,6 +72,9 @@ module Aptrust
     mattr_accessor :from_controller_debug_assume_upload_succeeds, default: false
     mattr_accessor :from_controller_debug_verbose,                default: false
 
+    mattr_accessor :include_tombstoned_works,                     default: true
+    mattr_accessor :include_unpublished_works,                    default: true
+
     def self.dump_mattrs
       return [ "::Aptrust::AptrustIntegrationService.allow_deposit=#{::Aptrust::AptrustIntegrationService.allow_deposit}",
        "::Aptrust::AptrustIntegrationService.deposit_context=#{::Aptrust::AptrustIntegrationService.deposit_context}",
