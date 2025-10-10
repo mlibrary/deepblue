@@ -12,6 +12,7 @@ class Aptrust::WorkTasks
                    cleanup_after_deposit:   true,
                    cleanup_bag:             true,
                    cleanup_bag_data:        true,
+                   export_file_set_ids:     [],
                    multibag_parts_included: [],
                    track_status:            true,
                    zip_data_dir:            false,
@@ -26,6 +27,7 @@ class Aptrust::WorkTasks
                                                  cleanup_after_deposit:   cleanup_after_deposit,
                                                  cleanup_bag:             cleanup_bag,
                                                  cleanup_bag_data:        cleanup_bag_data,
+                                                 export_file_set_ids:     export_file_set_ids,
                                                  multibag_parts_included: multibag_parts_included,
                                                  noid:                    noid,
                                                  track_status:            track_status,
@@ -152,6 +154,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   event_start:                   nil,
                   event_stop:                    nil,
                   export_file_sets:              true,
+                  export_file_set_ids:           [],
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
                   multibag_parts_included:       [],
@@ -170,6 +173,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                              "cleanup_bag_data=#{cleanup_bag_data}",
                              "clear_status=#{clear_status}",
                              "export_file_sets=#{export_file_sets}",
+                             "export_file_set_ids=#{export_file_set_ids}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "multibag_parts_included=#{multibag_parts_included}",
@@ -207,6 +211,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            event_stop:                    event_stop,
            export_dir:                    export_dir,
            export_file_sets:              export_file_sets,
+           export_file_set_ids:           export_file_set_ids,
            export_file_sets_filter_date:  export_file_sets_filter_date,
            export_file_sets_filter_event: export_file_sets_filter_event,
            multibag_parts_included:       multibag_parts_included,
@@ -348,6 +353,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
           file_set_ids << f.id
         end
       end
+    elsif export_file_set_ids.present?
+      file_set_ids = export_file_set_ids
     else
       file_set_ids = []
     end

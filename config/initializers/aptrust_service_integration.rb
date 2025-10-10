@@ -30,6 +30,9 @@ Aptrust::AptrustIntegrationService.setup do |config|
   config.default_storage_option   = 'Glacier-Deep-OR'
   config.default_title            = 'No Title'
 
+  config.include_tombstoned_works  = true
+  config.include_unpublished_works = true
+
   # use these values from the DataSetContoller when launching an AptrustUploadWorkJob
   config.from_controller_cleanup_after_deposit        = true
   config.from_controller_cleanup_before_deposit       = true

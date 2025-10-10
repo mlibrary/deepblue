@@ -36,6 +36,20 @@ class Aptrust::WorkCache
     return rv
   end
 
+  def draft?
+    if @solr
+      rv = draft_solr?
+    else
+      rv = work.draft_mode?
+    end
+    return rv
+  end
+
+  def draft_solr?
+    doc = work
+    return ::Deepblue::DraftAdminSetService.draft_admin_set_title == doc["admin_set_tesim"][0]
+  end
+
   def file_set_ids
     if @solr
       rv = work['file_set_ids_ssim']
@@ -78,6 +92,20 @@ class Aptrust::WorkCache
     return self
   end
 
+  def tombstoned?
+    if @solr
+      rv = tombstoned_solr?
+    else
+      rv = work.tombstone.present?
+    end
+    return rv
+  end
+
+  def tombstoned_solr?
+    doc = work
+    return Array(doc['tombstone_tesim']).first.present?
+  end
+
   def total_file_size
     if @solr
       rv = work['total_file_size_lts']
@@ -85,6 +113,17 @@ class Aptrust::WorkCache
       rv = work.total_file_size
     end
     return rv
+  end
+
+  def uploadable?
+    if tombstoned?
+      return false unless Aptrust::AptrustIntegrationService::include_tombstoned_works
+    elsif draft_mode?
+      return false
+    elsif !published?
+      return false unless Aptrust::AptrustIntegrationService::include_unpublished_works
+    end
+    return true
   end
 
   def work

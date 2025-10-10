@@ -18,6 +18,7 @@ class Aptrust::AptrustUploadWork
   attr_accessor :event_stop
   attr_accessor :export_dir
   attr_accessor :export_file_sets
+  attr_accessor :export_file_set_ids
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
   attr_accessor :multibag_parts_included
@@ -40,6 +41,7 @@ class Aptrust::AptrustUploadWork
                   event_start:                   nil,
                   event_stop:                    nil,
                   export_file_sets:              true,
+                  export_file_set_ids:           [],
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
                   multibag_parts_included:       [],
@@ -80,6 +82,7 @@ class Aptrust::AptrustUploadWork
     @event_stop                    = event_stop
     @export_dir                    = nil
     @export_file_sets              = export_file_sets
+    @export_file_set_ids           = export_file_set_ids
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
     @multibag_parts_included       = multibag_parts_included
