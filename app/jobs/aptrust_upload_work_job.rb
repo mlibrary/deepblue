@@ -75,6 +75,7 @@ aptrust_upload_work_job:
       cleanup_bag_data              = job_options_value( key: 'cleanup_bag_data',              default_value: true )
       clear_status                  = job_options_value( key: 'clear_status',                  default_value: true )
       export_file_sets              = job_options_value( key: 'export_file_sets',              default_value: nil )
+      export_file_set_ids           = job_options_value( key: 'export_file_set_ids',           default_value: [] )
       export_file_sets_filter_date  = job_options_value( key: 'export_file_sets_filter_date',  default_value: nil )
       export_file_sets_filter_event = job_options_value( key: 'export_file_sets_filter_event', default_value: nil )
       id                            = job_options_value( key: 'id',                            default_value: nil )
@@ -88,6 +89,7 @@ aptrust_upload_work_job:
                                "cleanup_bag_data=#{cleanup_bag_data}",
                                "clear_status=#{clear_status}",
                                "export_file_sets=#{export_file_sets}",
+                               "export_file_sets=#{export_file_set_ids}",
                                "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                                "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                                "id=#{id}",
@@ -103,6 +105,7 @@ aptrust_upload_work_job:
                                                    clear_status:                  clear_status,
                                                    debug_assume_upload_succeeds:  debug_assume_upload_succeeds,
                                                    export_file_sets:              export_file_sets,
+                                                   export_file_set_ids:           export_file_sets,
                                                    export_file_sets_filter_date:  export_file_sets_filter_date,
                                                    export_file_sets_filter_event: export_file_sets_filter_event,
                                                    multibag_parts_included:       multibag_parts_included,

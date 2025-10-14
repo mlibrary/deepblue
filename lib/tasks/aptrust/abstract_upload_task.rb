@@ -123,6 +123,23 @@ module Aptrust
       return opt
     end
 
+    def run_fs_noids_upload
+      total_size = 0
+      # todo
+      # this assumes the noids specified are actually file set noids
+      # look up file set by noid
+      # get parent_id from file set
+      # run upload passing in export_file_set_ids
+      # w = ::Aptrust::WorkCache.new
+      noids.each do |noid|
+        file_set = PersistHelper.find_or_nil( id: noid )
+        if !file_set.nil?
+          work_noid = file_set.parent_id # verify
+          run_upload( noid: work_noid, size: nil, export_file_set_ids: [ noid ] )
+        end
+      end
+    end
+
     def run_noids_upload
       total_size = 0
       w = ::Aptrust::WorkCache.new
@@ -202,7 +219,7 @@ module Aptrust
       end
     end
 
-    def run_upload( noid:, size: nil )
+    def run_upload( noid:, size: nil, export_file_set_ids: [] )
       msg_handler.msg_verbose "sleeping for #{sleep_secs}" if 0 < sleep_secs
       sleep( sleep_secs ) if 0 < sleep_secs
       msg = "Uploading: #{noid}"
@@ -228,7 +245,7 @@ module Aptrust
       @sort
     end
 
-    def uploader_for( noid: )
+    def uploader_for( noid:, export_file_set_ids: [] )
       uploader = ::Aptrust::AptrustUploadWork.new( msg_handler:                  msg_handler,
                                                    debug_verbose:                debug_verbose,
                                                    bag_max_file_size:            bag_max_file_size,
@@ -239,6 +256,7 @@ module Aptrust
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
                                                    event_start:                  event_start,
                                                    event_stop:                   event_stop,
+                                                   export_file_set_ids:          export_file_set_ids,
                                                    multibag_parts_included:      multibag_parts_included,
                                                    noid:                         noid,
                                                    track_status:                 track_status,

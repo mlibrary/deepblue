@@ -34,7 +34,8 @@ module Aptrust
         end
         next unless w&.file_set_ids.present?
         next unless w.file_set_ids.size > 0
-        next unless w.published?
+        #next unless w.published?
+        next unless w.uploadable?
         # msg_handler.msg_verbose "Filter w.date_modified=#{w.date_modified}"
         # msg_handler.msg_verbose "Filter #{test_date_begin} < #{w.date_modified} < #{test_date_end} ?"
         # msg_handler.msg_verbose "next unless #{test_date_begin} <= #{w.date_modified} = #{test_date_begin <= w.date_modified}"

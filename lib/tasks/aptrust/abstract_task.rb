@@ -293,6 +293,17 @@ module Aptrust
       return rv
     end
 
+    def work_uploadable?( work: )
+      if work.tombstone.present?
+        return false unless Aptrust::AptrustIntegrationService::include_tombstoned_works
+      elsif work.draft_mode?
+        return false
+      elsif !work.published?
+        return false unless Aptrust::AptrustIntegrationService::include_unpublished_works
+      end
+      return true
+    end
+
   end
 
 end

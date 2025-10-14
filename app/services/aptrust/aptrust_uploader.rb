@@ -153,6 +153,7 @@ class Aptrust::AptrustUploader
   attr_accessor :event_stopped # once stopped, don't continue
   attr_accessor :export_errors
   attr_accessor :export_file_sets
+  attr_accessor :export_file_set_ids
   attr_accessor :export_file_sets_filter_date
   attr_accessor :export_file_sets_filter_event
   attr_accessor :export_by_closure
@@ -208,6 +209,7 @@ class Aptrust::AptrustUploader
                   event_stop:                    nil,
                   export_dir:                    nil,
                   export_file_sets:              true,
+                  export_file_set_ids:           [],
                   export_file_sets_filter_date:  nil,
                   export_file_sets_filter_event: nil,
                   export_by_closure:             nil,
@@ -272,6 +274,7 @@ class Aptrust::AptrustUploader
                              "event_stop=#{event_stop}",
                              "export_dir=#{export_dir}",
                              "export_file_sets=#{export_file_sets}",
+                             "export_file_set_ids=#{export_file_set_ids}",
                              "export_file_sets_filter_date=#{export_file_sets_filter_date}",
                              "export_file_sets_filter_event=#{export_file_sets_filter_event}",
                              "export_by_closure=#{export_by_closure}",
@@ -323,6 +326,7 @@ class Aptrust::AptrustUploader
     @event_stopped                 = false
     @export_errors                 = nil
     @export_file_sets              = export_file_sets
+    @export_file_set_ids           = export_file_set_ids
     @export_file_sets_filter_date  = export_file_sets_filter_date
     @export_file_sets_filter_event = export_file_sets_filter_event
     @export_by_closure             = export_by_closure
@@ -366,6 +370,7 @@ class Aptrust::AptrustUploader
                              "@event_start=#{@event_start}",
                              "@event_stop=#{@event_stop}",
                              "@export_file_sets=#{@export_file_sets}",
+                             "@export_file_set_ids=#{@export_file_set_ids}",
                              "@export_file_sets_filter_date=#{@export_file_sets_filter_date}",
                              "@export_file_sets_filter_event=#{@export_file_sets_filter_event}",
                              "@export_by_closure=#{@export_by_closure}",

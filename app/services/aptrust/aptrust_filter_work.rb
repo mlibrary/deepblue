@@ -154,8 +154,13 @@ class Aptrust::AptrustFilterWork
                                            "work.tombstone.present?=#{work.tombstone.present?}",
                                            "work.published?=#{work.published?}",
                                            "" ] if debug_verbose
-    return false if work.tombstone.present?
-    return false unless work.published?
+    if work.tombstone.present?
+      return false unless Aptrust::AptrustIntegrationService::include_tombstoned_works
+    elsif work.draft_mode?
+      return false
+    elsif !work.published?
+      return false unless Aptrust::AptrustIntegrationService::include_unpublished_works
+    end
 
     return false unless include_by_date? work: work
     return false unless include_by_size? work: work

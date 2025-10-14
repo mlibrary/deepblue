@@ -139,6 +139,20 @@ class DataSetCache
     @solr.present?
   end
 
+  def tombstoned?
+    if @solr.present?
+      rv = tombstoned_solr?
+    else
+      rv = data_set.tombstone.present?
+    end
+    return rv
+  end
+
+  def tombstoned_solr?
+    doc = data_set
+    return Array(doc['tombstone_tesim']).first.present?
+  end
+
   def total_file_size
     if @solr.present?
       rv = @solr['total_file_size_lts']
@@ -147,6 +161,17 @@ class DataSetCache
     end
     rv = 0 if rv.nil?
     return rv
+  end
+
+  def uploadable?
+    if tombstoned?
+      return false unless Aptrust::AptrustIntegrationService::include_tombstoned_works
+    elsif draft?
+      return false
+    elsif !published?
+      return false unless Aptrust::AptrustIntegrationService::include_unpublished_works
+    end
+    return true
   end
 
 end
