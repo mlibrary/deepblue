@@ -27,6 +27,8 @@ module Deepblue
     attr_accessor :totals
     attr_accessor :work_ids_reported, :work_file_count_cache, :work_size_cache
 
+    attr_accessor :report_options
+
     def initialize_report_values
       @totals = Hash.new( 0 )
       @tagged_totals = {}
@@ -551,6 +553,23 @@ module Deepblue
 
       report_all_totals
       report_top_ten
+
+      if @report_options[:expanded_file_set_report]
+        out_report << "\n"
+        out_report << "All file set extensions:" << "\n"
+        file_ext_hash = tagged( base_tag: 'extensions' )
+        index = 0
+        file_ext_hash.each do |a|
+          index += 1
+          out_report << index << ') ' << a[0].to_s << ' occurred ' << a[1]
+          out_report << if 1 == a[1]
+                          " time"
+                        else
+                          " times"
+                        end
+          out_report << "\n"
+        end
+      end
 
       out_report << "\n"
       out_report << "Files written:" << "\n"

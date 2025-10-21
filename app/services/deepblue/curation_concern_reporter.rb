@@ -17,6 +17,8 @@ module Deepblue
       report_dir = task_options_value( key: 'report_dir', default_value: DEFAULT_REPORT_DIR )
       @report_dir = expand_path_partials( report_dir )
       @file_ext_re = DEFAULT_FILE_EXT_RE
+      @report_options ||= {}
+      @report_options[:expanded_file_set_report] = task_options_value( key: :expanded_file_set_report, default_value: false )
     end
 
   end
