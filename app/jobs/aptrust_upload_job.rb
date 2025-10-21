@@ -104,6 +104,7 @@ aptrust_upload_job:
       max_upload_jobs               = job_options_value( key: 'max_upload_jobs',               default_value: 1 )
       max_uploads                   = job_options_value( key: 'max_uploads',                   default_value: -1 )
       track_status                  = job_options_value( key: 'track_status',                  default_value: true )
+      options_uploader = {} # TODO: use
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "cleanup_after_deposit=#{cleanup_after_deposit}",
@@ -146,7 +147,8 @@ aptrust_upload_job:
                                                     max_upload_jobs:               max_upload_jobs,
                                                     max_uploads:                   max_uploads,
                                                     msg_handler:                   msg_handler,
-                                                    debug_verbose:                 debug_verbose )
+                                                    debug_verbose:                 debug_verbose,
+                                                    options_uploader: options_uploader )
       finder.run
       timestamp_end = DateTime.now
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,

@@ -27,6 +27,8 @@ module Aptrust
     attr_accessor :sort
     attr_accessor :zip_data_dir
 
+    attr_accessor :options_uploader
+
     def initialize( msg_handler: nil, options: {} )
       super( msg_handler: msg_handler, options: options )
       @bag_max_file_size = option_integer( key: 'bag_max_file_size' )
@@ -45,6 +47,7 @@ module Aptrust
       @sleep_secs = option_sleep_secs
       @sort = option_value( key: 'sort', default_value: false )
       @zip_data_dir = option_value( key: 'zip_data_dir', default_value: false )
+      @options_uploader = {} # TODO: use
     end
 
     def noid_pairs
@@ -260,7 +263,8 @@ module Aptrust
                                                    multibag_parts_included:      multibag_parts_included,
                                                    noid:                         noid,
                                                    track_status:                 track_status,
-                                                   zip_data_dir:                 zip_data_dir )
+                                                   zip_data_dir:                 zip_data_dir,
+                                                   options_uploader: options_uploader )
       return uploader
     end
 

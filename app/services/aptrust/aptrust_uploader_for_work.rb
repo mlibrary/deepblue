@@ -16,7 +16,8 @@ class Aptrust::WorkTasks
                    multibag_parts_included: [],
                    track_status:            true,
                    zip_data_dir:            false,
-                   debug_verbose:           false )
+                   debug_verbose:           false,
+                   options_uploader:        {} )
 
     puts note unless note.nil?
     msg_handler = ::Deepblue::MessageHandler.msg_handler_for( task: true, debug_verbose: debug_verbose )
@@ -31,7 +32,8 @@ class Aptrust::WorkTasks
                                                  multibag_parts_included: multibag_parts_included,
                                                  noid:                    noid,
                                                  track_status:            track_status,
-                                                 zip_data_dir:            zip_data_dir )
+                                                 zip_data_dir:            zip_data_dir,
+                                                 options_uploader:        options_uploader )
     uploader.run;true
   end
 
@@ -162,7 +164,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
                   work:                          nil,
                   msg_handler:                   nil,
                   zip_data_dir:                  false,
-                  debug_verbose:                 aptrust_uploader_for_work_debug_verbose )
+                  debug_verbose:                 aptrust_uploader_for_work_debug_verbose,
+                  options_uploader: )
 
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                              "aptrust_config=#{aptrust_config}",
@@ -218,7 +221,8 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
            working_dir:                   working_dir,
            bi_description:                bi_description,
            track_status:                  track_status,
-           zip_data_dir:                  zip_data_dir )
+           zip_data_dir:                  zip_data_dir,
+           options_uploader: options_uploader )
 
     @work = work
     @export_by_closure = ->(target_dir, files) { export_data_work( target_dir: target_dir, files: files ) }

@@ -171,6 +171,8 @@ class Aptrust::AptrustUploader
   attr_accessor :working_dir
   attr_accessor :zip_data_dir
 
+  attr_accessor :options_uploader
+
   attr_accessor :debug_verbose
 
   def initialize( object_id:,
@@ -220,7 +222,8 @@ class Aptrust::AptrustUploader
                   working_dir:                   nil,
                   zip_data_dir:                  false,
 
-                  debug_verbose:                 aptrust_uploader_debug_verbose )
+                  debug_verbose:                 aptrust_uploader_debug_verbose,
+                  options_uploader: )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -233,6 +236,8 @@ class Aptrust::AptrustUploader
     @debug_verbose ||= aptrust_uploader_debug_verbose
     @msg_handler = msg_handler
     @msg_handler ||= ::Aptrust::NULL_MSG_HANDLER
+
+    @options_uploader = options_uploader
 
     @most_recent_status = nil
 
