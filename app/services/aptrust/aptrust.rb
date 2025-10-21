@@ -107,4 +107,32 @@ module Aptrust
         return rv
     end
 
+    def self.date_filter_modified_at( noid: )
+        recs = ::Aptrust::Status.for_id( noid: noid )
+        return nil if recs.blank?
+        rec = recs.first
+        modified_at = rec.updated_at
+        return modified_at if ::Aptrust::EVENT_DEPOSITED == rec.event
+        recs = ::Aptrust::Event.for_most_recent_event( noid: noid, event: ::Aptrust::EVENT_DEPOSITED )
+        return modified_at if recs.blank?
+        rec = recs.first
+        return rec.updated_at
+    end
+
+    def self.status_created_at( noid: )
+        rv = ::Aptrust::Status.for_id( noid: noid )
+        return nil if rv.blank?
+        rv = rv.first
+        rv = rv.created_at
+        return rv
+    end
+
+    def self.status_updated_at( noid: )
+        rv = ::Aptrust::Status.for_id( noid: noid )
+        return nil if rv.blank?
+        rv = rv.first
+        rv = rv.updated_at
+        return rv
+    end
+
 end

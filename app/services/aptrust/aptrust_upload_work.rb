@@ -29,6 +29,8 @@ class Aptrust::AptrustUploadWork
   attr_accessor :working_dir
   attr_accessor :zip_data_dir
 
+  attr_accessor :options_uploader # TODO: use
+
   attr_accessor :aptrust_config
 
   def initialize( bag_max_file_size:             nil,
@@ -49,7 +51,8 @@ class Aptrust::AptrustUploadWork
                   msg_handler:                   nil,
                   track_status:                  true,
                   zip_data_dir:                  false,
-                  debug_verbose:                 aptrust_upload_work_debug_verbose )
+                  debug_verbose:                 aptrust_upload_work_debug_verbose,
+                  options_uploader:              {} )
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -61,6 +64,7 @@ class Aptrust::AptrustUploadWork
     @debug_verbose ||= aptrust_upload_work_debug_verbose
     @msg_handler = msg_handler
     @msg_handler ||= ::Deepblue::MessageHandlerNull.new
+    @options_uploader = options_uploader # must be a hash
 
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
@@ -129,7 +133,8 @@ class Aptrust::AptrustUploadWork
                                                       work:                          work,
                                                       zip_data_dir:                  zip_data_dir,
                                                       msg_handler:                   msg_handler,
-                                                      debug_verbose:                 debug_verbose )
+                                                      debug_verbose:                 debug_verbose,
+                                                      options_uploader: options_uploader )
 
     @export_dir = File.absolute_path @export_dir if @export_dir.present?
     @working_dir = File.absolute_path @working_dir if @working_dir.present?

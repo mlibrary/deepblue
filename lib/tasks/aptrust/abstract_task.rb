@@ -213,12 +213,16 @@ module Aptrust
       end
     end
 
+    def date_filter_modified_at( noid: )
+      ::Aptrust.date_filter_modified_at( noid: noid )
+    end
+
     def status_created_at( noid: )
-      rv = ::Aptrust::Status.for_id( noid: noid )
-      return nil if rv.blank?
-      rv = rv.first
-      rv = rv.created_at
-      return rv
+      ::Aptrust.status_created_at( noid: noid )
+    end
+
+    def status_updated_at( noid: )
+      ::Aptrust.status_updated_at( noid: noid )
     end
 
     def test_dates_init
@@ -276,7 +280,7 @@ module Aptrust
         end
       else
         begin
-          return num.to.i
+          return num.to_i
         rescue ArgumentError => e
           msg_handler.msg_error "Failed parse number string '#{num}'"
           raise e if raise_errors

@@ -81,6 +81,7 @@ aptrust_upload_work_job:
       id                            = job_options_value( key: 'id',                            default_value: nil )
       multibag_parts_included       = job_options_value( key: 'multibag_parts_included',       default_value: [] )
       track_status                  = job_options_value( key: 'track_status',                  default_value: true )
+      options_uploader = {} # TODO: Use
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "debug_assume_upload_succeeds=#{debug_assume_upload_succeeds}",
                                "bag_max_total_file_size=#{bag_max_total_file_size}",
@@ -113,7 +114,8 @@ aptrust_upload_work_job:
                                                    track_status:                  track_status,
                                                    zip_data_dir:                  false,
                                                    msg_handler:                   msg_handler,
-                                                   debug_verbose:                 debug_verbose )
+                                                   debug_verbose:                 debug_verbose,
+                                                   options_uploader: options_uploader )
       uploader.run
       timestamp_end = DateTime.now
       msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,

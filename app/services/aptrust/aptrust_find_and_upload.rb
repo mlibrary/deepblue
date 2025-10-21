@@ -42,7 +42,8 @@ class Aptrust::AptrustFindAndUpload
                   msg_handler:                   nil,
                   multibag_parts_included:       [],
                   track_status:                  true,
-                  debug_verbose:                 aptrust_find_and_upload_debug_verbose )
+                  debug_verbose:                 aptrust_find_and_upload_debug_verbose,
+                  options_uploader: )
 
     @debug_verbose = debug_verbose
     @debug_verbose ||= aptrust_find_and_upload_debug_verbose
