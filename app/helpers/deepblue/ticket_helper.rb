@@ -285,7 +285,7 @@ module Deepblue
                                                             "comment=#{comment}",
                                                             "Threw exception:",
                                                             "#{e.class}: #{e.message}",
-                                                            "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+                                                            "at:" ] + e.backtrace[0..20] ) if ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
     end
 
     def self.ticket_add_comment( curation_concern: nil,
@@ -352,7 +352,7 @@ module Deepblue
                                                             "comment=#{comment}",
                                                             "Threw exception:",
                                                             "#{e.class}: #{e.message}",
-                                                            "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+                                                            "at:" ] + e.backtrace[0..20] ) if ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
     end
 
     def self.ticket_id_for( curation_concern: )

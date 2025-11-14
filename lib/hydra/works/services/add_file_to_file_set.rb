@@ -90,7 +90,19 @@ module Hydra::Works
                                   ingest_timestamp: nil )
       file_set.checksum_update_from_files! if file_set.respond_to? :checksum_update_from_files!
       begin
-        file_set.virus_scan
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "about to call virus_scan on file_set #{file_set.id}",
+                                               "job_status.present?=#{job_status.present?}",
+                                               "" ] if add_file_to_file_set_debug_verbose
+        if file_set.virus_scan
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "virus_scan returned true for #{file_set.id}",
+                                                 "job_status.present?=#{job_status.present?}",
+                                                 "" ] if add_file_to_file_set_debug_verbose
+          job_status.add_error! "#{file_set.id} virus_scan returned true" if job_status.present?
+        end
       rescue Exception => e # rubocop:disable Lint/RescueException
         msg = "AddFileToFileSet #{file_set} #{e.class}: #{e.message} at #{e.backtrace[0]}"
         job_status.add_error! msg if job_status.present?

@@ -94,7 +94,7 @@ module Deepblue
     def latest_version
       versions.last
     end
-
+    #      .bundle/ruby/3.3.0/gems/mail-2.8.1/lib/mail/message.rb:1389
     def latest_version_create_datetime
       version_datetime latest_version
     end
@@ -124,25 +124,97 @@ module Deepblue
     # virus scanning
 
     def virus_scan
+      if Rails.configuration.debug_ingest_files_active_test_virus
+        # TODO: virus_scan fix this
+        LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                   "original_file.class.name = #{original_file.class.name}",
+                                   "original_file = #{original_file}",
+                                   "virus_scan_status=#{virus_scan_status}",
+                                   "label=#{label}",
+                                   "" ] #,"Call stack:" ] + caller_locations(0..30)
+      end
       debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
-      LoggingHelper.bold_debug [ LoggingHelper.here,
-                                 LoggingHelper.called_from, "original_file = #{original_file}",
+      LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                 "original_file.class.name = #{original_file.class.name}",
+                                 "original_file = #{original_file}",
+                                 "virus_scan_status=#{virus_scan_status}",
+                                 "label=#{label}",
                                  "" ] if debug_verbose
+                                 #"Call stack:" ] + caller_locations(0..30) if debug_verbose
+      if label.present? && label.include?( "_virus_but_not_really_" ) && Rails.configuration.debug_ingest_files_active_test_virus
+        # TODO: virus_scan fix this
+        LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                 "file name contains the string '_virus_but_not_really_'",
+                                 "label=#{label}",
+                                 "" ]
+        virus_scan_status_update( scan_result: ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS )
+        return true
+      end
+      logger.info "virus_scan_status: '#{virus_scan_status}'"
+      if virus_scan_status.present?
+        if ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE == virus_scan_status
+          needed = true
+        elsif ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED == virus_scan_status
+          needed = true
+        else
+          needed = false
+        end
+      else
+        needed = virus_scan_needed?
+      end
+      logger.info "virus_scan needed: #{needed}"
       # check file size here to avoid making a temp copy of the file in VirusCheckerService
-      needed = virus_scan_needed?
+      LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                 "virus_scan needed=#{needed}",
+                                 "virus_scan_file_too_big?=#{virus_scan_file_too_big?}",
+                                 "" ] if debug_verbose
       if needed && virus_scan_file_too_big?
-        virus_scan_status_update( scan_result: VIRUS_SCAN_SKIPPED_TOO_BIG )
-        return false
+        virus_scan_status_update( scan_result: ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_TOO_BIG )
+        rv = false
       elsif needed
+        LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                   "about to call ::Hyrax::VirusCheckerService.file_has_virus? original_file",
+                                   "original_file.class.name = #{original_file.class.name}",
+                                   "original_file = #{original_file}",
+                                   "" ] if debug_verbose
+                                   #"Call stack:" ] + caller_locations(0..30) if debug_verbose
         # TODO: figure out how to retry the virus scan as this only works for ( original_file && original_file.new_record? )
-        # scan_result = Hydra::Works::VirusCheckerService.file_has_virus? original_file
         scan_result = ::Hyrax::VirusCheckerService.file_has_virus? original_file
+        LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                   "after call ::Hyrax::VirusCheckerService.file_has_virus? original_file",
+                                   "original_file.class.name = #{original_file.class.name}",
+                                   "original_file = #{original_file}",
+                                   "scan_result=#{scan_result}",
+                                   "" ] if debug_verbose
         virus_scan_status_update( scan_result: scan_result, previous_scan_result: virus_scan_status )
-        return scan_result == ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
+        rv = virus_scan_status_positive( scan_result: scan_result )
       else
         logger.info "Virus scan not needed." # TODO: improve message
-        return false
+        rv = false
       end
+      LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                 "virus_scan rv=#{rv}",
+                                 "" ] if debug_verbose
+      return rv
+    end
+
+    def virus_scan_status_positive( scan_result: )
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
+      LoggingHelper.bold_debug [ LoggingHelper.here, LoggingHelper.called_from,
+                                 "scan_result=#{scan_result}",
+                                 "" ] if debug_verbose
+      return true if scan_result == ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS
+      return false
+    end
+
+    def local_path_for_file(file)
+      debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if debug_verbose
+      return file.path if file.respond_to?(:path)
+      return file.content.path if file&.content.present? && file&.content.respond_to?(:path)
+      return ""
     end
 
     def virus_scan_file_too_big?
@@ -168,13 +240,19 @@ module Deepblue
     end
 
     def virus_scan_needed?
+      # TODO: may want to always say virus_scan is needed if the virus_scan_status.present?
+      # TODO: then when virus_scan is called, and there virus_scan_status.present? return the virus_scan_status value
       debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
-      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                             ::Deepblue::LoggingHelper.called_from,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             # "return false if original_file.nil?=#{original_file.nil?}",
+                                             # "return true if original_file && original_file.new_record?=#{original_file && original_file.new_record?}",
+                                             # "return false if virus_scan_status.present?=#{virus_scan_status.present?}",
+                                             "return true",
                                              "" ] if debug_verbose
-      return false if original_file.nil?
-      return true if original_file && original_file.new_record?
-      return false if virus_scan_status.present?
+                                             #"Call stack:" ] + caller_locations(0..30) if debug_verbose
+      #return false if original_file.nil?
+      #return true if original_file && original_file.new_record?
+      # return false if virus_scan_status.present?
       return true
       # if true # set this to false to skip virus scanning if its already been done
       #   # otherwise, really, it's always needed.
@@ -212,7 +290,8 @@ module Deepblue
       debug_verbose = ::Deepblue::VirusScanService.virus_scan_service_debug_verbose || file_set_behavior_debug_verbose
       LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                  ::Deepblue::LoggingHelper.called_from,
-                                  "" ] if debug_verbose
+                                 "" ] if debug_verbose
+                                 #"Call stack:" ] + caller_locations(0..30) if debug_verbose
       added_prov_key_values = { 'prior_virus_scan_service' => self['virus_scan_service'],
                                 'prior_virus_scan_status' => self['virus_scan_status'],
                                 'prior_virus_scan_status_date' => self['virus_scan_status_date'] }
@@ -232,7 +311,9 @@ module Deepblue
                                  ::Deepblue::LoggingHelper.called_from,
                                  "scan_result=#{scan_result}",
                                  "previous_scan_result=#{previous_scan_result}",
+                                 "virus_scan_service_name=#{virus_scan_service_name}",
                                  "" ] if debug_verbose
+                                 #"Call stack:" ] + caller_locations(0..30) if debug_verbose
       # Oops. Really don't want to consider previous result as we want the new timestamp
       # return scan_result if previous_scan_result.present? && scan_result == previous_scan_result
       #

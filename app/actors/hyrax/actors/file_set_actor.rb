@@ -54,17 +54,20 @@ module Hyrax
           create_label( file: file )
           # return false unless file_set.save # Need to save to get an id
           unless file_set.save # Need to save to get an id
-            job_status.add_error! "file_set.save returned false, exiting FileSetActor#create_actor early"
+            job_status.add_error! "file_set.save returned false, exiting FileSetActor#create_actor early for file.id=#{file.id}"
+            uploaded_file_ids - [file.id]
             ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                         ::Deepblue::LoggingHelper.called_from,
-                                                        "file=#{file})",
+                                                        "file_set.id=#{file_set.id}",
+                                                        "file=#{file}",
                                                         "file.class.name=#{file.class.name}",
+                                                        "file.pretty_inspect=#{file.pretty_inspect}",
                                                         "relation=#{relation}",
                                                         "from_url=#{from_url}",
                                                         "continue_job_chain_later=#{continue_job_chain_later}",
                                                         "uploaded_file_ids=#{uploaded_file_ids}",
                                                         "",
-                                                        "file_set failed to save in creat_content",
+                                                        "file_set failed to save in create_content",
                                                         "" ] # error
             return false
           end
@@ -193,10 +196,39 @@ module Hyrax
                                                "" ] if file_set_actor_debug_verbose
         acquire_lock_for( work.id ) do
           # Ensure we have an up-to-date copy of the members association, so that we append to the end of the list.
+          begin
           if valkyrie_object?(work)
             attach_to_valkyrie_work(work, file_set_params)
           else
             attach_to_af_work(work, file_set_params)
+          end
+          rescue ActiveFedora::RecordInvalid => e2
+            #log_error "#{e2.class} work.id=#{work.id} -- #{e2.message} at #{e2.backtrace[0]}", job_status: job_status
+            log_error "#{e2.class} work.id=#{work.id} -- #{e2.message}", job_status: job_status
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "work.id=#{work.id}",
+                                                   "file_set_params=#{file_set_params}",
+                                                   "file_set.id=#{file_set.id}",
+                                                   "file_set.virus_scan_status=#{file_set.virus_scan_status}",
+                                                   "uploaded_file_id=#{uploaded_file_id}",
+                                                   "ERROR",
+                                                   "e2=#{e2.class.name}",
+                                                   "e2.message=#{e2.message}",
+                                                   #"" ] if file_set_actor_debug_verbose
+                                                   "e2.backtrace:" ] + e2.backtrace if true || file_set_actor_debug_verbose
+            if ::Deepblue::VirusScanService::VIRUS_SCAN_VIRUS == file_set.virus_scan_status
+              log_error "virus uploaded_file_id=#{uploaded_file_id}", job_status: job_status
+            end
+            ::Deepblue::UploadHelper.log( class_name: self.class.name,
+                                          event: "attach_to_work",
+                                          event_note: "failed",
+                                          id: work.id,
+                                          uploaded_file_id: uploaded_file_id,
+                                          work_id: work.id,
+                                          exception: e2.to_s,
+                                          backtrace: e2.backtrace[0] )
+            return false
           end
           ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                         event: "attach_to_work",
@@ -207,7 +239,31 @@ module Hyrax
           provenance_child_add( work: work )
           job_status.did_attach_file_to_work! if job_status.present?
           Hyrax.config.callback.run(:after_create_fileset, file_set, user, warn: false)
+          return true
         end
+        return false
+      # rescue ActiveFedora::RecordInvalid => e1
+      #   #log_error "#{e1.class} work.id=#{work.id} -- #{e1.message} at #{e1.backtrace[0]}", job_status: job_status
+      #   log_error "#{e1.class} work.id=#{work.id} -- #{e1.message}", job_status: job_status
+      #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      #                                          ::Deepblue::LoggingHelper.called_from,
+      #                                          "work.id=#{work.id}",
+      #                                          "file_set_params=#{file_set_params}",
+      #                                          "file_set.id=#{file_set.id}",
+      #                                          "ERROR",
+      #                                          "e1=#{e1.class.name}",
+      #                                          "e1.message=#{e1.message}",
+      #                                          "" ] if true || file_set_actor_debug_verbose
+      #                                          #"e1.backtrace:" ] + e1.backtrace if true || file_set_actor_debug_verbose
+      #   ::Deepblue::UploadHelper.log( class_name: self.class.name,
+      #                                 event: "attach_to_work",
+      #                                 event_note: "failed",
+      #                                 id: work.id,
+      #                                 uploaded_file_id: uploaded_file_id,
+      #                                 work_id: work.id,
+      #                                 exception: e1.to_s,
+      #                                 backtrace: e1.backtrace[0] )
+      #   return false
       rescue Exception => e # rubocop:disable Lint/RescueException
         log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}", job_status: job_status
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -215,7 +271,7 @@ module Hyrax
                                                "ERROR",
                                                "e=#{e.class.name}",
                                                "e.message=#{e.message}",
-                                               "e.backtrace:" ] + e.backtrace if file_set_actor_debug_verbose
+                                               "e.backtrace:" ] if file_set_actor_debug_verbose
         ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                       event: "attach_to_work",
                                       event_note: "failed",
@@ -223,7 +279,8 @@ module Hyrax
                                       uploaded_file_id: uploaded_file_id,
                                       work_id: work.id,
                                       exception: e.to_s,
-                                      backtrace0: e.backtrace[0] )
+                                      backtrace: e.backtrace[0] )
+        return false
       end
       alias attach_file_to_work attach_to_work
       deprecation_deprecate attach_file_to_work: "use attach_to_work instead"

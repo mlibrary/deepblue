@@ -1317,7 +1317,7 @@ module Deepblue
                                                               "comments=#{comments}",
                                                               "Threw exception:",
                                                               "#{e.class}: #{e.message}",
-                                                              "at:" ] + e.backtrace[0..20] ) if true || ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
+                                                              "at:" ] + e.backtrace[0..20] ) if ::Deepblue::TicketHelper.ticket_helper_debug_emails && debug_verbose
       end
       return status, body
     end

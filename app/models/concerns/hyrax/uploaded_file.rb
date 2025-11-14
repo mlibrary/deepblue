@@ -6,6 +6,10 @@ module Hyrax
   #
   # Eventually these files get attached to {FileSet}s and pushed into Fedora.
   class UploadedFile < ActiveRecord::Base
+    # t.string :file
+    # t.references :user, index: true, foreign_key: true
+    # t.string :file_set_uri, index: true
+    # t.timestamps null: false
     self.table_name = 'uploaded_files'
     mount_uploader :file, UploadedFileUploader
     alias uploader file

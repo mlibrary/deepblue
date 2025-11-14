@@ -69,6 +69,8 @@ module DeepBlueDocs
       g.test_framework :rspec, spec: true
     end
 
+    config.debug_ingest_files_active_test_virus = false # Rails.configuration.debug_ingest_files_active_test_virus # TODO: virus_scan fix
+
     # begin _debug_verbose flags
     # look for true || before production release
     # look for DEBUG_VERBOSE = true before production release

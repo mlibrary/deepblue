@@ -24,8 +24,14 @@ module Hyrax
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "original_file=#{original_file}",
-                                             "" ], bold_puts: bold_puts if debug_verbose
-      new(original_file).file_has_virus?
+                                             "" ] if debug_verbose
+      rv = new(original_file).file_has_virus?
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "original_file=#{original_file}",
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
     end
 
     def initialize(original_file, system_virus_scanner = ::Hyrax::VirusCheckerService.default_system_virus_scanner)
@@ -34,20 +40,43 @@ module Hyrax
                                              ::Deepblue::LoggingHelper.called_from,
                                              "original_file=#{original_file}",
                                              "system_virus_scanner=#{system_virus_scanner}",
-                                             "" ], bold_puts: bold_puts if debug_verbose
+                                             "" ] if debug_verbose
       self.original_file = original_file
       self.system_virus_scanner = system_virus_scanner
     end
 
     # Default behavior is to raise a validation error and halt the save if a virus is found
     def file_has_virus?
+      #return true # TODO: virus_scan fix this
       debug_verbose = hyrax_virus_checker_service_debug_verbose
+      if Rails.configuration.debug_ingest_files_active_test_virus # TODO: virus_scan fix this
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "" ] #, Call stack:" ] + caller_locations(0..30)
+      end
+      path = original_file.is_a?(String) ? original_file : local_path_for_file(original_file)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: bold_puts if debug_verbose
-      path = original_file.is_a?(String) ? original_file : local_path_for_file(original_file)
-      return system_virus_scanner.infected?(path) if system_virus_scanner.respond_to? :infected?
-      return false
+                                             "path=#{path}",
+                                             "" ] if debug_verbose
+      if system_virus_scanner.respond_to? :infected?
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "calling system_virus_scanner=#{system_virus_scanner}",
+                                               "" ] if debug_verbose
+        rv = system_virus_scanner.infected?(path)
+      else
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "not calling system_virus_scanner=#{system_virus_scanner}e",
+                                               "" ] if debug_verbose
+        rv = ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED # TODO: virus_scan fix this?
+      end
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "path=#{path}",
+                                             "rv=#{rv}",
+                                             "" ] if debug_verbose
+      return rv
     end
 
     private
@@ -58,9 +87,9 @@ module Hyrax
       debug_verbose = hyrax_virus_checker_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ], bold_puts: bold_puts if debug_verbose
+                                             "Call stack:" ] + caller_locations(0..30) if debug_verbose
       return file.path if file.respond_to?(:path)
-      return file.content.path if file.content.respond_to?(:path)
+      return file.content.path if file&.content.present? && file&.content.respond_to?(:path)
 
       Tempfile.open('') do |t|
         t.binmode

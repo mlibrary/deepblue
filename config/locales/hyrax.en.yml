@@ -434,9 +434,11 @@ en:
         files_failed_html:        "Files not attached are:<br/>"
         file_list_item_html:      "&apos;%{file_name}&apos; - %{file_size} bytes"
         file_line_item_failed_html: "<li>&apos;%{file_name}&apos; - failed to upload</li>"
+        file_list_item_failed_html: "<li>&apos;%{file_name}&apos; - failed to upload</li>"
         file_list_line_html:      "<li>%{file_item}</li>"
         file_line_html:           "<li>&apos;%{file_name}&apos; - %{file_size} bytes</li>"
         file_line_failed_html:    "<li>&apos;%{file_name}&apos; - %{file_size} bytes - failed to upload</li>"
+        file_line_failed_virus_html: "<li>WARNING: &apos;%{file_name}&apos; was not uploaded because it was identified as a virus</li>"
         finished_html: >
           Dear %{depositor},
           <p>

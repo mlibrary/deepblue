@@ -85,6 +85,7 @@ module PersistHelper
   end
 
   def self.uri_to_id( uri )
+    return "<UNKNOWN_ID>" if uri.nil?
     ::Hyrax::Base.uri_to_id( uri )
   end
 

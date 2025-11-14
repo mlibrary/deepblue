@@ -367,6 +367,17 @@ module Deepblue
       Rails.configuration.notification_email_workflow_to
     end
 
+    def self.deliver( email )
+      # TODO: verify
+      if email.respond_to? :deliver_now
+        email.deliver_now
+      elsif email.respond_to? :deliver_mail
+        email.deliver_mail
+      else
+        email.deliver
+      end
+    end
+
     def self.send_email( to:,
                          cc: nil,
                          bcc: nil,
@@ -409,7 +420,7 @@ module Deepblue
                                             subject: subject,
                                             body: body,
                                             content_type: content_type )
-      email.deliver_now
+      deliver( email )
       true
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
@@ -448,7 +459,7 @@ module Deepblue
                                               subject: subject,
                                               body: body,
                                               content_type: content_type )
-        email.deliver_now
+        deliver( email )
       end
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"

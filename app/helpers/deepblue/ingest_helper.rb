@@ -329,6 +329,30 @@ module Deepblue
                                               "" ] # error
         return false
       end
+
+      ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "About to call virus_scan",
+                                             "file_set=#{file_set})",
+                                             "relation=#{relation}",
+                                             "job_status=#{job_status}",
+                                             "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
+
+      #test_positive_virus_scan = true # TODO: virus_scan fix this
+      if virus_scan( file_set: file_set, job_status: job_status ) || test_positive_virus_scan
+        uploaded_file_ids.delete( file_set.id )
+        job_status.add_error! "#{file_set.id} virus_scan returned true"
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file_set=#{file_set})",
+                                               "relation=#{relation}",
+                                               "job_status=#{job_status}",
+                                               "" ] # error
+        return false
+      else
+        # no virus found
+      end
+
       # if from_url
       #   # If ingesting from URL, don't spawn an IngestJob; instead
       #   # reach into the FileActor and run the ingest with the file instance in
@@ -368,7 +392,18 @@ module Deepblue
       end
       repository_file = related_file( file_set, relation )
       Hyrax::VersioningService.create( repository_file, user )
-      virus_scan( file_set: file_set, job_status: job_status )
+      # if virus_scan( file_set: file_set, job_status: job_status ) || test_positive_virus_scan
+      #   uploaded_file_ids.delete( file_set.id )
+      #   job_status.add_error! "#{file_set.id} virus_scan returned true"
+      #   ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+      #                                          ::Deepblue::LoggingHelper.called_from,
+      #                                          "file_set=#{file_set})",
+      #                                          "relation=#{relation}",
+      #                                          "job_status=#{job_status}",
+      #                                          "" ] # error
+      # else
+      #   # no virus found
+      # end
       # pathhint = io.uploaded_file.uploader.path if io.uploaded_file # in case next worker is on same filesystem
       # CharacterizeJob.perform_later(file_set, repository_file.id, pathhint || io.path)
       characterize( file_set, repository_file.id, io.path, job_status: job_status )
@@ -389,7 +424,7 @@ module Deepblue
                                            "user=#{_user}",
                                            "opts=#{opts}",
                                            # "wrapper.methods=#{wrapper.methods.sort}",
-                                           "" ], bold_puts: ingest_helper_debug_verbose_puts if INGEST_HELPER_VERBOSE
+                                           "" ], bold_puts: ingest_helper_debug_verbose_puts if ingest_helper_debug_verbose
       # launched from Hyrax gem: app/actors/hyrax/actors/file_set_actor.rb  FileSetActor#create_content
       # See Hyrax gem: app/job/ingest_local_file_job.rb
       # def perform(file_set, path, user)

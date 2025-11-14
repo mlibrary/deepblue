@@ -14,7 +14,7 @@ module Hyrax
     class CreateWithRemoteFilesActor < Hyrax::Actors::AbstractActor
       # monkey
 
-      mattr_accessor :create_with_remove_files_actor_debug_verbose, default: false
+      mattr_accessor :create_with_remove_files_actor_debug_verbose, default: true
                      #               default: Rails.configuration.file_set_actor_debug_verbose
 
       # @param [Hyrax::Actors::Environment] env
@@ -121,7 +121,19 @@ module Hyrax
             # actor = Hyrax::Actors::FileSetActor.new(fs, env.user)
             actor = file_set_actor_class.new(fs, env.user)
             actor.create_metadata(visibility: env.curation_concern.visibility)
-            actor.attach_to_work(env.curation_concern)
+            if actor.attach_to_work(env.curation_concern)
+              ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                          ::Deepblue::LoggingHelper.called_from,
+                                                          "curation_concern.id=#{env.curation_concern.id}",
+                                                          "actor.attach_to_work succeeded",
+                                                          "" ] if create_with_remove_files_actor_debug_verbose
+            else
+              ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                          ::Deepblue::LoggingHelper.called_from,
+                                                          "curation_concern.id=#{env.curation_concern.id}",
+                                                          "ERROR: actor.attach_to_work failed",
+                                                          "" ]
+            end
             fs.save!
             if uri.scheme == 'file'
               # Turn any %20 into spaces.
@@ -157,7 +169,19 @@ module Hyrax
           fs = Hyrax.persister.save( resource: fs )
           actor = Hyrax::Actors::FileSetActor.new(fs, env.user, use_valkyrie: true)
           actor.create_metadata(visibility: env.curation_concern.visibility)
-          actor.attach_to_work(env.curation_concern)
+          if actor.attach_to_work(env.curation_concern)
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "curation_concern.id=#{env.curation_concern.id}",
+                                                   "actor.attach_to_work succeeded",
+                                                   "" ] if create_with_remove_files_actor_debug_verbose
+          else
+            ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "curation_concern.id=#{env.curation_concern.id}",
+                                                   "ERROR: actor.attach_to_work failed",
+                                                   "" ]
+          end
           if uri.scheme == 'file'
             # Turn any %20 into spaces.
             file_path = CGI.unescape(uri.path)
@@ -240,7 +264,19 @@ module Hyrax
         def __create_file_from_url(file_set:, uri:, auth_header:)
           actor = file_set_actor_class.new(file_set, user)
           actor.create_metadata(visibility: curation_concern.visibility)
-          actor.attach_to_work(curation_concern)
+          if actor.attach_to_work(curation_concern)
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "curation_concern.id=#{curation_concern.id}",
+                                                   "actor.attach_to_work succeeded",
+                                                   "" ] if create_with_remove_files_actor_debug_verbose
+          else
+            ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                   ::Deepblue::LoggingHelper.called_from,
+                                                   "curation_concern.id=#{curation_concern.id}",
+                                                   "ERROR: actor.attach_to_work failed",
+                                                   "" ]
+          end
           file_set.save! if file_set.respond_to?(:save!)
           # We'll remember the order, but if it's not `@ordered` we won't do anything.
           ordered_members << file_set
