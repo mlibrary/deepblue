@@ -287,7 +287,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html",
                                           contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       subject = Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
-       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "lines:" ] + lines if attach_files_to_work_job_debug_verbose
       attach_files_to_work_job_complete_email_user( email: user.email,
@@ -450,15 +450,14 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def processed_uploaded_file( uploaded_file )
-      # TODO: virus_scan find out where this being added (before or after a virus scan?)
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "uploaded_file.file=#{uploaded_file.file.path}",
                                              "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
                                              "uploaded_file.id=#{uploaded_file_id_for( uploaded_file )}",
                                              "uploaded_file_ids=#{uploaded_file_ids}",
-                                             #"" ] if true || attach_files_to_work_job_debug_verbose
-                                            "Call stack:" ] + caller_locations(0..30) if attach_files_to_work_job_debug_verbose
+                                             "" ] if attach_files_to_work_job_debug_verbose
+                                             #"Call stack:" ] + caller_locations(0..30) if attach_files_to_work_job_debug_verbose
       uploaded_file_id = uploaded_file_id_for( uploaded_file )
       job_status.processed_uploaded_file_ids << uploaded_file_id
       job_status.uploading_files! message: "processed uploaded_file: #{uploaded_file_id}"
