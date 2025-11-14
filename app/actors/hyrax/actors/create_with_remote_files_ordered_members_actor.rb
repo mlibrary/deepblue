@@ -88,6 +88,19 @@ module Hyrax
           actor = file_set_actor_class.new(fs, env.user)
           actor.create_metadata(visibility: env.curation_concern.visibility)
           actor.attach_to_work(env.curation_concern)
+          if actor.attach_to_work(env.curation_concern)
+            ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                        ::Deepblue::LoggingHelper.called_from,
+                                                        "curation_concern.id=#{env.curation_concern.id}",
+                                                        "actor.attach_to_work succeeded",
+                                                        "" ] if create_with_remove_files_actor_debug_verbose
+          else
+            ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                                        ::Deepblue::LoggingHelper.called_from,
+                                                        "curation_concern.id=#{env.curation_concern.id}",
+                                                        "ERROR: actor.attach_to_work failed",
+                                                        "" ]
+          end
           fs.save!
           ordered_members << fs
           fs.ingest_attach( called_from: 'CreateWithRemoteFilesOrderedMembersActor.create_file_from_url',

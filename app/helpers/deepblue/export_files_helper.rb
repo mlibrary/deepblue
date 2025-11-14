@@ -50,13 +50,24 @@ module Deepblue
                                              "target_file=#{target_file}",
                                              "target_file.class.name=#{target_file.class.name}",
                                              "" ] if debug_verbose
+                                             #"Call stack:" ] + caller_locations(1..30) if debug_verbose
       if file.respond_to?(:new_record?) && file.new_record?
         target_file.write(file.content.read) # is this efficient?
         file.content.rewind
         bytes_copied = file.size
-      else
+      elsif file.respond_to? :uri
         source_uri = file.uri.value
         bytes_copied = export_file_uri( source_uri: source_uri, target_file: target_file, debug_verbose: debug_verbose )
+      else
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "file=#{file}",
+                                               "file.class.name=#{file.class.name}",
+                                               "target_file=#{target_file}",
+                                               "target_file.class.name=#{target_file.class.name}",
+                                               "file is not a new_record, and does not have a uri method",
+                                               "" ] if debug_verbose
+        bytes_copied = 0
       end
       return bytes_copied
     end
@@ -306,6 +317,7 @@ module Deepblue
                                        checksum_mismatch_is_error: export_files_throw_checksum_mismatch,
                                        debug_verbose: export_files_helper_debug_verbose )
 
+      debug_verbose = debug_verbose || export_files_helper_debug_verbose
       # validate_with_checksum.present? --> of the form [ algorithm, checksum ], algorithm should be sha1
       return true unless validate_with_checksum.present?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

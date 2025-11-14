@@ -183,6 +183,10 @@ class JobStatus < ApplicationRecord
   end
 
   def add_error!( error, sep: "\n" )
+    # # TODO: virus_scan fix this
+    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+    #                                        ::Deepblue::LoggingHelper.called_from,
+    #                                        "error=#{error}" ] + caller_locations(1,40)
     add_error( error, sep: sep )
     save_safe
     return self

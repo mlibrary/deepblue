@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 # TODO: delete this and start using DataSetCache
+require_relative './aptrust'
+require_relative '../../models/aptrust/status'
 
 class Aptrust::WorkCache
 
@@ -118,7 +120,7 @@ class Aptrust::WorkCache
   def uploadable?
     if tombstoned?
       return false unless Aptrust::AptrustIntegrationService::include_tombstoned_works
-    elsif draft_mode?
+    elsif draft?
       return false
     elsif !published?
       return false unless Aptrust::AptrustIntegrationService::include_unpublished_works

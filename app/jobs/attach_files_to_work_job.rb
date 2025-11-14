@@ -182,13 +182,18 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
 
     def file_stats( uploaded_file )
       file_set_id = ::PersistHelper.uri_to_id uploaded_file.file_set_uri
+      if "<UNKNOWN_ID>" == file_set_id
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "uploaded_file=#{uploaded_file.pretty_inspect}",
+                                               "" ] if true
+      end
       file_set = FileSet.find file_set_id
       file_name = file_set&.original_file&.original_name # file_set.original_filename
       file_name = File.basename( Deepblue::UploadHelper.uploaded_file_path( uploaded_file ) ) if file_name.blank?
       return file_name, file_set.file_size_value
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error "#{e.class} #{e.message} at #{e.backtrace[0]}"
-      return 'AttachFilesToWorkJob.file_stats error ' & e.to_s, ''
+      return 'AttachFilesToWorkJob.file_stats error ' + e.to_s, ''
     end
 
     def log_error( msg )
@@ -226,9 +231,6 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         file_name, file_size = file_stats( uploaded_file )
         #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
         if file_size.blank?
-          # msg << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
-          #                                                 file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
-          #                                                 file_size: file_size )
           failed_file_list << file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
                                             file_name: file_name,
                                             file_size: file_size )
@@ -240,12 +242,21 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
         lines << ::Deepblue::EmailHelper.t( "hyrax.email.notify_attach_files_to_work_job_complete.files_failed_html" )
         lines << "<ol>"
         failed_uploads.each do |uploaded_file|
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 #"uploaded_file.pretty_inspect=#{uploaded_file.pretty_inspect}",
+                                                 #"job_status.pretty_inspect=#{job_status.pretty_inspect}",
+                                                 "uploaded_file.id=#{uploaded_file.id}",
+                                                 "job_status.error=#{job_status.error}",
+                                                 "" ]  if attach_files_to_work_job_debug_verbose
           file_name, file_size = file_stats( uploaded_file )
-          #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
-          # lines << Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_line_failed_html",
-          #                                   file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
-          #                                   file_size: file_size )
-          lines << file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_line_failed_html",
+          virus_msg = "virus uploaded_file_id=#{uploaded_file.id}\n"
+          if job_status.error.include?( virus_msg )
+            t_key = "hyrax.email.notify_attach_files_to_work_job_complete.file_line_failed_virus_html"
+          else
+            t_key = "hyrax.email.notify_attach_files_to_work_job_complete.file_line_failed_html"
+          end
+          lines << file_item_msg( t_key: t_key,
                                   file_name: file_name,
                                   file_size: file_size )
         end
@@ -255,19 +266,12 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       file_list = []
       successful_uploads.each do |uploaded_file|
         file_name, file_size = file_stats( uploaded_file )
-        #file_name += " (path=#{::Deepblue::UploadHelper.uploaded_file_path( uploaded_file )})"
         if file_size.blank?
-          # msg = ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
-          #                                          file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
-          #                                          file_size: file_size )
-          msg << file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
+          msg = file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_failed_html",
                                 file_name: file_name,
                                 file_size: file_size )
         else
-          # msg = ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
-          #                                          file_name: ::Deepblue::EmailHelper.escape_html( file_name ),
-          #                                          file_size: file_size )
-          msg << file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
+          msg = file_item_msg( t_key: "hyrax.email.notify_attach_files_to_work_job_complete.file_list_item_html",
                                 file_name: file_name,
                                 file_size: file_size )
         end
@@ -283,6 +287,9 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       lines << ::Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.signature_html",
                                           contact_us_at: ::Deepblue::EmailHelper.contact_us_at )
       subject = Deepblue::EmailHelper.t!( "hyrax.email.notify_attach_files_to_work_job_complete.subject", title: title )
+       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "lines:" ] + lines if attach_files_to_work_job_debug_verbose
       attach_files_to_work_job_complete_email_user( email: user.email,
                                                     lines: lines,
                                                     subject: subject ) if notify_user
@@ -299,19 +306,29 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                              Deepblue::LoggingHelper.called_from ] + e.backtrace[0..10]
     end
 
+    def perform_update_uploaded_file( actor:, uploaded_file: )
+      return if uploaded_file.file_set_uri.present?
+      uploaded_file.update( file_set_uri: actor.file_set.uri )
+    end
+
     def perform_attach_to_work( actor:, uploaded_file: )
       return if job_status.did_attach_file_to_work?
       actor.attach_to_work( work, uploaded_file_id: uploaded_file_id_for( uploaded_file ), job_status: job_status )
-      uploaded_file.update( file_set_uri: actor.file_set.uri )
+      # uploaded_file.update( file_set_uri: actor.file_set.uri )
+      perform_update_uploaded_file( actor:, uploaded_file: uploaded_file )
     end
 
     def perform_create_content( actor:, uploaded_file: )
       # when actor.create content is here, and the processing is synchronous, then it fails to add size to the file_set
       # actor.create_content( uploaded_file, continue_job_chain_later: attach_files_to_work_upload_files_asynchronously )
-      actor.create_content( uploaded_file,
+      rv = actor.create_content( uploaded_file,
                             continue_job_chain_later: attach_files_to_work_upload_files_asynchronously,
                             uploaded_file_ids: uploaded_file_ids,
                             job_status: job_status )
+      ::Deepblue::LoggingHelper.bold_debug [ Deepblue::LoggingHelper.here,
+                                             Deepblue::LoggingHelper.called_from,
+                                             "actor.create_content rv=#{rv}"] if attach_files_to_work_job_debug_verbose
+      return rv
     end
 
     def perform_create_label( actor:, uploaded_file: )
@@ -360,6 +377,10 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
                                              "processed_uploaded_file_ids=#{processed_uploaded_file_ids}",
                                              "processed_uploaded_file_ids.class.name=#{processed_uploaded_file_ids.class.name}",
                                              "" ] if attach_files_to_work_job_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "work.id=#{work.id}",
+                                             "job_status.error=" ] + job_status.error.split( "\n" ) if attach_files_to_work_job_debug_verbose
       failed = uploaded_files.select { |uploaded_file| !processed_uploaded_file_ids.include? uploaded_file.id }
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
@@ -429,6 +450,15 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
     end
 
     def processed_uploaded_file( uploaded_file )
+      # TODO: virus_scan find out where this being added (before or after a virus scan?)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "uploaded_file.file=#{uploaded_file.file.path}",
+                                             "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
+                                             "uploaded_file.id=#{uploaded_file_id_for( uploaded_file )}",
+                                             "uploaded_file_ids=#{uploaded_file_ids}",
+                                             #"" ] if true || attach_files_to_work_job_debug_verbose
+                                            "Call stack:" ] + caller_locations(0..30) if attach_files_to_work_job_debug_verbose
       uploaded_file_id = uploaded_file_id_for( uploaded_file )
       job_status.processed_uploaded_file_ids << uploaded_file_id
       job_status.uploading_files! message: "processed uploaded_file: #{uploaded_file_id}"
@@ -465,11 +495,29 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       file_set.ingest_begin( called_from: 'AttachFilesToWorkJob.upload_file' )
       actor = Hyrax::Actors::FileSetActor.new( file_set, user )
       actor.file_set.permissions_attributes = work_permissions
+      unless file_set.save
+        # job_status.add_error! "file_set.save returned false, exiting FileSet#ingest_file early"
+      end
+      perform_update_uploaded_file( actor:, uploaded_file: uploaded_file )
       perform_create_metadata( actor: actor, metadata: metadata )
       perform_create_label( actor: actor, uploaded_file: uploaded_file )
       perform_attach_to_work( actor: actor, uploaded_file: uploaded_file )
-      perform_create_content( actor: actor, uploaded_file: uploaded_file )
-      processed_uploaded_file uploaded_file
+      if perform_create_content( actor: actor, uploaded_file: uploaded_file )
+        processed_uploaded_file uploaded_file
+      else
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "perform_create_content of uploaded_file failed",
+                                               "work.id=#{work.id}",
+                                               "uploaded_file.file=#{uploaded_file.file.path}",
+                                               "uploaded_file.file_set_uri=#{uploaded_file.file_set_uri}",
+                                               "uploaded_file.id=#{uploaded_file_id_for( uploaded_file )}",
+                                               "user=#{user}",
+                                               "work_permissions=#{work_permissions}",
+                                               "metadata=#{metadata}",
+                                               "uploaded_file_ids=#{uploaded_file_ids}",
+                                               "" ] if attach_files_to_work_job_debug_verbose
+      end
     rescue Exception => e # rubocop:disable Lint/RescueException
       log_error "#{e.class} work.id=#{work.id} -- #{e.message} at #{e.backtrace[0]}"
       file_size = File.size( uploaded_file.file.path ) rescue -1 # in case the file has already disappeared

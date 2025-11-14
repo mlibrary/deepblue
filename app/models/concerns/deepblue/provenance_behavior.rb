@@ -889,6 +889,11 @@ module Deepblue
                                                                   event_note: event_note,
                                                                   ignore_blank_key_values: ignore_blank_key_values,
                                                                   **added_prov_key_values )
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "prov_key_values=#{prov_key_values.pretty_inspect}",
+                                             "" ] if Rails.configuration.debug_ingest_files_active_test_virus # virus_scan fix this
+                                             #"Call stack:" ] + caller_locations(0,30) if true # virus_scan fix this
       provenance_log_event( attributes: nil,
                             event: event,
                             current_user: current_user,
