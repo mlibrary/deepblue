@@ -49,7 +49,8 @@ module Deepblue
                                              "file.class.name=#{file.class.name}",
                                              "target_file=#{target_file}",
                                              "target_file.class.name=#{target_file.class.name}",
-                                             "Call stack:" ] + caller_locations(1..30) if debug_verbose
+                                             "" ] if debug_verbose
+                                             #"Call stack:" ] + caller_locations(1..30) if debug_verbose
       if file.respond_to?(:new_record?) && file.new_record?
         target_file.write(file.content.read) # is this efficient?
         file.content.rewind

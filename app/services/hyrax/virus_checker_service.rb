@@ -87,7 +87,8 @@ module Hyrax
       debug_verbose = hyrax_virus_checker_service_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "Call stack:" ] + caller_locations(0..30) if debug_verbose
+                                             "" ]  if debug_verbose
+                                             #"Call stack:" ] + caller_locations(0..30) if debug_verbose
       return file.path if file.respond_to?(:path)
       return file.content.path if file&.content.present? && file&.content.respond_to?(:path)
 

@@ -82,7 +82,8 @@ class UMichClamAVDaemonScanner < AbstractVirusScanner
                                              ::Deepblue::LoggingHelper.called_from,
                                              "file=#{file}",
                                              "file exists?=#{File.exist? file}",
-                                             "Call stack:" ] + caller_locations(0..30) if umich_clamav_daemon_scanner_debug_verbose
+                                             "" ] if umich_clamav_daemon_scanner_debug_verbose
+                                             #"Call stack:" ] + caller_locations(0..30) if umich_clamav_daemon_scanner_debug_verbose
       warning "Cannot connect to virus scanner. Skipping file #{file}" unless Rails.env.test?
       return ::Deepblue::VirusScanService::VIRUS_SCAN_SKIPPED_SERVICE_UNAVAILABLE
     end

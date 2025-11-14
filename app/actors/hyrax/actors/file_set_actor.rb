@@ -270,8 +270,8 @@ module Hyrax
                                                ::Deepblue::LoggingHelper.called_from,
                                                "ERROR",
                                                "e=#{e.class.name}",
-                                               "e.message=#{e.message}",
-                                               "e.backtrace:" ] if file_set_actor_debug_verbose
+                                               "" ] if file_set_actor_debug_verbose
+                                               #"e.backtrace:" ] if file_set_actor_debug_verbose
         ::Deepblue::UploadHelper.log( class_name: self.class.name,
                                       event: "attach_to_work",
                                       event_note: "failed",
