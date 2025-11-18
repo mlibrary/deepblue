@@ -315,7 +315,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       return if job_status.did_attach_file_to_work?
       actor.attach_to_work( work, uploaded_file_id: uploaded_file_id_for( uploaded_file ), job_status: job_status )
       # uploaded_file.update( file_set_uri: actor.file_set.uri )
-      perform_update_uploaded_file( actor:, uploaded_file: uploaded_file )
+      perform_update_uploaded_file( actor: actor, uploaded_file: uploaded_file )
     end
 
     def perform_create_content( actor:, uploaded_file: )
@@ -497,7 +497,7 @@ class AttachFilesToWorkJob < ::Hyrax::ApplicationJob
       unless file_set.save
         # job_status.add_error! "file_set.save returned false, exiting FileSet#ingest_file early"
       end
-      perform_update_uploaded_file( actor:, uploaded_file: uploaded_file )
+      perform_update_uploaded_file( actor: actor, uploaded_file: uploaded_file )
       perform_create_metadata( actor: actor, metadata: metadata )
       perform_create_label( actor: actor, uploaded_file: uploaded_file )
       perform_attach_to_work( actor: actor, uploaded_file: uploaded_file )
