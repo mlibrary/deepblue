@@ -161,7 +161,7 @@ class FileSysExportNoidFiles
     return false if file_set.nil?
     fs_rec = find_fs_record( fs: file_set )
     if fs_rec.nil?
-      file_exporter.add_fs( fs: file_set )
+      add_fs( fs: file_set )
       return true
     end
     return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.export_status
@@ -173,7 +173,7 @@ class FileSysExportNoidFiles
     return false if file_set.nil?
     fs_rec = find_fs_record( fs: file_set )
     if fs_rec.nil?
-      file_exporter.add_fs( fs: file_set )
+      add_fs( fs: file_set )
       return true
     end
     return true if ::FileSysExportC::ALL_STATUS_EXPORT_NEEDED.has_key? fs_rec.export_status

@@ -68,6 +68,7 @@ module FileSysExportService
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "export_status=#{export_status}" ] if debug_verbose
     return rv_msg_verbose_if( true, "needs export? export_status is blank", msg_handler ) if export_status.blank?
     return rv_msg_verbose_if( true, "needs export? export needed",          msg_handler ) if export_status == FileSysExportC::STATUS_EXPORT_NEEDED
+    return rv_msg_verbose_if( true, "needs export? re-export needed",       msg_handler ) if export_status == FileSysExportC::STATUS_REEXPORT
     return rv_msg_verbose_if( true, "needs export? date modified newer",    msg_handler ) if cc.date_modified > export_rec.export_status_timestamp
     # TODO: other statuses?
     # TODO: check for missing and extra?

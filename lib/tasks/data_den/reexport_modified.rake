@@ -5,6 +5,7 @@ require_relative './reexport_modified_task'
 namespace :data_den do
 
   # bundle exec rake data_den:reexport_modified
+  # bundle exec rake data_den:reexport_modified['{"verbose":true}']
   # bundle exec rake data_den:reexport_modified['{"verbose":true\,"test_mode":true}']
   # bundle exec rake data_den:reexport_modified['{"verbose":true\,"test_mode":true\,"max_size":"1_000_000"}']
   # bundle exec rake data_den:reexport_modified['{"verbose":true\,"test_mode":true\,"max_exports":1}']
