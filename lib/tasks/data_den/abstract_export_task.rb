@@ -155,6 +155,26 @@ module DataDen
       end
     end
 
+    def run_noids_reexport
+      total_size = 0
+      dsc = DataSetCache.new
+      noids.each do |noid|
+        dsc.reset_with noid
+        if !dsc.data_set_present?
+          msg_handler.msg_warn "Failed to load data set with noid #{noid}"
+          next
+        end
+        unless 0 < dsc.total_file_size
+          # msg_handler.msg_warn "Total file size is zero for noid #{noid}"
+          next
+        end
+        size = dsc.total_file_size
+        next if max_export_total_size > 0 && total_size + size > max_export_total_size
+        run_reexport( noid: noid )
+        total_size += size
+      end
+    end
+
     def filter_in_pair_by_size( pair )
       max_sz = max_size
       min_sz = min_size
@@ -214,6 +234,47 @@ module DataDen
       end
     end
 
+    def run_pair_reexports
+      unless noid_pairs.present?
+        begin_date = options['date_begin']
+        end_date = options['date_end']
+        if begin_date.present? && end_date.present?
+          msg_handler.msg_verbose "No NOIDs found for date begin: '#{begin_date}' and date end: '#{end_date}'"
+        elsif begin_date.present?
+          msg_handler.msg_verbose "No NOIDs found with date begin: '#{begin_date}'"
+        elsif end_date.present?
+          msg_handler.msg_verbose "No NOIDs found with date end: '#{end_date}'"
+        else
+          msg_handler.msg_verbose "No NOIDs found."
+        end
+        return
+      end
+      if max_size > 0 || min_size > 0
+        msg_handler.msg_verbose "Select noids with #{filter_in_pair_by_size_msg}"
+        @noid_pairs = @noid_pairs.select { |pair| filter_in_pair_by_size( pair ) }
+      end
+      if max_exports > 0
+        msg_handler.msg_verbose "Limit exports to #{max_exports} at most."
+        @noid_pairs = @noid_pairs[0..(max_exports-1)] if @noid_pairs.size > max_exports
+      end
+      total_size = 0
+      @noid_pairs.each_with_index do |pair,index|
+        size = pair[:size]
+        total_size += size
+        msg_handler.msg_verbose "#{index}: #{pair[:noid]} -- #{readable_sz( size )}"
+      end if verbose
+      msg_handler.msg_verbose "Total export size: #{readable_sz( total_size )}"
+      msg_handler.msg_verbose "Test mode: #{test_mode?}"
+      return if test_mode?
+      total_size = 0
+      @noid_pairs.each do |pair|
+        size = pair[:size]
+        next if max_export_total_size > 0 && total_size + size > max_export_total_size
+        run_reexport( noid: pair[:noid], size: size )
+        total_size += size
+      end
+    end
+
     def run_export( noid:, size: nil )
       msg_handler.msg_verbose "sleeping for #{sleep_secs}" if 0 < sleep_secs
       sleep( sleep_secs ) if 0 < sleep_secs
@@ -228,7 +289,7 @@ module DataDen
     def run_reexport( noid:, size: nil )
       msg_handler.msg_verbose "sleeping for #{sleep_secs}" if 0 < sleep_secs
       sleep( sleep_secs ) if 0 < sleep_secs
-      msg = "Exporting: #{noid}"
+      msg = "Re-exporting: #{noid}"
       msg += " - #{readable_sz(size)}" if size.present?
       msg_handler.msg_verbose msg
       msg_handler.msg_verbose "Test mode: #{test_mode?}"

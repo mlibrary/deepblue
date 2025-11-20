@@ -20,7 +20,7 @@ module DataDen
       msg_handler.msg_verbose "Started..."
       run_find
       noids_sort
-      run_pair_exports
+      run_pair_reexports
       msg_handler.msg_verbose "Finished."
       run_email_targets( subject: 'DataDen::ReexportModifiedTask', event: 'ReexportModifiedTask' )
     end
@@ -35,6 +35,10 @@ module DataDen
         next if fs_rec.export_status == ::FileSysExportC::STATUS_DELETED
         dsc.reset_with fs_rec.noid
         next if handled_missing_work?( fs_rec: fs_rec, dsc: dsc )
+        if fs_rec.export_status == ::FileSysExportC::STATUS_REEXPORT
+          @noids << dsc.id
+          next
+        end
         rec_date = fs_rec.export_status_timestamp
         ds_modified_date = dsc.date_modified
         next if ds_modified_date < rec_date

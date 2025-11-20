@@ -188,17 +188,17 @@ class AbstractFileSysExportService
 
   def reexport_data_set( work: nil, noid: nil )
     # NOTE: we don't want to export if @file_sys_export.export_status == ::FileSysExportC::STATUS_EXPORTING
-    msg_verbose "export_data_set starting..." if verbose
+    msg_verbose "reexport_data_set starting..." if verbose
     raise ArgumentError( "Expected one of work or noid to not be nil." ) if work.nil? && noid.nil?
     work = PersistHelper.find_or_nil( noid ) if work.nil?
     raise ArgumentError( "Could not find data set #{noid}" ) if work.nil?
     noid_service = FileSysExportNoidService.new( export_service: self, work: work, options: options )
     update_export_data_set_rec( noid_service: noid_service )
-    msg_verbose "export_data_set finished." if verbose
+    msg_verbose "reexport_data_set finished." if verbose
   rescue Exception => e
     Rails.logger.error "#{e.class} -- #{e.message} at #{e.backtrace[0]}"
     bold_error [ here, called_from,
-                 "AbstractFileSysExportService.export_data_set(#{work&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
+                 "AbstractFileSysExportService.reexport_data_set(#{work&.id}) #{e.class}: #{e.message} at #{e.backtrace[0]}" ] + e.backtrace # error
     raise
   end
 
@@ -265,12 +265,17 @@ class AbstractFileSysExportService
         msg_verbose "export_data_set_publish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
-      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+      unless export_file_set_skip?( fs_rec: fs_rec ) then
         msg_verbose "export_data_set_publish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
       move_export_rec( fs_rec: fs_rec )
     end
+  end
+
+  def export_file_set_skip?( fs_rec: )
+    return false if fs_rec.noid.starts_with?( ::FileSysExportC::ANCILLARY_ID_BASE )
+    return ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid )
   end
 
   def link_published_data_set_to_globus( noid_service: )
@@ -318,7 +323,7 @@ class AbstractFileSysExportService
       if fs_rec.noid.match( /^.+\:v\d+$/ ) then
         next
       end
-      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+      unless export_file_set_skip?( fs_rec: fs_rec ) then
         next
       end
       move_export_unpublish_rec( fs_rec )
@@ -376,7 +381,7 @@ class AbstractFileSysExportService
         msg_verbose "export_data_set_unpublish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
-      unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
+      unless export_file_set_skip?( fs_rec: fs_rec ) then
         msg_verbose "export_data_set_unpublish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
         next
       end
@@ -384,23 +389,22 @@ class AbstractFileSysExportService
     end
   end
 
-
   def export_file_set_publish_rec( service:, fs_rec: )
-    msg_verbose "export_data_set_publish_rec fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
+    msg_verbose "export_file_set_publish_rec fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
     unless ::FileSysExportC::STATUS_EXPORTED_PRIVATE == fs_rec.export_status then
       #msg_verbose "skipping publish export of fs_rec.noid=#{fs_rec.noid} with status=#{fs_rec.export_status}" if verbose
       return false
     end
     if ::FileSysExportC::NOIDS_KEEP_PRIVATE.has_key? fs_rec.noid
-      msg_verbose "export_data_set_publish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
+      msg_verbose "export_file_set_publish_rec skip private fs_rec.noid=#{fs_rec.noid}" if verbose
       return false
     end
     if fs_rec.noid.match( /^.+\:v\d+$/ ) then
-      msg_verbose "export_data_set_publish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
+      msg_verbose "export_file_set_publish_rec skip version fs_rec.noid=#{fs_rec.noid}" if verbose
       return false
     end
-    unless ::Deepblue::ExportFilesHelper.export_file_set_id?( id: fs_rec.noid ) then
-      msg_verbose "export_data_set_publish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
+    unless export_file_set_skip?( fs_rec: fs_rec ) then
+      msg_verbose "export_file_set_publish_rec skip virus fs_rec.noid=#{fs_rec.noid}" if verbose
       return false
     end
     service.move_export_rec( fs_rec: fs_rec )
@@ -708,7 +712,7 @@ class AbstractFileSysExportService
     bold_debug [ here, called_from, "noid_service=#{noid_service}" ] if debug_verbose
     return unless noid_service.needs_update_export?
     msg_verbose "updating export work #{noid_service.noid}" if verbose
-    work_status_export_updating( noid_service )
+    work_status_export_updating( noid_service, note: nil )
     export_metadata_file( noid_service: noid_service )
     export_provenance_file( noid_service: noid_service )
     export_ingest_file( noid_service: noid_service )
