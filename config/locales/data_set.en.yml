@@ -78,7 +78,7 @@ en:
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
           <p>'Add folder...' will upload individual files within the selected folder.</p>
         local_upload_browse_everything_html: >
-          <p>To select files from Drop Box.</p>
+          <p>To select files from Dropbox.</p>
           <p>Note that if you use a cloud provider to upload a large number of
           files within a short period of time, the provider may not be able to
           accommodate your request. If you experience errors uploading from the
@@ -274,7 +274,7 @@ en:
           (e.g., interns, other non-authors/creators).
         creator: >
           List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
-          following format: Last name, First name MI.
+          following format: Last name, First name Middle initial
         creator_orcid: >
           List the ORCID iD(s) of the person(s) responsible for creating the Work; use the following format:
           https://orcid.org/XXXX-XXXX-XXXX-XXXX

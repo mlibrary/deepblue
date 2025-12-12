@@ -1,3 +1,4 @@
+<!-- dashboard.collections.list_collections -->
 <% # used by All and Managed Collections tabs %>
 <% id = collection_presenter.id %>
 <tr id="document_<%= id %>"
@@ -53,14 +54,12 @@
 
   <td><%= collection_presenter.total_viewable_items %></td>
   <td class="date"><%= collection_presenter.create_date.try(:to_formatted_s, :standard) %> </td>  
-  <td class="date"><%= collection_presenter.modified_date.try(:to_formatted_s, :standard) %> </td>  
-
-  <td class="collection_type">
-    <%= collection_presenter.collection_type_badge %>
-  </td>
-  <td><%= collection_presenter.permission_badge %>  </td>
-  <td><%= collection_presenter.total_viewable_items %></td>
   <td class="date"><%= collection_presenter.modified_date.try(:to_formatted_s, :standard) %> </td>
+
+  <% if current_ability.admin? %>
+  <td class="collection_type"><%= collection_presenter.collection_type_badge %></td>
+  <% end %>
+  <td><%= collection_presenter.permission_badge %>  </td>
   <td>
     <% if !Flipflop.disable_desposits_and_edits? %>
       <% if collection_presenter.solr_document.admin_set? %>

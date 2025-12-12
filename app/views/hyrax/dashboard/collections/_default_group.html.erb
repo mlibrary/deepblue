@@ -1,3 +1,4 @@
+<!-- dashboard.collections.default_group -->
 <table id="collections-list-table" class="table table-striped collections-list-table">
   <caption class="sr-only"><%= t("hyrax.dashboard.my.sr.listing") %> <%= application_name %></caption>
   <thead>
@@ -18,16 +19,13 @@
     <% if !current_ability.admin? %>
       <th><%= t("hyrax.dashboard.my.heading.access") %></th>
     <% end %>
-
     <th><%= t("hyrax.dashboard.my.heading.items") %></th>
     <th><%= t("hyrax.dashboard.my.heading.date_created") %></th>
-    <th><%= t("hyrax.dashboard.my.heading.last_modified") %></th>
-
-
+    <th><%= t("hyrax.dashboard.my.heading.date_modified") %></th>
+    <% if current_ability.admin? %>
     <th><%= t("hyrax.dashboard.my.heading.type") %></th>
+    <% end %>
     <th><%= t("hyrax.dashboard.my.heading.visibility") %></th>
-
-
     <th><%= t("hyrax.dashboard.my.heading.action") %></th>
   </tr>
   </thead>

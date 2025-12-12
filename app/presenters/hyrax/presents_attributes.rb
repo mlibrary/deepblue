@@ -69,6 +69,21 @@ module Hyrax
     end
 
     # monkey
+    def permission_badge
+      solr_doc = solr_document
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             "solr_doc.class.name=#{solr_doc.class.name}",
+                                             "solr_doc.visibility=#{solr_doc.visibility}",
+                                             "" ] if presents_attribute_debug_verbose
+      vis = solr_doc.visibility
+      permission_badge_class.new(vis).render
+    end
+
+    def permission_badge_class
+      PermissionBadge
+    end
+
     def renderer_for(_field, options) # monkey override
       if options[:render_as]
         find_renderer_class(options[:render_as])

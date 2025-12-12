@@ -29,6 +29,7 @@ module Hyrax
     # Otherwise renders the file.
     def show
       # begin monkey
+      response.set_header( "Content-Security-Policy", "frame-ancestors 'self' *" )
       debug_verbose = downloads_controller_debug_verbose
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

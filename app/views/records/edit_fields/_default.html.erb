@@ -1,4 +1,4 @@
-<% edit_fields_default_debug = true %>
+<% edit_fields_default_debug = false %>
 <% puts( ">>> f.class.name=#{f.class.name}" ) if edit_fields_default_debug %>
 <% if f.object.multiple? key %>
   <%= f.input key, as: :multi_value, input_html: { class: 'form-control', data: { 'key' => key } }, required: f.object.required?(key) %>

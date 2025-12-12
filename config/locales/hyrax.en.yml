@@ -222,8 +222,28 @@ en:
         additional information about this system.
       select_type: Select an Issue Type
       subject_label: Subject
+      title: Contact Us
       type_label: Issue Type
     dashboard:
+      additional_notifications: See all notifications
+      admin_sets:
+        admin_set: Administrative Set
+        files: Files
+        subtitle: Recent activity
+        title: Administrative Sets
+        works: Works
+      all:
+        collections: All Collections
+        works: All Works
+      authorize_proxies: Authorize Proxies
+      breadcrumbs:
+        admin: Dashboard
+        collections_report: Collections Report
+        works_report: Works Report
+      collection_type_actions:
+        close: Close
+        create_collection: Create collection
+        select_type_of_collection: Select type of collection
       collections:
         form_share:
           add_group:      Add Group
@@ -277,6 +297,8 @@ en:
             remove: Remove
             title: Viewers
             type: Type
+        new:
+          header: New %{type_title}
         show:
           curation_notes_admin: "Curation Notes Admin"
           curation_notes_user:  "Curation Notes"
@@ -341,6 +363,7 @@ en:
         action:
           add_work_to_collection_note: 'Check one or more works to add them to a collection.'
         heading:
+          access:           "Access"
           action:           "Action"
           affiliations:     "Affiliations"
           cnt_prev_month:   "Downloads Last Month"
@@ -356,9 +379,11 @@ en:
           download_note:    "Counts presently are not filtering out bots and crawlers."
           globus:           "Globus"
           highlighted:      "Highlighted"
+          items:            "Items"
           name:             "Name"
           orcid:            "ORCID"
           title:            "Title"
+          type:             "Type"
           total_size:       "Size"
           total_size_html:  "Total<br/>Size"
           userinfo:         "M-Community User Information"
