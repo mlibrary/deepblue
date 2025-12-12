@@ -3,6 +3,11 @@
   <h1><%= t("hyrax.dashboard.title") %></h1>
 <% end %>
 
+<h2 class="title-header"><%= t('hyrax.jobs.running_header') %></h2>
+<label><%= raw ::Deepblue::JobsHelper.jobs_running_msg %></label>
+<br/>
+<br/>
+
 <div class="spaced-rows">
   <% if Hyrax.config.analytics? %>
     <div class="row">
@@ -139,7 +144,7 @@
       <div class="card-header">
         <h3 class="panel-title text-center"><%= t('hyrax.scheduler.status_header') %></h3>
       </div>
-      <div class=card-body text-center">
+      <div class="card-body text-center">
         <div class="h3"><%= raw ::Deepblue::SchedulerHelper.scheduler_status %></div>
       </div>
     </div>
@@ -147,16 +152,10 @@
 
 </div>
 
-<h2 class="title-header"><%= t('hyrax.jobs.running_header') %></h2>
-<label><%= raw ::Deepblue::JobsHelper.jobs_running_msg %></label>
-<br/>
-
-<%= render 'admin_sets' %>
-
 <div class="row">
   <div class="col-md-12">
     <div class="card">
-      <div class="card-header>
+      <div class="card-header">
         <div style="font-weight: 700;"><%= t("hyrax.dashboard.my.heading.userinfo") %></div>
       </div>
       <div class="card-body">
@@ -170,9 +169,9 @@
           </thead>
           <tbody>
               <tr>
-                <td><%= ::McommunityHelper.get_name ( current_ability.current_user.email.to_s ) %></td>
-                <td><%= ::McommunityHelper.get_affiliation ( current_ability.current_user.email.to_s ) %></td>
-                <td><%= ::McommunityHelper.get_orchid( current_ability.current_user.email.to_s ) %></td>
+                <td><%#= ::McommunityHelper.get_name ( current_ability.current_user.email.to_s ) %></td>
+                <td><%#= ::McommunityHelper.get_affiliation ( current_ability.current_user.email.to_s ) %></td>
+                <td><%#= ::McommunityHelper.get_orchid( current_ability.current_user.email.to_s ) %></td>
               </tr>
           </tbody>
         </table>

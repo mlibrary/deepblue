@@ -1,3 +1,4 @@
+<!-- my.collections.list_collections -->
 <% # used by Your Collections tab %>
 <% id = collection_presenter.id %>
 <%# Data attributes referenced by the javascript for submitting nested forms. %>
@@ -57,16 +58,14 @@
     </div>
   </td>
 
-
   <td><%= collection_presenter.total_viewable_items %></td>
-
 
   <td class="date"><%= collection_presenter.create_date.try(:to_formatted_s, :standard) %> </td>
   <td class="date"><%= collection_presenter.modified_date.try(:to_formatted_s, :standard) %> </td>
-  
-  <td class="collection_type">
-    <%= collection_presenter.collection_type_badge %>
-  </td>
+
+  <% if current_ability.admin? %>
+  <td class="collection_type"><%= collection_presenter.collection_type_badge %></td>
+  <% end %>
   <td><%= collection_presenter.permission_badge %></td>
 
   <td>

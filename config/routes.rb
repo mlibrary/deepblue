@@ -101,7 +101,8 @@ Rails.application.routes.draw do
 
     concerns :searchable
   end
-
+  # like https://deepblue.lib.umich.edu/data/catalog/oai/data/concern/data_sets/m039k5047
+  get 'catalog/oai/data/concern/data_sets/:id', controller: 'hyrax/data_sets', action: 'show' #, as: 'create_draft_doi'
 
   if Rails.configuration.authentication_method == "umich"
     devise_for :users, path: '', path_names: {sign_in: 'login', sign_out: 'logout'}, controllers: {sessions: 'sessions'}
