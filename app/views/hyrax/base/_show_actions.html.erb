@@ -44,35 +44,31 @@
               <% end %>
             <% end %>
           <% end %>
-          <% if @presenter.current_ability.admin? && @presenter.globus_debug_verbose? %>
-          <div>
-            <ul>
-              <li>Only visible for admins:</li>
-              <li>::Deepblue::GlobusService.globus_debug_verbose? = <%= ::Deepblue::GlobusService.globus_debug_verbose? %></li>
-              <li>@presenter.deposited? = <%= @presenter.deposited? %></li>
-              <li>@presenter.embargoed? = <%= @presenter.embargoed? %></li>
-              <li>@presenter.globus_enabled? = <%= @presenter&.globus_enabled? %></li>
-              <li>@presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %></li>
-              <li>@presenter.globus_files_available? @presenter.id = <%= @presenter.globus_files_available? @presenter.id %></li>
-              <li>@presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %></li>
-              <li>@presenter.globus_files_prepping? @presenter.id = <%= @presenter.globus_files_prepping? @presenter.id %></li>
-              <li>::Deepblue::GlobusIntegrationService.globus_base_url_legacy = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_legacy %></li>
-              <li>::Deepblue::GlobusIntegrationService.globus_base_url_data_den = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_data_den %></li>
-              <li>@presenter.globus_external_url( @presenter.id ) = <%= @presenter.globus_external_url( @presenter.id ) %></li>
-              <li>@presenter.globus_external_url( @presenter.id, admin_only: true ) = <%= @presenter.globus_external_url( @presenter.id, admin_only: true ) %></li>
-              <li>@presenter.globus_files_target_file_name( @presenter.id, data_den: true ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: true ) %></li>
-              <li>@presenter.globus_files_target_file_name( @presenter.id, data_den: false ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: false ) %></li>
-              <li>::Deepblue::GlobusIntegrationService.globus_dir_modifier = <%= ::Deepblue::GlobusIntegrationService.globus_dir_modifier %></li>
-              <li>::Deepblue::GlobusIntegrationService.globus_upload_dir = <%= ::Deepblue::GlobusIntegrationService.globus_upload_dir %></li>
-              <li>@presenter&.globus_use_data_den? = <%= @presenter&.globus_use_data_den? %></li>
-              <% if @presenter.globus_use_data_den? %>
-                <li>FileSysExportService.pair_path( noid: @presenter.id ) = <%= FileSysExportService.pair_path( noid: @presenter.id ) %></li>
-                <li>@presenter.file_sys_export_record( id: @presenter.id ) = <%= @presenter.file_sys_export_record( id: @presenter.id ) %></li>
-                <li>@presenter.globus_data_den_published_dir @presenter.id = <%= @presenter.globus_data_den_published_dir @presenter.id %></li>
-                <li>@presenter.globus_data_den_files_available? @presenter.id = <%= @presenter.globus_data_den_files_available? @presenter.id %></li>
-              <% end %>
-            </ul>
-          </div>
+          <% if @presenter.globus_debug_verbose? %>
+          <!-- @presenter.globus_debug_verbose? is true -->
+          <!-- ::Deepblue::GlobusService.globus_debug_verbose? = <%= ::Deepblue::GlobusService.globus_debug_verbose? %> -->
+          <!-- @presenter.deposited? = <%= @presenter.deposited? %> -->
+          <!-- @presenter.embargoed? = <%= @presenter.embargoed? %> -->
+          <!-- @presenter.globus_enabled? = <%= @presenter&.globus_enabled? %> -->
+          <!-- @presenter.can_download_using_globus_maybe? = <%= @presenter.can_download_using_globus_maybe? %> -->
+          <!-- @presenter.globus_files_available? @presenter.id = <%= @presenter.globus_files_available? @presenter.id %> -->
+          <!-- @presenter.globus_bounce_external_link_off_server? = <%= @presenter.globus_bounce_external_link_off_server? %> -->
+          <!-- @presenter.globus_files_prepping? @presenter.id = <%= @presenter.globus_files_prepping? @presenter.id %> -->
+          <!-- ::Deepblue::GlobusIntegrationService.globus_base_url_legacy = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_legacy %> -->
+          <!-- ::Deepblue::GlobusIntegrationService.globus_base_url_data_den = <%= ::Deepblue::GlobusIntegrationService.globus_base_url_data_den %> -->
+          <!-- @presenter.globus_external_url( @presenter.id ) = <%= @presenter.globus_external_url( @presenter.id ) %> -->
+          <!-- @presenter.globus_external_url( @presenter.id, admin_only: true ) = <%= @presenter.globus_external_url( @presenter.id, admin_only: true ) %> -->
+          <!-- @presenter.globus_files_target_file_name( @presenter.id, data_den: true ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: true ) %> -->
+          <!-- @presenter.globus_files_target_file_name( @presenter.id, data_den: false ) = <%= @presenter.globus_files_target_file_name( @presenter.id, data_den: false ) %> -->
+          <!-- ::Deepblue::GlobusIntegrationService.globus_dir_modifier = <%= ::Deepblue::GlobusIntegrationService.globus_dir_modifier %> -->
+          <!-- ::Deepblue::GlobusIntegrationService.globus_upload_dir = <%= ::Deepblue::GlobusIntegrationService.globus_upload_dir %> -->
+          <!-- @presenter&.globus_use_data_den? = <%= @presenter&.globus_use_data_den? %> -->
+          <% if @presenter.globus_use_data_den? %>
+            <!-- FileSysExportService.pair_path( noid: @presenter.id ) = <%= FileSysExportService.pair_path( noid: @presenter.id ) %> -->
+            <!-- @presenter.file_sys_export_record( id: @presenter.id ) = <%= @presenter.file_sys_export_record( id: @presenter.id ) %> -->
+            <!-- @presenter.globus_data_den_published_dir @presenter.id = <%= @presenter.globus_data_den_published_dir @presenter.id %> -->
+            <!-- @presenter.globus_data_den_files_available? @presenter.id = <%= @presenter.globus_data_den_files_available? @presenter.id %> -->
+          <% end %>
           <% ::Deepblue::LoggingHelper.bold_debug [::Deepblue::LoggingHelper.here,
                                                    ::Deepblue::LoggingHelper.called_from,
                                                    "@presenter.class.name=#{@presenter.class.name}",
@@ -196,6 +192,15 @@
       </div>
     </div> <!--End Download panel-->
 
+    <% show_actions_debug = true %>
+    <% if @presenter.debug_show_can_access? %>
+    <!-- @presenter.debug_show_can_access? is true -->
+    <!-- false if anonymous_show?=<%= @presenter.anonymous_show? %> -->
+    <!-- true if current_ability.admin?=<%= @presenter.current_ability.admin? %> -->
+    <!-- false if tombstoned?=<%= @presenter.tombstoned? %> -->
+    <!-- true if can_edit_work_editor?=<%= @presenter.can_edit_work_editor? %> -->
+    <!-- @presenter.can_edit_work? = <%= @presenter.can_edit_work? %> -->
+    <% end %>
     <% if @presenter.can_edit_work? %>
       <div class="card panel-edit">
         <div class="card-header">

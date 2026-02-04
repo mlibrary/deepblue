@@ -293,6 +293,10 @@ module Hyrax
       cc_anonymous_link.present?
     end
 
+    def debug_show_can_access?
+      false
+    end
+
     def can_create_service_request?
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,

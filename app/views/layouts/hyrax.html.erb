@@ -3,6 +3,7 @@
 <!DOCTYPE html>
 <html lang="<%= t("hyrax.document_language", default: '') %>" prefix="og:http://ogp.me/ns#">
   <head>
+    <%= render partial: 'layouts/consent_manager' %>
 
     <script type="module" src="https://cdn.jsdelivr.net/npm/@umich-lib/web@1.3.0/dist/umich-lib/umich-lib.esm.js"></script>
     <script nomodule src="https://cdn.jsdelivr.net/npm/@umich-lib/components@1.1.0/dist/umich-lib/umich-lib.js"></script>

@@ -12,6 +12,7 @@ namespace :aptrust do
   # bundle exec rake aptrust:upload_by_noid['{"noids":"noid1"\,"verbose":true\,"quiet":false}']
   # bundle exec rake aptrust:upload_by_noid['{"noids":"noid1"\,"verbose":true\,"debug_verbose":true}']
   # bundle exec rake aptrust:upload_by_noid['{"noids":"noid1"\,"quiet":true}']
+  # bundle exec rake aptrust:upload_by_noid['{"noids":"ft848r062"\,"verbose":true\,"multibag_parts_included":"3"\,"email_targets":"fritx@umich.edu"\,"email_subject":"Finished APtrust upload of work nc580m959 parts 3"\,"ft848r062":false}']
   desc 'Upload to APTrust by list of noids'
   task :upload_by_noid, %i[ options ] => :environment do |_task, args|
     args.with_defaults( options: '{}' )
