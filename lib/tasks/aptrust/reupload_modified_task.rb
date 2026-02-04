@@ -38,6 +38,10 @@ module Aptrust
           msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
           next
         end
+        if status.event == ::Aptrust::EVENT_UPLOAD_AGAIN
+          @noids << w.id
+          next
+        end
         status_filter_date = date_filter_modified_at( noid: w.noid )
         work_modified_date = w.date_modified
         next if work_modified_date < status_filter_date

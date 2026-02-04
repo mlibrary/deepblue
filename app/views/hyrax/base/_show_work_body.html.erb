@@ -1,5 +1,21 @@
 <div class="card-body">
   <div class="row">
+    <% if @presenter.debug_show_can_access? %>
+    <!-- @presenter.debug_show_can_access? is true -->
+    <!-- @presenter.can_view_work_details? = <%= @presenter.can_view_work_details? %> -->
+    <!-- !Flipflop.disable_desposits_and_edits? = <%= !Flipflop.disable_desposits_and_edits? %> -->
+    <!-- @presenter.can_view_work_metadata? = <%= @presenter.can_view_work_metadata? %> -->
+    <!-- @presenter.can_edit_work? = <%= @presenter.can_edit_work? %> -->
+    <!-- false if tombstoned?=<%= @presenter.tombstoned? %> -->
+    <!-- true if anonymous_show?=<%= @presenter.anonymous_show? %> -->
+    <!-- true if current_ability.can?( :edit, id )=<%= @presenter.current_ability.can?( :edit, id ) %> -->
+    <!-- true if current_ability.current_user.present? && current_ability.current_user.user_approver?( current_ability.current_user )=<%= @presenter.current_ability.current_user.present? && @presenter.current_ability.current_user.user_approver?( @presenter.current_ability.current_user ) %> -->
+    <!-- @presenter.workflow.state = <%= @presenter.workflow.state %> -->
+    <!-- @presenter.solr_document.visibility = <%= @presenter.solr_document.visibility %> -->
+    <!-- true if workflow.state == 'deposited' && solr_document.visibility == 'open'=<%= @presenter.workflow.state == 'deposited' && @presenter.solr_document.visibility == 'open' %> -->
+    <!-- false if embargoed?=<%= @presenter.embargoed? %> -->
+    <!-- current_ability.current_user_can_read?=<%= @presenter.current_user_can_read? %> -->
+    <% end %>
     <% if @presenter.can_view_work_details? && !Flipflop.disable_desposits_and_edits? %>
       <%= render 'workflow_actions_widget', presenter: @presenter %>
       <% if @presenter.current_ability.admin? %>

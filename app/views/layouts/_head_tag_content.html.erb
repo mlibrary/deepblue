@@ -1,3 +1,4 @@
+<!-- _head_tag_content begin -->
 <%#
   # Updated: hyrax4
   ::Deepblue::LoggingHelper.bold_debug [ "" ]
@@ -15,6 +16,7 @@
 <%# Only display meta tag, which enables creation of the ActionCable
 consumer, when realtime notifications are enabled and the user is
 signed in %>
+
 <% if Hyrax.config.realtime_notifications? && signed_in? %>
     <%= tag :meta, name: 'current-user', data: { user_key: current_user.user_key } %>
 <% end %>
@@ -103,3 +105,4 @@ signed in %>
   ::Deepblue::LoggingHelper.bold_debug [ "" ]
   ::Deepblue::LoggingHelper.bold_debug [ "" ]
 %>
+<!-- _head_tag_content end -->
