@@ -396,8 +396,10 @@ GEM
       nokogiri
     factory_bot (4.11.1)
       activesupport (>= 3.0.0)
-    faraday (2.9.1)
-      faraday-net_http (>= 2.0, < 3.2)
+    faraday (2.14.1)
+      faraday-net_http (>= 2.0, < 3.5)
+      json
+      logger
     faraday-encoding (0.0.6)
       faraday
     faraday-excon (2.1.0)
@@ -410,8 +412,8 @@ GEM
       zlib (~> 2.1)
     faraday-multipart (1.0.4)
       multipart-post (~> 2)
-    faraday-net_http (3.1.1)
-      net-http
+    faraday-net_http (3.4.2)
+      net-http (~> 0.5)
     fcrepo_wrapper (0.9.0)
       ruby-progressbar
     ffi (1.17.0-arm64-darwin)
@@ -761,8 +763,8 @@ GEM
       racc (~> 1.7)
     nest (3.2.0)
       redic
-    net-http (0.6.0)
-      uri
+    net-http (0.9.1)
+      uri (>= 0.11.1)
     net-http-persistent (4.0.5)
       connection_pool (~> 2.2)
     net-imap (0.5.7)
@@ -1264,7 +1266,7 @@ GEM
     unicode-display_width (1.8.0)
     unicode-types (1.10.0)
     unicode_utils (1.4.0)
-    uri (1.0.4)
+    uri (1.1.1)
     validatable (1.6.7)
     valkyrie (3.1.5)
       activemodel
@@ -1380,7 +1382,7 @@ DEPENDENCIES
   equivalent-xml (~> 0.5)
   ezid-client
   factory_bot (~> 4.4)
-  faraday (= 2.9.1)
+  faraday (= 2.14.1)
   fcrepo_wrapper
   file_exists (~> 0.2.0)
   font-awesome-sass (>= 6.0)
