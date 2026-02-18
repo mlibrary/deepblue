@@ -143,7 +143,7 @@ module Deepblue
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "curation_concern.class.name=#{curation_concern.class.name}",
-                                             "curation_concern.to_sipity_entity&.workflow_state_name=#{curation_concern.to_sipity_entity&.workflow_state_name}",
+                                             #"curation_concern.to_sipity_entity&.workflow_state_name=#{curation_concern.to_sipity_entity&.workflow_state_name}",
                                              "draft_workflow_state_name=#{draft_workflow_state_name}",
                                              "" ] if debug_verbose || draft_admin_set_service_debug_verbose
       # return true if curation_concern.to_sipity_entity&.workflow_state_name&.eql? draft_workflow_state_name

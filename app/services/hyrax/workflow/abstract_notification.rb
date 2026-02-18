@@ -58,7 +58,13 @@ module Hyrax
       def initialize(entity, comment, user, recipients)
         @work_id = entity.proxy_for.id
         @title = entity.proxy_for.title.first
-        @comment = comment&.comment.to_s
+        if comment.is_a? String
+          @comment = comment
+        elsif comment.respond_to? :comment
+          @comment = comment.comment.to_s
+        else
+          @comment = comment.to_s
+        end
         # Convert to hash with indifferent access to allow both string and symbol keys
         @recipients = recipients.with_indifferent_access
         @user = user
