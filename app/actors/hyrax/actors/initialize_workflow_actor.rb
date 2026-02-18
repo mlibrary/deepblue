@@ -102,7 +102,7 @@ module Hyrax
           #Send a notification letting it known that the work has transition from draft to mediated workflow
           notifier = Hyrax::Workflow::NotificationService.new(entity: entity,
                                                               action: action,
-                                                              comment: true,
+                                                              comment: "draft to mediated workflow",
                                                               user: env.user)
 
           notification = Sipity::Notification.new

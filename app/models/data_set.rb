@@ -491,6 +491,16 @@ class DataSet < ActiveFedora::Base
     workflow_state == 'deposited' && visibility == 'open'
   end
 
+  def to_sipity_entity
+    wgid = to_global_id.to_s
+    entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
+    entity
+  end
+
+  def active_workflow()
+    Sipity::Workflow.find_active_workflow_for( admin_set_id: admin_set_id )
+  end
+
   def workflow_state
     wgid = to_global_id.to_s
     entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
