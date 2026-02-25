@@ -45,6 +45,10 @@ module Hyrax
            ::Deepblue::DraftAdminSetService.is_draft_curation_concern?( env.curation_concern,
                                                               debug_verbose: initialize_workflow_actor_debug_verbose )
 
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ">>> draft_admin <<<",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
           work_id = env.curation_concern.id
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
@@ -65,7 +69,35 @@ module Hyrax
           wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
           entity.update!( workflow: wf, workflow_state_id: action.id, workflow_state: wf_state )
           next_actor.update(env) && send_notification(env, entity, action)
+        elsif env.curation_concern.workflow_state == "changes_required"
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ">>> changes_required <<<",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
+          work_id = env.curation_concern.id
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "work_id=#{work_id}",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
+          # get the entity
+          entity = env.curation_concern.to_sipity_entity
+          entity.proxy_for.title = env.curation_concern.title
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 "entity.class.name=#{entity.class.name}",
+                                                 "entity=#{entity}",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
+          wf = env.curation_concern.active_workflow
+          action_name = "request_review"
+          action = Sipity::WorkflowAction.find_or_create_by!( workflow: wf, name: action_name )
+          wf_state = Sipity::WorkflowState.find_or_create_by!( workflow: wf, name: action_name )
+          entity.update!( workflow: wf, workflow_state_id: action.id, workflow_state: wf_state )
+          next_actor.update(env) && send_notification(env, entity, action)
         else
+          ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                                 ::Deepblue::LoggingHelper.called_from,
+                                                 ">>> default <<<",
+                                                 "" ] if initialize_workflow_actor_debug_verbose
           super
         end
       end

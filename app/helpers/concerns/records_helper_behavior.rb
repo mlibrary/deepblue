@@ -1,4 +1,8 @@
 module RecordsHelperBehavior
+
+  mattr_accessor :records_helper_behavior_debug_verbose,
+                 default: false
+
   def model_label(key)
     I18n.t("hydra_editor.form.model_label.#{key}", default: key.to_s.humanize)
   end
@@ -15,7 +19,7 @@ module RecordsHelperBehavior
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "field_name=#{field_name}",
-                                           "" ] if true
+                                           "" ] if records_helper_behavior_debug_verbose
     collection = locals[:f].object.model_name.collection
     render_edit_field_partial_with_action(collection, field_name, locals)
   end
@@ -47,12 +51,12 @@ protected
                                            "record_type=#{record_type}",
                                            "field_name=#{field_name}",
                                            # "locals.pretty_inspect=#{locals.pretty_inspect}",
-                                           "" ] if true
+                                           "" ] if records_helper_behavior_debug_verbose
     partial = find_edit_field_partial(record_type, field_name)
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                            ::Deepblue::LoggingHelper.called_from,
                                            "partial=#{partial.pretty_inspect}",
-                                           "" ] if true
+                                           "" ] if records_helper_behavior_debug_verbose
     render partial, locals.merge(key: field_name)
   end
 

@@ -502,6 +502,7 @@ class DataSet < ActiveFedora::Base
   end
 
   def workflow_state
+    return "" if id.nil?
     wgid = to_global_id.to_s
     entity = Sipity::Entity.where( proxy_for_global_id: wgid )&.first
     entity&.workflow_state_name
