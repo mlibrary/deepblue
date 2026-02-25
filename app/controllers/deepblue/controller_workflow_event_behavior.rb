@@ -72,14 +72,15 @@ module Deepblue
 
       # is_submit_for_review = params[:save_with_files].eql? t('helpers.action.work.review')
       submit_for_review = is_submit_for_review?
+      cc = controller_curation_concern
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
                                              "current_user=#{current_user}",
                                              "is_submit_for_review?=#{submit_for_review}",
+                                             "cc.workflow_state=#{cc.workflow_state}",
                                              "" ] if controller_workflow_event_behavior_debug_verbose
 
-      cc = controller_curation_concern
       ::Deepblue::DebugLogHelper.log(class_name: self.class.name,
                                      id: cc.id,
                                      event: :workflow_update_after,

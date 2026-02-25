@@ -173,6 +173,15 @@ module Deepblue
                                              "" ] if debug_verbose
       return if id.blank?
       return unless submit_for_review
+      if respond_to?( :workflow_state ) && "changes_required" == workflow_state
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                               "workflow_state=#{workflow_state}",
+                                               "TODO: change workflow to submit for review",
+                                               "" ] if debug_verbose
+        return
+      end
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              ::Deepblue::LoggingHelper.obj_class( 'class', self ),
