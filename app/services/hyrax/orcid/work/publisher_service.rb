@@ -21,8 +21,10 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "@work.id=#{@work.id}",
+                                                 "@work.respond_to?( :draft_mode? ) && @work.draft_mode?=#{@work.respond_to?( :draft_mode? ) && @work.draft_mode?}",
                                                  "@identity=#{@identity}",
                                                  "" ] if debug_verbose
+          return if @work.respond_to?( :draft_mode? ) && @work.draft_mode?
           request_method = previously_published? ? :put : :post
           url = request_url
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -46,6 +48,7 @@ module Hyrax
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "@work.id=#{@work.id}",
+                                                 "@work.respond_to?( :draft_mode? ) && @work.draft_mode?=#{@work.respond_to?( :draft_mode? ) && @work.draft_mode?}",
                                                  "@identity=#{@identity}",
                                                  "" ] if debug_verbose
           url = request_url
