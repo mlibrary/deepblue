@@ -297,7 +297,7 @@ Blacklight.onLoad(function () {
             return;
         }
         // begin monkey
-        $self.prop('disabled', true);
+        //$self.prop('disabled', true);
         // end monkey
         submitModalAjax(url, 'POST', data, $self);
     });
@@ -320,7 +320,7 @@ Blacklight.onLoad(function () {
             return;
         }
         // begin monkey
-        $self.prop('disabled', true);
+        //$self.prop('disabled', true);
         // end monkey
         submitModalAjax(url, 'POST', data, $(this));
     });
