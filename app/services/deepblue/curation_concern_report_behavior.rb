@@ -303,6 +303,14 @@ module Deepblue
       out
     end
 
+    def readme_file_name( work: )
+      id = work.read_me_file_set_id
+      return "" if id.nil?
+      fs =  PersistHelper.find_or_nil( id ) # returns nil Ldp::Gone
+      return "" if fs.nil?
+      fs.label
+    end
+
     def print_work_line( out, work: nil, work_size: 0, header: false )
       if header
         out << '"' << I18n.t( "report.curation_concerns.header.work.id" ) << '"'
@@ -326,6 +334,8 @@ module Deepblue
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.doi" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.tombstone" ) << '"'
         out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.referenced_by" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.readme_fileset_id" ) << '"'
+        out << ',' << '"' << I18n.t( "report.curation_concerns.header.work.readme_file_name" ) << '"'
       else
         return out if work.nil?
         out << work.id.to_s
@@ -350,6 +360,8 @@ module Deepblue
         out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
         out << ',' << '"' << (Array(work.tombstone).empty? ? '' : Array(work.tombstone).first).to_s << '"'
         out << ',' << '"' << work.referenced_by.join( '; ' ) << '"'
+        out << ',' << '"' << work.read_me_file_set_id << '"'
+        out << ',' << '"' << readme_file_name( work: work ) << '"'
       end
       out << "\n"
       out
