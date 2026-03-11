@@ -162,6 +162,8 @@ en:
           doi:             'DOI'
           tombstone:       'Tombstone'
           referenced_by:   'Citations to related material'
+          readme_fileset_id: 'Readme fileset id'
+          readme_file_name: 'Readme file name'
   simple_form:
     required:
       html: '<span class="required required-tag">Required</span>'
