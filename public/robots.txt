@@ -5,3 +5,6 @@
 # Disallow: /
 
 Sitemap: https://deepblue.lib.umich.edu/data/sitemap.xml
+
+User-agent: *
+Crawl-delay: 5
