@@ -346,7 +346,7 @@ module Deepblue
         out << ',' << '"' << work.authoremail << '"'
         out << ',' << '"' << curation_concern_status( work ) << '"'
         out << ',' << '"' << curation_concern_visibility( work ) << '"'
-        out << ',' << work.file_set_ids.size.to_s
+        out << ',' << work_file_set_ids_safe( work: work ).size.to_s
         out << ',' << work_size.to_s
         out << ',' << human_readable( work_size ).to_s
         out << ',' << '"' << curation_concern_title( work ) << '"'
@@ -453,11 +453,31 @@ module Deepblue
       end
     end
 
+    def work_file_set_ids_safe( work: )
+      return [] if work.nil?
+      begin
+        file_sets = work.file_sets
+      rescue Ldp::Gone => gone
+        return []
+      end
+      file_set_ids = []
+      file_sets.each do |fs|
+        begin
+          file_set_ids << fs.id
+        rescue Ldp::Gone => gone
+          file_set_ids << ""
+        end
+      end
+      file_set_ids
+    end
+
     def process_work( work:, report_line_prefix: '' )
       return if work.nil?
       return unless TaskHelper.work? work
       @work_size = 0
-      msg_handler.buffer "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
+      # msg_handler.buffer "#{report_line_prefix}#{work.id} has #{files(work.file_set_ids.size)}..."
+      file_set_ids = work_file_set_ids_safe( work: work )
+      msg_handler.buffer "#{report_line_prefix}#{work.id} has #{files( file_set_ids.size )}..."
       if work_ids_reported.key?( work.id )
         msg_handler.buffer " already reported ..."
         @work_size = work_size_cache[work.id]
@@ -469,7 +489,7 @@ module Deepblue
         process_file_sets( work: work )
         work_ids_reported[work.id] = true
         work_size_cache[work.id] = @work_size
-        work_file_count_cache[work.id] = work.file_sets.count
+        work_file_count_cache[work.id] = file_set_ids.count
       end
       msg_handler.msg " #{human_readable( @work_size )}"
       print_work_line( out_works, work: work, work_size: @work_size )
