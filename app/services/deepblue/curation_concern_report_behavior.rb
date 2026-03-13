@@ -45,7 +45,7 @@ module Deepblue
         w = ::PersistHelper.find id
         next unless w.respond_to? :file_sets
         # msg_handler.buffer 'w'
-        w.file_sets do |fs|
+        work_file_sets_safe( work: w ).each do |fs|
           # msg_handler.buffer 'f'
           file_set_count += 1
           total_size += size_of fs
@@ -246,9 +246,9 @@ module Deepblue
         out << collection.id.to_s
         out << ',' << '"' << to_date( collection.create_date ) << '"'
         out << ',' << '"' << to_date( collection.date_modified ) << '"'
-        out << ',' << '"' << collection.depositor << '"'
-        out << ',' << '"' << curation_concern_status( collection ) << '"'
-        out << ',' << '"' << curation_concern_visibility( collection ) << '"'
+        out << ',' << safe_csv_entry( collection.depositor )
+        out << ',' << safe_csv_entry( curation_concern_status( collection ) )
+        out << ',' << safe_csv_entry( curation_concern_visibility( collection ) )
         col_work_ids = collection_work_ids( collection: collection )
         out << ',' << col_work_ids.size.to_s
         # file_set_count, total_size = collection_file_set_count_and_size( collection_work_ids: col_work_ids )
@@ -258,9 +258,9 @@ module Deepblue
         out << ',' << @collection_size.to_s
         out << ',' << @collection_files.to_s
         out << ',' << human_readable( @collection_size ).to_s
-        out << ',' << '"' << collection.subject.join( '; ' ) << '"'
-        out << ',' << '"' << collection.creator.join( '; ' ) << '"'
-        out << ',' << '"' << col_work_ids.join( ' ' ) << '"'
+        out << ',' << safe_csv_entry( collection.subject.join( '; ' ) )
+        out << ',' << safe_csv_entry( collection.creator.join( '; ' ) )
+        out << ',' << safe_csv_entry( col_work_ids.join( ' ' ) )
       end
       out << "\n"
       out
@@ -287,15 +287,15 @@ module Deepblue
         out << file_set.id.to_s
         out << ',' << work.id.to_s
         out << ',' << '"' << to_date( file_set.date_modified ) << '"'
-        out << ',' << '"' << file_set.depositor << '"'
-        out << ',' << '"' << curation_concern_status( work, file_set: file_set ) << '"'
-        out << ',' << '"' << curation_concern_visibility( work, file_set: file_set ) << '"'
+        out << ',' << safe_csv_entry( file_set.depositor )
+        out << ',' << safe_csv_entry( curation_concern_status( work, file_set: file_set ) )
+        out << ',' << safe_csv_entry( curation_concern_visibility( work, file_set: file_set )  )
         out << ',' << file_size.to_s
         out << ',' << human_readable( file_size ).to_s
         out << ',' << file_ext
-        out << ',' << '"' << file_set.label << '"'
-        out << ',' << '"' << (file_set.thumbnail_id.nil? ? '' : file_set.thumbnail_id).to_s << '"'
-        out << ',' << '"' << (file_set.doi.nil? ? '' : file_set.doi).to_s << '"'
+        out << ',' << safe_csv_entry( file_set.label )
+        out << ',' << safe_csv_entry( (file_set.thumbnail_id.nil? ? '' : file_set.thumbnail_id).to_s )
+        out << ',' << safe_csv_entry( (file_set.doi.nil? ? '' : file_set.doi).to_s )
         out << ',' << file_set.version_count
         # out << ',' << '"' << (Array(file_set.tombstone).empty? ? '' : Array(file_set.tombstone).first).to_s << '"'
       end
@@ -309,6 +309,11 @@ module Deepblue
       fs =  PersistHelper.find_or_nil( id ) # returns nil Ldp::Gone
       return "" if fs.nil?
       fs.label
+    end
+
+    def safe_csv_entry( str )
+      rv = CSV.generate_line([str], quote_char: '"', col_sep: ',')
+      return rv.strip
     end
 
     def print_work_line( out, work: nil, work_size: 0, header: false )
@@ -342,26 +347,26 @@ module Deepblue
         out << ',' << '"' << to_date( work.create_date ) << '"'
         out << ',' << '"' << to_date( work.date_modified ) << '"'
         out << ',' << '"' << to_date( work.date_published ) << '"'
-        out << ',' << '"' << work.depositor << '"'
-        out << ',' << '"' << work.authoremail << '"'
-        out << ',' << '"' << curation_concern_status( work ) << '"'
-        out << ',' << '"' << curation_concern_visibility( work ) << '"'
+        out << ',' << safe_csv_entry( work.depositor )
+        out << ',' << safe_csv_entry( work.authoremail )
+        out << ',' << safe_csv_entry( curation_concern_status( work ) )
+        out << ',' << safe_csv_entry( curation_concern_visibility( work ) )
         out << ',' << work_file_set_ids_safe( work: work ).size.to_s
         out << ',' << work_size.to_s
         out << ',' << human_readable( work_size ).to_s
-        out << ',' << '"' << curation_concern_title( work ) << '"'
+        out << ',' << safe_csv_entry( curation_concern_title( work ) )
         parent_ids = parent_ids( work: work )
-        out << ',' << '"' << parent_ids.join( ' ' ) << '"'
-        out << ',' << '"' << TaskHelper.work_discipline( work: work ).join( '; ' ) << '"'
-        out << ',' << '"' << work.creator.join( '; ' ) << '"'
-        out << ',' << '"' << work.rights_license << '"'
-        out << ',' << '"' << work.rights_license_other << '"'
-        out << ',' << '"' << (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s << '"'
-        out << ',' << '"' << (work.doi.nil? ? '' : work.doi).to_s << '"'
-        out << ',' << '"' << (Array(work.tombstone).empty? ? '' : Array(work.tombstone).first).to_s << '"'
-        out << ',' << '"' << work.referenced_by.join( '; ' ) << '"'
-        out << ',' << '"' << work.read_me_file_set_id << '"'
-        out << ',' << '"' << readme_file_name( work: work ) << '"'
+        out << ',' << safe_csv_entry( parent_ids.join( ' ' ) )
+        out << ',' << safe_csv_entry( TaskHelper.work_discipline( work: work ).join( '; ' ) )
+        out << ',' << safe_csv_entry( work.creator.join( '; ' ) )
+        out << ',' << safe_csv_entry( work.rights_license )
+        out << ',' << safe_csv_entry( work.rights_license_other )
+        out << ',' << safe_csv_entry( (work.thumbnail_id.nil? ? '' : work.thumbnail_id).to_s )
+        out << ',' << safe_csv_entry( (work.doi.nil? ? '' : work.doi).to_s )
+        out << ',' << safe_csv_entry( (Array(work.tombstone).empty? ? '' : Array(work.tombstone).first).to_s )
+        out << ',' << safe_csv_entry( work.referenced_by.join( '; ' ) )
+        out << ',' << safe_csv_entry( work.read_me_file_set_id )
+        out << ',' << safe_csv_entry( readme_file_name( work: work ) )
       end
       out << "\n"
       out
@@ -397,8 +402,9 @@ module Deepblue
           process_file_sets( work: work )
           work_ids_reported[work.id] = true
           work_size_cache[work.id] = @work_size
-          @work_file_count = work.file_sets.count
-          work_file_count_cache[work.id] = work.file_sets.count
+          file_sets = work_file_sets_safe( work: work )
+          @work_file_count = file_sets.count
+          work_file_count_cache[work.id] = file_sets.count
           print_work_line( out_works, work: work, work_size: @work_size )
         end
         @collection_files += @work_file_count
@@ -431,8 +437,16 @@ module Deepblue
       end
     end
 
+    def work_file_sets_safe( work: )
+      begin
+        return work.file_sets
+      rescue Ldp::Gone => gone
+        return []
+      end
+    end
+
     def process_file_sets( work: )
-      work.file_sets.each do |fs|
+      work_file_sets_safe( work: work ).each do |fs|
         inc_file_sets( work, fs )
         size = size_of fs
         ext = inc_extension( work, fs )
