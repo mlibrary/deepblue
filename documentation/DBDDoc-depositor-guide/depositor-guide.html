@@ -1,0 +1,416 @@
+<!-- Last updated: 2025/10/30 -->
+<h1>Depositor Guide</h1>
+
+<p>We welcome your deposit to Deep Blue Data and the opportunity to partner with you as a host for your work.</p>
+
+<p>It is possible to simply click "Deposit Your Work” on the Deep Blue Data home page and follow the instructions from
+    there; however, to ensure that your work is as accessible, reusable, and preservable as possible, we recommend that
+    you follow this guide closely. Feel free to consult our <a href="/data/dbd-glossary">glossary</a> if you have
+    questions about our terminology.</p>
+
+<p>Before making a deposit in Deep Blue Data, you should ask yourself, "Is my work eligible to be hosted in Deep Blue
+    Data?" We accept eligible <a href="/data/dbd-glossary#research-data">research data</a> from a wide variety of
+    disciplines. For more information on the data types we can and cannot accept, please review our
+    <a href="/data/agreement">Policies and Terms of Use</a>. Please <a href="/data/contact" target="_blank">contact us</a> with any
+    questions you have.</p>
+
+<p>The deposit process follows 4 broad steps:</p>
+<ol>
+ <li><a href="#prepare-data">Preparing data</a></li>
+ <li><a href="#prepare-documentation">Preparing documentation</a></li>
+ <li><a href="#deposit-in-dbd">Depositing in Deep Blue Data</a></li>
+ <li><a href="#review-feedback">Reviewing and incorporating feedback</a></li>
+</ol>
+
+<h2 id = "prepare-data">Step 1: Preparing Data</h2>
+
+<p>Before you begin your deposit, please ensure that your data is:</p>
+<ul>
+    <p><li><strong>Complete</strong> – Any data submitted to Deep Blue Data should encompass the full results of a
+    completed project, or a discrete part of a project that can be interpreted in its own right. There should be no
+    further need to add, clean, or manipulate the final version of the data you submit. However, we do encourage you to 
+    consider including "raw" as well as processed iterations of the data. To ensure that data can be interpreted by others, 
+    we require documentation, such as a readme, that will assist with understanding and reusing data. This includes information 
+    about how the data were processed and analyzed (including any data-cleaning code), and any other relevant information required 
+    to understand the data.</li></p>
+
+    <p><li><strong>Preservable</strong> – Deep Blue Data will accept any file format. However, whenever possible, we ask
+    that you submit data in a preservation-friendly format, so that interested users can access your data in the long-term 
+    regardless of software changes.</li></p>
+
+    <p><li><strong>Openly distributable and ready for reuse</strong> – Data in Deep Blue Data are openly available to
+    anyone to study and reuse, and should have no restrictions attached. If your data are complete, ethical, and
+    preservable (as defined above), they are typically ready for distribution and reuse; however, please carefully check
+    that there are no other factors that prevent your data from being shared in this way. For more information, see our
+    <a href="/data/agreement#submission_depost_policy">Policies</a>.</li></p>
+
+    <p><li><strong>Ethical</strong> – Before submitting, please ensure that your data does not contain any information that 
+    could be used to personally identify and/or harm human or other subjects, and that data does not contain any personal 
+    information outside what any human subject agreed to share when consenting to participate in your research. Unless you are 
+    exempt, please include the IRB-approved consent forms for your study with your deposit. </li></p>
+</ul>
+
+<p>For more information on what kinds of data we can and cannot accept, please review our
+    <a href="/data/agreement#submission_depost_policy">Policies</a>. We also encourage you to check out other
+    resources for more information on the preparation of data deposits, such as:</p>
+<ul>
+    <p><li>The Inter-university Consortium for Political and Social Research
+    <a href="https://www.icpsr.umich.edu/icpsrweb/content/deposit/guide/chapter5.html" target="_blank">(ICPSR)’s guide</a> to
+    preparing data for sharing</li></p>
+    <p><li>The USGS <a href="https://www.usgs.gov/products/data-and-tools/data-management/data-release" target="_blank">web page on
+    Data Release</a></li></p>
+</ul>
+
+
+<h3 id= "preservation-friendly-formats">Which file formats are most preservation-friendly?</h3>
+
+<p>Some file formats are easier to preserve long-term than others, and the level of preservation that Deep Blue Data can
+    provide depends on the file format in which you submit your data.</p>
+
+<table>
+    <tr>
+        <th>Level</th>
+        <th>Eligible file formats</th>
+        <th>What we do</th>
+    </tr>
+    <tr>
+        <td>1 (Highest)</td>
+        <td>Formats that are both publicly documented and widely used (example: CSV).</td>
+        <td>We will make our best effort to preserve the file’s content, structure, and functionality. The content may be
+            migrated to another stable format if necessary for its preservation.</td>
+    </tr>
+    <tr>
+        <td>2 (Limited)</td>
+        <td>Proprietary formats that are widely used, and where there is substantial commercial interest in maintaining
+            access to the format (example: Microsoft Excel).</td>
+        <td>We will make limited efforts to maintain the usability of the file, as well as preserve it as submitted
+            (bit-level preservation).</td>
+    </tr>
+    <tr>
+        <td>3 (Basic)</td>
+        <td>Highly specialized proprietary formats, often usable only in a single software environment; formats no
+            longer widely utilized; and/or formats about which little information is publicly available.</td>
+        <td>We provide basic preservation of the file (<a href="/data/dbd-glossary#bit-level-preservation">bitstream</a>
+            only, with no active effort to monitor or migrate the format). Because software environments change over time, we
+            cannot guarantee that the content, structure, or functionality will be preserved.</td>
+    </tr>
+</table>
+
+<p>See our <a href="/data/agreement#preservation-policy">Preservation Policy</a> for more details.</p>
+
+<p>In addition to the recommendations in the
+    <a href="https://lib.umich.edu/static/5107471267e88dec32ae0f4c9d429f2b/U-M%20Library%27s%20Digital%20Repository%20Services%20Registered%20Formats%20and%20Support%20Levels.pdf" target="_blank">Library’s Registered Formats and
+        Support Levels (PDF)</a>, we have the following data type-specific recommendations:</p>
+
+<p><strong>Tabular</strong> – CSV. While CSV files do not support formulas like Excel files do, they are much easier to
+    preserve in the long-term because of their relative simplicity and <a href="/data/dbd-glossary#open-format">open
+    format</a>. If you feel that an Excel file (or other tabular data in a
+    <a href="/data/dbd-glossary#propriety-format">proprietary format</a>) is still the best representation of your
+    work, we recommend that you submit your data as both an Excel file and a CSV file.</p>
+
+<p><strong>Compressed files</strong><span lang=EN> – Compression (.zip, .gz, tar.gz) may be used for
+    deposits that require a specific file structure, though it can introduce preservation challenges. ZIP or tar files
+    are only as good as their contents. If you are using a Mac computer, we recommend compressing with
+    <a href="https://theunarchiver.com/" target="_blank">The Unarchiver</a> or
+    <a href="https://www.7-zip.org/download.html" target="_blank">p7zip</a>
+    (command line only); Mac’s built-in "Compressor/Archive Utility" has issues with creating openable compressed files
+    larger than 4 GB. We do not recommend RAR, as it is proprietary.</span></p>
+
+<p><strong>Code</strong> – While we do not recommend a specific file format, we advise you to include information about
+    your programming environment and versioning in your
+    <a href="#prepare-documentation">documentation</a>. If you use any code libraries beyond your base
+    language, please include version information for those as well (for example, "The code in mydata.py was written in
+    VSCode version 1.42.0 in a MacOS Catalina 10.15.3 environment with Python version 3.7.4; data were analyzed with
+    Pandas version 1.0.0; data were visualized with Seaborn version 0.10.0"). If your code was created with
+    <a href="/data/dbd-glossary#propriety-format">proprietary</a> software, we suggest that you include information
+    on how best to run it with comparable <a href="/data/dbd-glossary#open-format">open source</a> software.</p>
+
+<p><strong>3-D images</strong> – Although we do not recommend a specific file format, as with code, the more comprehensive
+    information you provide about the environment in which you created your images, the easier it will be for future
+    users to access your data as you originally intended.</p>
+
+
+<h3 id="human-data">Human Data Guidelines</h3>
+    <p>Data involving humans will be subject to additional review during the curation process to ensure that it is appropriate for public sharing, whether or not it was subject to the oversight of an Institutional Review Board (IRB). If you are uploading data that involves humans:</p>
+    <ul>
+        <li>You are required to provide a blank copy of the consent form, information sheet, or other participant agreement as part of the documentation for the deposit (ideally to be published alongside the data).</li>
+        
+        <li>You will not upload data subject to the U.S. Department of Justice’s Bulk Sensitive Data Rule (“DOJ Bulk Data Rule”). The following types and volumes of data are subject to the DOJ Bulk Data Rule. See the <a href="https://ogc.umich.edu/frequently-asked-questions/faq-doj-bulk-sensitive-data-regulations/" target="_blank"> U-M DOJ Rule FAQs</a> for more details.</li>
+        <ul> <li> The following types and volumes of data are subject to the DOJ Bulk Data Rule, regardless of whether the data is anonymized, pseudonymized, or de-identified: </li>
+        	<ul><li>Human genomic data concerning over 100 U.S. persons or other categories of human ‘omic data concerning over 1,000 U.S. persons.</li>
+ 			<li>Biometric identifiers concerning over 1,000 U.S. persons.</li>
+  			<li>Precise geolocation data concerning over 1,000 U.S. devices.</li>
+			<li>Personal health data concerning over 10,000 U.S. persons.</li>
+ 			<li>Personal financial data concerning over 10,000 U.S. persons.</li>
+  			<li>Specific types of personal identifiers concerning over 100,000 U.S. persons.</li> </ul></ul>
+        <ul><li>U.S. government-related data is also subject to the DOJ Bulk Data Rule. This includes any amount of precise geolocation data associated with DOJ-listed geofenced areas near government facilities, or any sensitive personal data marketed as linkable to U.S. government employees, contractors, or officials. </li>
+        </ul>
+        
+    <li>A Deep Blue Data curator will evaluate the submission for the following criteria:</li>
+            <ul><li>The dataset meets the Low Sensitivity classification as defined by <a href="https://safecomputing.umich.edu/protect-the-u/safely-use-sensitive-data/classification-levels" target="_blank" >U-M Data Classification Levels</a>. This requires that any data about humans has been de-identified by removing direct identifiers. (See <a href="https://datadryad.org/docs/HumanSubjectsData.pdf" target="_blank">Dryad's Best Practices</a>: Sharing Human Subjects Data for examples of direct and indirect identifiers and how to de-identify them). </li>
+                <li>The dataset does not contain data subject to the<a href="https://ogc.umich.edu/frequently-asked-questions/faq-doj-bulk-sensitive-data-regulations/" target="_blank"> DOJ Bulk Data Rule</a> on sharing sensitive personal or government-related data. If the dataset contains such data, it will not be made available to users located in China (including Hong Kong and Macau), Russia, Cuba, Iran, North Korea, and Venezuela (collectively, “Countries of Concern”).</li>
+                <li>The consent form, information sheet, or other participant agreement does not contain any language that precludes sharing data publicly. Examples of restrictive language include (but aren’t limited to):
+                <ul>
+                    <li>"Data will only be shared in aggregate" (if data is at an individual level.)</li>
+                    <li>"Data will only be shared with other researchers."</li>
+                    <li>“Data will be destroyed.”</li>
+                    <li>See also ICPSR’s <a href="https://www-icpsr-umich-edu.proxy.lib.umich.edu/web/pages/datamanagement/confidentiality/conf-language.html" target="_blank">Recommended Informed Consent Language for Data Sharing</a> and RDSI’s Bulletins on <a href="https://deepblue.lib.umich.edu/handle/2027.42/196853" target="_blank">Informed Consent & Data Sharing</a>, and <a href="https://deepblue.lib.umich.edu/handle/2027.42/196854" target="_blank"> De-identifying Data</a> for other known concerns and recommended alternatives.</li>
+                </ul></li>
+                <li>The consent form, information sheet, or other participant agreement should state that data will be shared at the individual level, if applicable, and that data will be shared publicly (anyone on the Internet can access the data, except, in certain cases, users located in Countries of Concern). Language should be specific (e.g, “de-identified data” vs. “records”) and used consistently throughout the document. </li>
+         </ul>
+        <li>In cases where Deep Blue Data staff cannot determine that data is sufficiently de-identified, or participants’ consent to publicly share the specific data concerned is not sufficiently documented, Deep Blue Data staff may:
+            <ul>
+                <li>require additional documentation that researchers adhered to ethical best practices in their field. </li>
+                <li>make further de-identification recommendations, including the removal or transformation of indirect identifiers.</li>
+                <li>consult other resources or experts, or refer the depositor(s) to another office with expertise (i.e., IRB for informed consent or DOCTR), to help clarify whether documentation is sufficient.</li>
+                <li>suggest another repository that provides controlled access to datasets.</li>
+                <li>withdraw the dataset and decline to publish it.</li>
+            </ul>
+            <li>If you wish, you may <a href="https://deepblue.lib.umich.edu/data/contact?locale=en" target="_blank" >contact us</a> when writing your consent form, information sheet, or other participant agreement, and we will be happy to consult on appropriate data-sharing language for deposit into Deep Blue Data.</li>
+    </ul>
+
+
+<h2 id = 'prepare-documentation'>Step 2: Preparing Documentation</h2>
+
+<p><strong>Provide future users of your data with the information they need to understand your data and use it in their
+    own work.</strong></p>
+
+<p>To find, understand, trust, and make use of your data, researchers need more than the data files. They need
+    documentation as well, which is a required component of each data deposit. The best documentation is often a simple text file that includes a detailed explanation of
+    the context in which the dataset was created; the methods used to collect, process, and analyze the data; and what
+    the values and terms in the data signify. It is important to keep in mind that even when information is provided in a research publication about your
+    data, research publications often leave out key details about the data itself, and interested users may not be able
+    to access it, because, unlike Deep Blue Data, many publications are restricted behind a paywall. Thus, the documentation 
+    required with your dataset should explain the data as if any associated manuscript does not exist. Follow this link for 
+    <a href="https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt" target=blank>an example readme</a> that 
+    you can adapt if you wish.</p>
+
+<p>Comprehensive documentation also makes your data more discoverable. There are well-established paths for discovering
+    publications like journal articles or book chapters; however, this is not the case for many other types of
+    scholarship. The stronger your documentation is, the stronger your dataset will be! At Deep Blue Data, we use
+    "dataset" to refer to the combined unit of your data and your documentation. See our
+    <a href="/data/dbd-glossary">glossary</a> for more details.</p>
+
+<img src="/data/work_view_content/DBDDoc-depositor-guide/dataset_hierarchy.jpg" alt ="Components of a Deep Blue Data 'Dataset' include all relevent data files plus the documentation files.">
+
+<p>Though practices and needs for describing research data will be determined on a case-by-case basis, the following
+    areas should be covered at a minimum in documentation:</p>
+<ul>
+    <p><li><strong>Research Overview</strong> – A summary of the subject and purpose of the research, as well as who
+    conducted the research, where and when it took place, and the research funding sources.</li></p>
+    <p><li><strong>Methods</strong> – An account of how the research was conducted, with a focus on how data were
+    collected, processed, and analyzed. Sampling procedures, instruments, and software used should be described to
+    convey how data were produced and transformed.</li></p>
+    <p><li><strong>File Inventory</strong> – A list of each of the files included in the data, including a brief
+    statement of what each file contains and its purpose. An explanation of the organization of the files, including
+    relationships between files, should be considered for inclusion as well.</li></p>
+    <p><li><strong>Definition of Terms and Variables</strong> – A glossary or set of in-text descriptions that clearly
+    specifies the meaning of ambiguous terms, obscure procedures, variables, and/or units that appear throughout the
+    dataset (without jargon). This may take the form of a list of definitions, a data dictionary in a spreadsheet, or
+    comment lines distributed throughout a coding script.</li></p>
+    <p><li><strong>Use and Access</strong> – Instructions on how to open, run, or make use of the files (if needed).
+    </li></p>
+    <p><li><strong>Informed consent</strong> – If your data are the product of research in which human subjects underwent a
+    consent process, please include a blank copy of the informed consent form and/or terms of consent as part of your
+    documentation.</li></p>
+</ul>
+
+<p>Follow this link for <a href="https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt" target=blank>an example 
+readme</a> that you can adapt if you wish. If you have questions about how best to document your research process, feel free to
+    <a href="/data/contact" target="_blank">contact us</a>; we are happy to share additional resources and guide you 
+    through the process.</p>
+
+<h2 id = 'deposit-in-dbd'>Step 3: Depositing in Deep Blue Data</h2>
+
+<p><strong>Supply metadata (including license); upload data and documentation.</strong></p>
+
+<p>Now that you have a complete dataset with both data and documentation, you are ready to submit your work! (At Deep
+    Blue Data, we use "dataset" to refer to the combined unit of your data and your documentation, and "work" to refer
+    to the combined unit of your dataset and your metadata. See our <a href="/data/dbd-glossary">glossary</a> for more
+    details.)</p>
+
+<img src='/data/work_view_content/DBDDoc-depositor-guide/work_hierarchy.jpg' alt="Components of a Deep Blue Data 'Work' include the dataset (all relevent data files plus the documentation files) and the metadata.">
+
+<p>Navigate to our <a href="/data">home page</a> and click "Deposit Your Work" to get started.</p>
+
+<img src='/data/work_view_content/DBDDoc-depositor-guide/deposit_button.jpg' alt='Deep Blue Data landing page, with the "Deposit" button highlighted in the middle of the "Browse or Deposit Work in Deep Blue Data" section.' />
+
+<h3 id = 'create-metadata'>Create metadata</h3>
+
+<p>Under the "Descriptions" tab, you will need to provide <a href="/data/dbd-glossary#metadata">metadata</a>, which will
+    help people who may be interested in the dataset to find it and understand it well enough to decide whether or not
+    they would like to download it from Deep Blue Data. Metadata is different from documentation, such as readme files,
+    field notes, or codebooks. Although they serve similar functions of providing important information about a dataset,
+    metadata is generally more brief and succinct</span> than documentation; it’s the first thing that someone sees when
+    they encounter your dataset in Deep Blue Data.</p>
+
+<p>Here are more detailed instructions on completing the metadata fields in the "Deposit Your Work" form on Deep Blue
+    Data. For a good example of most metadata fields, see
+    <a href="https://deepblue.lib.umich.edu/data/concern/data_sets/00000080x" target="_blank">Dataset of live-cell movies of single
+        PolC-PAmCherry molecules in Bacillus subtilis cells with high and low fluorescent backgrounds</a>.</p>
+
+<p><strong>Title</strong> – Create a Title that will allow users to discover and understand the purpose of your dataset.
+    The best titles are:</p>
+<ul>
+    <p><li><strong>Accessible</strong> – Use clear language and avoid jargon that will not be immediately recognizable
+    to those within your field.</li></p>
+    <p><li><strong>Concise</strong> - The title should be clear and descriptive, but not longer than absolutely
+    necessary.</li></p>
+    <p><li><strong>Descriptive</strong> – The title will be discoverable on Deep Blue Data and through other search
+    engines. Consider mentioning the general area of research and/or the specific topic in the title.</li></p>
+    <p><li><strong>Unique</strong> – Your dataset is a discrete research product that has intrinsic value, and
+    your title should reflect that, even if your dataset is also incorporated into a broader project. Consider using the
+    terms "data" or "dataset" or referencing specific methods to help distinguish the dataset from other research
+    products.</li></p>
+</ul>
+
+<p><strong>ORCID iD</strong> – If you'd like your <a href="https://www.orcid.org" target="_blank">ORCID iD</a> to appear in 
+the metadata, follow the instructions on the <a href="/data/orcid" target="_blank">Connect your ORCID</a> page. Please note 
+that only one ORCiD can currently be linked to a Work.</p>
+
+<p><strong>Creator</strong> – List the name(s) of the person(s) and/or organization(s) responsible for creating the
+    Work. For names, please use the following format: Last name, First name, Middle Initial. If the dataset has more than
+    one creator, they should each be listed in separate Creator fields.</p>
+
+<p><strong>Contact Information</strong> – Enter the email address for the individual who can best respond to questions
+    about the work. Contact information will be invaluable to other researchers if they need additional information or
+    guidance when reusing the data or reproducing the research.</p>
+
+<p><strong>Methodology</strong> – Explain the methods that were used to collect and process the data included in this
+    Work. This could include:</p>
+<ul>
+    <p><li>Specific data collection methods (e.g., content analysis, experiment, observation, simulation, survey, etc.)
+    and details on how they were employed.</li></p>
+    <p><li>Tools used to collect, process, and analyze the data (i.e., names and versions of software, instruments,
+    statistical tests, etc.).</li></p>
+</ul>
+
+<p>This information may take a few sentences or a paragraph to explain adequately. Anything more than a paragraph is
+    probably too long for the metadata, and a full accounting of the methods used to collect, process, and analyze the
+    data can be saved for the documentation.</p>
+
+<p><strong>Description</strong> – Provide a general, brief description of the research that produced this data,
+    including the researchers’ purpose or questions they wanted to answer. Though related to the "Methodology" field,
+    the "Description" field should more generally cover what the data are and the overall research context, rather than
+    the specifics of how the dataset came to be.</p>
+
+<p><strong>Date Coverage</strong> – Select the span of time that the data represent or the dates the data were collected, 
+whichever is more important for your data. Please also indicate what the chosen dates represent in your readme.</p>
+
+<p><strong>License</strong> – Select a licensing and distribution option that will govern use of the Work. Your choice
+    will let users know if and under what conditions they can share and reuse the included data without requesting
+    further permissions. For more information about which licenses to select, see our
+    <a href="/data/agreement#submission_depost_policy">Deposit Policy</a>.</p>
+
+<p><strong>Discipline</strong> – Select the discipline(s) associated with the research for which the data were
+    collected.</p>
+
+<p><strong>Funding Agency</strong> – If applicable, select the primary funding agency that supported the research
+    project for which the data were generated or collected. If the funding agency for your dataset is not represented in
+    the drop-down, select the "Other Funding Agency" option and enter the funding agency name in the specified
+    field.</p>
+
+<p><strong>ORSP Grant Number</strong> – If applicable, enter the PAF number assigned by the University of Michigan’s
+    <a href="http://orsp.umich.edu/" target="_blank">Office of Research and Sponsored Projects (ORSP)</a>.</p>
+
+<p><strong>Keyword</strong> – Enter any terms or topics that describe your work or would help people find it in Deep
+    Blue Data. Keywords may include the following:</p>
+<ul>
+    <p><li>Disciplines or sub-disciplines</li></p>
+    <p><li>Research topics or areas</li></p>
+    <p><li>Methods or tools central to the research</li></p>
+    <p><li>Time periods and/or locations associated with the data</li></p>
+</ul>
+
+<p>We encourage you to add multiple keywords by clicking "+ Add another Keyword" below the Keyword text box.</p>
+
+<p><strong>Language</strong> – List the language(s) in which the data and supplementary content are written. These could
+    be spoken languages (e.g., English, Spanish, Mandarin, Arabic, etc.) or programming languages (e.g., C++, MATLAB,
+    Python, XML, etc.).</p>
+
+<p><strong>Citation to related material</strong> – Enter a citation to any publication(s) that use or reference
+    the data in this Work. Most often, these will be articles and books by the Creator(s) or the research group.</p>
+
+<p>Include a full citation where possible, including a link to a URL, DOI, or unique identifier for the related item. If
+    the publication has not yet been released, please provide a "forthcoming," "in-press," etc., interim citation and
+    plan to <a href="/data/contact" target="_blank">contact us</a> with an updated citation once it has been published.</p>
+
+<p><strong>Related items in Deep Blue Documents</strong> – If the article(s) accompanying your dataset are available in our
+    document repository, <a href="https://deepblue.lib.umich.edu/documents" target="_blank">Deep Blue Documents</a>, enter the citation(s) for the
+    record(s) here. If you have questions about depositing your article(s) in Deep Blue Documents, please <a href="/data/contact" target="_blank">
+    contact us</a>.</p>
+
+<h3 id = 'submit-data-files'>Upload data and documentation files</h3>
+
+<p>For the next step, click on the "Files" tab to the right of the "Description" tab near the top of the page. We currently 
+accept deposits of any size; however, the size of your dataset impacts how you can upload it to Deep Blue Data.</p>
+
+<p>If your full dataset is:</p>
+<ul>
+    <p><li><strong>Up to 5 GB</strong> – you can submit your dataset directly through the Deep Blue Data online
+    interface. There is no limit on the number of deposits that can be submitted through self-service.</li></p>
+
+    <p><li><strong>5 GB or greater and/or more than 100 files</strong> – you will need to <a href="/data/contact" target="_blank">
+    contact Deep Blue Data</a> and one of our team members will help to facilitate uploading data to your deposit. Please submit 
+    your metadata without files while you wait for our response. This will create a draft page in Deep Blue Data where our team 
+    can upload and review your files.</li></p>
+</ul>
+
+<p>Regardless of file size or number of files, we are committed to helping you share your dataset as efficiently as
+possible. Please note that single files or aggregations of files exceeding 1 TB may pose challenges based on the
+    underlying Deep Blue Data repository software. In such cases, we are happy to work with you to assess how your work
+    can best be shared. For more information, please consult our
+    <a href="/data/agreement#submission_depost_policy">Submission and Deposit Policy</a>.</p>
+
+<p>In addition to your data files, please upload the required documentation (e.g., readme, data dictionary, blank informed consent) 
+you prepared.</p>
+
+<h3 id = 'choose-visibility'>Choose visibility (Open Access or Embargo)</h3>
+
+<p>Congratulations! Your dataset is now a Work, consisting of metadata and files, in Deep Blue Data.</p>
+
+<p>We recognize that situations exist in which you won't want to offer immediate access to your Work. Notwithstanding
+    legal requirements that the University is bound to honor (such as <a href="https://www.foia.gov/about.html" target="_blank">FOIA requests</a>),
+    you can embargo your Work in Deep Blue Data for up to one year. If you have questions about restricting specific files, please
+    <a href="/data/contact" target="_blank">contact us</a>.</p>
+<ul>
+    <p><li><strong>Open Access</strong> – Publicly available immediately following DBD staff approval (except, in certain cases, users located in Countries of Concern).</li></p>
+    <p><li><strong>Embargo</strong> – Set date for future public release (following DBD staff approval).</li></p>
+</ul>
+
+<h2 id = "review-feedback">Step 4: Reviewing and incorporating feedback</h2>
+
+<p>You will receive correspondence from Deep Blue Data and staff following your deposit. Please look for and respond to
+    the following:</p>
+
+<p><strong>Upon deposit</strong> – You will receive two emails: one confirming the creation of your deposit, and another 
+confirming the files you have uploaded (use this file list to make sure everything you intended to upload is included in the 
+deposit).</p>
+
+<p><strong>1-2 business days after deposit</strong> – For each deposit, we perform an initial review within the first few 
+business days. We evaluate the deposit to ensure it meets our acceptance criteria, contains both data and accompanying 
+documentation, and that all files have successfully been ingested and can be downloaded and opened. At this time, we may 
+contact you by email to let you know if we need more information to proceed. If you need a DOI before publishing your 
+dataset but after uploading files, please <a href="/data/contact" target="_blank">contact us</a> at
+    any time to request this.</p>
+
+<p><strong>1-2 weeks after deposit</strong> – We review the deposit fully (sometimes bringing in the appropriate subject 
+librarian or another expert) for completeness and legibility of metadata, documentation, and data. We will send any curation 
+recommendations to you via email and work with you to make changes to the Work. The entire process usually takes a few business 
+days to a few weeks, depending on the state of the dataset and the depositor’s timeline for publication. Please
+    <a href="/data/contact" target="_blank">contact us</a> if you need to arrange for an expedited review, and we will do our 
+    best to accommodate you.</p>
+    
+<p>Our goal is for Deep Blue Data to serve as a means for datasets of interest to be discovered, understood, and used by
+    others in ways that benefit you, the dataset creator, and our feedback is intended to make your work as accessible,
+    reusable, and preservable as possible. We understand that people may face deadlines or other time constraints in
+    publishing data. </p>
+
+<p><strong>After you review and incorporate feedback</strong> – Once we have worked with you to resolve any recommended
+    changes for the dataset, we will publish your Work on Deep Blue Data. At this point, the Work is an active part of
+    the scholarly record, just as a published journal article. Modifications to the work are discouraged unless
+    absolutely necessary. In the event that you believe your dataset or metadata needs to be updated, please
+    <a href="/data/contact" target="_blank">contact us</a>.</p>
+
+<p>To learn more about how we will preserve your data over time, see our <a href="/data/agreement#preservation-policy">
+    Preservation Policy</a>.</p>

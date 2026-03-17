@@ -1,0 +1,43 @@
+en:
+  hyrax:
+    masthead_banner:
+      standard_html: >
+        Deep Blue Data personnel won't be able to respond to requests from Saturday, December 20, 2025 to Monday, January 5, 2026 due to vacations and university holidays. All self-serve features of Deep Blue Data and Deep Blue Documents will still be available during this time. Thanks for your patience! 
+      standard_20251010_html: >
+        Starting on Friday, October 10, the Deep Blue team will be hard at work migrating our other repository, Deep Blue Documents, to a new version of its software. During this period, we will not be able to review any new datasets submitted and will be slow to respond to any requests. We hope to resume our normal tasks in Deep Blue Data (including reviewing datasets) by Monday, October 20. Thank you for your patience!
+      standard_20241127_html: >
+        We are experiencing a Globus outage; any datasets that require Globus for download (>3 GB) will be unavailable until the issue is resolved. Thank you for your patience.
+      standard_20241106_html: >
+        Do you have an <a href="https://orcid.org/">ORCID iD</a>? Click here to link it to your Deep Blue Data profile!
+      standard_20240118_html: >
+        Need language around using Deep Blue Data as a repository for your NIH data sharing plan? See 
+        <a href="https://deepblue.lib.umich.edu/data/services#boilerplate">Data Sharing Boilerplate</a> 
+      standard_202206_html: >
+        We're having an issue with our "Contact Us" form, please email us at deepblue@umich.edu
+      standard_20220304_html: >
+        Due to facilities maintenance happening Saturday, March 5th, 2022, the Deep Blue Data system will be unavailable
+        starting the evening of Friday, March 4th, 2022 through to Sunday, March 6th, 2022. If you have any questions or
+        concerns please email <a href="mailto:deepblue@umich.edu">deepblue@umich.edu</a>. Thank you!
+      maintenance_globus_html: >
+        Please note that due to scheduled maintenance, Globus is currently unavailable for both upload and download.
+      maintenance_html: >
+        Deep Blue Data is currently or will soon be undergoing maintenance and is read only. Normal services
+        will return shortly.
+      maintenance_20220505_html: >
+        Deep Blue Data is currently or will soon be undergoing maintenance and is read only. Normal services
+        will return after 8:00 a.m. Thursday May 5th.
+      maintenance_20220304_html: >
+        Deep Blue Data is read only due to facilities maintenance happening Saturday, March 5th, 2022, the Deep Blue Data system will be unavailable
+        starting the evening of Friday, March 4th, 2022 through to Sunday, March 6th, 2022. If you have any questions or
+        concerns please email <a href="mailto:deepblue@umich.edu">deepblue@umich.edu</a>. Thank you!
+      slow_html: >
+        Deep Blue Data is currently experiencing reduced transaction speed.
+      outage_banner_html: >
+        We are experiencing some technical issues. It is advised that no deposits or edits be done at this time.
+        Once the issue is resolved, this message will be disabled. Thank you!
+      access_banner_html: >
+        Deep Blue Data is presently in read only mode.  Deposits and Edits are disabled.
+    subheader:
+      default_html: >
+        Need language around using Deep Blue Data as a repository for your NIH data sharing plan? See
+        <a href="https://deepblue.lib.umich.edu/data/services#boilerplate">Data Sharing Boilerplate</a> .

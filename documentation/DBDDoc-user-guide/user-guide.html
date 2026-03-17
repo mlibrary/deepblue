@@ -1,0 +1,222 @@
+<!-- Last updated: 2025/04/21 -->
+<h1>User Guide</h1>
+
+<h2 id = 'overview'>Overview</h2>
+
+<p>Thank you for using our data! All data in the Deep Blue Data repository are available to anyone for download
+    without restriction, but before you get started, please remember:
+</p>
+<ul>
+    <p><li><strong>Content downloaded from Deep Blue Data is provided "as is."</strong> Just as with published books
+    or articles available through the library, the library only makes the content available. Although we run a virus
+    check on deposit of the data, no check is 100% accurate or foolproof. We therefore cannot guarantee the accuracy,
+    adequacy, quality, or completeness of content from Deep Blue Data, or that downloads are absolutely free of
+    viruses or other harmful components.</li>
+    </p>
+    <p><li><strong>Use of our data is subject to our terms of use and the license assigned by the depositor.</strong>
+    In addition to understanding our <a href="/data/agreement">Polices and Terms of Use</a>, be sure that you understand
+    the license and what you may and may not do with the data without requesting further permissions from the dataset
+    contact. Most of our works (but not all) are licensed under the Creative Commons; please see 
+    <a href="http://creativecommons.org/" target="_blank">the Creative Commons site</a> for more information on these licenses.</li></p>
+    <p><li><strong>We collect usage data to help us improve our services.</strong> For more information on the
+        data we collect (and how to opt out of this process), see the U-M Library’s
+    <a href="https://www.lib.umich.edu/about-us/policies/library-privacy-statement" target="_blank">policy
+        on privacy and confidentiality</a>.</li></p>
+</ul>
+
+<p>If you have any questions, please feel free to <a href="/data/contact" target="_blank">contact us</a>.</p>
+
+<p>There are two pathways you can use to download our data: downloading locally (</b>for smaller files) or
+    downloading using Globus (for larger files).</p>
+
+
+<h2 id = "download-local">Downloading Data: Smaller Files (Local)</h2>
+
+<p>Most data within Deep Blue Data can be downloaded by simply navigating to the web page of the work of interest
+    and clicking on the file(s) you want to download under the "Files" heading. You can also select "Download" on
+    the "Select an Action" menu to the right of the file name. If you want to download all of a work’s files
+    simultaneously, simply click "Download Zipped Dataset" under the "Download All Files" heading.</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/download_local.jpg" alt="Downloading files page with the 'Select Actions' dropdown highlighted, showing 'Download' or 'View Details' options, and a 'Download Zipped Dataset' button at the bottom of the page.">
+
+<h2 id = "download-globus">Downloading Data: Larger Files (Globus)</h2>
+
+<p>Most files on Deep Blue Data can be downloaded directly from the Work, but some files are so large that
+    timeouts and errors can occur when trying to retrieve them through a browser.</p>
+
+<p>To access these larger files, you can use <a href="https://www.globus.org/" target="_blank">Globus</a>. For those who use
+    Deep Blue Data frequently, Globus also may end up serving as a more convenient way to access files of all
+    types and sizes.</p>
+
+<h3>What is Globus, and why do I need it to access files on Deep Blue Data?</h3>
+
+<p><a href="https://www.globus.org/what-we-do"target="_blank">Globus</a> is a nonprofit platform created by the University of
+    Chicago and Argonne National Laboratory that enables the simple transfer of digital files as large as
+    petabytes (a petabyte is 1,000 terabytes or 1,000,000 gigabytes) from established endpoints, one of which
+    can be your work or personal computer.</p>
+
+<h3>How do I set up Globus so I can transfer files to my computer?</h3>
+
+<p>Below is a short guide for setting up Globus on your computer. Globus also has
+    <a href="https://docs.globus.org/how-to/get-started/" target="_blank">detailed "How To" walkthroughs</a> for basic and more
+    complicated setup processes.</p>
+
+<h3>Set up an account on Globus</h3>
+
+<p>The first step is to set up an account with the Globus Web App, which can be connected to other personal and
+    institutional accounts, including those at the University of Michigan. To begin setting up an account, navigate
+    to the <a href="https://globus.org/login" target="_blank">Globus login page</a>.</p>
+
+<img  src="/data/work_view_content/DBDDoc-user-guide/globus_login.jpg" alt="Globus login page with options to select origanization.">
+
+<p>In the drop-down menu below "Use your existing organizational login," if the name of your institution is listed
+    (e.g. University of Michigan), select it, click "Continue," and sign in using your institution’s login system.
+    If your institution is not listed, or you would prefer to use a non-institutional email, click "Sign in with
+    Google" below the "Continue" button. If you do not have a Google account, you may create an account using
+    <a href="https://globusid.org/create" target="_blank">Globus ID</a>.</p>
+
+<p>When you are asked if you want to link to an existing Globus account, click "Continue." You will then be prompted
+    for some additional information, including how you plan to use Globus (i.e. for commercial or academic purposes),
+    and you must agree to the Terms of Service and Privacy Policy.</p>
+
+<h3>Install Globus Connect Personal</h3>
+
+<p>Once you have set up a Globus account, you will want to establish a personal endpoint on your computer so that you
+    can transfer data to it. To do this, you will need to download and install Globus Connect Personal, which will
+    connect to the Globus Web App.</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/create_your_endpoint.jpg" alt="'Name your endpoint' page showing options to name, generate setup key, and download Globus Connect Personal.">
+
+<p>To begin, navigate to <a href="https://app.globus.org/file-manager/gcp" target="_blank">https://app.globus.org/file-manager/gcp</a>.
+    For Step 1 ("Name Your Endpoint"), provide a descriptive name for the endpoint that will help you identify it in
+    the future (e.g., Sam's Personal Laptop). For step 2 ("Generate a Setup Key for Installation"), click
+    "Generate Setup Key," copy the result, and keep it in your clipboard or paste it in another document. Then,
+    select your operating system from those listed in "Step 3" ("Download & Install Globus Connect Personal")
+    and complete the installation setup. Most default settings are satisfactory, though later you may want to
+    change the folder, or directory, to which Globus sends transferred files. During the installation process
+    (or when you first open the program, depending on your operating system), you will be asked to provide the
+    Setup Key you copied earlier.</p>
+
+<p>You can find detailed installation instructions for Mac, Windows and Linux operating systems at
+    <a href="https://www.globus.org/globus-connect-personal" target="_blank">https://www.globus.org/globus-connect-personal</a>.
+    On the instructions for Mac and Windows, the Configuration section will tell you how to change the folder that
+    Globus can access. (In particular, you may need to set the destination folder as writable for transfers to
+    be successful.)</p>
+
+<h3>Now I have Globus set up. How do I get the files I want from Deep Blue Data?</h3>
+
+<p>Once you have an account and Globus Connect Personal is installed on your computer, you have everything in place
+    to begin transferring files from Deep Blue Data. Follow the steps below to complete the transfer process.</p>
+
+<h3>Send files to Globus</h3>
+
+<p>Return to the Work in Deep Blue Data from which you would like to transfer files to your computer. There will
+    be a button labeled either "Send to Globus to Download" (image A, below) or "Link to Globus Download Directory"
+    (image B) just beneath the list of files and the button labeled "Download All Files."</p>
+
+
+<p>(A)</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/send_to_globus.jpg" alt="File download page showing all file names, those files' access types, and options to send all to Globus to Download.">
+
+<p>(B)</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/globus_ready.jpg" alt="Link to Globus 'Download Directly' page, displayed to users if this setting was selected.">
+
+<p>If there is a button labeled "Download Data from Globus" instead of "Send to Globus to Download," the files are
+    already available for transfer because another user previously requested them. Click "Link to Globus download
+    directory" and log in to your Globus account if prompted.</p>
+
+<p>If there is a button labeled "Send to Globus to Download," click the button to begin the copying process.
+    If prompted, log in to your Globus account. Globus will then prepare the files for download. How long the process
+    will take depends on the size of the files.</p>
+
+<p>If you are a University of Michigan affiliate and are logged into Deep Blue Data, you will automatically receive
+    an email at your "@umich.edu" account when the files are ready for transfer. If you are NOT a University of
+    Michigan affiliate and are not logged in to Deep Blue Data, a page will appear asking if you would like to
+    provide your email address so that you can be notified when the files are available for transfer. That window
+    will have two text boxes to fill ("Email" and "Email again"):</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/email_when_done.jpg" alt="Non-U-M affiliated message showing th einput field to write email.">
+
+<p>If you would rather not provide your email, you can click "Don't Add My Email" and return to the page on Deep
+    Blue Data later to see if the files are available. However, we highly recommend you provide Deep Blue Data with
+    an email, since it may take some time for the files to be ready.</p>
+
+<p>When you receive an email notifying you that the files are available in Globus, click the Globus link provided
+    in the email. If you did not specify an email, return to the dataset page on Deep Blue Data to check if the
+    "Send to Globus for Download" button has been replaced with the "Link to Globus for Download"; if so, click
+    "Link to Globus for Download" to continue.</p>
+
+<h3>Specify your device as an endpoint in Globus</h3>
+
+<p>After you have either clicked the Globus link provided in your email or the "Link to Globus for Download" button
+    in the Work on Deep Blue Data, a page titled "File Manager | Globus" should appear:</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/file_manager.jpg" alt="File manager page showing th elist of files and several interactive options on the right tool bar.">
+
+<p>"DeepBlueData" should appear in the "Collection" field, which represents the main location for all of Deep Blue
+    Data’s deposits on Globus. The "Path" field represents a unique pathway to the specific files for download.
+    There is no need to alter anything in these two fields, since all the files for download should appear in the
+    list below.</p>
+
+<p>Click on the second "Panels" icon in the top-right corner. Alternatively, you can click on the icon with the
+    tooltip "Transfer or Sync to…" on the right-hand icon menu in the single-panel view. In either case, a page
+    with two "Collection" panels should appear:</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/select_collection.jpg" alt="File Manager page showing the 'Select a Collection' panel after clicking the double-panel view.">
+
+<p>The second (right-hand) "Collection" panel represents your personal endpoint where the data will transfer, i.e.,
+    your computer. Click "– select a collection –" in this field to select your endpoint. Then, you can either
+    search for your personal computer in the search bar or find it under the "Your Collections" tab.
+</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/select_my_computer.jpg" alt="File Manager page showing options to see recent, bookmarked, collections (highlighted in the image), shared with you, and more options.">
+
+<p>In the "Your Collections" tab, your endpoint icon will be green (with the icon tooltip reading "collection ready")
+    if your device is ready to download files from Globus. If the icon is red with an "x" (or if the icon tooltip reads
+    "collection offline"), please check that Globus Connect Personal is running on your computer (for additional
+    information onthis, please refer to
+    <a href="https://docs.globus.org/how-to/get-started">https://docs.globus.org/how-to/get-started</a>).
+</p>
+
+<h3>Download files from Globus to your device</h3>
+
+<p>After selecting your Collection endpoint, select the files you would like to download from the "DeepBlueData"
+    collection in the first (left-most) panel. You may either click "select all" above the list of files or select
+    only the files you would like to download.</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/select_all.jpg" alt="Select All button showed at the top left of the file manager files list.">
+
+<p>In the second (right-hand) panel, select the location where you would like the files to save on your computer.
+    If you do not select a location, Globus defaults to whatever location you previously set up in Globus Connect
+    Personal.</p>
+
+<p>When endpoints for both sides are set, the "Start" button below the list of "DeepBlueData" files will turn darker
+    blue and will be clickable. Click on this "Start" button to download your files.</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/start_button.jpg" alt="Start button shown at the bottom of the File Manager page on the double panal view.">
+
+<p>A message in a green bar (reading "Transfer request submitted successfully. Task id:...") should appear above
+    the file window, indicating a successful transfer request. Because Globus is expected to handle large files
+    that take some time to download, the platform is set up to pause whenever your computer is no longer connected
+    to the Internet. It will resume automatically when your computer is reconnected.</p>
+
+<p>Once the files have been completely downloaded, they will appear in the destination folder on your computer.
+    You can always check the status of tasks by clicking "Activity" in the left-hand navigation on the Globus page
+    where you set up your transfer. If you provided an email or are signed in with your U-M account, you will
+    receive an email when the transfer has been completed.</p>
+
+<img src="/data/work_view_content/DBDDoc-user-guide/transfer_success.jpg" alt="Left navigation showing the activity section highlighted.">
+
+<h3>Where can I go if I need further help with Globus or Deep Blue Data?</h3>
+
+<p>Globus has numerous How To guides on its <a href="https://docs.globus.org/how-to/">Globus Docs website</a>,
+    including videos. You can also <a href="/data/contact">contact us</a>.</p>
+
+<h3> Note about Globus</h3>
+
+<p>By default, Globus Personal Connect will automatically turn on in the background when you start your computer.
+    When you are not using Globus, to avoid receiving error messages and other notifications, simply find the Globus
+    icon in the bottom right-hand corner of your screen (or in the menu/status bar at the top for Mac), right-click
+    (or ctrl-click for Mac), and click "Quit Globus Personal Connect."</p>
