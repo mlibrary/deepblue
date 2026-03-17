@@ -1,0 +1,402 @@
+en:
+  data_set:
+    contact_message_header:
+      "This is some information about the work I was trying to create:"
+    contact_message_title:
+      "Title: "
+    contact_message_creator:
+      "First Creator Listed: "
+    contact_message_url:
+      "URL: "
+    doi_already_exists:
+      "A DOI already exists for this work."
+    doi_is_being_minted:
+      "A DOI is currently being minted."
+    doi_job_started:
+      "DOI process kicked off for work id: %{id}"
+    doi_minting_started:
+      "DOI minting has started."
+    doi_requires_work_with_files:
+      "DOI cannot be minted for a work without files."
+    doi_user_without_access:
+      "Current User does not have access to Mint the Doi."
+    globus_clean:
+      "Files are being delete from %{dirs}"
+    globus_clean_join_html:
+      "<br/>&nbsp;&nbsp;&nbsp;&nbsp;and "
+    globus_file_prep_started:
+      "Files have started copying to Globus. %{when_available}"
+    globus_files_available_here:
+      "Files are available for download using Globus here: %{globus_url}"
+    globus_files_prepping:
+      "Files are currently being copied to Globus. %{when_available}"
+    globus_files_when_available:
+      "Please check back later."
+    globus_files_when_available_email:
+      "%{user_email} will be sent an email when the files are available for download via Globus."
+    globus_success:
+      'Your download all files to Globus was successful!'
+    read_me_file_set_assignment_missing: >
+      No readme file set has been assigned to this work. Please upload a readme file or select one the existing
+      files and assign it as the readme file using the file's pull down action menu. Readme files must be plain
+      text and less than %{size} in size. If a plain text file name contains "readme" (case insensitive) and there
+      is no readme file assigned to the work, it will automatically be assigned as the readme upon upload and no
+      further action is required.
+    tombstone_notice:
+      "Tombstoned: \"%{title}\" for this reason: %{reason}"
+  hyrax:
+    admin_set:
+      name: "Draft works Admin Set"
+    icons:
+      data_set:               'fa fa-file-text-o'
+    select_type:
+      data_set:
+        description:          "Data set works"
+        name:                 "Data Set"
+    works:
+      nofiles: "No files have ever been uploaded and attached to this work."
+      somefiles: "This is a list of all the files uploaded and attached to this work."
+    base:
+      required_descriptions_deepblue: Please complete required descriptions
+      required_agreement_deepblue: Check deposit agreement below
+      form_files:
+        dropzone: Drop files here.
+        local_upload_contact_html: >
+          <p>If you have more than %{max_num_files} files or files larger than %{files_larger_than}
+          please <a href="%{contact_path}">Contact Us</a> for assistance in uploading your data.</p>
+        local_upload_html: >
+          <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
+          <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
+          changes and update the Work page. You will receive an email when file processing is complete. You must
+          include some form of documentation for your dataset to be published. See the
+          <a href="/data/depositor-guide#prepare-documentation" target="_blank">
+          Guide to Creating Documentation for Your Dataset</a>
+          or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
+          <p>'Add folder...' will upload individual files within the selected folder.</p>
+        local_upload_browse_everything_html: >
+          <p>To select files from Drop Box.</p>
+          <p>Note that if you use a cloud provider to upload a large number of
+          files within a short period of time, the provider may not be able to
+          accommodate your request. If you experience errors uploading from the
+          cloud, let us know at <a href="%{contact_path}">Contact Us</a>.</p>
+        local_upload_no_dir_html: >
+          <p>Upload data files (e.g. .xls, .sas) and documentation files (e.g. codebooks, readme.txt).</p>
+          <p>After you have uploaded files and submitted your Work, the system may take a few minutes to process the
+          changes and update the Work page. You will receive an email when file processing is complete. You must
+          include some form of documentation for your dataset to be reviewed and published. See the
+          <a href="/data/depositor-guide#prepare-documentation" target="_blank">
+          Guide to Creating Documentation for Your Dataset</a>
+          or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
+        local_help_your_computer_html: >
+          <p>Select "Choose Files" to upload files from your computer.</p>
+      form_progress:
+        cancel:             "Cancel"
+  provenance_log:
+    title:                  "Provenance Log"
+    id:                     "ID:"
+  show:
+    labels:
+      access_deepblue:      "Related items in Deep Blue Documents"
+      authoremail:          "Contact information"
+      creator:              "Creator"
+      creator_orcid:        "Creator ORCID iD"
+      curation_notes_admin: "Curation notes admin"
+      curation_notes_user:  "Curation notes"
+      date_coverage:        "Date coverage"
+      date_created:         "Date created"
+      date_modified:        "Last modified"
+      date_published:       "Published"
+      date_updated:         "Date updated"
+      depositor_creator:    "Use Depositor ORCID iD"
+      doi:                  "DOI"
+      edit_groups:          "Edit Groups"
+      edit_users:           "Edit Users"
+      fundedby:             "Funding agency"
+      fundedby_other:       "Other Funding agency"
+      grantnumber:          "ORSP grant number"
+      ingest_append_script_prep:   "Append Script Prep"
+      ingest_append_script_view: "View Script"
+      language:             "Language"
+      methodology:          "Methodology"
+      prior_identifier:     "Prior Identifier"
+      read_groups:          "View Groups"
+      read_users:           "View Users"
+      referenced_by:        "Citations to related material"
+      rights_license:       "License"
+      rights_license_other: "Other License"
+      subject_discipline:   "Discipline"
+      tab_file_contents:    "File Contents"
+      tab_item:             "Files"
+      tab_provenance_log:   "Provenance Log"
+      tab_read_me:          "Readme"
+      tab_user_activity_log: "User Activity Log"
+      ticket:               "Ticket"
+      total_file_size:      "Total file size"
+      total_file_size_human_readable: "Total file size"
+      your_draft_works:       "Your Draft Works"
+  simple_form:
+    actions:
+      data_set:
+        analytics:                      "View Work Analytics"
+        analytics_subscribe:            "Subscribe to Monthly Analytics Report"
+        analytics_unsubscribe:          "Unsubscribe from Monthly Analytics Report"
+        confirm:                        "Confirm Your Deposit"
+        create_service_request:         "Create Service Request"
+        csv_download:                   "Download Archive Stats"
+        delete:                         "Delete Work"
+        edit:                           "Edit Metadata"
+        edit_work:                      "Edit Work/Add Files"
+        ensure_doi_minted:              "Ensure DOI Minted"
+        feature:                        "Feature"
+        globus:                         "Send to Globus to Download"
+        globus_add_email:               "Add Email"
+        globus_clean_download:          "Remove data from Globus"
+        globus_clean_prep:              "Clean Globus Prep Directory for this Work"
+        globus_download:                "Send to Globus to Download"
+        globus_download_add_email:      "Email Me When Globus Download is Complete"
+        globus_download_notify_me:      "Email Me When Globus Download is Complete"
+        globus_download_and_notify_me:  "Download All for Globus and Email Me When Complete"
+        globus_download_dont_notify_me: "Don't Add My Email"
+        ingest_append_script_delete:    "Delete Append Files Script"
+        ingest_append_script_generate:  "Generate Append Files Script"
+        ingest_append_script_refresh:   "Refresh Append Files Script"
+        ingest_append_script_run_job:   "Run Append Files Script"
+        ingest_append_script_view:      "View Append File Script"
+        ingest_append_script_write:     "Write Append Files Script"
+        mint_doi:                       "Mint DOI"
+        move_file:                      "Move File from this work to another"
+        mint_help: >
+          Once you have uploaded your files, you can mint a Digital Object Identifier
+          (<a href=\"https://www.doi.org\" target=\"_blank\">DOI</a>) to provide persistent access to your deposit.
+          You do not need to wait until your deposit is published to mint a DOI. Questions?
+          <a href=\"https://deepblue.lib.umich.edu/data/contact\" target=\"_blank\">Contact us!</a>
+        save_metadata:                  "Save Metadata"
+        save_metadata_public:           "Save Description (Public)"
+        submit_help:                    "Select \"Submit for Review\" if your deposit is ready for review and publication. Select \"Save as Draft\" to keep working on your deposit and return to it later."
+        tombstone:                      "Tombstone"
+        unfeature:                      "Unfeature"
+        work_find_and_fix:              "Work Find and Fix"
+        zip_download:                   "Download Zipped Dataset"
+      ingest_append:
+        labels:
+          base_directory:               "Base Directory"
+        prep:                           "Append Files"
+        return_to_prep:                 "Return to Append Files"
+        run_job:                        "Run Append Files Script"
+      provenance_log:
+        deleted_works:                  "Deleted Works"
+        display:                        "Display Provenance Log Entries"
+        display_or_update:              "Display or Update Provenance Log Entries"
+        download:                       "Download Provenance Log"
+        update:                         "Update Provenance Log Entries"
+        works_by_user_id:               "Works by User ID"
+    confirm:
+      data_set:
+        delete_all_globus_download_files: >
+          Are you sure you want to delete all Globus files in this works download directory?
+    labels:
+      data_set:
+        admin_actions:        "Admin Actions"
+        analytics:            "Analytics"
+        access_deepblue:      "Related items in Deep Blue Documents"
+        authoremail:          "Contact Information"
+        admin_set_id:         "Add as member of administrative set"
+        based_near:           "Location"
+        collection_ids:       "Add as member of collection"
+        contributor:          "Contributor"
+        creator:              "Creator"
+        creator_orcid:        "Creator ORCID iD"
+        curation_notes_admin: "Curation Notes for Admins"
+        curation_notes_user:  "Curation Notes"
+        date_coverage:        "Date Coverage"
+        date_coverage_end:    "End Date"
+        date_coverage_start:  "Start Date"
+        date_created:         "Date Created"
+        date_modified:        "Last Modified"
+        date_published:       "Published"
+        date_updated:         "Date Updated"
+        depositor_creator:    "Use Depositor ORCID iD"
+        description:          "Description"
+        description_abstract: "Abstract or Summary"
+        doi:                  "DOI"
+        email:                "Email"
+        email_again:          "Email again"
+        files:                "Upload a new version of this file from your computer"
+        fundedby:             "Funding Agency"
+        fundedby_other:       "Enter other funding agency title"
+        grantnumber:          "ORSP Grant Number"
+        hdl:                  "Handle"
+        identifier:           "Identifier"
+        referenced_by:        "Citation to related material"
+        keyword:              "Keyword"
+        language:             "Language"
+        methodology:          "Methodology"
+        on_behalf_of:         "Deposit on behalf of"
+        prior_identifier:     "Prior Identifier"
+        related_url:          "Related URL"
+        resource:             "Resource"
+        rights_license:       "License"
+        rights_license_other: "Other License"
+        subject_discipline:   "Discipline"
+        subject_other:        "Subject"
+        tag:                  "Keywords"
+        title:                "Title"
+      provenance_log:
+        find_id:              "Find ID"
+        find_id_placeholder:  "Search ID"
+        find_id_submit:       "Find"
+        find_user_id:              "Find User ID"
+        find_user_id_placeholder:  "User ID"
+    hints:
+      data_set:
+        access_deepblue: >
+          If the items(s) accompanying your dataset are available in
+          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue Documents</a>, enter the citation for the
+          record(s) here. If you have questions about depositing your item(s) in Deep Blue Documents, please
+          <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
+        authoremail: >
+          Enter the contact information (email address) for the individual who can best respond to questions about the
+          Work.
+        based_near: >
+          A place name related to the work, such as its site of publication, or the city, state, or country the work
+          contents are about. Calls upon the <a href='http://www.geonames.org'>GeoNames web service</a>.
+        box_link: >
+          Link to M-Box deposit directory
+        contributor: >
+          Person or organization outside the Creator role who have contributed to the work in some way
+          (e.g., interns, other non-authors/creators).
+        creator: >
+          List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
+          following format: Last name, First name MI.
+        creator_orcid: >
+          List the ORCID iD(s) of the person(s) responsible for creating the Work; use the following format:
+          https://orcid.org/XXXX-XXXX-XXXX-XXXX
+        date_coverage: >
+          Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
+        date_created: >
+          The date the work’s data was created, as determined by the creator.
+        depositor_creator: >
+          Flag to indicate Depositor's ORCID iD should be included.
+        describe_work: >
+          Please provide information about your data set (referred to as a "work") in the following fields, keeping in
+          mind that your responses will enable people to discover, identify, and understand your data. If you are
+          uncertain of how to complete any of these fields, we recommend that you read or refer to the
+          <a href="/data/depositor-guide#deposit-in-dbd">Guide to Metadata</a> in Deep Blue Data’s Help pages.
+        description: >
+          Provide a general description of the research that produced this data. If specific software or scripts 
+          are required to access your data, this is a good place to document that as well.
+        download_total_work_size_too_large: >
+          Total work file size of %{total_file_size} is too large to download directly. Consider using Globus (see below).
+        download_total_work_size_may_be_too_large: >
+          Total work file size of %{total_file_size} may be too large to download directly. Consider using Globus (see below).
+        download_general_message: >
+          Best for data sets < %{larger_than}. Downloads all files plus metadata into a zip file.
+        fundedby: >
+          Select the primary funding agency that supported the research and data collection from the drop-down list.
+        fundedby_other: >
+          Enter the funding agency's title.
+        globus_click_submit_to_start_downloading: >
+          Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
+          are available fill in your email address:
+        globus_currently_downloading_html:
+          "Globus is currently downloading files for this work...<br/>"
+        globus_files_are_ready:
+          "Files are ready"
+        globus_help:
+          "More about Globus"
+        globus_is_for_large_datasets: >
+          Best for data sets > %{larger_than}. Globus is the platform Deep Blue Data uses to make large data sets
+          available.
+        globus_is_currently_downloading_submit_email_address: >
+          %{title} is currently downloading to Globus. If you would like to be sent an email when the files are
+          available via Globus, please submit your email address:
+        globus_link:
+          "Download Data from Globus"
+        grantnumber: >
+          If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
+          and Sponsored Projects (ORSP).
+        identifier: >
+          A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
+          number for a book.
+        referenced_by: >
+          Include a citation for any publications that make use of or refer to this dataset. If your data deposit is 
+          reported on in an article, please include a citation for that article (if the article is still in press, 
+          provisional citations are acceptable and can be updated when finalized).
+        curation_notes_admin: >
+          This field is intended for Admins to enter curation information.
+        curation_notes_user: >
+          Enter any curation notes for public display in the record.
+        keyword: >
+          Enter any terms or topics related to the research subject or methods that you would like associated with the
+          Work. Enter any terms on which you would like users to be able to search to find your Work.
+        language: >
+          List the language(s) in which the data and supplementary content are written; these could be spoken languages
+          or formal languages, such as programming languages.
+        methodology: >
+          Explain the methods you used to collect and process <span class="text-bold">the data</span> included in this Work.
+        no_collection_mapping: >
+          This work is not a member of any user collections. 
+        tombstone: >
+          The reason the work was tombstoned.           
+        on_behalf_of_html: >
+           If you are depositing data on behalf of someone else, please select the email of that person below.
+           <a href="/data/dashboard">More information on proxies</a>
+        publisher: >
+          The person, organization or service responsible for making the work available. (Format: Last name, First name)
+        related_url: >
+          A link to a website or other specific content (audio, video, PDF document) related to the work. An example is
+          the URL of a research project from which the work was derived.
+        resource: >
+          Pre-defined categories to describe the type of content being uploaded, such as &quot;article&quot; or
+          &quot;dataset.&quot;  More than one type may be selected.
+        resource_type: >
+          The file format and/or physical medium of datasets contained in the work.
+        rights_license: >
+          Select a licensing and distribution option that will govern use of the Work.
+        rights_license_other: >
+          Enter any additional license(s).
+        rights_license_html: >
+          Depositors must choose to apply one of the following
+          <a href="https://creativecommons.org/licenses/" target="_blank">Creative Commons licenses</a> to the data.
+        subject_discipline: >
+          Select the disciplines(s) associated with the research for which the data were collected.
+        subject_other: >
+          Subject Other
+        title: >
+          Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
+          the methods, discipline, and topic associated with your research.
+  rights_license:
+    http://creativecommons_org/publicdomain/zero/1_0/:
+      description: >
+        You dedicate this work to the public domain, waiving all your rights to the work worldwide under copyright law.
+    http://creativecommons_org/licenses/by/4_0/:
+      description: >
+        This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they
+        credit you for the original creation.
+    http://creativecommons_org/licenses/by-nc/4_0/:
+      description: >
+        This license lets others modify and build upon your work non-commercially. Their new works must also
+        acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms.
+    http://creativecommons_org/licenses/by-nd/4_0/:
+      description: >
+        This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged
+        and in whole, with credit to you.
+    http://creativecommons_org/licenses/by/3_0/us/:
+      description: >
+        This license lets others distribute, remix, tweak, and build upon your work, even commercially, as long as they
+        credit you for the original creation.
+    http://creativecommons_org/licenses/by-nc/3_0/us/:
+      description: >
+        This license lets others modify and build upon your work non-commercially. Their new works must also
+        acknowledge you and be non-commercial, but they don’t have to license their derivative works on the same terms.
+    http://creativecommons_org/licenses/by-nd/3_0/us/:
+      description: >
+        This license allows for redistribution, commercial and non-commercial, as long as it is passed along unchanged
+        and in whole, with credit to you.
+    http://creativecommons_org/licenses/by-sa/3_0/us/:
+      description: >
+        This license lets others remix, tweak, and build upon your work even for commercial purposes, as long as
+        they credit you and license their new creations under the identical terms.
+    Other:
+      description: >
+        Other license.  You will have to enter a value in Other License area.

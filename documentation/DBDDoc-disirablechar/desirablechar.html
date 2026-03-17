@@ -1,0 +1,405 @@
+<!-- Last updated: 2025/06/03 -->
+
+    <style>
+      /* Icon style */
+      .icon {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        margin-bottom: 0px;
+      }
+  
+      .icon-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: max-content;
+      }
+  
+      .icon.green {
+        background-color: #4CAF50; /* Green */
+      }
+  
+      .icon.yellow {
+        background-color: #FFEB3B; /* Yellow */
+      }
+  
+      .icon.red {
+        background-color: #F44336; /* Red */
+      }
+  
+      .icon.grey {
+        background-color: #9E9E9E; /* Grey */
+      }
+  
+      /* Legend styling */
+      .legend {
+        display: flex;
+        align-items: center;
+        /* margin-top: 10px; */
+      }
+  
+      .legend-item {
+        margin-right: 15px;
+        display: flex;
+        align-items: center;
+      }
+  
+      .legend-item span {
+        margin-left: 5px;
+      }
+
+      /* Custom styles */
+      h2 {
+        font-size: 1.75em;
+        margin-top: 30px; 
+      }
+
+      ul + p {
+        margin-bottom: 20px; 
+        margin-top: 30px;
+      }
+
+      .compliance-key + section {
+        margin-top: 30px;
+        margin-bottom: 30px; 
+      }
+
+      p#compliance-key {
+        margin-bottom: 0px; 
+      }
+
+      section {
+        padding-bottom: 20px; 
+      }
+
+      section#questions-note {
+        margin-top: 30px; 
+      }
+    </style>
+
+
+<h1>Deep Blue Data meets the OSTP desirable characteristics of data repositories</h1>
+<p>
+    Deep Blue Data can help you meet the data sharing requirements of federal grants, as it meets most of the <a href=" https://doi.org/10.5479/10088/113528" target="_blank">United States Office of Science and Technology Policy</a> (OSTP) desirable characteristics of data repositories. Each of the characteristics in the document are organized into four main themes and each section below lists the categories within that theme and how Deep Blue Data specifically meets these requirements:
+</p>
+
+<ul>
+    <li><a href="#org-infrastructure">Organizational Infrastructure</a></li>
+    <li><a href="#digital-object-management">Digital Object Management</a></li>
+    <li><a href="#technology">Technology</a></li>
+    <li><a href="#storing-human-data">Storing Human Data</a></li>
+</ul>
+
+<section>
+<p id="compliance-key">Compliance key:</p>
+    <div class="legend">
+        <div class="legend-item"><span class="icon green"></span><span>Fully Met</span></div>
+        <div class="legend-item"><span class="icon yellow"></span><span>Partially Met</span></div>
+        <div class="legend-item"><span class="icon red"></span><span>Not Met</span></div>
+        <div class="legend-item"><span class="icon grey"></span><span>Not Applicable</span></div>
+      </div>
+</section>
+<section id="questions-note">
+<p>If you have any questions, please <a href="/data/contact" target="_blank">Contact Us</a>.</p>
+</section>
+<section id="org-infrastructure">
+    <h2>Organizational Infrastructure</h2>
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Characteristic</th>
+                <th scope="col">Definition</th>
+                <th scope="col">Deep Blue Data (DB Data)</th>
+                <th scope="col">Compliance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Free and Easy Access</td>
+                <td>The repository provides broad, equitable, and maximally open access to datasets and their metadata free of charge in a timely manner after submission, consistent with legal and policy requirements related to maintaining privacy and confidentiality, Tribal and national data sovereignty, and protection of sensitive data.                </td>
+                <td>All datasets published in DB Data are freely and openly available to anyone with an internet connection. DB Data is free for both dataset depositors and users. All datasets are reviewed prior to publication, including checking that sensitive information has been removed or the dataset referred to a more appropriate repository.                </td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Clear Use Guidance</td>
+                <td>The repository ensures datasets are accompanied by documentation describing terms of dataset access and use (e.g., reuse licenses and need for approval by a data use committee).</td>
+                <td>DB Data requires a documentation file (such as a ReadMe.txt file) for each dataset. We strongly encourage use of <a href="https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt" target="_blank">our documentation template</a>, which includes licensing information. Depositors are required to select an open access license for each dataset.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Risk Management</td>
+                <td>The repository has documented capabilities for ensuring that administrative, technical, and physical safeguards are employed to comply with applicable confidentiality, risk management, and continuous monitoring requirements for sensitive data.</td>
+                <td>DB Data does not accept sensitive data. All datasets are reviewed prior to publication, including checking that sensitive information has been removed. Data integrity is maintained via routine checksums.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Retention Policy</td>
+                <td>The repository provides documentation on policies for data retention.</td>
+                <td>DB Data commits to a ten-year retention period, as outlined in the <a href="https://lib.umich.edu/about-us/policies/digital-preservation-policy" target="_blank">U-M Library’s Digital Repository Services Digital Preservation Policy</a>. Preservation practices for retained data are documented in the <a href="https://www.lib.umich.edu/about-us/policies/digital-preservation-policy" target="_blank">U-M Library Preservation Policy</a>. Work is still underway to bring the repository up to the standard of the <a href="https://www.lib.umich.edu/about-us/policies/digital-preservation-policy/digital-preservation-baseline" target="_blank">U-M Library's Preservation Baseline</a>.</td>
+
+                <td>
+                    <div class="icon-container">
+                      <span class="icon yellow"></span>
+                      <span>Partially Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Long-term Organizational Sustainability</td>
+                <td>The repository has a plan for long-term management of data, including maintaining integrity, authenticity, and availability of datasets; has contingency plans to ensure data are available and maintained during and after unforeseen events.</td>
+                <td>DB Data has ongoing, stable financial support from U-M, which provides a reasonable expectation of its long-term sustainability. DB Data has federated preservation of datasets via <a href="https://aptrust.org/" target="_blank">APTrust</a>. Lacks a business continuity plan or documented disaster recovery plan in the case of serious incidents.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon yellow"></span>
+                      <span>Partially Met</span>
+                    </div>
+                  </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="digital-object-management">
+    <h2>Digital Object Management</h2>
+    <table >
+        <thead>
+            <tr>
+                <th scope="col">Characteristic</th>
+                <th scope="col">Definition</th>
+                <th scope="col">Deep Blue Data</th>
+                <th scope="col">Compliance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Unique Persistent Identifiers</td>
+                <td>The repository assigns a dataset a citable, unique persistent identifier (PID or DPI), such as a digital object identifier (DOI), to support data discovery, reporting (e.g., of research progress), and research assessment (e.g., identifying the outputs of Federally funded research). The unique PID points to a persistent location that remains accessible even if the dataset is de-accessioned or no longer available.</td>
+                <td>Each dataset is assigned a <a href="https://datacite.org/" target="_blank">DataCite</a>-generated DOI before publication. The DOI will resolve to a ‘tombstone’ record even if the <a href="https://deepblue.lib.umich.edu/data/agreement" target="_blank">dataset has been removed or withdrawn</a>.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Metadata</td>
+                <td>The repository ensures datasets are accompanied by metadata to enable discovery, reuse, and citation of datasets, using schema that are appropriate to, and ideally widely used across, the communities that the repository serves.</td>
+                <td>DB Data invites deposits from any U-M researchers. As such, our metadata schema was designed to be broad and inclusive. Depositors are required to provide basic Dublin Core metadata and encouraged to provide robust metadata for each dataset. We strongly encourage use of <a href ="https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt"target="_blank">our documentation template</a> to enable others to understand, trust, and reuse the dataset.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Curation and Quality Assurance</td>
+                <td>The repository provides or facilitates expert curation and quality assurance to improve the accuracy and integrity of datasets and metadata.</td>
+                <td>All datasets are subject to a data curation review by a Data Curation Specialist prior to publication. The <a href="https://deepblue.lib.umich.edu/data/depositor-guide#review-feedback" target="_blank">data curation review</a> involves an evaluation of a researcher’s data file(s), documentation file(s), and metadata to ensure the dataset is as complete, understandable, and accessible as possible. U-M Library is also a member of the <a href="https://datacurationnetwork.org/" target="_blank">Data Curation Network (DCN)</a>, providing a network of curation expertise for various disciplines and data types. Our data curation review workflow follows the DCN’s well-established <a href="https://datacurationnetwork.org/outputs/workflows/" target="_blank">CURATED Steps</a>.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Broad and Measured Reuse</td>
+                <td>The repository ensures datasets are accompanied by metadata that describe terms of reuse and provide the ability to measure attribution, citation, and reuse of data (e.g., through assignment of adequate and openly accessible metadata and unique PIDs).</td>
+                <td>Depositors are required to select a license for their dataset prior to publication. Each dataset in DB Data has an automatically generated citation (which includes its DataCite-generated DOI). The dataset’s citation, metadata, and terms of reuse (via a Creative Commons or other license) are clearly identified on each dataset page. COUNTER analytics are fed to IRUS, but these are not readily available on the landing page. Altmetric and Dimensions tags are not on the landing page.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon yellow"></span>
+                      <span>Partially Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Common Format</td>
+                <td>The repository allows datasets and metadata to be accessed, downloaded, or exported from the repository in widely used, preferably non-proprietary, formats consistent with standards used in the disciplines the repository serves.</td>
+                <td>DB Data is an open repository where anyone can download data files and metadata regardless of affiliation. Depositors are strongly encouraged to use <a href="https://www.lib.umich.edu/about-us/policies/digital-preservation-policy/registered-formats-and-support-levels" target="_blank">open, non-proprietary file formats</a>. When possible, research data in proprietary formats are accompanied by alternative open formats. Metadata is available through <a href="https://deepblue.lib.umich.edu/data/rest-api" target="_blank">an API</a> in JSON format.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Provenance</td>
+                <td>The repository has mechanisms in place to record the origin, chain of custody, version control, and any other modifications to submitted datasets and metadata.</td>
+                <td>DB Data records PREMIS events for every modification of the dataset, both before and after publication. Data curators keep a log of any changes made during curation. They also post public notes on the dataset's landing page if any changes are made to the dataset or metadata after publication.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="technology">
+    <h2>Technology</h2>
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Characteristic</th>
+                <th scope="col">Definition</th>
+                <th scope="col">Deep Blue Data</th>
+                <th scope="col">Compliance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Authentication</td>
+                <td>The repository supports authentication of data submitters. The repository has technical capabilities that facilitate associating submitter PIDs with those assigned to their deposited digital objects, such as datasets.</td>
+                <td>Depositors are authenticated using U-M's single sign-on, and their institutional identity is associated directly with their deposited objects, and with associated DOIs. DB Data has the official ORCID iD integration, allowing direct import of the data creator’s ORCID iD.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Long-term Technological Sustainability</td>
+                <td>The repository has a plan for long-term management of data, building on a stable technical infrastructure and funding plans.</td>
+                <td>U-M Library has invested in full-time staff roles in research data management, repository support, and digital preservation. In addition to Data Curators, DB Data has dedicated developer support from Library IT and the Digital Preservation unit. The platform and service are designed to subscribe to the <a href="https://www.lib.umich.edu/about-us/policies/digital-preservation-policy/digital-preservation-baseline" target="_blank">U-M Library’s Digital Preservation Baseline</a>. Long-term platform and hosting strategies align with those for digital library collections and other repository services, and support for DB Data storage is firmly within the long-term strategic goals for Library IT.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Security and Integrity</td>
+                <td>The repository has documented measures in place to meet well-established cybersecurity criteria for preventing unauthorized access to, modification of, or release of data, with levels of security that are appropriate to the sensitivity of data (e.g., the NIST Cybersecurity Framework: https://www.nist.gov/cyberframework).</td>
+                <td>DB Data is in full compliance with relevant <a href="https://spg.umich.edu/policy/601.27" target="_blank">U-M Standard Practice Guides</a> and U-M Information Technology Services <a href="https://it.umich.edu/information-technology-policies/it-policies" target="_blank"> Policies</a> and <a href="https://it.umich.edu/information-technology-policies/it-standards" target="_blank"> Standards</a> covering data and cybersecurity.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+        </tbody>
+    </table>
+</section>
+
+<section id="storing-human-data">
+    <h2>Storing Human Data</h2>
+    <table>
+        <thead>
+            <tr>
+                <th scope="col">Characteristic</th>
+                <th scope="col">Definition</th>
+                <th scope="col">Deep Blue Data</th>
+                <th scope="col">Compliance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Fidelity to Consent</td>
+                <td>The repository employs documented procedures to restrict dataset access and use to those that are consistent with participant consent (such as for use only within the context of research on a specific disease or condition) and changes in consent.
+                </td>
+                <td>DB Data doesn’t accept restricted access datasets. DB Data collects and reviews consent forms, participant agreements, or information sheets for all datasets involving human participants. Only human participants data that has proper consent for data sharing, is fully de-identified, presents no harm to participants if their identity was inadvertently discovered, and otherwise meets <a href="https://safecomputing.umich.edu/protect-the-u/safely-use-sensitive-data/classification-levels" target="_blank">U-M’s Data Classification Level “Low”</a>, can be deposited into DB Data. 
+                </td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Security</td>
+                <td>The repository implements and provides documentation of appropriate approaches (e.g., tiered access, credentialing of data users, security safeguards against potential breaches) to protect human subjects’ data from inappropriate access.</td>
+                <td>Not applicable - DB Data does not accept identifying human participant data.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon grey"></span>
+                      <span>Not Applicable</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Limited Use Compliant</td>
+                <td>The repository employs documented procedures to communicate and enforce data use limitations, such as preventing reidentification or redistribution to unauthorized users.</td>
+                <td><a href="https://deepblue.lib.umich.edu/data/agreement#terms-of-use">DB Data Terms of Use</a> states that users agree to not attempt to identify any individuals included in the data or otherwise infringe the privacy or confidentiality rights of individuals discovered inadvertently or intentionally in the data. Further, users agree to abide by any license conditions applied to the data by the depositor, including citation of data in publication reference sections and presentations.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Download Control</td>
+                <td>The repository controls and audits access to and download of datasets.</td>
+                <td>DB Data does not restrict access or download, in part because it does not accept identifying human participant data.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon grey"></span>
+                      <span>Not Applicable</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Request Review</td>
+                <td>The repository makes use of an established and transparent process for reviewing data access requests.</td>
+                <td>DB Data does not restrict access or download, in part because it does not accept identifying human participant data.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon grey"></span>
+                      <span>Not Applicable</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Plan for Breach</td>
+                <td>The repository has security measures that include a response plan for detected data breaches.</td>
+                <td>DB Data is subject to relevant U-M policies, including <a href="https://spg.umich.edu/policy/601.27" target="_blank">Information Security</a>, <a href="https://spg.umich.edu/policy/601.12" target="_blank">Institutional Data Resource Management Policy</a>, <a href="https://spg.umich.edu/policy/601.07" target="_blank">Information Responsible Use of Information Sources</a>, and <a href="https://umich.edu/about/privacy-statement/" target="_blank">U-M Privacy Statement</a>.</td>
+                <td>
+                    <div class="icon-container">
+                      <span class="icon green"></span>
+                      <span>Fully Met</span>
+                    </div>
+                  </td>
+            </tr>
+            <tr>
+                <td>Accountability</td>
+                <td>The repository has procedures for addressing violations of terms-of-use and data mismanagement.</td>
+                <td>DB Data is subject to relevant U-M policies including <a href="https://spg.umich.edu/policy/601.25" target="_blank">Information Security Incident Reporting</a>, <a href="https://safecomputing.umich.edu/information-security-requirements" target="_blank">Minimum Information Security Requirements for Systems, Applications, and Data</a>, <a href="https://spg.umich.edu/policy/601.11" target="_blank">Privacy and the Need to Monitor and Access Records</a>, <a href="https://it.umich.edu/information-technology-policies/general-policies/DS-22" target="_blank">Access Authorization and Authentication standard</a>, and <a href="https://spg.umich.edu/policy/601.07" target="_blank">Responsible Use of Information Sources</a>. These policies include accountability measures for U-M affiliated users, including investigations by the <a href="https://safecomputing.umich.edu/protect-the-u/protect-your-unit/services/user-advocate" target="_blank">U-M Information Technology Services</a> of reported instances of misuse of data. For misuse by non-U-M users, accountability measures are limited to those allowable by law.
+                </td>
+
+                <td>
+                    <div class="icon-container">
+                      <span class="icon yellow"></span>
+                      <span>Partially Met</span>
+                    </div>
+                  </td>
+            </tr>
+        </tbody>
+    </table>
+</section>

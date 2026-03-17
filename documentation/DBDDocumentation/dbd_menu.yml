@@ -1,0 +1,44 @@
+# dbd_menu.yml
+---
+:menu:
+  :about:
+    :link: '/data/about-top'
+    :label: 'About'
+    :menu:
+      :about_us:
+        :link: '/data/about'
+        :label: 'hyrax.menu.about.about'
+      :services:
+        :link: '/data/services'
+        :label: 'hyrax.menu.about.services'
+      :desirablechar:
+        :link: '/data/desirablechar'
+        :label: 'Desirable Characteristics for Data Repositories'
+      :agreement:
+        :link: '/data/agreement'
+        :label: 'Policies and Terms of Use'
+  :help:
+    :link: '/data/help'
+    :label: 'Help'
+    :menu:
+      :dbd_faq:
+        :link: '/data/faq'
+        :label: "FAQ"
+      :dbd_depositor_guide:
+        :link: '/data/depositor-guide'
+        :label: 'hyrax.menu.help.depositor_guide'
+      :dbd_orcid:
+        :link: '/data/orcid'
+        :label: "Connect your ORCID iD"
+      :dbd_user_guide:
+        :link: '/data/user-guide'
+        :label: 'hyrax.menu.help.user_guide'
+      :dbd_glossary:
+        :link: '/data/dbd-glossary'
+        :label: 'Deep Blue Data Glossary'
+      :rest-api:
+        :link: '/data/rest-api'
+        :label: 'REST API'
+  :contact_us:
+    :link: '/data/contact'
+    :label: 'Contact Us'
