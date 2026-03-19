@@ -15,7 +15,7 @@ RSpec.describe 'Creating a new Work', type: :feature, js: true, workflow: true, 
   let!(:uploaded_file1) { Hyrax::UploadedFile.create(file: file1, user: user) }
   let!(:uploaded_file2) { Hyrax::UploadedFile.create(file: file2, user: user) }
   let(:work_title) { 'My Test Work' }
-  let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
+  let(:edit_note) { 'Please provide information about your data set (referred to as a "Work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
   let(:add_files_note) { 'If you have more than 100 files or files larger than 5 GB please Contact Us for assistance in uploading your data.' }
   let(:permission_template) { create(:permission_template, with_admin_set: true, with_active_workflow: true) }
 

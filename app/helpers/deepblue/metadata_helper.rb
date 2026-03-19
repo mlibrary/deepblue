@@ -289,7 +289,7 @@ module Deepblue
         report_item( out, "Keyword: ", collection.keyword, one_line: false, item_prefix: "\t" )
         report_item( out, "Discipline: ", collection.subject_discipline, one_line: false, item_prefix: "\t" )
         report_item( out, "Language: ", collection.language )
-        report_item( out, "Citation to related material: ", collection.referenced_by )
+        report_item( out, "Citation(s) to related material: ", collection.referenced_by )
         report_item( out, "Visibility: ", collection.visibility )
         report_item( out, "DOI: ", collection.doi, optional: true )
         if collection.member_objects.count.positive?
@@ -356,7 +356,7 @@ module Deepblue
         report_item( out, "ORSP Grant Number: ", work.grantnumber )
         report_item( out, "Keyword: ", work.keyword, one_line: false, item_prefix: "\t" )
         report_item( out, "Date coverage: ", work.date_coverage )
-        report_item( out, "Citation to related material: ", work.referenced_by )
+        report_item( out, "Citation(s) to related material: ", work.referenced_by )
         report_item( out, "Language: ", work.language )
         report_item( out, "Total file count: ", work.file_set_ids.count )
         report_item( out, "Total file size: ", human_readable_size( work.total_file_size ) )
