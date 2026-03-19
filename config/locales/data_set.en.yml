@@ -65,6 +65,24 @@ en:
       required_agreement_deepblue: Check deposit agreement below
       form_files:
         dropzone: Drop files here.
+        local_upload_doc_html: >
+          <p>Upload data files (e.g., .csv, .jpg), code files (e.g. .py, .mat) and documentation files
+          (e.g., codebooks, readme.txt). For data and code files:</p>
+          <ul class="doc-ul">
+          <li>If your dataset total size is larger than 5 GB, please <a href="%{contact_path}">Contact Us</a> for
+          assistance in uploading your data.</li>
+          <li>If you have folders or over 20 files, please consider compressing or archiving (ex. .zip, .tar, .tgz) them.</li>
+          </ul>
+          <p>For documentation files:</p>
+          <ul class="doc-ul">
+          <li> You must include some form of documentation for your dataset to be reviewed. See the 
+          <a href='/data/depositor-guide#prepare-documentation'>Guide to Creating Documentation for Your Dataset</a>
+          or <a href='https://deepblue.lib.umich.edu/data/Deep_Blue_Data_Example_Readme.txt'>this Example readme</a> for more information.</li>
+          <p>You will receive an email when file processing is complete. After you have uploaded files and submitted
+          your Work, the system may take a few minutes to process the changes and update the Work page.</p>
+          </ul>
+          <p>You will receive an email when file processing is complete. After you have uploaded files and submitted
+          your Work, the system may take a few minutes to process the changes and update the Work page.</p>
         local_upload_contact_html: >
           <p>If you have more than %{max_num_files} files or files larger than %{files_larger_than}
           please <a href="%{contact_path}">Contact Us</a> for assistance in uploading your data.</p>
@@ -92,7 +110,8 @@ en:
           Guide to Creating Documentation for Your Dataset</a>
           or <a href="/data/Deep_Blue_Data_Example_Readme.txt">this Example readme</a> for more information.</p>
         local_help_your_computer_html: >
-          <p>Select "Choose Files" to upload files from your computer.</p>
+          <p>Select "Upload files" to upload files from your computer.</p>
+        local_upload_files_label: Upload files
       form_progress:
         cancel:             "Cancel"
   provenance_log:
@@ -100,7 +119,7 @@ en:
     id:                     "ID:"
   show:
     labels:
-      access_deepblue:      "Related items in Deep Blue Documents"
+      access_deepblue:      "Citation to related materials in Deep Blue Documents"
       authoremail:          "Contact information"
       creator:              "Creator"
       creator_orcid:        "Creator ORCID iD"
@@ -204,7 +223,7 @@ en:
       data_set:
         admin_actions:        "Admin Actions"
         analytics:            "Analytics"
-        access_deepblue:      "Related items in Deep Blue Documents"
+        access_deepblue:      "Citation to related materials in Deep Blue Documents"
         authoremail:          "Contact Information"
         admin_set_id:         "Add as member of administrative set"
         based_near:           "Location"
@@ -229,12 +248,12 @@ en:
         email_again:          "Email again"
         files:                "Upload a new version of this file from your computer"
         fundedby:             "Funding Agency"
-        fundedby_other:       "Enter other funding agency title"
+        fundedby_other:       "Other Funding Agency"
         grantnumber:          "ORSP Grant Number"
         hdl:                  "Handle"
         identifier:           "Identifier"
-        referenced_by:        "Citation to related material"
-        keyword:              "Keyword"
+        referenced_by:        "Citation(s) to related material"
+        keyword:              "Keywords"
         language:             "Language"
         methodology:          "Methodology"
         on_behalf_of:         "Deposit on behalf of"
@@ -257,13 +276,13 @@ en:
     hints:
       data_set:
         access_deepblue: >
-          If the items(s) accompanying your dataset are available in
-          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue Documents</a>, enter the citation for the
-          record(s) here. If you have questions about depositing your item(s) in Deep Blue Documents, please
-          <a href='https://deepblue.lib.umich.edu/data/contact' target='_blank'>contact us</a>.
+          If item(s) related to your dataset are available in
+          <a href='https://deepblue.lib.umich.edu/documents' target='_blank'>Deep Blue Documents</a>,
+          enter the item URL(s) here, e.g. https://hdl.handle.net/2027.42/######. If you have questions about depositing
+          into Deep Blue Documents, please <a href='%{contact_path}' target='_blank'>contact us</a>.
         authoremail: >
-          Enter the contact information (email address) for the individual who can best respond to questions about the
-          Work.
+          Enter the email address(es) for the individual(s) who can best respond to questions about the Work. Separate 
+          email addresses with commas.
         based_near: >
           A place name related to the work, such as its site of publication, or the city, state, or country the work
           contents are about. Calls upon the <a href='http://www.geonames.org'>GeoNames web service</a>.
@@ -273,19 +292,20 @@ en:
           Person or organization outside the Creator role who have contributed to the work in some way
           (e.g., interns, other non-authors/creators).
         creator: >
-          List the name(s) of the person(s) and/or organization(s) responsible for creating the Work; for names, use the
-          following format: Last name, First name Middle initial
+          List the name(s) of all person(s) and/or organization(s) who contributed to data collection or analysis. For
+          names, use the following format: Last name, First name, Middle initial. Non-UM Creators can be listed.
         creator_orcid: >
           List the ORCID iD(s) of the person(s) responsible for creating the Work; use the following format:
           https://orcid.org/XXXX-XXXX-XXXX-XXXX
         date_coverage: >
-          Select the span of time that the data represent or the dates the data were collected, whichever is more salient for your data. Please also indicate what the chosen dates represent in your readme.
+          Select the span of time that the data represent or the dates the data were collected, whichever is more
+          salient for your data. In your ReadMe or documentation file, please also indicate what the chosen dates represent in your readme.
         date_created: >
           The date the work’s data was created, as determined by the creator.
         depositor_creator: >
           Flag to indicate Depositor's ORCID iD should be included.
         describe_work: >
-          Please provide information about your data set (referred to as a "work") in the following fields, keeping in
+          Please provide information about your data set (referred to as a "Work") in the following fields, keeping in
           mind that your responses will enable people to discover, identify, and understand your data. If you are
           uncertain of how to complete any of these fields, we recommend that you read or refer to the
           <a href="/data/depositor-guide#deposit-in-dbd">Guide to Metadata</a> in Deep Blue Data’s Help pages.
@@ -299,9 +319,9 @@ en:
         download_general_message: >
           Best for data sets < %{larger_than}. Downloads all files plus metadata into a zip file.
         fundedby: >
-          Select the primary funding agency that supported the research and data collection from the drop-down list.
+          Select funding agency or agencies that supported the research and data collection from the drop-down list.
         fundedby_other: >
-          Enter the funding agency's title.
+          Enter the title of each additional funding agency.
         globus_click_submit_to_start_downloading: >
           Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
           are available fill in your email address:
@@ -326,21 +346,22 @@ en:
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
         referenced_by: >
-          Include a citation for any publications that make use of or refer to this dataset. If your data deposit is 
-          reported on in an article, please include a citation for that article (if the article is still in press, 
-          provisional citations are acceptable and can be updated when finalized).
+          Include citation(s) for your related article(s) or publication(s) that use or mention this dataset. If your
+          dataset is discussed in a paper that's not published yet, you can include a provisional citation and
+          <a href="%{contact_path}">Contact Us</a> to update it when the paper is finalized.
         curation_notes_admin: >
           This field is intended for Admins to enter curation information.
         curation_notes_user: >
           Enter any curation notes for public display in the record.
         keyword: >
           Enter any terms or topics related to the research subject or methods that you would like associated with the
-          Work. Enter any terms on which you would like users to be able to search to find your Work.
+          Work. Enter any terms on which you would like users to be able to search to find your Work. Enter one term per line.
         language: >
-          List the language(s) in which the data and supplementary content are written; these could be spoken languages
-          or formal languages, such as programming languages.
+          List the language(s) used in the data and supplementary content. This can include spoken languages
+          (like English or Spanish) or programming languages (like Python or Java).
         methodology: >
           Explain the methods you used to collect and process <span class="text-bold">the data</span> included in this Work.
+          This is similar but not exactly the same as the Methodology section in a publication.
         no_collection_mapping: >
           This work is not a member of any user collections. 
         tombstone: >
@@ -366,7 +387,7 @@ en:
           Depositors must choose to apply one of the following
           <a href="https://creativecommons.org/licenses/" target="_blank">Creative Commons licenses</a> to the data.
         subject_discipline: >
-          Select the disciplines(s) associated with the research for which the data were collected.
+          Select all the discipline(s) associated with the research for which the data were collected.
         subject_other: >
           Subject Other
         ticket: >
@@ -374,7 +395,7 @@ en:
           replace a link to a ticket with to a new merged ticket's link.
         title: >
           Provide a descriptive name for the Work. Consider including the words “data” or “dataset” and terms related to
-          the methods, discipline, and topic associated with your research.
+          the methods, discipline, and topic associated with your research. For example: "Dataset for [Article Title]"
   rights_license:
     http://creativecommons_org/publicdomain/zero/1_0/:
       description: >

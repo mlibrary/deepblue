@@ -11,7 +11,7 @@ RSpec.describe 'embargo', type: :feature, js: true, workflow: true, clean_repo: 
   # include Devise::Test::IntegrationHelpers
   #
   # let(:user) { factory_bot_create_user(:user) }
-  # let(:edit_note) { 'Please provide information about your data set (referred to as a "work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
+  # let(:edit_note) { 'Please provide information about your data set (referred to as a "Work") in the following fields, keeping in mind that your responses will enable people to discover, identify, and understand your data. If you are uncertain of how to complete any of these fields, we recommend that you read or refer to the Guide to Metadata in Deep Blue Data’s Help pages.' }
   #
   # before do
   #   sign_in user

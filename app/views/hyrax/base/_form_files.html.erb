@@ -4,22 +4,26 @@
         <noscript><input type="hidden" name="redirect" value="<%= main_app.root_path %>" /></noscript>
         <!-- The table listing the files available for upload/download -->
         <table role="presentation" class="table table-striped" aria-live="polite"><tbody class="files"></tbody></table>
-        <%= t('hyrax.base.form_files.local_upload_contact_html',
+       <%= t('hyrax.base.form_files.local_upload_doc_html',
+             contact_path: hyrax.contact_path,
+             files_larger_than: Rails.configuration.upload_max_file_size_str,
+             max_num_files: Rails.configuration.upload_max_number_of_files ) %>
+        <%# = t('hyrax.base.form_files.local_upload_contact_html',
               contact_path: hyrax.contact_path,
               files_larger_than: Rails.configuration.upload_max_file_size_str,
               max_num_files: Rails.configuration.upload_max_number_of_files ) %>
-        <% if Flipflop.dir_upload? %>
-          <%= t('hyrax.base.form_files.local_upload_html') %>
-        <% else %>
-          <%= t('hyrax.base.form_files.local_upload_no_dir_html') %>
-        <% end %>
+        <%# if Flipflop.dir_upload? %>
+          <%#= t('hyrax.base.form_files.local_upload_html') %>
+        <%# else %>
+          <%#= t('hyrax.base.form_files.local_upload_no_dir_html') %>
+        <%# end %>
 
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->
         <div class="fileupload-buttonbar">
           <div class="row">
             <div class="col-xs-12">
                 <!-- The fileinput-button span is used to style the file input field as button -->
-                <label id="labelFormFileMultiple" for="formFileMultiple" class="form-label">Choose Files to Add</label>
+                <label id="labelFormFileMultiple" for="formFileMultiple" class="form-label"><%= t('hyrax.base.form_files.local_upload_files_label') %></label>
                 <div class="row-2-cells">
                   <div class="cell-narrow">
                     <input class="form-control" type="file" name="files[]" id="formFileMultiple" multiple>
