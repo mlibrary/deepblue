@@ -756,25 +756,25 @@ module Hyrax
       def report_irus_analytics_investigation
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                               "" ] if  data_sets_controller_debug_verbose
 
         ::Deepblue::IrusHelper.log( class_name: self.class.name,
                                     event: "analytics_investigation",
                                     request: request,
                                     id: params[:id] )
-        send_irus_analytics_investigation
+        #send_irus_analytics_investigation
       end
 
       def report_irus_analytics_request
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                               "" ] if  data_sets_controller_debug_verbose
 
         ::Deepblue::IrusHelper.log( class_name: self.class.name,
                                     event: "analytics_request",
                                     request: request,
                                     id: params[:id] )
-        send_irus_analytics_request
+        #send_irus_analytics_request
       end
 
     public
@@ -783,35 +783,36 @@ module Hyrax
       def item_identifier_for_irus_analytics
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                               "" ] if  data_sets_controller_debug_verbose
         rv = curation_concern.oai_identifier
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "item_identifier=#{rv}",
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                               "" ] if  data_sets_controller_debug_verbose
         rv
       end
 
       def skip_send_irus_analytics?(usage_event_type)
         # return true to skip tracking, for example to skip curation_concerns.visibility == 'private'
+        return true
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "usage_event_type=#{usage_event_type}",
-                                               "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                               "" ] if  data_sets_controller_debug_verbose
         case usage_event_type
         when 'Investigation'
           rv = !deposited?
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "skip_send_irus_analytics?=#{rv}",
-                                                 "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                                 "" ] if  data_sets_controller_debug_verbose
           rv
         when 'Request'
           rv = !deposited?
           ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "skip_send_irus_analytics?=#{rv}",
-                                                 "" ] if ::IrusAnalytics::Configuration.verbose_debug || data_sets_controller_debug_verbose
+                                                 "" ] if  data_sets_controller_debug_verbose
           rv
         end
       end
@@ -824,7 +825,7 @@ module Hyrax
         begin
           Time.parse(field)
         rescue
-          Rails.logger.info "Unable to parse date: #{field.first.inspect} for #{self['id']}"
+          Rails.logger.info "Unable to parse date: #{field.first.inspect}jk for #{self['id']}"
         end
       end
 
