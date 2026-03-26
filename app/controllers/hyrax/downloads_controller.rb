@@ -253,16 +253,17 @@ module Hyrax
     end
 
     def report_irus_analytics_request
+      return
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "params=#{params}",
                                              "show_html=#{show_html}",
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       return unless show_html
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "is_thumbnail_request?=#{is_thumbnail_request?}",
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       return if is_thumbnail_request?
       @download_obj = PersistHelper.find params[:id]
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
@@ -270,13 +271,13 @@ module Hyrax
                                              "@download_obj.blank?=#{@download_obj.blank?}",
                                              "@download_obj.respond_to? :parent=#{@download_obj.respond_to? :parent}",
                                              "@download_obj.parent.blank?=#{@download_obj&.parent.blank?}",
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       skip = download_skip_send_irus_analytics?
       # puts "skip=#{skip}"
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "download_skip_send_irus_analytics?=#{skip}",
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       return if skip
       ::Deepblue::IrusHelper.log( class_name: self.class.name,
                                   event: "analytics_request",
@@ -291,12 +292,12 @@ module Hyrax
     def item_identifier_for_irus_analytics
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       rv = @download_obj.parent.oai_identifier
       ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                              ::Deepblue::LoggingHelper.called_from,
                                              "item_identifier=#{rv}",
-                                             "" ] if ::IrusAnalytics::Configuration.verbose_debug || downloads_controller_debug_verbose
+                                             "" ] if  downloads_controller_debug_verbose
       rv
     end
 
@@ -305,10 +306,11 @@ module Hyrax
     end
 
     def skip_send_irus_analytics?(_usage_event_type)
-      return false
+      return true
     end
 
     def download_skip_send_irus_analytics?
+      return true
       return true if @download_obj.blank?
       # puts "not blank"
       return true unless @download_obj.respond_to? :parent
