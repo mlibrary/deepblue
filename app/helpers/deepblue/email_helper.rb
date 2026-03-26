@@ -368,14 +368,25 @@ module Deepblue
     end
 
     def self.deliver( email )
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                "" ] if Rails.configuration.email_debug_verbose
+                                #"" ] + caller_locations(0,30) if Rails.configuration.email_debug_verbose
       # TODO: verify
       if email.respond_to? :deliver_now
+        LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                   "email.deliver_now" ] if Rails.configuration.email_debug_verbose
         email.deliver_now
       elsif email.respond_to? :deliver_mail
+        LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                   "email.deliver_mail" ] if Rails.configuration.email_debug_verbose
         email.deliver_mail
       else
+        LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                   "email.deliver" ] if Rails.configuration.email_debug_verbose
         email.deliver
       end
+      LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                 "" ] if Rails.configuration.email_debug_verbose
     end
 
     def self.send_email( to:,
@@ -420,7 +431,7 @@ module Deepblue
                                             subject: subject,
                                             body: body,
                                             content_type: content_type )
-      deliver( email )
+      #deliver( email ) # redundant
       true
     rescue Exception => e # rubocop:disable Lint/RescueException
       Rails.logger.error "#{e.class} #{e.message} at #{e.backtrace[0]}"
