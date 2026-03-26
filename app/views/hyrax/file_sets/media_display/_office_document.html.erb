@@ -3,7 +3,7 @@
 <%# else %>
 <%# download_path_link = hyrax.download_path( file_set ) %>
 <%# end %>
-<% if Hyrax.config.display_media_download_link? && presenter.can_download_file? %>
+<% if Hyrax.config.display_media_download_link? && @presenter.can_download_file? %>
     <div>
       <h2 class="sr-only"><%= t('hyrax.file_set.show.downloadable_content.heading') %></h2>
       <% if Rails.configuration.file_set_display_representative_media %>
@@ -13,7 +13,7 @@
                     role: "presentation" %>
       <% end %>
       <%= link_to t('hyrax.file_set.show.downloadable_content.office_link'),
-                  presenter.download_path_link(main_app: main_app, curation_concern: file_set),
+                  @presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                   target: :_blank,
                   id: "file_download",
                   data: { label: file_set.id } %>

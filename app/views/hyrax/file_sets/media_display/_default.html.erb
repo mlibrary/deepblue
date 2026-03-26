@@ -4,14 +4,14 @@
 <%# else %>
   <%# download_path_link = hyrax.download_path( file_set ) %>
 <%# end %>
-<% if presenter.can_download_file? %>
+<% if @presenter.can_download_file? %>
   <div class="no-preview">
     <% if Rails.configuration.file_set_display_representative_media %>
     <%= t('hyrax.works.show.no_preview') %>
     <% end %>
     <% if Hyrax.config.display_media_download_link? %>
       <p /><%= link_to t('hyrax.file_set.show.download'),
-                       presenter.download_path_link(main_app: main_app, curation_concern: file_set),
+                       @presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                        id: "file_download",
                        data: { label: file_set.id },
                        target: "_new" %>
@@ -24,7 +24,7 @@
     <% end %>
     <% if Hyrax.config.display_media_download_link? %>
       <p /><%= link_to t('hyrax.file_set.show.download'),
-                       presenter.download_path_link(main_app: main_app, curation_concern: file_set),
+                       @presenter.download_path_link(main_app: main_app, curation_concern: file_set),
                        id: "file_download",
                        data: { label: file_set.id },
                        target: "_new" %>
