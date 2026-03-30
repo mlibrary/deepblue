@@ -54,9 +54,19 @@ module Blacklight::ConfigurationHelperBehavior
   # @param [Hash] localized_params query parameters
   # @return [String]
   def constraint_query_label(localized_params = params)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "localized_params=#{localized_params}",
+                                           "" ] if false
     label_for_search_field(localized_params[:search_field]) unless default_search_field2?(localized_params[:search_field])
   end
   # deprecation_deprecate constraint_query_label: 'Moving to Blacklight::ConstraintsComponent'
+
+  def constraint_query_label2(localized_params = params)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "localized_params=#{localized_params}",
+                                           "" ] if false
+    label_for_search_field(localized_params[:search_field]) unless default_search_field2?(localized_params[:search_field])
+  end
 
   ##
   # Is the search form using the default search field ("all_fields" by default)?

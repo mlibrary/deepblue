@@ -7,6 +7,8 @@
 module Blacklight::UrlHelperBehavior
   # extend Deprecation
 
+  mattr_accessor :black_light_url_helper_debug_verbose, default: false
+
   # @    deprecated
   def url_for_document(doc, options = {})
     search_state.url_for_document(doc, options)
@@ -128,13 +130,41 @@ module Blacklight::UrlHelperBehavior
   # that should be persisted across search sessions.
   # @    deprecated
   def start_over_path query_params = params
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "query_params=#{query_params}",
+                                           "" ] if  black_light_url_helper_debug_verbose
     h = {}
     current_index_view_type = document_index_view_type(query_params)
     h[:view] = current_index_view_type unless current_index_view_type == default_document_index_view_type
-
-    search_action_path(h)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "h=#{h}",
+                                           "" ] if  black_light_url_helper_debug_verbose
+    rv = search_action_path(h)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "rv.class.name=#{rv.class.name}",
+                                           "rv=#{rv}",
+                                           "" ] if  black_light_url_helper_debug_verbose
+    return rv
   end
   # deprecation_deprecate start_over_path: 'Removed without replacement'
+
+  def start_over_path2 query_params = params
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "query_params=#{query_params}",
+                                           "" ] if  black_light_url_helper_debug_verbose
+    h = {}
+    current_index_view_type = document_index_view_type(query_params)
+    h[:view] = current_index_view_type unless current_index_view_type == default_document_index_view_type
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "h=#{h}",
+                                           "" ] if  black_light_url_helper_debug_verbose
+    rv = search_action_path(h)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "rv.class.name=#{rv.class.name}",
+                                           "rv=#{rv}",
+                                           "" ] if  black_light_url_helper_debug_verbose
+    return rv
+  end
 
   # Create a link back to the index screen, keeping the user's facet, query and paging choices intact by using session.
   # @example
