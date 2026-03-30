@@ -2,13 +2,31 @@
 <% if query_has_constraints2? %>
   <div id="appliedParams" class="clearfix constraints-container">
     <div class="float-right">
-      <%= link_to start_over_path,
+      <% dbg_verbose = false %>
+      <% spath = start_over_path2 %>
+      <%     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                                    "spath.class.name=#{spath.class.name}",
+                                                    "spath=#{spath}",
+                                                    "" ] if dbg_verbose
+      %>
+      <%= link_to spath,
           class: "catalog_startOverLink btn btn-sm btn-text", id: "startOverLink" do %>
           <span class="btn btn-sm btn-danger start-over"><span class="fa fa-times"></span></span>
           <%= t('blacklight.search.start_over') %>
       <% end %>
     </div>
     <span class="constraints-label"><%= t('blacklight.search.filters.title') %></span>
-    <%= render_constraints(params.merge(route_set: hyrax)) %>
+    <%     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                                  "params.class.name=#{params.class.name}",
+                                                  "params=#{params}",
+                                                  "" ] if dbg_verbose
+    %>
+    <% params2 = params.merge(route_set: hyrax) %>
+    <%     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                                  "params2.class.name=#{params2.class.name}",
+                                                  "params2=#{params2}",
+                                                  "" ] if dbg_verbose
+    %>
+    <%= render_constraints2(params2) %>
   </div>
 <% end %>

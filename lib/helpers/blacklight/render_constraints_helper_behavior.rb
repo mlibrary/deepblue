@@ -11,6 +11,8 @@
 module Blacklight::RenderConstraintsHelperBehavior
   # extend Deprecation
   # self.deprecation_horizon = 'blacklight 8.0'
+  
+  mattr_accessor :render_constraint_helper_behavior_debug_verbose, default: false
 
   ##
   # Check if the query has any constraints defined (a query, facet, etc)
@@ -47,6 +49,41 @@ module Blacklight::RenderConstraintsHelperBehavior
     end
   end
 
+  def render_constraints2(localized_params = params, local_search_state = search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "localized_params=#{localized_params}",
+                                           "local_search_state=#{local_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    params_or_search_state = if localized_params != params
+                               localized_params
+                             else
+                               local_search_state
+                             end
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "params_or_search_state=#{params_or_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    begin # Deprecation.silence(Blacklight::RenderConstraintsHelperBehavior) do
+      # render_constraints_query(params_or_search_state) + render_constraints_clauses(params_or_search_state) + render_constraints_filters(params_or_search_state)
+      rv1 = render_constraints_query2(params_or_search_state)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "rv1=#{rv1}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      rv2 = render_constraints_clauses2(params_or_search_state)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "rv2=#{rv2}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      rv3 = render_constraints_filters2(params_or_search_state)
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "rv3=#{rv3}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      rv = rv1 + rv2 + rv3
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      return rv
+    end
+  end
+
   ##
   # Render the query constraints
   #
@@ -54,7 +91,7 @@ module Blacklight::RenderConstraintsHelperBehavior
   # @param [Blacklight::SearchState,ActionController::Parameters] params_or_search_state query parameters
   # @return [String]
   def render_constraints_query(params_or_search_state = search_state)
-    Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_query is deprecated')
+     # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_query is deprecated')
     search_state = convert_to_search_state(params_or_search_state)
 
     # So simple don't need a view template, we can just do it here.
@@ -65,6 +102,35 @@ module Blacklight::RenderConstraintsHelperBehavior
                                 search_state.query_param,
                                 classes: ["query"],
                                 remove: remove_constraint_url(search_state))
+    end
+  end
+
+  def render_constraints_query2(params_or_search_state = search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "params_or_search_state=#{params_or_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_query is deprecated')
+    search_state = convert_to_search_state(params_or_search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "search_state=#{search_state.pretty_inspect}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # So simple don't need a view template, we can just do it here.
+    return "".html_safe if search_state.query_param.blank?
+
+    begin # Deprecation.silence(Blacklight::RenderConstraintsHelperBehavior) do
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "search_state.params=#{search_state.params}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      ss_params = search_state.params
+      label = constraint_query_label2(ss_params)
+      rv = render_constraint_element2(label,
+                                search_state.query_param,
+                                classes: ["query"],
+                                remove: remove_constraint_url2(search_state))
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "rv=#{rv}",
+                                             "" ] if  render_constraint_helper_behavior_debug_verbose
+      return rv
     end
   end
 
@@ -86,6 +152,20 @@ module Blacklight::RenderConstraintsHelperBehavior
   end
   # deprecation_deprecate :render_constraints_clauses
 
+  def render_constraints_clauses2(params_or_search_state = search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "params_or_search_state=#{params_or_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    search_state = convert_to_search_state(params_or_search_state)
+
+    clause_presenters = search_state.clause_params.map do |key, clause|
+      field_config = blacklight_config.search_fields[clause[:field]]
+      Blacklight::ClausePresenter.new(key, clause, field_config, self, search_state)
+    end
+
+    render(Blacklight::ConstraintComponent.with_collection(clause_presenters))
+  end
+
   ##
   # Provide a url for removing a particular constraint. This can be overriden
   # in the case that you want parameters other than the defaults to be removed
@@ -95,7 +175,17 @@ module Blacklight::RenderConstraintsHelperBehavior
   # @param [Blacklight::SearchState,ActionController::Parameters] params_or_search_state query parameters
   # @return [String]
   def remove_constraint_url(params_or_search_state = search_state)
-    Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'remove_constraint_url is deprecated')
+     # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'remove_constraint_url is deprecated')
+    search_state = convert_to_search_state(params_or_search_state)
+
+    search_action_path(search_state.remove_query_params)
+  end
+
+  def remove_constraint_url2(params_or_search_state = search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "params_or_search_state=#{params_or_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'remove_constraint_url is deprecated')
     search_state = convert_to_search_state(params_or_search_state)
 
     search_action_path(search_state.remove_query_params)
@@ -107,7 +197,7 @@ module Blacklight::RenderConstraintsHelperBehavior
   # @param [Blacklight::SearchState,Hash] params_or_search_state query parameters
   # @return [String]
   def render_constraints_filters(params_or_search_state = search_state)
-    Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_filters is deprecated')
+     # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_filters is deprecated')
     search_state = convert_to_search_state(params_or_search_state)
 
     return "".html_safe unless search_state.filters.any?
@@ -115,6 +205,22 @@ module Blacklight::RenderConstraintsHelperBehavior
     begin # Deprecation.silence(Blacklight::RenderConstraintsHelperBehavior) do
       safe_join(search_state.filters.map do |field|
         render_filter_element(field.key, field.values, search_state)
+      end, "\n")
+    end
+  end
+
+  def render_constraints_filters2(params_or_search_state = search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "params_or_search_state=#{params_or_search_state}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_filters is deprecated')
+    search_state = convert_to_search_state(params_or_search_state)
+
+    return "".html_safe unless search_state.filters.any?
+
+    begin # Deprecation.silence(Blacklight::RenderConstraintsHelperBehavior) do
+      safe_join(search_state.filters.map do |field|
+        render_filter_element2(field.key, field.values, search_state)
       end, "\n")
     end
   end
@@ -127,7 +233,32 @@ module Blacklight::RenderConstraintsHelperBehavior
   # @param [Blacklight::SearchState] search_state path query parameters
   # @return [String]
   def render_filter_element(facet, values, search_state)
-    Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_filter_element is deprecated')
+     # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_filter_element is deprecated')
+    facet_config = facet_configuration_for_field(facet)
+
+    safe_join(Array(values).map do |val|
+      next if val.blank? # skip empty string
+
+      begin # Deprecation.silence(Blacklight::RenderConstraintsHelperBehavior) do
+        presenter = if val.is_a? Array
+                      inclusive_facet_item_presenter(facet_config, val, facet)
+                    else
+                      facet_item_presenter(facet_config, val, facet)
+                    end
+
+        render_constraint_element2(presenter.field_label,
+                                  presenter.label,
+                                  remove: presenter.remove_href(search_state),
+                                  classes: ["filter", "filter-" + facet.parameterize])
+      end
+    end, "\n")
+  end
+
+  def render_filter_element2(facet, values, search_state)
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "facet=#{facet}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_filter_element is deprecated')
     facet_config = facet_configuration_for_field(facet)
 
     safe_join(Array(values).map do |val|
@@ -168,7 +299,17 @@ module Blacklight::RenderConstraintsHelperBehavior
   # @option options [Array<String>] :classes an array of classes to add to container span for constraint.
   # @return [String]
   def render_constraint_element(label, value, options = {})
-    Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_element is deprecated')
+     # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_element is deprecated')
+    render(partial: "catalog/constraints_element", locals: { label: label, value: value, options: options })
+  end
+
+  def render_constraint_element2(label, value, options = {})
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "label=#{label}",
+                                           "value=#{value}",
+                                           "options=#{options}",
+                                           "" ] if  render_constraint_helper_behavior_debug_verbose
+    # Deprecation.warn(Blacklight::RenderConstraintsHelperBehavior, 'render_constraints_element is deprecated')
     render(partial: "catalog/constraints_element", locals: { label: label, value: value, options: options })
   end
 
