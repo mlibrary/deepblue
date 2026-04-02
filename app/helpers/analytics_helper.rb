@@ -95,7 +95,7 @@ END_OF_MONTHLY_EVENTS_REPORT_EMAIL_TEMPLATE
     file_path = File.absolute_path file_path
     return file_path unless msg_handler.msg_error_unless?( Dir.exist?(File.dirname(file_path)),
                                                  msg: "Parent directory not found: '#{file_path}'"  )
-    CSV.open( file_path, 'w', {:force_quotes=>true} ) do |csv|
+    CSV.open( file_path, 'w', fore_quote: true ) do |csv|
       condensed_events_to_csv_header_row( csv )
       msg_handler.msg_verbose {"Writing #{::Ahoy::CondensedEvent.all.size} condensed events to #{file_path}"}
       ::Ahoy::CondensedEvent.all.each do |condensed_event|

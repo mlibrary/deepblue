@@ -161,7 +161,7 @@ module Deepblue
     end
 
     def self.csv_all_metadata_to_file( output_file )
-      CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
+      CSV.open( output_file, "w", fore_quote: true ) do |csv|
           csv << DataSet.metadata_keys_all
           DataSet.all.each { |w| csv << csv_metadata_to_row( w ) }
       end

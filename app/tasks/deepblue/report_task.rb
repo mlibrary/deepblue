@@ -730,7 +730,7 @@ module Deepblue
 
     def write_report_csv
       @output_file = output_file + ".csv"
-      CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
+      CSV.open( output_file, "w", fore_quote: true ) do |csv|
         csv << row_csv_header
         curation_concerns.each do |curation_concern|
           @current_child = nil

@@ -49,7 +49,7 @@ module AhoyHelper
   # def self.high_event_count(ips,ip); ips[ip][:event_count] > 9999; end
   #
   # def self.save_ips( ips, file )
-  #   CSV.open( file, 'w', {:force_quotes=>true} ) do |out|
+  #   CSV.open( file, 'w', fore_quote: true ) do |out|
   #     out << %w[ ip visit_count event_count delete_visit_reason ]
   #     ips.keys.each do |ip|
   #       ip_info = ips[ip]; out << [ ip, ip_info[:visit_ids].size, ip_info[:event_count], delete_visit_reason(ips,ip) ]
@@ -58,7 +58,7 @@ module AhoyHelper
   # end
   #
   # def self.save_rows( ips, file, rows )
-  #   CSV.open( file, 'w', {:force_quotes=>true} ) do |out|
+  #   CSV.open( file, 'w', fore_quote: true ) do |out|
   #     out << %w[ started_at id ip event_count user_agent ]
   #     rows.each do |row|
   #       event_count = Ahoy::Event.where(visit_id: row.id).size

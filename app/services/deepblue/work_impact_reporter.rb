@@ -141,7 +141,7 @@ module Deepblue
                      extract:,
                      filename: )
       msg_handler.msg "Report file: #{filename}"
-      CSV.open( filename, "w", {:force_quotes=>true} ) do |csv|
+      CSV.open( filename, "w", fore_quote: true ) do |csv|
         csv << csv_header
         data_array.each_with_index do |d,i|
           csv << extract.call(d,i)
@@ -156,7 +156,7 @@ module Deepblue
       first_date = data_array[0].create_date
       msg_handler.msg_verbose "First date: #{first_date}"
       msg_handler.msg "Report file: #{output_file}"
-      CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
+      CSV.open( output_file, "w", fore_quote: true ) do |csv|
         csv << csv_header
         last_date = DateTime.now
         first_date = date_extractor.call(data_array[0])
@@ -269,7 +269,7 @@ module Deepblue
       first_date = data_array[0].create_date
       msg_handler.msg_verbose "First date: #{first_date}"
       msg_handler.msg "Report file: #{output_file}"
-      CSV.open( output_file, "w", {:force_quotes=>true} ) do |csv|
+      CSV.open( output_file, "w", fore_quote: true ) do |csv|
         csv << csv_header
         last_date = DateTime.now
         first_date = date_extractor.call(data_array[0])
