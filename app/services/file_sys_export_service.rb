@@ -215,7 +215,7 @@ module FileSysExportService
     report_mode = options.value( :report_mode, default_value: "csv" )
     case report_mode
     when "csv"
-      CSV.open( report_file_path, 'w', {:force_quotes=>true} ) do |csv|
+      CSV.open( report_file_path, 'w', fore_quote: true ) do |csv|
         FileSysExport.csv_row( nil ) # header
         service.all_exports.each do |record|
           FileSysExport.csv_row( record )
@@ -236,7 +236,7 @@ module FileSysExportService
     report_mode = options.value( :report_mode, default_value: "csv" )
     case report_mode
     when "csv"
-      CSV.open( report_file_path, 'w', {:force_quotes=>true} ) do |csv|
+      CSV.open( report_file_path, 'w', fore_quote: true ) do |csv|
         FileExport.csv_row( nil ) # header
         service.all_fs_exports.each do |record|
           FileExport.csv_row( record )

@@ -108,7 +108,7 @@ class Aptrust::AptrustReportStatus < Aptrust::AbstractAptrustService
 
   def csv_init
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "target_file=#{target_file}" ] if debug_verbose
-    # rv = CSV.open( target_file, 'w', {:force_quotes=>true}  )
+    # rv = CSV.open( target_file, 'w', fore_quote: true  )
     rv = CSV.new( File.open( target_file, 'w' ), force_quotes: true )
     msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "rv=#{rv}" ] if debug_verbose
     rv << column_names

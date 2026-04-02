@@ -164,7 +164,7 @@ module Ahoy
     end
 
     def save_ips(file)
-      CSV.open( file, 'w', {:force_quotes=>true} ) do |out|
+      CSV.open( file, 'w', fore_quote: true ) do |out|
         out << %w[ ip visit_count event_count delete_visit_reason(ip) ]
         @ips.keys.each do |ip|
           ip_info = @ips[ip]; out << [ ip, ip_info[:visit_ids].size, ip_info[:event_count], delete_visit_reason(ip) ]
@@ -173,7 +173,7 @@ module Ahoy
     end
 
     def save_rows(file,rows)
-      CSV.open( file, 'w', {:force_quotes=>true} ) do |out|
+      CSV.open( file, 'w', fore_quote: true ) do |out|
         out << %w[ started_at id ip event_count user_agent ]
         rows.each do |row|
           event_count = Ahoy::Event.where(visit_id: row.id).size
@@ -190,7 +190,7 @@ module Ahoy
           delete_reasons2 << "visit_#{reason}"
           delete_reasons2 << "event_#{reason}"
         end
-        CSV.open( file, 'w', {:force_quotes=>true} ) do |out|
+        CSV.open( file, 'w', fore_quote: true ) do |out|
           out << %w[ begin_date
                      end_date
                      ips_found
@@ -222,7 +222,7 @@ module Ahoy
         end
       end
       deletes2 = [];deletes.keys.each { |key| deletes2 << deletes[key] }
-      CSV.open( file, 'a', {:force_quotes=>true} ) do |out|
+      CSV.open( file, 'a', fore_quote: true ) do |out|
         out << [ begin_date.strftime('%Y%m%d'),
                  end_date.strftime('%Y%m%d'),
                  ips.size,
