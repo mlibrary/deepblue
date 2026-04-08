@@ -98,8 +98,8 @@ GEM
       minitest (>= 5.1)
       tzinfo (~> 2.0)
       zeitwerk (~> 2.3)
-    addressable (2.8.1)
-      public_suffix (>= 2.0.2, < 6.0)
+    addressable (2.9.0)
+      public_suffix (>= 2.0.2, < 8.0)
     ahoy_matey (5.2.1)
       activesupport (>= 6.1)
       device_detector (>= 1)
@@ -1342,7 +1342,7 @@ DEPENDENCIES
   active-fedora (~> 14.0)
   active_scheduler
   activerecord (>= 5.2.8.1)
-  addressable (= 2.8.1)
+  addressable (= 2.9.0)
   ahoy_matey
   akismet
   almond-rails (~> 0.1)
