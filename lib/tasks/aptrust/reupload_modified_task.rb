@@ -35,7 +35,9 @@ module Aptrust
         next if status.event == ::Aptrust::EVENT_DELETED
         w.reset.noid = status.noid
         if !w.work_present?
-          msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
+          msg_handler.msg_warn "Failed to load work with noid: #{status.noid}, logically deleting it"
+          status.event = ::Aptrust::EVENT_DELETED
+          status.save
           next
         end
         if status.event == ::Aptrust::EVENT_UPLOAD_AGAIN

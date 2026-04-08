@@ -105,7 +105,7 @@ module Deepblue
       end
       provenance_publish( current_user: current_user, event_note: event_note, message: message )
       doi_mint( current_user: current_user, event_note: event_note )
-      globus_clean_download_then_recopy if respond_to? :globus_clean_download_then_recopy
+      # globus_clean_download_then_recopy if respond_to? :globus_clean_download_then_recopy
       email_event_publish_rds( current_user: current_user, event_note: event_note, message: message )
       email_event_publish_user( current_user: current_user, event_note: event_note, message: message )
     end

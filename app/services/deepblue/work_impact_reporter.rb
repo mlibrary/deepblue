@@ -214,7 +214,9 @@ module Deepblue
       data = []
       @work_data.each do |d|
         d.file_set_ids.each do |fid|
-          fs = FileSet.find fid # TODO catch errors
+          #fs = FileSet.find fid # TODO catch errors
+          fs = PersistHelper.find_or_nil fid
+          next unless fs.present?
           data << FileSetDatum.new( fs, parent: d )
         end
       end

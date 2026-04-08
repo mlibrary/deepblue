@@ -165,7 +165,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
                                                                           event_note: event_note,
                                                                           message: message)
             expect(curation_concern).to receive(:doi_mint).with(current_user: user, event_note: event_note)
-            expect(curation_concern).to receive(:globus_clean_download_then_recopy).with(no_args)
+            # expect(curation_concern).to receive(:globus_clean_download_then_recopy).with(no_args)
             expect(curation_concern).to receive(:email_event_publish_rds).with(current_user: user,
                                                                                event_note: event_note,
                                                                                message: message)
@@ -187,7 +187,7 @@ RSpec.describe ::Deepblue::WorkflowEventBehavior do
                                                                           event_note: event_note,
                                                                           message: message)
             expect(curation_concern).to receive(:doi_mint).with(current_user: user, event_note: event_note)
-            expect(curation_concern).to receive(:globus_clean_download_then_recopy).with(no_args)
+            # expect(curation_concern).to receive(:globus_clean_download_then_recopy).with(no_args)
             expect(curation_concern).to receive(:email_event_publish_rds).with(current_user: user,
                                                                                event_note: event_note,
                                                                                message: message)

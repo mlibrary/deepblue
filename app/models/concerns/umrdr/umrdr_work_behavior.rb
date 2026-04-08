@@ -26,6 +26,7 @@ module Umrdr
     end
 
     def globus_clean_download( start_globus_copy_after_clean: false )
+      return
       return unless ( globus_complete? || globus_prepping? )
       ::GlobusCleanJob.perform_later( id, clean_download: true, start_globus_copy_after_clean: start_globus_copy_after_clean )
     end
