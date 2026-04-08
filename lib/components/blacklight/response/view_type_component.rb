@@ -26,7 +26,7 @@ module Blacklight
 
       def render?
         begin # Deprecation.silence(Blacklight::ConfigurationHelperBehavior) do
-          helpers.has_alternative_views?
+          helpers.has_alternative_views2?
         end
       end
     end

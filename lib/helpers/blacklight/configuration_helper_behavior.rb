@@ -200,11 +200,18 @@ module Blacklight::ConfigurationHelperBehavior
   def has_alternative_views?
     doc_index_views = document_index_views
     return false unless doc_index_views.blank?
-    keys = document_index_views.keys
+    keys = doc_index_views.keys
     return false if keys.blank?
     doc_index_views.keys.length > 1
   end
   # deprecation_deprecate has_alternative_views?: 'Moving to Blacklight::Response::ViewTypeComponent'
+  def has_alternative_views2?
+    doc_index_views = document_index_views
+    return false unless doc_index_views.blank?
+    keys = doc_index_views.keys
+    return false if keys.blank?
+    doc_index_views.keys.length > 1
+  end
 
   ##
   #  Maximum number of results for spell checking
