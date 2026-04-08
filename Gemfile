@@ -385,7 +385,7 @@ gem 'samvera-persona' #, '0.1.7'
 gem 'activerecord',   '>= 5.2.8.1'
 # gem 'addressable',    '>= 2.8.0'
 #gem 'addressable',    '>= 2.8.0', '<= 2.8.4'
-gem 'addressable', '2.8.1' # a higher version causes issues, namely it throws
+gem 'addressable', '2.9.0' # a higher version causes issues, namely it throws
 gem 'bootstrap-sass', '~> 3.4.1'
 #hyrax5 gem 'carrierwave',    '~> 1.3.2'
 # gem 'carrierwave',    '>= 1.3.2'
