@@ -32,6 +32,11 @@ class ApplicationController < ActionController::Base
 
   with_themed_layout '1_column'
 
+  before_action :_debug_verbose
+  def _debug_verbose()
+    #::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from, "" ]
+  end
+
   after_action :track_action
 
   def track_action
@@ -108,17 +113,17 @@ class ApplicationController < ActionController::Base
     session[:search] = search if search
     session[:flash] = flash if flash
     session[ANTISPAM_TIMESTAMP] = save_antispam_timestamp if save_antispam_timestamp
-    # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                                        ::Deepblue::LoggingHelper.called_from,
-    #                                        "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
-    #                                        "After: session search and flash restored",
-    #                                        "request=#{request}",
-    #                                        # "request&.keys=#{request&.keys}",
-    #                                        "session=#{session}",
-    #                                        "session&.keys=#{session&.keys}",
-    #                                        "params=#{params}",
-    #                                        "params.keys=#{params.keys}",
-    #                                        "" ] if application_controller_debug_verbose
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                           ::Deepblue::LoggingHelper.called_from,
+                                           "[AUTHN] clear_session_user: #{current_user.try(:email) || '(no user)'}",
+                                           "After: session search and flash restored",
+                                           "request=#{request}",
+                                           # "request&.keys=#{request&.keys}",
+                                           "session=#{session}",
+                                           "session&.keys=#{session&.keys}",
+                                           "params=#{params}",
+                                           "params.keys=#{params.keys}",
+                                           "" ] if application_controller_debug_verbose
   end
   
   def user_logged_in?
@@ -143,6 +148,7 @@ class ApplicationController < ActionController::Base
                                            ::Deepblue::LoggingHelper.called_from,
                                            "[AUTHN] sso_logout: #{current_user.try(:email) || '(no user)'}",
                                            "" ] if application_controller_debug_verbose
+    sso_auto_logout # this is needed to actually logout
     redirect_to Hyrax::Engine.config.logout_prefix + logout_now_url
   end
 
