@@ -314,6 +314,8 @@ module Deepblue
       str.gsub!( 'EXEC', 'E.X.E.C.' )
       str.gsub!( /data:/i, 'data-' )
       str.gsub!( /exec:/i, 'exec-' )
+      str.gsub!( '(', '&lpar;' )
+      str.gsub!( ')', '&rpar;' )
       str = ::Deepblue::EmailHelper.clean_str( str )
       return str
     end
