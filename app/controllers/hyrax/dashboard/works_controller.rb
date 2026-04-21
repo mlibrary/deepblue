@@ -5,6 +5,10 @@ module Hyrax
   module Dashboard
     ## Shows a list of all works to the admins
     class WorksController < Hyrax::My::WorksController
+      before_action :_debug_verbose
+      def _debug_verbose()
+        #::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from, "" ]
+      end
       # Define collection specific filter facets.
       configure_blacklight do |config|
         config.search_builder_class = Hyrax::Dashboard::WorksSearchBuilder

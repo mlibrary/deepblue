@@ -447,6 +447,9 @@ module Deepblue
       @form.merge_date_coverage_attributes! cov_params
       depositor_creator_params = Dataset::DepositorCreatorService.depositor_creator_to_params @form.depositor_creator
       @form.merge_depositor_creator_attributes! depositor_creator_params
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             #"@form=#{@form.pretty_inspect}",
+                                             "" ] if deepblue_works_controller_behavior_debug_verbose
     end
 
     def create
