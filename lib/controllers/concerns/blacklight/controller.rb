@@ -44,6 +44,11 @@ module Blacklight::Controller
     self.search_service_class = Blacklight::SearchService
   end
 
+  before_action :_debug_verbose
+  def _debug_verbose()
+    #::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from, "" ]
+  end
+
   # @private
   def default_catalog_controller
     CatalogController

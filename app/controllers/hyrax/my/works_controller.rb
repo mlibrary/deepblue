@@ -22,6 +22,11 @@ module Hyrax
       class_attribute :create_work_presenter_class
       self.create_work_presenter_class = ::Deepblue::SelectTypeListPresenter
 
+      before_action :_debug_verbose
+      def _debug_verbose()
+        #::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from, "" ]
+      end
+
       # # Search builder for a list of works that belong to me
       # # Override of Blacklight::RequestBuilders
       # def search_builder_class

@@ -19,6 +19,11 @@ module Hyrax
     self.curation_concern_type = ::DataSet
     self.show_presenter = Hyrax::DataSetPresenter
 
+    before_action :_debug_verbose
+    def _debug_verbose()
+      #::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from, "" ]
+    end
+
     before_action :assign_date_coverage,         only: %i[create update]
     before_action :assign_depositor_creator,     only: %i[create update]
     before_action :assign_admin_set,             only: %i[create update]
@@ -108,6 +113,8 @@ module Hyrax
     def edit
       # To have presenter available in work edit edit
       # so that the files attached to work can be displaye.
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "" ] if data_sets_controller_debug_verbose
       presenter_init && parent_presenter
       presenter.controller = self
       build_form
@@ -610,10 +617,10 @@ module Hyrax
     ## visibility / publish
 
     def visiblity_changed
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       if visibility_to_private?
         mark_as_set_to_private
@@ -623,10 +630,10 @@ module Hyrax
     end
 
     def visibility_changed_update
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       if curation_concern.private? && @visibility_changed_to_private
        workflow_unpublish
@@ -636,20 +643,20 @@ module Hyrax
     end
 
     def visibility_to_private?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       return false if curation_concern.private?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PRIVATE
     end
 
     def visibility_to_public?
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if data_sets_controller_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if data_sets_controller_debug_verbose
       return unless curation_concern.present?
       return false if curation_concern.public?
       params[PARAMS_KEY]['visibility'] == Hydra::AccessControls::AccessRight::VISIBILITY_TEXT_VALUE_PUBLIC
