@@ -180,6 +180,11 @@ module Blacklight::ConfigurationHelperBehavior
       should_render_field? config
     end
   end
+  def document_index_views2
+    blacklight_config.view.select do |_k, config|
+      should_render_field? config
+    end
+  end
 
   # filter #document_index_views to just views that should display in the view type control
   def document_index_view_controls
@@ -206,7 +211,7 @@ module Blacklight::ConfigurationHelperBehavior
   end
   # deprecation_deprecate has_alternative_views?: 'Moving to Blacklight::Response::ViewTypeComponent'
   def has_alternative_views2?
-    doc_index_views = document_index_views
+    doc_index_views = document_index_views2
     return false unless doc_index_views.blank?
     keys = doc_index_views.keys
     return false if keys.blank?
