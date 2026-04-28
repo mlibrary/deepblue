@@ -519,13 +519,18 @@ class CatalogController < ApplicationController
 
   end
 
-  # def facet
-  #   super
-  # rescue Exception => e # rubocop:disable Lint/RescueException
-  #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-  #                                          ::Deepblue::LoggingHelper.called_from ] + e.backtrace
-  #   raise
-  # end
+  def facet
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from
+                                         ] if catalog_controller_debug_verbose
+    rv = super
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                           "rv=#{rv}" ] if catalog_controller_debug_verbose
+    return rv
+  rescue Exception => e # rubocop:disable Lint/RescueException
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from
+                                         ] + e.backtrace if catalog_controller_debug_verbose
+    raise
+  end
   #
   # def invalid_document_id_error(exception)
   #   ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,

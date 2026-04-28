@@ -5,6 +5,8 @@
 module Blacklight::Catalog
   extend ActiveSupport::Concern
 
+  mattr_accessor :blacklight_catalog_debug_verbose, default: false
+
   # MimeResponds is part of ActionController::Base, but not ActionController::API
   include ActionController::MimeResponds
 
@@ -103,6 +105,8 @@ module Blacklight::Catalog
 
   # displays values and pagination links for a single facet field
   def facet
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from
+                                         ] if blacklight_catalog_debug_verbose
     @facet = blacklight_config.facet_fields[params[:id]]
     raise ActionController::RoutingError, 'Not Found' unless @facet
 
