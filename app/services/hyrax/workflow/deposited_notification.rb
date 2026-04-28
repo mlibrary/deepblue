@@ -16,6 +16,8 @@ module Hyrax
         end
 
       def message
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "" ] if true
         I18n.t!('hyrax.notifications.workflow.deposited.message',
                title: title,
                link: (link_to work_id, document_path),

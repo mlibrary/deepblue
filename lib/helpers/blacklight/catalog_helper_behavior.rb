@@ -237,6 +237,9 @@ module Blacklight::CatalogHelperBehavior
     document_presenter(document).thumbnail.exists?
   end
   # deprecation_deprecate has_thumbnail?: "use IndexPresenter#thumbnail.exists?"
+  def has_thumbnail2? document
+    document_presenter(document).thumbnail.exists?
+  end
 
   ##
   # Render the thumbnail, if available, for a document and

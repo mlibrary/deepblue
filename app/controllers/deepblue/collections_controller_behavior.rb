@@ -69,10 +69,10 @@ module Deepblue
 
     def visibility_changed_update
       cc = controller_curation_concern
-      # ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-      #                                        ::Deepblue::LoggingHelper.called_from,
-      #                                        # ::Deepblue::LoggingHelper.obj_class( 'class', self ),
-      #                                        "" ] if collection_controller_behavior_debug_verbose
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
+                                             ::Deepblue::LoggingHelper.called_from,
+                                             # ::Deepblue::LoggingHelper.obj_class( 'class', self ),
+                                             "" ] if collection_controller_behavior_debug_verbose
       if cc.private? && @visibility_changed_to_private
         workflow_unpublish
       elsif cc.public? && @visibility_changed_to_public
