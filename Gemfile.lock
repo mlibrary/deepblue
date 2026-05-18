@@ -396,7 +396,7 @@ GEM
       nokogiri
     factory_bot (4.11.1)
       activesupport (>= 3.0.0)
-    faraday (2.14.1)
+    faraday (2.14.2)
       faraday-net_http (>= 2.0, < 3.5)
       json
       logger
@@ -704,7 +704,7 @@ GEM
     listen (3.0.8)
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
-    logger (1.6.3)
+    logger (1.7.0)
     loofah (2.19.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
@@ -1383,7 +1383,7 @@ DEPENDENCIES
   equivalent-xml (~> 0.5)
   ezid-client
   factory_bot (~> 4.4)
-  faraday (= 2.14.1)
+  faraday (= 2.14.2)
   fcrepo_wrapper
   file_exists (~> 0.2.0)
   font-awesome-sass (>= 6.0)
