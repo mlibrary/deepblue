@@ -107,7 +107,8 @@ class CatalogController < ApplicationController
     config.add_facet_field "creator_sim", limit: 5
     config.add_facet_field "contributor_sim", label: "Contributor", limit: 5
     config.add_facet_field "keyword_sim", limit: 5
-    config.add_facet_field "subject_sim", limit: 5
+    #config.add_facet_field "subject_sim", limit: 5
+    config.add_facet_field "subject_discipline_sim", label: "Discipline", limit: 5
     config.add_facet_field "language_sim", limit: 5
     config.add_facet_field "based_near_label_sim", limit: 5
     config.add_facet_field "publisher_sim", limit: 5
