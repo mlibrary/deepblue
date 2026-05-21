@@ -1,5 +1,5 @@
 # frozen_string_literal: true
-#
+require 'nokogiri'
 require_relative '../../services/deepblue/message_handler_debug_only'
 
 module Deepblue
@@ -580,11 +580,30 @@ module Deepblue
                                      "patch_status=#{patch_status}",
                                      "patch_body=#{response_inspect_body patch_body}",
                                      "" ] if msg_handler.debug_verbose
+      elsif 403 == status
+        # send an email
+        # '<!doctype html><meta charset=\"utf-8\"><meta name=viewport content=\"width=device-width, initial-scale=1\"><title>403</title>403 Forbidden'
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
+                                               ::Deepblue::LoggingHelper.called_from,
+                                               "create status=#{status}",
+                                               "create body=#{Nokogiri::HTML(body).to_xhtml(indent: 2)}",
+                                               #"create body=#{body.pretty_inspect}",
+                                               "" ]
+        subject = "TDX create ticket returned 403 for work #{curation_concern.id}"
+        messages = []
+        messages << "title: #{title}"
+        messages << "requestor_email: #{requestor_email}"
+        messages << "fields: #{fields.pretty_inspect}" # TODO: better list of fields
+        messages << "Return body: #{pretty_print_html(body)}"
+        ::Deepblue::EmailHelper.send_email_fritx( subject: subject,
+                                                  msg_handler: nil,
+                                                  messages: messages )
       else
         ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "create status=#{status}",
-                                               "create body=#{body.pretty_inspect}",
+                                               "create body=#{Nokogiri::HTML(body).to_xhtml(indent: 2)}",
+                                               #"create body=#{body.pretty_inspect}",
                                                "" ]
         # # Faraday::Response
         # ::Deepblue::LoggingHelper.bold_debug [ msg_handler.here,
@@ -604,6 +623,13 @@ module Deepblue
         # end
         rv = response_msg # gets the msg from the most recent response
       end
+      return rv
+    end
+
+    def self.pretty_print_html( html )
+      rv = Nokogiri::HTML( html ).to_xhtml( indent: 2 )
+      rv.gsub!( "<", "&lt;" )
+      rv.gsub!( "<", "&gt;" )
       return rv
     end
 
