@@ -8,7 +8,7 @@ module Hyrax
 
   module OrcidIntegrationService
 
-    HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE = false
+    HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE = true
 
     @@_setup_ran = false
     @@_setup_failed = false
@@ -66,7 +66,7 @@ module Hyrax
     mattr_accessor :work_types,                default: ["DataSet"]
 
     def self.after_initialize_callback( debug_verbose: hyrax_orcid_integration_service_debug_verbose )
-
+      debug_verbose = debug_verbose || HYRAX_INTEGRATION_SERVICE_SETUP_VERBOSE
       puts "Begin OrcidIntegrationService.after_initialize_callback..." if debug_verbose
 
       # operation = ::Hyrax::OrcidIntegrationService.blacklight_pipeline_actor
@@ -80,6 +80,23 @@ module Hyrax
       # skip this, will load them from the usual config directories
       # Append our locales so they have precedence
       #I18n.load_path += Dir[Hyrax::Orcid::Engine.root.join("config", "locales", "*.{rb,yml}")]
+
+      puts "Rails.configuration.hostname=#{Rails.configuration.hostname}" if debug_verbose
+      case Rails.configuration.hostname
+      when ::Deepblue::InitializationConstants::HOSTNAME_PROD
+        ::Hyrax::OrcidIntegrationService.environment = :production
+      when ::Deepblue::InitializationConstants::HOSTNAME_TESTING
+        ::Hyrax::OrcidIntegrationService.environment = :sandbox
+      when ::Deepblue::InitializationConstants::HOSTNAME_STAGING
+        ::Hyrax::OrcidIntegrationService.environment = :sandbox
+      when ::Deepblue::InitializationConstants::HOSTNAME_TEST
+        ::Hyrax::OrcidIntegrationService.environment = :sandbox
+      when ::Deepblue::InitializationConstants::HOSTNAME_LOCAL
+        ::Hyrax::OrcidIntegrationService.environment = :sandbox
+      else
+        ::Hyrax::OrcidIntegrationService.environment = :sandbox
+      end
+      puts "::Hyrax::OrcidIntegrationService.environment=#{::Hyrax::OrcidIntegrationService.environment}"
 
       puts "End OrcidIntegrationService.after_initialize_callback..." if debug_verbose
 
