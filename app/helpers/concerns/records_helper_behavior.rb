@@ -1,7 +1,6 @@
 module RecordsHelperBehavior
 
-  mattr_accessor :records_helper_behavior_debug_verbose,
-                 default: false
+  mattr_accessor :records_helper_behavior_debug_verbose, default: false
 
   def model_label(key)
     I18n.t("hydra_editor.form.model_label.#{key}", default: key.to_s.humanize)
@@ -46,15 +45,13 @@ protected
   # This finds a partial based on the record_type and field_name
   # if no partial exists for the record_type it tries using "records" as a default
   def render_edit_field_partial_with_action(record_type, field_name, locals)
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "record_type=#{record_type}",
                                            "field_name=#{field_name}",
                                            # "locals.pretty_inspect=#{locals.pretty_inspect}",
                                            "" ] if records_helper_behavior_debug_verbose
     partial = find_edit_field_partial(record_type, field_name)
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "partial=#{partial.pretty_inspect}",
                                            "" ] if records_helper_behavior_debug_verbose
     render partial, locals.merge(key: field_name)

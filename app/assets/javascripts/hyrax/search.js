@@ -13,6 +13,7 @@
     this.attachEvents();
   }
 
+
   Hyrax.Search.prototype = {
     attachEvents: function() {
 
@@ -43,6 +44,7 @@
 
     setLabel: function(label) {
       this.$label.html(label);
+      // delete the following line?
       this.$visibleLabel.html(label);
     }
 
@@ -59,6 +61,8 @@
 
 })(jQuery);
 
+
 Blacklight.onLoad(function() {
   $('#search-form-header').search();
 });
+

@@ -5,11 +5,13 @@ export default class SortManager {
     this.sorting_info = {}
     this.initialize_sort()
     this.element.data("current-order", this.order)
+    this.sort_property = this.element.data("sort-property")
     this.save_manager = save_manager
     this.initialize_alpha_sort_button()
   }
 
   initialize_sort() {
+    this.element.sortable({handle: ".card-heading"})
     this.element.sortable({handle: ".panel-heading"})
     this.element.on("sortstop", this.stopped_sorting)
     this.element.on("sortstart", this.started_sorting)
@@ -42,6 +44,7 @@ export default class SortManager {
       "version": this.version,
       "ordered_member_ids": this.order
     }
+    params[this.singular_class_name][this.sort_property] = this.order
     params["_method"] = "PATCH"
     return params
   }
@@ -105,7 +108,7 @@ export default class SortManager {
 
   initialize_alpha_sort_button() {
     let that = this
-    this.alpha_sort_button.click(function() { that.sort_alpha() } )
+    this.alpha_sort_button.on("click", function() { that.sort_alpha() } )
   }
 
   sort_alpha() {

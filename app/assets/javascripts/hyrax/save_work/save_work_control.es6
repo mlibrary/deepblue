@@ -200,8 +200,11 @@ export default class SaveWorkControl {
 
   // If someone adds or removes a field on a multivalue input, fire a formChanged event.
   watchMultivaluedFields() {
-      $('.multi_value.form-group', this.form).bind('managed_field:add', () => this.formChangedAgain())
-      $('.multi_value.form-group', this.form).bind('managed_field:remove', () => this.formChangedAgain())
+      $('.multi_value.form-group', this.form).on('managed_field:add', () => this.formChanged())
+      $('.multi_value.form-group', this.form).on('managed_field:remove', () => this.formChanged())
+
+      //$('.multi_value.form-group', this.form).bind('managed_field:add', () => this.formChangedAgain())
+      //$('.multi_value.form-group', this.form).bind('managed_field:remove', () => this.formChangedAgain())
   }
 
   // If fundedby field changes, fire a formChanged event.
