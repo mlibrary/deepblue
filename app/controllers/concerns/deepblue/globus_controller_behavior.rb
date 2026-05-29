@@ -4,7 +4,7 @@ module Deepblue
 
   module GlobusControllerBehavior
 
-    mattr_accessor :globus_controller_behavior_debug_verbose, default: true
+    mattr_accessor :globus_controller_behavior_debug_verbose, default: false
     mattr_accessor :globus_controller_behavior_presenter_debug_verbose, default: false
 
     def file_sys_export_record( id: )

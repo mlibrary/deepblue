@@ -19,8 +19,7 @@ class MultiValueSelectInput < MultiValueInput
   end
 
   def build_field_options(value) # rubocop:disable Metrics/MethodLength (builder method)
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            #"is_draft=#{is_draft}",
                                            "" ] if multi_value_select_input_debug_verbose
 
@@ -44,8 +43,7 @@ class MultiValueSelectInput < MultiValueInput
 
     @rendered_first_element = true
 
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "field_options.pretty_inspect=",
                                            field_options.pretty_inspect,
                                            "" ] if multi_value_select_input_debug_verbose

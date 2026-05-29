@@ -3,7 +3,7 @@ module Hyrax
   module Workflow
     module ActivateObject
 
-      mattr_accessor :workflow_activate_object_debug_verbose, default: true
+      mattr_accessor :workflow_activate_object_debug_verbose, default: false
 
       ##
       # This is a built in function for workflow, setting the +#state+

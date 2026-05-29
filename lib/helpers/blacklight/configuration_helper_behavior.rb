@@ -182,7 +182,16 @@ module Blacklight::ConfigurationHelperBehavior
   end
   def document_index_views2
     blacklight_config.view.select do |_k, config|
-      should_render_field? config
+      begin
+        should_render_field2? config
+      rescue => e
+        ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "ERROR",
+                                               "e=#{e.class.name}",
+                                               "e.message=#{e.message}",
+                                               "e.backtrace:" ] + e.backtrace[0..10] if true
+        false
+      end
     end
   end
 
@@ -266,6 +275,9 @@ module Blacklight::ConfigurationHelperBehavior
   # @param [Blacklight::Solr::Configuration::Field] field_config
   # @return [Boolean]
   def should_render_field?(field_config, *args)
+    blacklight_configuration_context.evaluate_if_unless_configuration field_config, *args
+  end
+  def should_render_field2?(field_config, *args)
     blacklight_configuration_context.evaluate_if_unless_configuration field_config, *args
   end
 

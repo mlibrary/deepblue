@@ -160,9 +160,24 @@
                    id: "with_files_submit",
                    name: "save_with_files" %>
     <% end %>
-
+    <% begin %>
     <%= link_to t('.cancel'), request.referrer, class: 'btn btn-default' %>
+    <% rescue Exception => e %>
+      <%
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "e.message=#{e.message}",
+                                               "" ] + e.backtrace if true
+      %>
+    <% end %>
+    <% begin %>
     <%= link_to t('hyrax.menu.about.contact_us'), 'javascript:getContactUserParameters();', class: 'btn btn-default' %>
+    <% rescue Exception => e %>
+      <%
+        ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                               "e.message=#{e.message}",
+                                               "" ] + e.backtrace if true
+      %>
+    <% end %>
     <p><%= t('simple_form.actions.data_set.submit_help') %></p>
   </div>
 
