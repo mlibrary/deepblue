@@ -6,7 +6,7 @@ module Aptrust
 
   SCHEDULER_ENTRY = <<-END_OF_SCHEDULER_ENTRY
 
-upload_one_unlimited:
+aptrust_upload_one_unlimited:
   # Run Monday and Wednesday starting at 10 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
   # Note: all parameters are set in the rake task job
   #      M H  D Mo WDay
@@ -19,7 +19,7 @@ upload_one_unlimited:
     hostnames:
        - 'deepblue.lib.umich.edu'
     job_delay: 0
-    subscription_service_id: upload_one_unlimited
+    subscription_service_id: aptrust_upload_one_unlimited
     rake_task: "aptrust:upload_one_unlimited"
 
   END_OF_SCHEDULER_ENTRY
