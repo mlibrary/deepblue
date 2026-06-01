@@ -1,10 +1,112 @@
 # data/scheduler_jobs.yml
 # server: production
-# last updated: 2022/07/18
+# last updated: 2026/06/01
+
+aptrust_upload:
+  # Run Monday and Wednesday starting at 9 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 14 * *  1,3'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:upload_limited_all
+  args:
+    by_request_only: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload
+    rake_task: "aptrust:upload_limited_all"
+
+aptrust_upload_report:
+  # Run Monday and Wednesday at 9 or 10 AM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '36 4 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:all_uploads_report
+  args:
+    by_request_only: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload_report
+    rake_task: "aptrust:all_uploads_report"
+
+aptrust_weekly_cleanup:
+  # Run Wednesday and Friday at 6 or 7 PM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 23 * *  3,5'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:all_uploads_report
+  args:
+    by_request_only: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload_report
+    rake_task: "aptrust:cleanup_weekly"
+
+aptrust_verify_job:
+  # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  cron: '15 5 * * *'
+  class: AptrustVerifyJob
+  queue: aptrust
+  description: Verify works uploaded to APTrust
+  args:
+    by_request_only: true
+    debug_assume_verify_succeeds: false
+    debug_verbose: false
+    force_verification: false
+    email_results_to:
+      - 'fritx@umich.edu'
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    max_verifies: 2
+    subscription_service_id: aptrust_verify_job
+    verbose: true
+
+aptrust_upload_one_unlimited:
+  # Run Monday and Wednesday starting at 10 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 15 * *  1'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:upload_one_unlimited
+  args:
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_upload_one_unlimited
+    rake_task: "aptrust:upload_one_unlimited"
+
+aptrust_reupload_one_unlimited:
+  # Run Monday and Wednesday starting at 11 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  cron: '0 11 * *  1'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task aptrust:reupload_one_unlimited
+  args:
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: aptrust_reupload_one_unlimited
+    rake_task: "aptrust:reupload_one_unlimited"
 
 about_to_deactivate_embargoes_job:
   # Run once a day, fifteen minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M  H
+  #      M H  D Mo WDay
   cron: '15 4 * * *'
   # rails_env: production
   class: AboutToExpireEmbargoesJob
@@ -35,23 +137,44 @@ about_to_deactivate_embargoes_at_2_days_job:
       - 'testing.deepblue.lib.umich.edu'
     verbose: true
 
-deactivate_expired_embargoes_job:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H
-  cron: '5 4 * * *'
-  # rails_env: production
-  class: DeactivateExpiredEmbargoesJob
+clean_ahoy_visits:
+  # Note: all parameters are set in the rake task job
+  # Run once a week on Saturday, 6 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #       M H D
+  # cron: '6 4 * * 6'
+  # run daily
+  cron: '6 4 * * *'
+  class: RakeTaskJob
   queue: scheduler
-  description: Deactivate embargoes job.
+  description: Run rake task deepblue:clean_ahoy_visits
   args:
-    email_owner: true
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: clean_ahoy_visits
+    rake_task: "deepblue:clean_ahoy_visits"
+
+clean_hyrax_tmp_dir_job:
+  # Run once a week on Sundays at 4:05 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M  H     DoW
+  cron: '5 21 * * *'
+  # rails_env: production
+  class: CleanHyraxTmpDirJob
+  queue: scheduler
+  description: Clean the tmp/derivatives and tmp/uploads directories.
+  args:
+    days_old_derivatives: 7
+    days_old_uploads: 180
+    email_results_to:
+      - 'fritx@umich.edu'
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
-    test_mode: false
+    subscription_service_id: clean_hyrax_tmp_dir_job
     verbose: true
 
-clean_derivatives_dir_job:
+clean_derivatives_dir_job_by_request:
   # Run once a week on Sundays at 4:05 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H     DoW
   cron: '5 21 * * *'
@@ -60,16 +183,17 @@ clean_derivatives_dir_job:
   queue: scheduler
   description: Clean the tmp/derivatives directory.
   args:
+    by_request_only: true
     days_old: 7
     email_results_to:
       - 'fritx@umich.edu'
     hostnames:
-      - 'deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
+      - 'block.deepblue.lib.umich.edu'
+      - 'block.testing.deepblue.lib.umich.edu'
     subscription_service_id: clean_derivatives_dir_job
     verbose: true
 
-clean_derivatives_dir_job_hourly:
+clean_derivatives_dir_job_hourly_by_request:
   # Run once a week on Sundays at 23:20 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M  H     DoW
   cron: '20 23 * * *'
@@ -139,6 +263,75 @@ clean_tmp2:
     rake_task: 'tmp:clean'
     verbose: true
 
+copy_logs_job:
+  # Run once a week on Sundays at 4:05 PM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M  H     DoW
+  cron: '5 21 * * 0'
+  # rails_env: production
+  class: CopyLogsDirJob
+  queue: scheduler
+  description: Copy the contents of the log directory to deepblue-prep logs.
+  args:
+    by_request_only: true
+    email_results_to:
+      - 'fritx@umich.edu'
+    hostnames:
+      - 'block.deepblue.lib.umich.edu'
+      - 'block.testing.deepblue.lib.umich.edu'
+    subscription_service_id: copy_logs_job
+    verbose: true
+
+dataden_export_all:
+  # Run Tuesday and Thursday starting at 9 AM (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  # Note: all parameters are set in the rake task job
+  #      M H  D Mo WDay
+  #cron: '0 14 * *  2,5'
+  cron: '36 5 * * *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task dataden:export_all
+  args:
+    by_request_only: false
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: dataden_export_all
+    rake_task: "data_den:export_all"
+    verbose: false
+
+dataden_export_report:
+  # Run Monday and Wednesday at 10 or 11 AM (depending on DST)
+  # Note: all parameters are set in the rake task job
+  #      M  H D Mo WDay
+  # cron: '36 5 * * *'
+  cron: '36 5 * 1 *'
+  class: RakeTaskJob
+  queue: scheduler
+  description: Run rake task dataden:all_exports_report
+  args:
+    by_request_only: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+    job_delay: 0
+    subscription_service_id: dataden_export_report
+    rake_task: "data_den:all_exports_report"
+
+deactivate_expired_embargoes_job:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H
+  cron: '5 4 * * *'
+  # rails_env: production
+  class: DeactivateExpiredEmbargoesJob
+  queue: scheduler
+  description: Deactivate embargoes job.
+  args:
+    email_owner: true
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    test_mode: false
+    verbose: true
+
 doi_pending_report_job:
   # Run once on Saturdays at two am (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
@@ -176,14 +369,14 @@ export_log_files_job:
 find_and_fix_job:
   # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #       M H D
-  cron: '15 4 * * *'
+  cron: '15 4 * * 0,2,3,4,5,6'
   class: FindAndFixJob
   queue: scheduler
-  description: Find and fix problems in works and file sets updated in the past 7 days
+  description: Find and fix problems in works and file sets updated in the past 2 days
   args:
     email_results_to:
       - 'fritx@umich.edu'
-    filter_date_begin: now - 7 days
+    filter_date_begin: now - 2 days
     filter_date_end: now
     # find_and_fix_empty_file_size: true
     # find_and_fix_over_file_sets: true
@@ -213,39 +406,39 @@ find_and_fix_job_all:
     subscription_service_id: find_and_fix_job_all
     verbose: false
 
-globus_errors_report_job:
-  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H D
-  cron: '5 18 * * *'
-  class: GlobusErrorsReportJob
-  queue: scheduler
-  description: Globus error report job.
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    hostnames:
-      - 'deepblue.lib.umich.edu'
-      - 'staging.deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
-    quiet: true
-    subscription_service_id: globus_errors_report_job
-
-globus_status_report_job:
-  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H D
-  cron: '5 18 * * *'
-  class: GlobusStatusReportJob
-  queue: scheduler
-  description: Globus status report job.
-  args:
-    email_results_to:
-      - 'fritx@umich.edu'
-    hostnames:
-      - 'deepblue.lib.umich.edu'
-      - 'staging.deepblue.lib.umich.edu'
-      - 'testing.deepblue.lib.umich.edu'
-    quiet: true
-    subscription_service_id: globus_status_report_job
+#globus_errors_report_job:
+#  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
+#  #      M H D
+#  cron: '5 18 * * *'
+#  class: GlobusErrorsReportJob
+#  queue: scheduler
+#  description: Globus error report job.
+#  args:
+#    email_results_to:
+#      - 'fritx@umich.edu'
+#    hostnames:
+#      - 'deepblue.lib.umich.edu'
+#      - 'staging.deepblue.lib.umich.edu'
+#      - 'testing.deepblue.lib.umich.edu'
+#    quiet: true
+#    subscription_service_id: globus_errors_report_job
+#
+#globus_status_report_job:
+#  # Run once a day, 5 minutes after six pm (which is offset by 4 or [5 during daylight savings time], due to GMT)
+#  #      M H D
+#  cron: '5 18 * * *'
+#  class: GlobusStatusReportJob
+#  queue: scheduler
+#  description: Globus status report job.
+#  args:
+#    email_results_to:
+#      - 'fritx@umich.edu'
+#    hostnames:
+#      - 'deepblue.lib.umich.edu'
+#      - 'staging.deepblue.lib.umich.edu'
+#      - 'testing.deepblue.lib.umich.edu'
+#    quiet: true
+#    subscription_service_id: globus_status_report_job
 
 heartbeat_email_job:
   # Run once a day, one minute after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
@@ -338,22 +531,6 @@ user_stat_importer_job:
     verbose: false
     test: false
 
-works_report_job_daily:
-  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
-  #      M H D
-  cron: '5 4 * * *'
-  class: WorksReportJob
-  queue: scheduler
-  description: Daily Works report job.
-  args:
-    by_request_only: true
-    hostnames:
-      - 'x.testing.deepblue.lib.umich.edu'
-    quiet: true
-    report_file_prefix: '%date%.%hostname%.works_report'
-    report_dir: '/deepbluedata-prep/reports'
-    subscription_service_id: works_report_job_daily
-
 works_report_job_monthly:
   # Run once a month on the 1st, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
   #      M H D
@@ -371,3 +548,23 @@ works_report_job_monthly:
     report_file_prefix: '%date%.%hostname%.works_report'
     report_dir: '/deepbluedata-prep/reports'
     subscription_service_id: works_report_job_monthly
+
+work_impact_report_job_monthly:
+  # Run once a day, five minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)
+  #      M H D
+  # cron: '*/5 * * * *'
+  cron: '5 5 1 * *'
+  class: WorkImpactReportJob
+  queue: scheduler
+  description: Work impact report job.
+  args:
+    hostnames:
+      - 'deepblue.lib.umich.edu'
+      - 'staging.deepblue.lib.umich.edu'
+      - 'testing.deepblue.lib.umich.edu'
+    quiet: true
+    report_file_prefix: '%date%.%hostname%.work_impact_report'
+    report_dir: '/deepbluedata-prep/reports'
+    subscription_service_id: work_impact_report_job
+
+
