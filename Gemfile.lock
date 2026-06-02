@@ -142,7 +142,7 @@ GEM
     bagit (0.6.0)
       docopt (~> 0.5.0)
       validatable (~> 1.6)
-    base64 (0.2.0)
+    base64 (0.3.0)
     bcp47_spec (0.2.1)
     bcrypt (3.1.22)
     benchmark_methods (0.7)
@@ -623,7 +623,7 @@ GEM
     jsonlint (0.3.0)
       oj (~> 3)
       optimist (~> 3)
-    jwt (2.9.3)
+    jwt (2.10.3)
       base64
     kaminari (1.2.2)
       activesupport (>= 4.1.0)
