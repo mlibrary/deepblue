@@ -62,11 +62,11 @@ module JobHelper
                          body: nil,
                          content_type: nil )
 
-    # msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
-    #                          ::Deepblue::LoggingHelper.called_from,
-    #                          "task_name=#{task_name}",
-    #                          "email_targets=#{email_targets}",
-    #                          "" ] if msg_handler.debug_verbose
+    msg_handler.bold_debug [ ::Deepblue::LoggingHelper.here,
+                             ::Deepblue::LoggingHelper.called_from,
+                             "task_name=#{task_name}",
+                             "email_targets=#{email_targets}",
+                             "" ] if msg_handler.debug_verbose
     return if child_job?
     body = msg_handler.join( "\n" ) if body.blank?
     if from_dashboard.present? # just email user running the job from the dashboard
@@ -245,17 +245,29 @@ module JobHelper
   # Upgrade: ruby3
   def initialize_options_from( args:, id: nil, debug_verbose: job_helper_debug_verbose )
     debug_verbose = debug_verbose || job_helper_debug_verbose
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "args=#{args}",
                                            "id=#{id}",
+                                           "@id=#{@id}",
                                            "debug_verbose=#{debug_verbose}",
                                            "" ] if debug_verbose
     @options = ::Deepblue::JobTaskHelper.initialize_options_from( args: args, debug_verbose: debug_verbose )
-    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
-                                           ::Deepblue::LoggingHelper.called_from,
+    ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "@options=#{@options}",
                                            "" ] if debug_verbose
+    if id.blank? && @options[:id].present?
+      id = @options[:id]
+      @id = @options[:id]
+      ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
+                                             "set blank id from options",
+                                             "id=#{id}",
+                                             "@id=#{@id}",
+                                             "" ] if debug_verbose
+
+    end
+    if @id.blank? then
+      @id = id
+    end
     initialize_defaults( debug_verbose: debug_verbose )
     by_request_only
     job_start( id: id, restartable: restartable )

@@ -124,9 +124,7 @@ module Deepblue
     end
 
     def find_and_fix_over_collections
-      msg_handler.bold_debug [ msg_handler.here,
-                                             msg_handler.called_from,
-                                             "" ] if debug_verbose
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "" ] if debug_verbose
       return unless find_and_fix_collections_fixers.present?
       Collection.all.each do |curation_concern|
         find_and_fix_over( curation_concern: curation_concern,
@@ -190,8 +188,7 @@ module Deepblue
     end
 
     def run
-      msg_handler.bold_debug [ msg_handler.here,
-                               msg_handler.called_from,
+      msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from,
                                "id=#{id}",
                                "filter=#{filter}",
                                "msg_handler=#{msg_handler}",
@@ -201,8 +198,10 @@ module Deepblue
                                "msg_handler=#{msg_handler}" ]
       msg_handler.msg "Started: #{DateTime.now}"
       if id.present?
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "id is present: id=#{id} run_id", "" ] if debug_verbose
         run_id
       else
+        msg_handler.bold_debug [ msg_handler.here, msg_handler.called_from, "id is not present: run_all", "" ] if debug_verbose
         run_all
       end
       find_and_fix_collect_results
