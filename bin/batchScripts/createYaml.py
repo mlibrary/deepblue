@@ -1,3 +1,43 @@
+############################################################################
+
+#File: createYaml.py
+#Code Creator: Peter Cerda
+#Contact: pacerda@umich.edu
+#Date executed: 2026-06-24
+
+#Operating System (and version as well as bit number if appropriate) executed on: Linux
+
+ 
+#Software Version: Python 3
+
+#Python Libraries/Dependencies:
+#pathlib
+#os
+#sys
+#datetime
+#glob
+#fnmatch
+#re
+#shutil
+#pandas
+#json
+#csv
+#numpy
+
+#Data File Inputs:
+#metadata spreadsheet
+
+#Outputs:
+#yml files named after each dataset.
+
+
+#Description: This script will read the metadata speadsheet and will assign metadata to the approprate dataset ingest file. It will also explore the folder named in the metadata to identify folder and files paths.
+ 
+
+###########################################################################
+
+
+
 #import these libraries from the other script will prune as needed
 
 from pathlib import Path
