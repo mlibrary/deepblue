@@ -1,3 +1,38 @@
+############################################################################
+
+#File: nested_batchImportPrep.py
+#Code Creator: Peter Cerda
+#Contact: pacerda@umich.edu
+#Date executed: 2026-06-24
+
+#Operating System (and version as well as bit number if appropriate) executed on: Linux
+
+ 
+#Software Version: Python 3
+
+#Python Libraries/Dependencies:
+#pathlib
+#os
+#sys
+#datetime
+#glob
+#fnmatch
+#re
+#shutil
+#json
+#csv
+#numpy
+
+#Data File Inputs:
+#The script calls for a path to be an argument. The path should contain all folders and subfolders that should be tarred. 
+
+#Outputs:
+#The script will create tar files of subfolders.
+ 
+#To run script, you will need to do the following command:
+#python3 nested_batchImportPrep.py ./FolderOfInterest
+###########################################################################
+
 #import these libraries from the other script will prune as needed
 
 from pathlib import Path
@@ -19,7 +54,6 @@ import csv
 
 # need to untar the base dataset folder
 #argv[1] = directory of interest that script should be run in. 
-#argv[2] = metadata file for works
 
 
 topDir = Path(argv[1])
