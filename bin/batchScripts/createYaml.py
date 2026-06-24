@@ -33,7 +33,9 @@
 
 #Description: This script will read the metadata speadsheet and will assign metadata to the approprate dataset ingest file. It will also explore the folder named in the metadata to identify folder and files paths.
  
-
+#To run:
+#cd /Path/To/datasets
+#python3 createYaml.py metadata.csv
 ###########################################################################
 
 
