@@ -275,7 +275,7 @@ GEM
     crack (1.0.0)
       bigdecimal
       rexml
-    crass (1.0.6)
+    crass (1.0.7)
     cronex (0.15.0)
       tzinfo
       unicode (>= 0.4.4.5)
@@ -705,9 +705,9 @@ GEM
       rb-fsevent (~> 0.9, >= 0.9.4)
       rb-inotify (~> 0.9, >= 0.9.7)
     logger (1.7.0)
-    loofah (2.19.1)
+    loofah (2.25.2)
       crass (~> 1.0.2)
-      nokogiri (>= 1.5.9)
+      nokogiri (>= 1.12.0)
     mail (2.8.1)
       mini_mime (>= 0.1.1)
       net-imap
@@ -1402,7 +1402,7 @@ DEPENDENCIES
   libxml-ruby (>= 3.1.0)
   linkeddata (>= 3.3.1)
   listen (>= 3.0.5, < 3.2)
-  loofah (~> 2.19.1)
+  loofah (~> 2.25.2)
   mida (~> 0.3)
   minitar (~> 0.8)
   mutex_m (= 0.2.0)
