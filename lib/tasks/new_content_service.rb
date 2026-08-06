@@ -763,7 +763,7 @@ module Deepblue
             file_set.save!
           rescue Ldp::Gone => e
             log_msg( "#{build_mode}: WARNING failed with a Ldp::Gone exception." )
-            log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+            log_error "#{e.class} parent.id=#{parent.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
             return nil
           end
           # TODO: move ingest step to after attach to work, this will probably fix file_sets that turn up with missing file sizes
@@ -773,7 +773,7 @@ module Deepblue
                                         checksum_value: checksum_value,
                                         build_mode: build_mode )
         rescue Exception => e # rubocop:disable Lint/RescueException
-          log_error "#{e.class} work.id=#{work.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
+          log_error "#{e.class} parent.id=#{parent.id} -- #{file_set&.id} -- #{e.message} at #{e.backtrace[0]}"
           ::Deepblue::LoggingHelper.bold_error [ ::Deepblue::LoggingHelper.here,
                                                  ::Deepblue::LoggingHelper.called_from,
                                                  "new_content_service_error",
