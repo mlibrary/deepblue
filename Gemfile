@@ -44,17 +44,17 @@ begin
     # line = "ls -l /usr/bin/xml2-config";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     # line = `ls -l /usr/bin/xml2-config`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     # gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/local/opt/libxml2/bin/xml2-config'
-    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config --with-cflags="-Wno-error=implicit-function-declaration'
+    gemfile_bundle_config = 'bundle config --local build.libxml-ruby --with-xml2-config=/usr/bin/xml2-config --with-cflags="-Wno-error=implicit-function-declaration"'
   end
   if gemfile_verbose
     config_file = File.join( current_path, '.bundle', 'config')
     line = "Bundle config path: #{config_file}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
     contents = File.open( config_file, "r" ) { |io| io.read };(puts contents if gemfile_verbose;exit_log_lines << contents unless exit_log_lines.nil?)
   end
-  if !gemfile_bundle_config.nil?
-    line = "Running bundle config: #{gemfile_bundle_config}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-    line = `#{gemfile_bundle_config}`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
-  end
+  #if !gemfile_bundle_config.nil?
+  #  line = "Running bundle config: #{gemfile_bundle_config}";(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  #  line = `#{gemfile_bundle_config}`;(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
+  #end
   line = 'end gemfile extra config:';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
   line = '';(puts line if gemfile_verbose);(exit_log_lines << line unless exit_log_lines.nil?)
 rescue Exception => e
