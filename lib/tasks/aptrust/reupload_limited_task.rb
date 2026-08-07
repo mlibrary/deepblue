@@ -22,7 +22,7 @@ module Aptrust
       @cleanup_after_deposit = false
       @export_all_files = true
       @max_size = 1.terabyte
-      @email_targets = ["fritx@umich.edu"]
+      @email_targets = [Rails.configuration.dev_email]
       @email_subject = "Aptrust re-uploads on %hostname% finished at %now% max size 1tb"
       @msg_handler.msg_debug "cleanup_after_deposit: #{@cleanup_after_deposit}"
       @msg_handler.msg_debug "export_all_files: #{@export_all_files}"

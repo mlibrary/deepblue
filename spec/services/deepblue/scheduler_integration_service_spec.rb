@@ -9,7 +9,7 @@ RSpec.describe ::Deepblue::SchedulerIntegrationService do
   end
 
   describe 'other module values' do
-    it { expect( described_class.scheduler_heartbeat_email_targets ).to eq( [ 'fritx@umich.edu' ] ) }
+    it { expect( described_class.scheduler_heartbeat_email_targets ).to eq( [ Rails.configuration.dev_email ] ) }
     it { expect( described_class.scheduler_log_echo_to_rails_logger ).to eq true }
     it { expect( described_class.scheduler_start_job_default_delay ).to eq 5.minutes.to_i }
     it { expect( described_class.scheduler_active ).to eq false }
@@ -21,7 +21,7 @@ RSpec.describe ::Deepblue::SchedulerIntegrationService do
                                            'staging.deepblue.lib.umich.edu',
                                            'deepblue.lib.umich.edu' ] }
 
-    it { expect( described_class.scheduler_autostart_emails ).to eq [ 'fritx@umich.edu' ] }
+    it { expect( described_class.scheduler_autostart_emails ).to eq [ Rails.configuration.dev_email ] }
 
   end
 

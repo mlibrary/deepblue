@@ -63,7 +63,7 @@ aptrust_verify_job:
     debug_verbose: false
     force_verification: false
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'staging.deepblue.lib.umich.edu'
@@ -167,7 +167,7 @@ clean_hyrax_tmp_dir_job:
     days_old_derivatives: 7
     days_old_uploads: 180
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
@@ -186,7 +186,7 @@ clean_derivatives_dir_job_by_request:
     by_request_only: true
     days_old: 7
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'block.deepblue.lib.umich.edu'
       - 'block.testing.deepblue.lib.umich.edu'
@@ -205,7 +205,7 @@ clean_derivatives_dir_job_hourly_by_request:
     by_request_only: true
     days_old: 7
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'block.deepblue.lib.umich.edu'
       - 'block.testing.deepblue.lib.umich.edu'
@@ -258,7 +258,7 @@ clean_tmp2:
     hostnames:
       - 'testing.deepblue.lib.umich.edu'
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     job_delay: 0
     rake_task: 'tmp:clean'
     verbose: true
@@ -274,7 +274,7 @@ copy_logs_job:
   args:
     by_request_only: true
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'block.deepblue.lib.umich.edu'
       - 'block.testing.deepblue.lib.umich.edu'
@@ -348,7 +348,7 @@ doi_pending_report_job:
     quiet: true
     subscription_service_id: doi_pending_report_job
     user_email:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
 
 export_log_files_job:
   # Run once a week at midnight
@@ -375,7 +375,7 @@ find_and_fix_job:
   description: Find and fix problems in works and file sets updated in the past 2 days
   args:
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     filter_date_begin: now - 2 days
     filter_date_end: now
     # find_and_fix_empty_file_size: true

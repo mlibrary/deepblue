@@ -40,7 +40,7 @@ END_OF_SCHEDULER_ENTRY
       end
       @test_mode = false
       @date_end = DateTime.now - 1.week
-      @email_targets = ["fritx@umich.edu"]
+      @email_targets = [Rails.configuration.dev_email]
       @email_subject = "Aptrust week-old cleanup on %hostname% finished at %now%"
       @msg_handler.msg_debug "date_end: #{@date_end}"
       @msg_handler.msg_debug "export_all_files: #{@export_all_files}"

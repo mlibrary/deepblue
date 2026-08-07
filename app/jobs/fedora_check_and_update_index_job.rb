@@ -61,7 +61,7 @@ path_to_script: #{@path_to_script}<br/>
     # run this script:
     @path_to_script = job_options_value( key: 'path_to_script',
                            default_value: '/deepbluedata-prep/scripts/rebuild_fedora_index/rebuild_fedora_index.yml' )
-    @ingester = job_options_value( key: 'ingester', default_value: 'fritx@umich.edu' )
+    @ingester = job_options_value( key: 'ingester', default_value: Rails.configuration.dev_email )
     @populate = job_options_value( key: 'ingest_mode', default_value: 'populate' )
     email_fedora_not_accessible
     IngestScriptJob.perform_now( ingest_mode: @ingest_mode, ingester: @ingester, path_to_script: @path_to_script )

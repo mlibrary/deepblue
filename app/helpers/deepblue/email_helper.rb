@@ -494,9 +494,9 @@ module Deepblue
 
       msg_handler.msg "send_email_fritx( #{subject} )" if msg_handler.present?
       body = build_email_body( subject: subject, msg_handler: msg_handler, messages: messages )
-      send_email( to: "fritx@umich.edu", subject: subject, body: body, content_type: content_type )
+      send_email( to: Rails.configuration.dev_email, subject: subject, body: body, content_type: content_type )
     rescue Exception => e
-      send_email_error( to: "fritx@umich.edu", email_enabled: true, exception: e )
+      send_email_error( to: Rails.configuration.dev_email, email_enabled: true, exception: e )
     end
 
     def self.template_default_options( curation_concern:, starting_options: {} )

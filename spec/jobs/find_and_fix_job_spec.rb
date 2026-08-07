@@ -83,7 +83,7 @@ RSpec.describe FindAndFixJob, skip: false do
 
     describe 'with valid hostname' do
       let(:hostnames) { build(:hostnames_allowed) }
-      let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
+      let(:args)   { { 'email_results_to' => Rails.configuration.dev_email,
                        'hostnames' => hostnames,
                        'subscription_service_id' => 'find_and_fix_job',
                        'verbose' => verbose } }
@@ -96,7 +96,7 @@ RSpec.describe FindAndFixJob, skip: false do
 
     describe 'without valid hostnames', skip: false do
       let(:hostnames) { build(:hostnames_not_allowed) }
-      let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
+      let(:args)   { { 'email_results_to' => Rails.configuration.dev_email,
                        'hostnames' => hostnames,
                        'subscription_service_id' => 'find_and_fix_job',
                        'verbose' => verbose } }

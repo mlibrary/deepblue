@@ -27,8 +27,8 @@ module Deepblue
     mattr_accessor :scheduler_job_file_path, default: Rails.application.root.join( 'data', 'scheduler', 'scheduler_jobs.yml' )
     mattr_accessor :scheduler_active
     mattr_accessor :scheduler_autostart_servers, default: []
-    mattr_accessor :scheduler_autostart_emails, default: [ 'fritx@umich.edu' ].freeze # leave empty to disable
-    mattr_accessor :scheduler_heartbeat_email_targets, default: [ 'fritx@umich.edu' ].freeze # leave empty to disable
+    mattr_accessor :scheduler_autostart_emails, default: [ Rails.configuration.dev_email ].freeze # leave empty to disable
+    mattr_accessor :scheduler_heartbeat_email_targets, default: [ Rails.configuration.dev_email ].freeze # leave empty to disable
     mattr_accessor :scheduler_log_echo_to_rails_logger, default: true
     mattr_accessor :scheduler_start_job_default_delay, default: 5.minutes
     mattr_accessor :scheduler_started_email, default: []
