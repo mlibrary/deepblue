@@ -49,7 +49,6 @@ Deepblue::SchedulerIntegrationService.setup do |config|
                                          'staging.deepblue.lib.umich.edu',
                                          'deepblue.lib.umich.edu' ].freeze
 
-  # config.scheduler_autostart_emails = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
   config.scheduler_autostart_emails = [ Rails.configuration.dev_email ].freeze
   puts "Finished scheduler integration service configuration." if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 end

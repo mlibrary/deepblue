@@ -52,7 +52,7 @@ module DeepBlueDocs
     # config.authentication_method = "iu"
     config.authentication_method = "umich"
 
-    config.dev_email = 'ulib-deepblue-data' # Rails.configuration.dev_email
+    config.dev_email = 'ulib-deepblue-data@umich.edu' # Rails.configuration.dev_email
 
     # see ::User and UserHelper
     config.user_role_management_enabled                    = false
@@ -250,7 +250,7 @@ module DeepBlueDocs
       config.email_debug_verbose = false
     end
 
-    config.email_error_alert_addresses = [ Rails.configuration.dev_email ].freeze
+    config.email_error_alert_addresses = [ 'ulib-deepblue-data@umich.edu' ].freeze
 
     #config.email_display_max_body_size = 100
     config.email_display_max_body_size = 10_000
