@@ -24,7 +24,7 @@ RSpec.describe FindAndFixOldJob, skip: false do
     let(:find_and_fix_all_ordered_members_containing_nils) { true }
     let(:task) { false }
     let(:verbose) { false }
-    let(:args)   { { 'email_results_to' => 'fritx@umich.edu',
+    let(:args)   { { 'email_results_to' => Rails.configuration.dev_email,
                      'find_and_fix_empty_file_size' => find_and_fix_empty_file_size,
                      'find_and_fix_over_file_sets' => find_and_fix_over_file_sets,
                      'find_and_fix_all_ordered_members_containing_nils' => find_and_fix_all_ordered_members_containing_nils,

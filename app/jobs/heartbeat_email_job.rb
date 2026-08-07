@@ -39,6 +39,7 @@ END_OF_SCHEDULER_ENTRY
     log( event: event, hostname_allowed: allowed )
     return job_finished unless allowed
     from_config = ::Deepblue::SchedulerIntegrationService.scheduler_heartbeat_email_targets.dup
+    from_config = [ Rails.configuration.dev_email ]
     find_all_email_targets( additional_email_targets: from_config )
     email_all_targets( task_name: "scheduler heartbeat", event: event )
     job_finished

@@ -40,7 +40,7 @@ aptrust_upload_one_unlimited:
       #@max_size = 1.terabyte
       @min_size = 1.terabyte - 1
       @max_uploads = 1
-      @email_targets = ["fritx@umich.edu"]
+      @email_targets = [Rails.configuration.dev_email]
       @email_subject = "Aptrust upload one unlimited on %hostname% finished at %now%"
       @msg_handler.msg_debug "cleanup_after_deposit: #{@cleanup_after_deposit}"
       #@msg_handler.msg_debug "max_size: #{human_readable_size( @max_size )}"

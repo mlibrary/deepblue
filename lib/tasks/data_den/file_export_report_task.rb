@@ -42,7 +42,7 @@ END_OF_SCHEDULER_ENTRY
         @verbose = @msg_handler.verbose
       end
       @test_mode = true
-      @email_targets = ["fritx@umich.edu"]
+      @email_targets = [Rails.configuration.dev_email]
       @email_subject = "All DataDen file exports on %hostname% as of %now%"
       @msg_handler.msg_debug "test_mode: #{@test_mode}"
       @msg_handler.msg_debug "email_targets: #{@email_targets}"

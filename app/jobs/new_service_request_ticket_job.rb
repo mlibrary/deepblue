@@ -12,7 +12,7 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
     rv = ::Deepblue::TeamdynamixService.has_service_request? curation_concern: curation_concern
     return rv
   rescue Exception => e
-    email_failure( targets: [ "fritx@umich.edu" ], task_name: "NewServiceRequestTicketJob.has_service_request?", exception: e, event: self.class.name )
+    email_failure( targets: [ Rails.configuration.dev_email ], task_name: "NewServiceRequestTicketJob.has_service_request?", exception: e, event: self.class.name )
   end
 
   def email_body( subject:, msg_handler: )
@@ -31,7 +31,7 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
                                               msg_handler: msg_handler,
                                               messages: messages )
   rescue Exception => e
-    email_failure( targets: [ "fritx@umich.edu" ], task_name: self.class.name, exception: e, event: self.class.name )
+    email_failure( targets: [ Rails.configuration.dev_email ], task_name: self.class.name, exception: e, event: self.class.name )
   end
 
   # def perform( work_id:, current_user: nil, job_delay: 0, debug_verbose: new_service_request_ticket_job_debug_verbose )
@@ -164,7 +164,7 @@ class NewServiceRequestTicketJob < ::Deepblue::DeepblueJob
                          args: { work_id: work_id,
                                  current_user: current_user,
                                  job_delay: job_delay } )
-    email_failure( targets: [ "fritx@umich.edu" ], task_name: self.class.name, exception: e, event: self.class.name )
+    email_failure( targets: [ Rails.configuration.dev_email ], task_name: self.class.name, exception: e, event: self.class.name )
     raise e
   end
 

@@ -88,7 +88,7 @@ module Deepblue
                                                   current_user: current_user,
                                                   debug_verbose: debug_verbose )
     rescue Exception => e
-      ::Deepblue::EmailHelper.email_failure( to: "fritx@umich.edu", exception: e )
+      ::Deepblue::EmailHelper.email_failure( to: Rails.configuration.dev_email, exception: e )
       raise e
     end
 

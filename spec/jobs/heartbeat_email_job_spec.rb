@@ -63,7 +63,7 @@ RSpec.describe HeartbeatEmailJob do
 
     context 'with valid arguments and allowed to run on server' do
       let(:allowed) { true }
-      let(:email_targets) { ["fritx@umich.edu"] }
+      let(:email_targets) { [Rails.configuration.dev_email] }
       let(:hostnames) { build(:hostnames_allowed) }
       let(:options)      { { "hostnames" => hostnames } }
       let(:args)         { { hostnames: hostnames } }
@@ -75,7 +75,7 @@ RSpec.describe HeartbeatEmailJob do
 
     context 'with valid arguments and allowed to run on server debug verbose' do
       let(:allowed) { true }
-      let(:email_targets) { ["fritx@umich.edu"] }
+      let(:email_targets) { [Rails.configuration.dev_email] }
       let(:hostnames) { build(:hostnames_allowed) }
       let(:options)      { { "hostnames" => hostnames } }
       let(:args)         { { hostnames: hostnames } }

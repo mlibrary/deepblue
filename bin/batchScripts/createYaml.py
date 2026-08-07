@@ -70,7 +70,7 @@ def createyml(fname):
     ownEmail = df['authoremail'].iloc[row] #Author Email from CSV
     ownauth = df['owner'].iloc[row] #owner name from CSV
     
-    ytop = ("---\n:user:\n  :visibility: open\n  :state: active\n  :email: '%s'\n  :ingester: 'fritx@umich.edu'\n  :source: DBDv2\n  :mode: build\n  :works:\n    :depositor: 'pacerda@umich.edu'\n" % (ownEmail))
+    ytop = ("---\n:user:\n  :visibility: open\n  :state: active\n  :email: '%s'\n  :ingester: Rails.configuration.dev_email\n  :source: DBDv2\n  :mode: build\n  :works:\n    :depositor: 'pacerda@umich.edu'\n" % (ownEmail))
     
     yownauth = ("    :owner: '%s'\n    :authoremail: '%s'\n" % (ownauth, ownEmail))
 

@@ -29,6 +29,6 @@ Deepblue::JobTaskHelper.setup do |config|
                                            /blacklight\:delete_old_searches\[\d+\]/,
                                            /data_den\:[a-z_]+/,
                                            /deepblue\:[a-z_]+/ ].freeze
-  config.job_failure_email_subscribers = [ 'fritx@umich.edu' ]
+  config.job_failure_email_subscribers = [ Rails.configuration.dev_email ]
 
 end

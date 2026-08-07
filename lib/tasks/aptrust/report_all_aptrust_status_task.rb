@@ -31,7 +31,7 @@ module Aptrust
       end
       # @test_mode = option_value( key: 'test_mode', default_value: false )
       if @email_targets.nil? || @email_targets.empty?
-        @email_targets = option_email_targets( default_value: "fritx@umich.edu" )
+        @email_targets = option_email_targets( default_value: Rails.configuration.dev_email )
       end
       @email_subject = option_value( key: 'email_subject',
                                      default_value: "Aptrust status report on %hostname% finished %now%" )

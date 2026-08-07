@@ -21,7 +21,7 @@ module Aptrust
       @test_mode = false
       @cleanup_after_deposit = false
       @max_size = 1.terabyte
-      @email_targets = ["fritx@umich.edu"]
+      @email_targets = [Rails.configuration.dev_email]
       @email_subject = "Aptrust upload on %hostname% finished at %now% max size 1tb"
       @msg_handler.msg_debug "cleanup_after_deposit: #{@cleanup_after_deposit}"
       @msg_handler.msg_debug "max_size: #{human_readable_size( @max_size )}"

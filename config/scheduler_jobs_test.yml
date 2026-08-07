@@ -62,7 +62,7 @@ clean_derivatives_dir_job:
   args:
     days_old: 7
     email_results_to:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
     hostnames:
       - 'deepblue.lib.umich.edu'
       - 'testing.deepblue.lib.umich.edu'
@@ -134,7 +134,7 @@ doi_pending_report_job:
     quiet: true
     subscription_service_id: doi_pending_report_job
     user_email:
-      - 'fritx@umich.edu'
+      - 'ulib-deepblue-data@umich.edu'
 
 find_and_fix_job:
   # Run once a day, 15 minutes after midnight (which is offset by 4 or [5 during daylight savings time], due to GMT)

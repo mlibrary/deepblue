@@ -313,7 +313,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
 
   def email_error( error )
     # error is assumed to be an instance of ::Deepblue::ExportFilesChecksumMismatch at this point
-    targets = [ 'fritx@umich.edu' ]
+    targets = [ Rails.configuration.dev_email ]
     task_name = self.class.name
     task_args = nil
     exception = error

@@ -27,7 +27,7 @@ module Aptrust
       @max_verifies = task_options_value( key: 'max_verifies', default_value: -1 )
       @email_subject = task_options_value( key: 'email_subject',
                                            default_value: "Aptrust verification on %hostname% finished %now%" ) if @email_subject.blank?
-      @email_targets = option_email_targets( default_value: "fritx@umich.edu" ) if @email_targets.blank?
+      @email_targets = option_email_targets( default_value: Rails.configuration.dev_email ) if @email_targets.blank?
       @msg_handler.bold_debug [ @msg_handler.here, @msg_handler.called_from,
                                "debug_assume_verify_succeeds=#{debug_assume_verify_succeeds}",
                                "force_verification=#{force_verification}",

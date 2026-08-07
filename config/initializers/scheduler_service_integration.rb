@@ -6,7 +6,7 @@ Deepblue::SchedulerIntegrationService.setup do |config|
   config.scheduler_integration_service_debug_verbose = false
 
   # scheduler log config
-  config.scheduler_heartbeat_email_targets = [ 'fritx@umich.edu' ].freeze # leave empty to disable
+  config.scheduler_heartbeat_email_targets = [ Rails.configuration.dev_email ].freeze # leave empty to disable
   config.scheduler_log_echo_to_rails_logger = true
   config.scheduler_start_job_default_delay = 5.minutes.to_i
   config.scheduler_active = false
@@ -49,7 +49,6 @@ Deepblue::SchedulerIntegrationService.setup do |config|
                                          'staging.deepblue.lib.umich.edu',
                                          'deepblue.lib.umich.edu' ].freeze
 
-  # config.scheduler_autostart_emails = [ 'fritx@umich.edu', 'blancoj@umich.edu' ].freeze
-  config.scheduler_autostart_emails = [ 'fritx@umich.edu' ].freeze
+  config.scheduler_autostart_emails = [ Rails.configuration.dev_email ].freeze
   puts "Finished scheduler integration service configuration." if SCHEDULER_INTEGRATION_SERVICE_DEBUG_VERBOSE
 end
