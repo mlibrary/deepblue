@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+LOG_DIR="$ROOT_DIR/log"
+
+REDIS_PORT=6379
+FEDORA_PORT=8984
+SOLR_PORT=8983
+RAILS_PORT=3000
+
+mkdir -p "$LOG_DIR"
+
+is_listening() {
+  local port="$1"
+  lsof -iTCP:"$port" -sTCP:LISTEN -n -P >/dev/null 2>&1
+}
+
+http_code() {
+  local url="$1"
+  curl -sS -o /dev/null -w "%{http_code}" "$url" || true
+}
+
+wait_for_http() {
+  local url="$1"
+  local timeout_secs="$2"
+  local elapsed=0
+
+  while [ "$elapsed" -lt "$timeout_secs" ]; do
+    local code
+    code="$(http_code "$url")"
+    if [ "$code" != "000" ]; then
+      echo "$code"
+      return 0
+    fi
+    sleep 2
+    elapsed=$((elapsed + 2))
+  done
+
+  echo "000"
+  return 1
+}
+
+start_redis() {
+  if is_listening "$REDIS_PORT"; then
+    echo "Redis already listening on :$REDIS_PORT"
+    return 0
+  fi
+
+  echo "Starting Redis on :$REDIS_PORT"
+  nohup /opt/homebrew/opt/redis/bin/redis-server >"$LOG_DIR/redis-server.out" 2>&1 &
+
+  if is_listening "$REDIS_PORT"; then
+    echo "Redis started"
+  else
+    echo "Redis did not start; check $LOG_DIR/redis-server.out"
+    return 1
+  fi
+}
+
+start_fedora() {
+  local fedora_code
+  fedora_code="$(http_code "http://127.0.0.1:$FEDORA_PORT/rest")"
+  if is_listening "$FEDORA_PORT" && [ "$fedora_code" = "200" ]; then
+    echo "Fedora already healthy on :$FEDORA_PORT"
+    return 0
+  fi
+
+  if ! /usr/libexec/java_home -v 1.8 >/dev/null 2>&1; then
+    echo "Java 8 not found. Install with: brew install --cask temurin@8"
+    return 1
+  fi
+
+  echo "Starting Fedora via fcrepo_wrapper on :$FEDORA_PORT (Java 8)"
+  (
+    cd "$ROOT_DIR"
+    JAVA_HOME="$(/usr/libexec/java_home -v 1.8)" \
+      nohup bundle exec fcrepo_wrapper -v -p "$FEDORA_PORT" >"$LOG_DIR/fcrepo_wrapper.out" 2>&1 &
+  )
+
+  fedora_code="$(wait_for_http "http://127.0.0.1:$FEDORA_PORT/rest" 60 || true)"
+  if [ "$fedora_code" = "200" ]; then
+    echo "Fedora started and healthy"
+  else
+    echo "Fedora not healthy yet (HTTP $fedora_code); check $LOG_DIR/fcrepo_wrapper.out"
+    return 1
+  fi
+}
+
+start_solr() {
+  local solr_code
+  solr_code="$(http_code "http://127.0.0.1:$SOLR_PORT/solr/")"
+  if is_listening "$SOLR_PORT" && [ "$solr_code" = "200" ]; then
+    echo "Solr already healthy on :$SOLR_PORT"
+    return 0
+  fi
+
+  echo "Starting Solr via solr_wrapper on :$SOLR_PORT"
+  (
+    cd "$ROOT_DIR"
+    # Override old CMS defaults in Solr 7 startup scripts for newer JVMs.
+    GC_TUNE='-XX:NewRatio=3 -XX:SurvivorRatio=4 -XX:TargetSurvivorRatio=90 -XX:MaxTenuringThreshold=8 -XX:ConcGCThreads=4 -XX:ParallelGCThreads=4 -XX:PretenureSizeThreshold=64m -XX:+ParallelRefProcEnabled -XX:-OmitStackTraceInFastThrow' \
+      nohup bundle exec solr_wrapper -v -d solr/config/ -n deepbluedata-dev -p "$SOLR_PORT" >"$LOG_DIR/solr_wrapper.out" 2>&1 &
+  )
+
+  solr_code="$(wait_for_http "http://127.0.0.1:$SOLR_PORT/solr/" 60 || true)"
+  if [ "$solr_code" = "200" ]; then
+    echo "Solr started and healthy"
+  else
+    echo "Solr not healthy yet (HTTP $solr_code); check $LOG_DIR/solr_wrapper.out"
+    return 1
+  fi
+}
+
+start_rails() {
+  local rails_code
+  rails_code="$(http_code "http://127.0.0.1:$RAILS_PORT/data")"
+  if is_listening "$RAILS_PORT" && [ "$rails_code" != "000" ]; then
+    echo "Rails already responding on :$RAILS_PORT (HTTP $rails_code)"
+    return 0
+  fi
+
+  echo "Starting Rails server on :$RAILS_PORT"
+  (
+    cd "$ROOT_DIR"
+    nohup bundle exec rails server -p "$RAILS_PORT" >"$LOG_DIR/rails-server.out" 2>&1 &
+  )
+
+  rails_code="$(wait_for_http "http://127.0.0.1:$RAILS_PORT/data" 90 || true)"
+  if [ "$rails_code" != "000" ]; then
+    echo "Rails started (HTTP $rails_code at /data)"
+  else
+    echo "Rails not responding yet; check $LOG_DIR/rails-server.out"
+    return 1
+  fi
+}
+
+status_stack() {
+  local redis_state="down"
+  local fedora_code
+  local solr_code
+  local rails_code
+
+  if is_listening "$REDIS_PORT"; then
+    redis_state="up"
+  fi
+
+  fedora_code="$(http_code "http://127.0.0.1:$FEDORA_PORT/rest")"
+  solr_code="$(http_code "http://127.0.0.1:$SOLR_PORT/solr/")"
+  rails_code="$(http_code "http://127.0.0.1:$RAILS_PORT/data")"
+
+  echo "Redis :$REDIS_PORT => $redis_state"
+  echo "Fedora :$FEDORA_PORT /rest => HTTP $fedora_code"
+  echo "Solr   :$SOLR_PORT /solr/ => HTTP $solr_code"
+  echo "Rails  :$RAILS_PORT /data => HTTP $rails_code"
+}
+
+kill_port() {
+  local port="$1"
+  local pid
+  pid="$(lsof -iTCP:"$port" -sTCP:LISTEN -n -P -t 2>/dev/null || true)"
+  pid="$(echo "$pid" | head -1)"
+  if [ -n "$pid" ]; then
+    echo "Killing process $pid on :$port"
+    kill "$pid" 2>/dev/null || true
+    sleep 2
+  fi
+}
+
+stop_solr_port() {
+  local port="$1"
+  local solr_bin
+  # Try to stop solr cleanly using its own script so cores are unregistered
+  for solr_bin in \
+    "$ROOT_DIR/tmp/solr-test/bin/solr" \
+    "$ROOT_DIR/tmp/solr-development/bin/solr"; do
+    if [ -x "$solr_bin" ] && lsof -iTCP:"$port" -sTCP:LISTEN -n -P >/dev/null 2>&1; then
+      echo "Stopping Solr on :$port via $solr_bin"
+      "$solr_bin" stop -p "$port" 2>/dev/null || true
+      sleep 2
+      break
+    fi
+  done
+  # Fallback: kill remaining process
+  kill_port "$port"
+}
+
+run_ci() {
+  # Stop any orphan Solr/Fedora test instances from previous runs cleanly
+  stop_solr_port 8985
+  kill_port 8986
+
+  # Remove stale deepbluedata-test core left by previously aborted runs.
+  # persist: false in solr_wrapper_test.yml means it should be auto-deleted,
+  # but aborted runs leave it behind.
+  local stale_core="$ROOT_DIR/tmp/solr-test/server/solr/deepbluedata-test"
+  if [ -d "$stale_core" ]; then
+    echo "Removing stale test Solr core: $stale_core"
+    rm -rf "$stale_core"
+  fi
+
+  if ! /usr/libexec/java_home -v 1.8 >/dev/null 2>&1; then
+    echo "Java 8 not found. Install with: brew install --cask temurin@8"
+    return 1
+  fi
+
+  echo "Running rake ci with Java 8..."
+  cd "$ROOT_DIR"
+  JAVA_HOME="$(/usr/libexec/java_home -v 1.8)" bundle exec rake ci
+}
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") <start|status|ci>
+
+  start   Start Redis, Fedora, Solr, and Rails (idempotent checks)
+  status  Print current service status/HTTP health
+  ci      Kill orphan test services then run bundle exec rake ci with Java 8
+EOF
+}
+
+main() {
+  local cmd="${1:-start}"
+
+  case "$cmd" in
+    start)
+      start_redis
+      start_fedora
+      start_solr
+      start_rails
+      status_stack
+      ;;
+    status)
+      status_stack
+      ;;
+    ci)
+      run_ci
+      ;;
+    *)
+      usage
+      return 1
+      ;;
+  esac
+}
+
+main "$@"
+

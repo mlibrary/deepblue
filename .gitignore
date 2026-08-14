@@ -4,6 +4,11 @@
 # or operating system, you probably want to add a global ignore instead:
 #   git config --global core.excludesfile '~/.gitignore_global'
 
+# Ignore Greg's Agent Framework local settings and agents.
+#   This is a symbolic link to the actual directory,
+#   which is located outside of the repository.
+.agents
+
 # Ignore bundler config.
 /.bundle
 /.idea

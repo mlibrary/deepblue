@@ -3,6 +3,7 @@ require: rubocop-rspec
 inherit_from: .rubocop_overrides.yml
 
 AllCops:
+  TargetRubyVersion: 2.4
   DisplayCopNames: true
   Include:
     - '**/config.ru'
@@ -96,8 +97,6 @@ Style/SingleLineBlockParams:
 Style/SignalException:
   Enabled: false
 
-Style/ZeroLengthPredicate:
-  Enabled: false
 
 Rails:
   Enabled: true

@@ -1,5 +1,8 @@
 # reference: https://github.com/mlibrary/heliotrope/blob/master/.rubocop_todo.yml
 # Put any overides here
+AllCops:
+  TargetRubyVersion: 2.4
+
 #Lint/AmbiguousBlockAssociation:
 #  Exclude:
 #    - 'spec/controllers/hyrax/monographs_controller_spec.rb'
