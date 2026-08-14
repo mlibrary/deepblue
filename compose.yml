@@ -12,7 +12,7 @@ services:
 #    tty: true
 #    user: root
 #    env_file:
-#      - .dassie/.env
+#      - .env
 #    environment:
 #      - RAILS_ROOT=/app/samvera/hyrax-webapp
 #      - HYRAX_FLEXIBLE=false
@@ -49,7 +49,7 @@ services:
 #    command: sh -c 'bundle exec sidekiq'
 #    user: root
 #    env_file:
-#      - .dassie/.env
+#      - .env
 #    depends_on:
 #      - fcrepo
 #      - fits
@@ -130,7 +130,7 @@ services:
   redis:
     image: bitnamilegacy/redis:6.2
     env_file:
-      - .dassie/.env
+      - .env
     volumes:
       - redis:/bitnamilegacy/redis/data
     networks:
@@ -139,7 +139,7 @@ services:
   solr:
     image: solr:9.9
     env_file:
-      - .dassie/.env
+      - .env
     ports:
       - 8983:8983
     command:

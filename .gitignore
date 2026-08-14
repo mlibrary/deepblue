@@ -9,6 +9,9 @@
 #   which is located outside of the repository.
 .agents
 
+# Environment Variables
+.env
+
 # Ignore bundler config.
 /.bundle
 /.idea
