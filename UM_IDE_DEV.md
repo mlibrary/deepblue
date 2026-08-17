@@ -12,6 +12,11 @@ against the containerized stack, wrote a `DataSet` to Fedora, read it back,
 confirmed it indexed in Solr, and eradicated it. §2 documents what had to
 change to get there, and why.
 
+**Setup is `docker compose up -d` and nothing else.** `compose.yml` is committed
+and self-contained — no override file, no `.env`, and no
+`config/settings/development.local.yml`, because the committed defaults already
+match the ports it publishes (§3.2).
+
 ---
 
 ## 1. Architecture
@@ -24,12 +29,12 @@ change to get there, and why.
                       │ 127.0.0.1 published ports
   ┌───────────────────┴───────── docker compose ──┐
   │  solr :8983   fcrepo :8984   redis :6379      │
-  │  fits :<dyn>  (chrome, memcached optional)    │
+  │  fits :8081   (chrome, memcached optional)    │
   └───────────────────────────────────────────────┘
 ```
 
-The app keeps using **sqlite3** at `db/development.sqlite3`. The `postgres`
-service stays down — see §2.
+The app keeps using **sqlite3** at `db/development.sqlite3`. There is no
+`postgres` service — it was removed, not just left stopped (§2.6).
 
 Because Rails runs on the host, every service you need must publish a port to
 `127.0.0.1`. Container-to-container DNS names (`solr`, `fcrepo`, `redis`) are
@@ -37,18 +42,25 @@ unreachable from the host, which is the root cause of most items in §2.
 
 ---
 
-## 2. Why `compose.yml` Needs an Override
+## 2. What Was Changed in `compose.yml`, and Why
 
 `compose.yml`, `Dockerfile`, `.env`, and `docker.env` were imported verbatim
 from upstream **Hyrax 5.3's `dassie` test app** (commits `9ab6ecf3`,
-`d56eb509`). That app is not this app. Used as-is, the stack does not work.
+`d56eb509`) as a *starting point*. That app is not this app, and used as-is the
+stack does not work.
 
-Each item below is confirmed, not theoretical.
+`compose.yml` has since been **edited in place** to describe this app.
+`.env`, `docker.env`, and `Dockerfile` were **deleted** — see §2.5 and §2.6 for
+why none of them was salvageable. There is no `compose.override.yml`; the one
+committed file is the whole configuration.
+
+This section is the rationale for each edit, kept because the reasoning is not
+recoverable from the file and every item was confirmed by running it.
 
 ### 2.1 Solr 9.9 cannot load this app's schema — hard failure
 
-`compose.yml` pins `solr:9.9`. The app's `solr/config/schema.xml` uses
-`solr.LatLonType`, removed in Solr 9:
+Upstream pinned `solr:9.9`; it is now `solr:8.11`. The app's
+`solr/config/schema.xml` uses `solr.LatLonType`, removed in Solr 9:
 
 ```
 Could not load conf for core testcore: Can't load schema schema.xml:
@@ -60,23 +72,24 @@ The schema also uses `solr.Trie*` field types (deprecated in 7, removed in 9)
 and declares `<luceneMatchVersion>5.0.0</luceneMatchVersion>`.
 
 Tested: **Solr 8.11 loads this config cleanly** — `"initFailures":{}`, core
-queryable, HTTP 200. Solr 8.11 is the override's choice, because it needs no
+queryable, HTTP 200. `compose.yml` therefore pins 8.11, because it needs no
 code or config change at all.
 
 That said, the Solr 9 fix turned out to be much smaller than expected — a
 45-line patch to `schema.xml` and nothing else. See §10 for the verified
 migration, including the one way it can fail silently.
 
-### 2.2 Solr cores are the wrong names, from an empty directory
+### 2.2 Solr cores were the wrong names, from an empty directory
 
-`compose.yml` precreates `hyrax`, `hyrax_test`, `hyrax-valkyrie-dev`,
+Upstream precreated `hyrax`, `hyrax_test`, `hyrax-valkyrie-dev`,
 `hyrax-valkyrie-test` from `.dassie/solr`. But:
 
 - The app wants **`deepbluedata-dev`** (`config/settings/development.yml`).
 - `.dassie/solr/` **is empty** — the real config is in `solr/config/`.
-- `.dassie/` is untracked; only `docker.env`, `compose.yml`, `Dockerfile` are committed.
+  (`solr/conf/` is an unused Blacklight leftover; don't mount it.)
+- `.dassie/` is untracked, so it never existed here in the first place.
 
-Running `compose.yml` unmodified, every core fails:
+Run unmodified, every core failed:
 
 ```
 "initFailures":{
@@ -86,54 +99,67 @@ Running `compose.yml` unmodified, every core fails:
 ```
 
 The `hyrax-valkyrie-*` cores are meaningless here anyway — this app is
-ActiveFedora, not Valkyrie.
+ActiveFedora, not Valkyrie. Now: one core, `deepbluedata-dev`, from
+`./solr/config`.
 
-### 2.3 Redis publishes no host port, and requires a password
+Also note `SOLR_MODULES=analysis-extras,extraction` is **required**, not
+optional: `schema.xml` uses `solr.ICUTokenizerFactory` and
+`solr.ICUFoldingFilterFactory` in its `string` and `text_en` types.
 
-The `redis` service declares no `ports:`, so the host cannot reach it at all
-(`Errno::ECONNREFUSED`). It also inherits `REDIS_PASSWORD=sidekickin` from
-`.env`, so it demands auth:
+### 2.3 Redis published no host port, and demanded a password
+
+The upstream `redis` service declared no `ports:`, so the host could not reach
+it at all (`Errno::ECONNREFUSED`). It also inherited `REDIS_PASSWORD=sidekickin`
+from `.env`, so it demanded auth:
 
 ```
 $ redis-cli ping
 NOAUTH Authentication required.
-$ redis-cli -a sidekickin ping
-PONG
 ```
 
 The app passes `Settings.redis.to_h` straight into `Redis.new`
-(`config/initializers/redis_config.rb`), and `config/settings.yml` sets no
-password. Two things must change: publish 6379, and give the app the
-password.
+(`config/initializers/redis_config.rb`), and `config/settings.yml` sets **no**
+password — so the password was pure friction, existing only because `.env` set
+it.
 
-> Beware: `env_file: [.env]` on the redis service is load-bearing. Removing it
-> to drop the password makes the Bitnami image **refuse to start** —
-> `The REDIS_PASSWORD environment variable is empty or not set` — unless you
-> also set `ALLOW_EMPTY_PASSWORD=yes`. Keep the password; configure the app.
+With `.env` deleted, the fix is `ALLOW_EMPTY_PASSWORD=yes` rather than
+re-introducing the password. The Bitnami image refuses to start with an unset
+password otherwise (`The REDIS_PASSWORD environment variable is empty or not
+set`). Verified: `redis-cli ping` → `PONG`, no credentials, and the app connects
+on `config/settings.yml` defaults alone.
 
-### 2.4 Fedora is on the wrong port with the wrong REST path
+**This is what removes the need for a settings override entirely** — see §3.2.
 
-`compose.yml` maps `8080:8080`; the app expects **8984**
-(`config/settings/development.yml`). Probing `ghcr.io/samvera/fcrepo4:4.7.5`:
+While confirming this, one more upstream bug surfaced: the volume was mounted at
+`/bitnamilegacy/redis/data`, **a path that does not exist in the image**, so it
+persisted nothing. It is now `/bitnami/redis/data`, verified by writing a key,
+restarting the service, and reading it back.
+
+### 2.4 Fedora was on the wrong port (the REST path was already right)
+
+Upstream mapped `8080:8080`; the app expects **8984**
+(`config/settings/development.yml`), so it is now `8984:8080`. Probing
+`ghcr.io/samvera/fcrepo4:4.7.5`:
 
 ```
 /rest         => 200
 /fedora/rest  => 404
 ```
 
-So `/rest` is correct — matching `Settings.fedora.url`. But `.env` sets
+So `/rest` is correct — matching `Settings.fedora.url`. (Upstream `.env` set
 `VALKYRIE_FCREPO_URL=...@fedora6:8080/fcrepo/rest`, a Fedora 6 path for a
-service that isn't in this compose file. Ignore it.
+service that was never in this compose file — one of several reasons the file
+was deleted rather than adapted.)
 
 Note the image needs **~40 s** to boot. Don't conclude it's broken at 10 s.
 
-### 2.5 `.env` actively breaks the app — do not load it
+### 2.5 Why `.env` and `docker.env` were deleted, not adapted
 
-`.env` and `docker.env` are byte-identical (verified) and describe dassie:
+Both files were byte-identical (verified) and described dassie:
 `BUNDLE_GEMFILE=Gemfile.dassie` (no such file), `RAILS_ROOT=.dassie`,
 `APP_NAME=dassie`, Sidekiq settings for an app that uses Resque.
 
-The sharpest edge is `DATABASE_URL=postgresql://...`, which always overrides
+The sharpest edge was `DATABASE_URL=postgresql://...`, which always overrides
 `database.yml`. With the `pg` gem absent from the bundle (`Gemfile:159` has it
 commented out), Rails won't boot:
 
@@ -142,99 +168,110 @@ Error loading the 'postgresql' Active Record adapter.
 pg is not part of the bundle. Add it to your Gemfile.
 ```
 
-**Never source `.env` into your Rails run configuration.** Compose may use it
-for the service containers; the app must not.
+Nothing in these files was correct for this app, so there was nothing to keep.
+The two values compose actually needed are now inline in `compose.yml`
+(`SOLR_MODULES`, `ALLOW_EMPTY_PASSWORD`).
 
-### 2.6 Services you don't need
+If you ever reintroduce a `.env`, note it is loaded by compose *and* — via
+RubyMine's EnvFile plugin — potentially by Rails, which is how `DATABASE_URL`
+becomes a boot failure. `.env` is gitignored (`.gitignore:13`), so it would also
+be invisible to the next developer.
+
+### 2.5.1 `Dockerfile` was deleted
+
+Its `hyrax-engine-dev` stage could not build as written: it expects
+`Gemfile.dassie`, `.dassie`, and `.koppie`, none of which exist here. The only
+consumers were the commented-out `web`/`worker` services, so deleting it broke
+nothing — verified, `docker compose config` parses and the stack comes up.
+
+It is recoverable from git history (`9ab6ecf3`) if a containerized worker is
+ever pursued (§6, option C).
+
+### 2.6 Services that were removed or made optional
 
 | Service | Verdict |
 |---|---|
-| `postgres` | **Skip.** App is sqlite3; `pg` gem not bundled. |
-| `web` / `worker` | Already commented out — intentional; Rails runs in the IDE. |
-| `memcached` | Optional. `dalli` is bundled, but dev caching is `:null_store` unless `tmp/caching-dev.txt` exists. |
-| `chrome` | Optional. Specs use local Chrome (`spec/spec_helper.rb:477`); nothing reads `HUB_URL`. |
-| `fits` | **Useful** — see §5. Needs a code change to be reached. |
+| `postgres` | **Removed.** App is sqlite3; `pg` gem not bundled. |
+| `web` / `worker` | **Removed.** Rails runs in the IDE; `worker` ran Sidekiq, and this app uses Resque (§6). |
+| `memcached` | **Optional** (`profiles: ["optional"]`). `dalli` is bundled, but dev caching is `:null_store` unless `tmp/caching-dev.txt` exists. |
+| `chrome` | **Optional** (`profiles: ["optional"]`). Specs use local Chrome (`spec/spec_helper.rb:477`); nothing reads `HUB_URL`. |
+| `fits` | **Kept and published on 8081** — see §5. Still needs a code change to be reached. |
+
+Deleting the definitions outright — rather than keeping them behind an "unused"
+profile — is deliberate: they encoded dassie's architecture, and a stale
+Sidekiq worker in the file is a trap for the next developer. Git history has
+them if needed.
+
+The `optional` profile means a bare `docker compose up -d` starts exactly the
+four services this setup needs, and nothing else.
 
 ---
 
 ## 3. Setup
 
-### 3.1 Add the override file
+### 3.1 No setup files required
 
-Compose merges `compose.override.yml` automatically. Create it at the repo
-root — this is the exact configuration verified working:
+`compose.yml` is committed and self-contained. There is **no**
+`compose.override.yml` and **no** `.env` — clone, then `docker compose up -d`.
 
-```yaml
-# compose.override.yml — adapts upstream dassie compose.yml to DeepBlue
-services:
-  solr:
-    # 8.11, not 9.x: schema.xml uses solr.LatLonType, removed in Solr 9
-    image: solr:8.11
-    env_file: !reset []          # .env's dassie vars are wrong for this app
-    environment:
-      - SOLR_MODULES=analysis-extras,extraction
-    ports:
-      - "8983:8983"
-    command:
-      - sh
-      - "-c"
-      - "solr-precreate deepbluedata-dev /opt/solr/server/configsets/dbdconf"
-    volumes:
-      - solr_home:/var/solr:cached
-      - ./solr/config:/opt/solr/server/configsets/dbdconf:ro
+This is a deliberate departure from the usual compose idiom of
+"upstream file + local override." An override only earns its keep when the base
+file must stay pristine for upstream merges; here the base file *was* the
+problem, so it was edited directly and the upstream version left in git history.
+One file, no merge semantics, nothing hidden in a gitignored `.env`.
 
-  fcrepo:
-    ports: !override
-      - "8984:8080"              # app expects 8984
-
-  redis:
-    ports:
-      - "6379:6379"              # upstream publishes nothing
-    # keep env_file: .env — Bitnami image needs REDIS_PASSWORD set
-
-  postgres:
-    profiles: ["unused"]         # app is sqlite3; pg gem not bundled
-```
-
-`!reset` and `!override` need Compose v2.24+. You have v5.4.0.
-
-The `profiles: ["unused"]` line keeps `postgres` from starting with a bare
-`docker compose up`, without deleting the definition.
+If you do need machine-local changes (a different port, an extra service),
+compose still merges `compose.override.yml` automatically — but nothing in the
+standard setup requires it. Note it is **not** currently gitignored, so add it
+to `.gitignore` before creating one you don't intend to share.
 
 ### 3.2 Point the app at the containers
 
-Fedora and Redis have **no full-URL environment override** (see UM_DEV.md §7),
-so this must go in a settings file. Create
-`config/settings/development.local.yml` — gitignored, per
-`.gitignore:86`:
+**Nothing to do — the committed defaults already match.** Verified with no
+`config/settings/development.local.yml` present at all:
 
-```yaml
-# Docker Compose services published on localhost.
-fedora:
-  url: http://127.0.0.1:8984/rest
-  base_path: /deepbluedata-dev
-
-solr:
-  url: http://127.0.0.1:8983/solr/deepbluedata-dev
-
-redis:
-  host: 127.0.0.1
-  port: 6379
-  password: sidekickin      # matches REDIS_PASSWORD in .env
-  thread_safe: true
+```
+SOLR   = http://127.0.0.1:8983/solr/deepbluedata-dev/
+FEDORA = http://127.0.0.1:8984/rest/deepbluedata-dev
+REDIS  = PONG
 ```
 
-This is the whole integration. Note it deliberately leaves the database
-alone — sqlite3 at `db/development.sqlite3` continues to work, and your
-existing local data is preserved.
+`config/settings/development.yml` already points at `127.0.0.1:8984/rest` and
+`127.0.0.1:8983/solr/deepbluedata-dev`, and `config/settings.yml` gives redis
+`localhost:6379` with no password. `compose.yml` was written to match those
+ports, rather than adding a settings file to paper over a mismatch.
 
-Switching back to native services is then just `mv` on this one file.
+This is why §2.3 dropped the Redis password instead of configuring the app
+around it: the password was the *only* thing that still required an override
+file. Removing it made the override unnecessary, so a developer's port-mapping
+config and their app config can no longer drift apart.
+
+The database is untouched: sqlite3 at `db/development.sqlite3` keeps working and
+your existing local data is preserved.
+
+Two consequences worth knowing:
+
+- **Switching back to native services** is now `docker compose stop` plus
+  starting your local Solr/Fedora on the same ports — no file to move.
+- **Running both at once** (containers *and* native services) will collide on
+  8983/8984. Use the env hooks rather than editing settings:
+  `SOLR_DEV_PORT` and `FCREPO_DEVELOPMENT_PORT` are already interpolated into
+  `development.yml`, so `SOLR_DEV_PORT=8993 bundle exec rails s` repoints the app
+  with no file changes. (That hook is exactly how the Solr 9 testing in §10 was
+  done.)
 
 ### 3.3 Start the services
 
 ```zsh
-docker compose up -d solr fcrepo redis fits
+docker compose up -d        # solr, fcrepo, redis, fits
 docker compose ps
+```
+
+The `optional` profile keeps `chrome` and `memcached` out of a bare `up`; add
+them explicitly if you need them:
+
+```zsh
+docker compose up -d chrome memcached
 ```
 
 Solr needs ~30 s, Fedora ~40 s. Wait on readiness rather than guessing:
@@ -252,10 +289,12 @@ echo "services ready"
 curl -s "http://127.0.0.1:8983/solr/admin/cores?action=STATUS" | grep -o '"initFailures":{[^}]*}'
 curl -s -o /dev/null -w "solr:   %{http_code}\n" "http://127.0.0.1:8983/solr/deepbluedata-dev/select?q=*:*"
 curl -s -o /dev/null -w "fcrepo: %{http_code}\n" http://127.0.0.1:8984/rest
-docker compose exec redis redis-cli -a sidekickin ping
+docker compose exec redis redis-cli ping
+curl -s http://127.0.0.1:8081/fits/version; echo
 ```
 
-Expect `"initFailures":{}`, `200`, `200`, `PONG`.
+Expect `"initFailures":{}`, `200`, `200`, `PONG`, `1.6.0`. Note `redis-cli`
+needs **no** `-a` flag now (§2.3).
 
 Then confirm the app agrees:
 
@@ -270,6 +309,10 @@ SOLR=http://127.0.0.1:8983/solr/deepbluedata-dev/
 FEDORA=http://127.0.0.1:8984/rest/deepbluedata-dev
 REDIS=PONG
 ```
+
+A full write/read round-trip was also verified against this stack — Solr
+`add`/`query`/`delete`, and an `ActiveFedora::Base` `save!` / `exists?` /
+`delete`.
 
 ### 3.5 Bootstrap a fresh repository
 
@@ -300,7 +343,7 @@ environment.
 | Ruby SDK | 3.3.10 (host interpreter — *not* a Docker interpreter) |
 | Environment | `RAILS_ENV=development` |
 | Port | 3000 |
-| **EnvFile plugin** | **leave disabled — do not load `.env`** (§2.5) |
+| **EnvFile plugin** | **leave disabled.** `.env` is gone (§2.5); don't recreate one for Rails. |
 
 Keep this a **local** interpreter. Do not switch RubyMine to a Docker Compose
 remote interpreter: that would put the app back in a container, requiring path
@@ -353,14 +396,10 @@ $ curl -F "datafile=@README.md" http://127.0.0.1:<port>/fits/examine
 
 So there are two honest options:
 
-**A. Publish a stable FITS port and pass the tool through (needs a change).**
-In the override:
-
-```yaml
-  fits:
-    ports: !override
-      - "8081:8080"
-```
+**A. Pass the tool through (needs a one-line app change).**
+`compose.yml` already publishes FITS on a stable **8081** (upstream left it
+ephemeral), so the container side is done — verified
+`curl http://127.0.0.1:8081/fits/version` → `1.6.0`.
 
 Set `FITS_SERVLET_URL=http://127.0.0.1:8081/fits` in the run configuration,
 then change `ingest_helper.rb:89` to:
@@ -375,9 +414,6 @@ committing — it alters production behavior too.
 **B. Accept no characterization in dev.** Ingest still completes;
 `IngestHelper.characterize` rescues and logs the failure. Fine unless you are
 working on characterization or FITS metadata.
-
-Without publishing a fixed port, `fits` gets an ephemeral one — find it with
-`docker compose port fits 8080`.
 
 ### Derivatives are still host-limited
 
@@ -434,9 +470,10 @@ QUEUE=* bundle exec rake resque:work
 bundle exec resque-pool --daemon --environment development
 ```
 
-Both read the same `development.local.yml`, so they reach the containerized
-Redis automatically. The worker can be debugged in RubyMine as a second
-configuration. Resque web UI: `/data/resque`.
+Both read the same `config/settings.yml` redis defaults, so they reach the
+containerized Redis automatically — no extra configuration, and no password
+(§2.3). The worker can be debugged in RubyMine as a second configuration.
+Resque web UI: `/data/resque`.
 
 Note the upstream `-dev.rb` comment about the adapter being buggy in dev — if
 you hit odd behavior with option B, that warning is why, and option A is the
@@ -473,10 +510,13 @@ on the host:
 ```
 
 You could point tests at containers by adding a `config/settings/test.local.yml`
-plus test cores in the override, and invoking `rspec` directly instead of
+plus a test core in `compose.yml`, and invoking `rspec` directly instead of
 `rake ci` — but `rake ci`'s wrapper lifecycle is what CI uses, so diverging
 here risks passing locally and failing in CI. Keeping tests on the wrappers is
 the lower-risk choice.
+
+Note the ports don't collide: the wrappers use 8985/8986, the containers
+8983/8984, so `rake ci` works with the stack running.
 
 Single specs run fine either way:
 
@@ -506,37 +546,54 @@ Fedora no longer has. After a `-v`, redo §3.5.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `initFailures` mentions `LatLonType` | Solr 9.x | override to `solr:8.11` (§2.1), or patch the schema (§10) |
+| `env file .env not found` | a service still has `env_file: .env` | remove it; `.env` was deleted (§2.5) |
+| `initFailures` mentions `LatLonType` | using `solr:9.x` | stay on `solr:8.11` (§2.1), or patch the schema (§10) |
 | Numeric/date filters return 0 hits, docs otherwise look fine | Point-field schema over a Trie-written index | reindex (§10.4) |
-| `initFailures` for `hyrax*` cores | precreating from empty `.dassie/solr` | override `command` + volume (§2.2) |
-| `NOAUTH Authentication required` | Redis password | add `password: sidekickin` (§3.2) |
-| `ECONNREFUSED` on 6379 | Redis publishes no port | add `ports:` (§2.3) |
-| `pg is not part of the bundle` | `.env` loaded into Rails | don't load `.env` (§2.5) |
+| `initFailures` for `hyrax*` cores | precreating from empty `.dassie/solr` | should not recur — `compose.yml` now precreates one core from `./solr/config` (§2.2) |
+| `NOAUTH Authentication required` | a password crept back into the redis service | drop it; use `ALLOW_EMPTY_PASSWORD=yes` (§2.3) |
+| `ECONNREFUSED` on 6379 | redis `ports:` missing | should not recur (§2.3) |
+| Redis forgets everything on restart | volume at the nonexistent `/bitnamilegacy/...` | use `/bitnami/redis/data` (§2.3) |
+| `pg is not part of the bundle` | a `.env` with `DATABASE_URL` is being loaded into Rails | don't recreate `.env`; keep EnvFile disabled (§2.5) |
 | Fedora 404 on `/fedora/rest` | wrong path | use `/rest` (§2.4) |
 | Fedora connection refused early | still booting (~40 s) | wait, don't debug |
 | `error, no fits.sh` at boot | no local FITS | §5 |
+| Port 8983/8984 already in use | native Solr/Fedora also running | stop one, or repoint via `SOLR_DEV_PORT` / `FCREPO_DEVELOPMENT_PORT` (§3.2) |
 | Objects vanished | ran `down -v` | §3.5 |
 
 ---
 
-## 9. Recommended Follow-Ups
+## 9. Follow-Ups
 
-Not required for this setup, but each removes a documented sharp edge:
+### Done
 
-1. **Commit `compose.override.yml`** so the team shares one working config.
-2. **Delete or rename `.env` / `docker.env`.** They are dassie's, identical to
-   each other, and actively break Rails if loaded. Committed `docker.env` is a
-   trap for the next developer.
-3. **Prune `compose.yml`** — drop the `hyrax-valkyrie-*` cores and the
-   Sidekiq `worker` block, neither of which applies to this app.
-4. **Decide on `ch12n_tool: :fits_servlet`** (§5) so characterization works
-   in dev.
-5. **Do the Solr 9 schema migration** — Solr 8.11 is already EOL, and the
-   change is a 45-line `schema.xml` patch that also still works on 8.11, so it
-   can land before the image bump. Fully specified and verified in §10.
-6. **Reconsider `Dockerfile`.** Its `hyrax-engine-dev` stage cannot build as
-   written (`.koppie` is absent, `Gemfile.dassie` doesn't exist). It is
-   currently dead weight; fix it or remove it.
+1. ~~Commit `compose.override.yml`~~ — instead, `compose.yml` was **edited
+   directly** and committed. The upstream dassie version is in git history
+   (`9ab6ecf3`); §2 records what changed and why. No override file exists.
+2. ~~Delete `.env` / `docker.env`~~ — **deleted.** Both were byte-identical
+   dassie config, and `DATABASE_URL` alone stopped Rails booting (§2.5). The two
+   variables compose genuinely needed are now inline.
+3. ~~Prune `compose.yml`~~ — **done.** `postgres`, `web`, and the Sidekiq
+   `worker` are gone; the dassie/valkyrie cores are replaced by a single
+   `deepbluedata-dev` from `./solr/config`; `chrome` and `memcached` moved
+   behind an `optional` profile.
+4. ~~Reconsider `Dockerfile`~~ — **deleted** (§2.5.1). Its only consumers were
+   the removed `web`/`worker` services, and it could not build as written.
+
+Two upstream bugs were fixed along the way that were not in the original list:
+the redis volume pointed at a path absent from the image (persisting nothing),
+and FITS had no stable published port.
+
+### Still open
+
+1. **Decide on `ch12n_tool: :fits_servlet`** (§5) so characterization works in
+   dev. The container side is ready on 8081; this is a one-line app change that
+   affects production too, so it needs a team decision.
+2. **Do the Solr 9 schema migration** — Solr 8.11 is already EOL, and the change
+   is a 45-line `schema.xml` patch that also still works on 8.11, so it can land
+   before the image bump. Fully specified and verified in §10. Requires a full
+   reindex (§10.4).
+3. **Consider gitignoring `compose.override.yml`** if developers start keeping
+   machine-local variations; it is currently not ignored (§3.1).
 
 ---
 
@@ -594,7 +651,7 @@ These were the expected problems that turned out to be non-issues:
   ```
 
   Harmless here, because `SOLR_MODULES=analysis-extras,extraction` (already in
-  the override) provides both. Confirmed not by the absence of errors but by
+  `compose.yml`) provides both. Confirmed not by the absence of errors but by
   checking ICU actually works — the `string` and `text_en` types both use
   `ICUTokenizerFactory`/`ICUFoldingFilterFactory`, and folding is live:
 
@@ -691,7 +748,7 @@ curl -s "http://127.0.0.1:8993/solr/admin/cores?action=STATUS" | grep -o '"initF
    `solrconfig.xml` and `luceneMatchVersion` untouched.
 2. Commit and reindex **while still on 8.11** (§10.3) — this proves the patch
    and the reindex independently of the version bump.
-3. Bump the override to `solr:9.9`, recreate the core, reindex again (the
+3. Bump `compose.yml` to `solr:9.9`, recreate the core, reindex again (the
    volume is new).
 4. Spot-check what silent failure would hit first: a numeric/date range facet,
    a date sort, and a geospatial search if used.

@@ -1,86 +1,105 @@
-services:
-#  web:
-#    build:
-#      context: .
-#      target: hyrax-engine-dev
-#      args:
-#        - EXTRA_APK_PACKAGES=git less
-#        - BUNDLE_GEMFILE=Gemfile.dassie
-#    image: ghcr.io/samvera/hyrax-dev:${GITHUB_SHA:-latest}
-#    command: sh -c 'bundle exec puma -v -b tcp://0.0.0.0:3000'
-#    stdin_open: true
-#    tty: true
-#    user: root
-#    env_file:
-#      - .env
-#    environment:
-#      - RAILS_ROOT=/app/samvera/hyrax-webapp
-#      - HYRAX_FLEXIBLE=false
-#      - HYRAX_FLEXIBLE_CLASSES=
-#      - HYRAX_DISABLE_INCLUDE_METADATA=false
-#    depends_on:
-#      - worker
-#      - chrome
-#      - fcrepo
-#      - fits
-#      - memcached
-#      - postgres
-#      - redis
-#      - solr
-#    ports:
-#      - 3000:3000
-#      - 9876:9876
-#    volumes:
-#      - ./bin:/app/samvera
-#      - .dassie:/app/samvera/hyrax-webapp
-#      - .:/app/samvera/hyrax-engine
-#      - bundle:/app/bundle
-#      - clamav:/var/lib/clamav
-#      - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
-#      - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
-#      - rails-public:/app/samvera/hyrax-webapp/public
-#      - rails-tmp:/app/samvera/hyrax-webapp/tmp
-#    networks:
-#      - hyrax
+# Docker Compose backing services for DeepBlue development.
 #
-#  worker:
-#    image: ghcr.io/samvera/hyrax-dev:${GITHUB_SHA:-latest}
-#    entrypoint: worker-entrypoint.sh
-#    command: sh -c 'bundle exec sidekiq'
-#    user: root
-#    env_file:
-#      - .env
-#    depends_on:
-#      - fcrepo
-#      - fits
-#      - memcached
-#      - postgres
-#      - redis
-#      - solr
-#    volumes:
-#      - ./bin:/app/samvera
-#      - .dassie:/app/samvera/hyrax-webapp
-#      - .:/app/samvera/hyrax-engine
-#      - bundle:/app/bundle
-#      - clamav:/var/lib/clamav
-#      - hyrax-derivatives:/app/samvera/hyrax-webapp/derivatives
-#      - hyrax-uploads:/app/samvera/hyrax-webapp/uploads
-#      - rails-public:/app/samvera/hyrax-webapp/public
-#      - rails-tmp:/app/samvera/hyrax-webapp/tmp
-#    networks:
-#      - hyrax
+# Rails runs on the HOST (RubyMine debugger); only backing services run here.
+# See UM_IDE_DEV.md. Every service therefore publishes to 127.0.0.1 — the
+# container DNS names (solr, fcrepo, redis) are unreachable from the host.
+#
+# Derived from upstream Hyrax 5.3's dassie test app, then adapted: dassie's
+# core names, Sidekiq worker, Postgres, and .env were all wrong for this app.
+#
+# Usage:
+#   docker compose up -d          # solr, fcrepo, redis, fits
+#   docker compose up -d chrome memcached   # optional extras
+services:
+  solr:
+    # 8.11, not 9.x: schema.xml uses solr.LatLonType and solr.Trie* field
+    # types, both removed in Solr 9. See UM_IDE_DEV.md §2.1; §10 has the
+    # verified migration that makes solr:9.9 viable.
+    image: solr:8.11
+    environment:
+      # Supplies ICU analysis (used by the string and text_en field types)
+      # and the extraction handler. Required — schema.xml references
+      # solr.ICUTokenizerFactory / solr.ICUFoldingFilterFactory.
+      - SOLR_MODULES=analysis-extras,extraction
+    ports:
+      - "8983:8983"
+    command:
+      - sh
+      - "-c"
+      - "solr-precreate deepbluedata-dev /opt/solr/server/configsets/dbdconf"
+    volumes:
+      - solr_home:/var/solr:cached
+      # The real config lives in solr/config (solr/conf is an unused
+      # Blacklight leftover). Upstream mounted the empty .dassie/solr.
+      - ./solr/config:/opt/solr/server/configsets/dbdconf:ro
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 524288
+    networks:
+      - hyrax
+
+  fcrepo:
+    image: ghcr.io/samvera/fcrepo4:4.7.5
+    ports:
+      # 8984 on the host: Settings.fedora.url expects it (REST path is /rest).
+      - "8984:8080"
+    volumes:
+      - fcrepo:/data:cached
+    networks:
+      - hyrax
+
+  redis:
+    image: bitnamilegacy/redis:6.2
+    environment:
+      # No password: config/settings.yml sets none, and the app passes
+      # Settings.redis.to_h straight into Redis.new. The image refuses to
+      # start with an unset password unless this is explicitly allowed.
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      # Upstream published nothing, so the host got ECONNREFUSED.
+      - "6379:6379"
+    volumes:
+      # Upstream used /bitnamilegacy/redis/data, which does not exist in this
+      # image — that volume persisted nothing.
+      - redis:/bitnami/redis/data
+    networks:
+      - hyrax
+
+  fits:
+    # Works, but the app won't use it without a code change: IngestHelper
+    # calls CharacterizationService.run with no :ch12n_tool. See §5.
+    image: ghcr.io/samvera/fitsservlet:1.6.0
+    ports:
+      - "8081:8080"
+    networks:
+      - hyrax
+
+  # ---------------------------------------------------------------------
+  # Optional. Not started by a bare `docker compose up` — name them
+  # explicitly: `docker compose up -d chrome memcached`
+  # ---------------------------------------------------------------------
+
+  memcached:
+    profiles: ["optional"]
+    # dalli is bundled, but dev caching is :null_store unless
+    # tmp/caching-dev.txt exists.
+    image: bitnamilegacy/memcached
+    ports:
+      - "11211:11211"
+    networks:
+      - hyrax
 
   chrome:
+    profiles: ["optional"]
+    # Specs use local Chrome (spec/spec_helper.rb:477); nothing reads HUB_URL.
     image: selenium/standalone-chromium:4
     environment:
-      #      - START_XVFB=false
       - SE_NODE_SESSION_TIMEOUT=800
       - SE_ENABLE_TRACING=false
       - SE_ENABLE_BROWSER_LEFTOVERS_CLEANUP=true
       - SE_BROWSER_ARGS_DISABLE_DSHM=--disable-dev-shm-usage
       - SE_BROWSER_ARGS_HEADLESS=--headless=new
-    #    logging:
-    #      driver: none
     volumes:
       - /dev/shm:/dev/shm
     shm_size: 2g
@@ -90,81 +109,16 @@ services:
     networks:
       - hyrax
 
-  postgres:
-    image: postgres:15-alpine
-    environment:
-      - POSTGRES_USER=hyrax_user
-      - POSTGRES_PASSWORD=hyrax_password
-      - POSTGRES_DB=hyrax
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    ports:
-      - "5432:5432"
-    volumes:
-      - db:/var/lib/postgresql/data
-    networks:
-      - hyrax
-
-  fcrepo:
-    image: ghcr.io/samvera/fcrepo4:4.7.5
-    volumes:
-      - fcrepo:/data:cached
-    ports:
-      - 8080:8080
-    networks:
-      - hyrax
-
-  fits:
-    image: ghcr.io/samvera/fitsservlet:1.6.0
-    ports:
-      - 8080
-    networks:
-      - hyrax
-
-  memcached:
-    image: bitnamilegacy/memcached
-    ports:
-      - "11211:11211"
-    networks:
-      - hyrax
-
-  redis:
-    image: bitnamilegacy/redis:6.2
-    env_file:
-      - .env
-    volumes:
-      - redis:/bitnamilegacy/redis/data
-    networks:
-      - hyrax
-
-  solr:
-    image: solr:9.9
-    env_file:
-      - .env
-    ports:
-      - 8983:8983
-    command:
-      - sh
-      - "-c"
-      - "precreate-core hyrax_test /opt/solr/server/configsets/hyraxconf; precreate-core hyrax-valkyrie-test /opt/solr/server/configsets/hyraxconf; precreate-core hyrax-valkyrie-dev /opt/solr/server/configsets/hyraxconf; solr-precreate hyrax /opt/solr/server/configsets/hyraxconf"
-    volumes:
-      - solr_home:/var/solr:cached
-      - .dassie/solr:/opt/solr/server/configsets/hyraxconf
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 524288
-    networks:
-      - hyrax
+# Deliberately absent (all were upstream dassie assumptions):
+#   postgres  - this app is sqlite3; the pg gem is not in the bundle, and
+#               .env's DATABASE_URL would override database.yml and stop
+#               Rails booting.
+#   web       - Rails runs on the host in the IDE.
+#   worker    - ran `bundle exec sidekiq`; this app uses Resque, and dev runs
+#               jobs in-process on the Async adapter. See §6.
 
 volumes:
-  bundle:
-  clamav:
-  db:
   fcrepo:
-  hyrax-derivatives:
-  hyrax-uploads:
-  rails-public:
-  rails-tmp:
   redis:
   solr_home:
 
