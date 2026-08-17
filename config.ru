@@ -13,7 +13,7 @@ end
 # Auto-redirect root URL hits to the app as a development convenience
 if "/" != APP_ROOT
   map "/" do
-    run lambda do |env|
+    redirect_app = lambda do |env|
       req = Rack::Request.new(env)
       res = Rack::Response.new
       if /^\/*$/.match?(req.path)
@@ -24,5 +24,6 @@ if "/" != APP_ROOT
       end
       res.finish
     end
+    run redirect_app
   end
 end
