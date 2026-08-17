@@ -60,8 +60,12 @@ The schema also uses `solr.Trie*` field types (deprecated in 7, removed in 9)
 and declares `<luceneMatchVersion>5.0.0</luceneMatchVersion>`.
 
 Tested: **Solr 8.11 loads this config cleanly** — `"initFailures":{}`, core
-queryable, HTTP 200. Solr 8.11 is the override's choice. Migrating the schema
-to Solr 9 is a separate project, not a prerequisite for this setup.
+queryable, HTTP 200. Solr 8.11 is the override's choice, because it needs no
+code or config change at all.
+
+That said, the Solr 9 fix turned out to be much smaller than expected — a
+45-line patch to `schema.xml` and nothing else. See §10 for the verified
+migration, including the one way it can fail silently.
 
 ### 2.2 Solr cores are the wrong names, from an empty directory
 
@@ -502,7 +506,8 @@ Fedora no longer has. After a `-v`, redo §3.5.
 
 | Symptom | Cause | Fix |
 |---|---|---|
-| `initFailures` mentions `LatLonType` | Solr 9.x | override to `solr:8.11` (§2.1) |
+| `initFailures` mentions `LatLonType` | Solr 9.x | override to `solr:8.11` (§2.1), or patch the schema (§10) |
+| Numeric/date filters return 0 hits, docs otherwise look fine | Point-field schema over a Trie-written index | reindex (§10.4) |
 | `initFailures` for `hyrax*` cores | precreating from empty `.dassie/solr` | override `command` + volume (§2.2) |
 | `NOAUTH Authentication required` | Redis password | add `password: sidekickin` (§3.2) |
 | `ECONNREFUSED` on 6379 | Redis publishes no port | add `ports:` (§2.3) |
@@ -526,9 +531,169 @@ Not required for this setup, but each removes a documented sharp edge:
    Sidekiq `worker` block, neither of which applies to this app.
 4. **Decide on `ch12n_tool: :fits_servlet`** (§5) so characterization works
    in dev.
-5. **Track the Solr 9 schema migration separately** — `LatLonType` and
-   `Trie*` field types will have to be replaced eventually; Solr 8.11 is
-   already EOL.
+5. **Do the Solr 9 schema migration** — Solr 8.11 is already EOL, and the
+   change is a 45-line `schema.xml` patch that also still works on 8.11, so it
+   can land before the image bump. Fully specified and verified in §10.
 6. **Reconsider `Dockerfile`.** Its `hyrax-engine-dev` stage cannot build as
    written (`.koppie` is absent, `Gemfile.dassie` doesn't exist). It is
    currently dead weight; fix it or remove it.
+
+---
+
+## 10. Solr 9 Migration (Verified)
+
+§2.1 explains why the stack pins 8.11. This section is the follow-through: the
+actual Solr 9 incompatibilities, found by running `solr:9.9` against this app's
+config and fixing errors one at a time rather than auditing the schema by eye.
+
+**Result: the only file that needs changing is `solr/config/schema.xml`, in a
+45-line patch confined to field-type declarations.**
+
+Note `solr/conf/` is a Blacklight leftover and is not used — only
+`solr/config/` is mounted as the configset.
+
+### 10.1 What actually had to change
+
+| Original | Solr 9 replacement |
+|---|---|
+| `solr.TrieIntField` | `solr.IntPointField` |
+| `solr.TrieFloatField` | `solr.FloatPointField` |
+| `solr.TrieLongField` | `solr.LongPointField` |
+| `solr.TrieDoubleField` | `solr.DoublePointField` |
+| `solr.TrieDateField` | `solr.DatePointField` |
+| `solr.LatLonType` | `solr.LatLonPointSpatialField` |
+
+Add `docValues="true"`; drop `precisionStep` (meaningless for Point fields) and
+`subFieldSuffix` (`LatLonPointSpatialField` needs no subfields). The `t*`
+variants (`tint`, `tlong`, `tdate`, …) collapse onto the same Point classes —
+Point fields make the separate "trie for faster ranges" types redundant, so the
+two groups become identical.
+
+The `*_coordinate` dynamic field is now unused by the `location` type, but it
+is harmless and nothing references it.
+
+### 10.2 What did NOT need changing
+
+These were the expected problems that turned out to be non-issues:
+
+- **`solrconfig.xml`: no changes at all.**
+- **`<luceneMatchVersion>5.0.0</luceneMatchVersion>` is accepted by Solr 9.9.**
+  It logs `using deprecated 5.0.0 emulation`, but the core loads and queries
+  work. Bumping it is a *separate*, riskier change — it alters analysis
+  behavior and needs its own reindex — so leave it alone in this patch.
+- **`qt=search` still works.** `catalog_controller.rb:72` sets `qt: "search"`,
+  and the handler is declared as `search` (no leading slash), so it is only
+  reachable via the deprecated `handleSelect="true"`. Solr 9.9 logs
+  `handleSelect is deprecated` but still honors it — verified HTTP 200 both
+  directly and through the app's Solr connection.
+- **`<lib/>` directives are disabled in Solr 9**, which logs a scary warning:
+
+  ```
+  Configset references one or more <lib/> directives, but <lib/> usage is
+  disabled on this Solr node.
+  ```
+
+  Harmless here, because `SOLR_MODULES=analysis-extras,extraction` (already in
+  the override) provides both. Confirmed not by the absence of errors but by
+  checking ICU actually works — the `string` and `text_en` types both use
+  `ICUTokenizerFactory`/`ICUFoldingFilterFactory`, and folding is live:
+
+  ```zsh
+  curl -s --get "$SOLR/analysis/field" \
+    --data-urlencode "analysis.fieldtype=text_en" \
+    --data-urlencode "analysis.fieldvalue=Straße café"
+  # => tokens: strasse, cafe
+  ```
+
+- **`/update/extract` returns 400** on a plain `curl` upload — but it returns
+  **the identical 400 on 8.11**, so it is a pre-existing schema gap, not a Solr
+  9 regression. Nothing in the app posts to it.
+
+### 10.3 The patched schema also works on 8.11
+
+Verified: the patched `schema.xml` loads with `"initFailures":{}` and serves
+queries on **both** `solr:8.11` and `solr:9.9`.
+
+This decouples the two changes. The schema patch can be committed, reindexed,
+and validated while still running 8.11, and the image bump becomes a separate
+one-line change that can be reverted independently.
+
+### 10.4 Reindexing is mandatory — and failure is silent
+
+This is the part that will bite anyone who treats the patch as config-only.
+
+Point fields use a different on-disk encoding than Trie fields. Verified by
+writing documents under the Trie schema, swapping in the Point schema, and
+reloading the core:
+
+| Query against Trie-written data, Point schema | Result |
+|---|---|
+| exact match `file_size_ltsi:555` | **0 hits** |
+| range `file_size_ltsi:[1 TO 9999]` | **0 hits** |
+| stored-field retrieval (`fl=file_size_ltsi`) | works, returns `555` |
+
+**No exception, no error, no `initFailures` — just zero results.** Because
+stored fields still read back correctly, documents look intact in the UI while
+numeric and date filtering, sorting, and range facets quietly return nothing.
+
+Rewriting the same documents under the Point schema restored all matches
+immediately. So after applying the patch:
+
+```zsh
+bundle exec rake deepblue:reindex_solr_now
+```
+
+Two testing traps that produce false confidence here:
+
+- **`*_lts` and `*_lls` are `indexed="false"`** — stored-only by design, so
+  they never match a query regardless of Solr version. Test with the indexed
+  suffixes (`*_ltsi`, `*_llsim`) or you will "confirm" behavior that was never
+  queryable.
+- **`solr-precreate` copies the configset** to
+  `/var/solr/data/<core>/schema.xml`. Editing the mounted configset and
+  reloading the core changes nothing — check the live class before trusting a
+  result:
+
+  ```zsh
+  curl -s "$SOLR/schema/fieldtypes/tlong" | grep -o '"class":"[^"]*"'
+  ```
+
+### 10.5 How this was verified
+
+Against `solr:9.9`, with the app pointed at it via `SOLR_DEV_PORT` (which
+`config/settings/development.yml` already interpolates — no file edits, no
+`development.local.yml` needed):
+
+```zsh
+SOLR_DEV_PORT=8993 DISABLE_SPRING=1 bundle exec rails runner '...'
+```
+
+Confirmed through the app's own `ActiveFedora::SolrService`, not just raw curl:
+`add` → `commit` → `query` round-trip on a Hyrax-shaped `DataSet` document;
+sort on `system_create_dtsi`; facet on `visibility_ssi`; numeric range;
+`qt=search`; `delete`. Plus, at the Solr level, `geofilt` against a
+`*_llsim` field and ICU folding as shown above.
+
+To reproduce, mount `solr/config` with the patch applied and precreate the core:
+
+```zsh
+docker run --rm -p 8993:8983 \
+  -e SOLR_MODULES=analysis-extras,extraction \
+  -v "$PWD/solr/config:/opt/solr/server/configsets/dbdconf:ro" \
+  solr:9.9 sh -c "solr-precreate deepbluedata-dev /opt/solr/server/configsets/dbdconf"
+
+curl -s "http://127.0.0.1:8993/solr/admin/cores?action=STATUS" | grep -o '"initFailures":{[^}]*}'
+```
+
+### 10.6 Suggested rollout
+
+1. Apply the field-type patch to `solr/config/schema.xml`; leave
+   `solrconfig.xml` and `luceneMatchVersion` untouched.
+2. Commit and reindex **while still on 8.11** (§10.3) — this proves the patch
+   and the reindex independently of the version bump.
+3. Bump the override to `solr:9.9`, recreate the core, reindex again (the
+   volume is new).
+4. Spot-check what silent failure would hit first: a numeric/date range facet,
+   a date sort, and a geospatial search if used.
+5. Only then consider `luceneMatchVersion`, as its own change with its own
+   reindex.
