@@ -17,6 +17,7 @@ module Aptrust
     attr_accessor :debug_assume_upload_succeeds
     attr_accessor :event_start # TODO (if event hasn't occurred, skip)
     attr_accessor :event_stop # TODO
+    attr_accessor :export_file_sets
     attr_accessor :multibag_parts_included
     attr_accessor :max_size
     attr_accessor :max_upload_total_size
@@ -39,6 +40,7 @@ module Aptrust
       @debug_assume_upload_succeeds = option_value( key: 'debug_assume_upload_succeeds', default_value: false )
       @event_start = option_value( key: 'event_start' )
       @event_stop = option_value( key: 'event_stop' )
+      @export_file_sets = option_value( key: 'export_file_sets', default_value: true )
       @multibag_parts_included = option_multibag_parts_included
       @max_size = option_integer( key: 'max_size', default_value: -1 )
       @min_size = option_integer( key: 'min_size', default_value: -1 )
@@ -71,7 +73,7 @@ module Aptrust
           # TODO: try loading the work from fedora and saving to solr
           next
         end
-        unless 0 < w.total_file_size
+        unless -1 < w.total_file_size
           msg_handler.msg_warn "Total file size is zero for noid #{noid}"
           next
         end
@@ -152,7 +154,7 @@ module Aptrust
           msg_handler.msg_warn "Failed to load work with noid: #{status.noid}"
           next
         end
-        unless 0 < w.total_file_size
+        unless -1 < w.total_file_size
           msg_handler.msg_warn "Total file size is zero for noid #{noid}"
           next
         end
@@ -259,6 +261,7 @@ module Aptrust
                                                    debug_assume_upload_succeeds: debug_assume_upload_succeeds,
                                                    event_start:                  event_start,
                                                    event_stop:                   event_stop,
+                                                   export_file_sets:             export_file_sets,
                                                    export_file_set_ids:          export_file_set_ids,
                                                    multibag_parts_included:      multibag_parts_included,
                                                    noid:                         noid,
