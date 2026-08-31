@@ -228,7 +228,7 @@ gem 'rails-html-sanitizer'
 
 # Use sqlite3 as the database for Active Record
 # gem 'sqlite3', '~> 1.3.6'
-gem 'sqlite3', '~> 1.5.0'
+gem 'sqlite3', '~> 2.9.5'
 # Use Puma as the app server
 # gem 'puma', '~> 5.6.7'
 #hyrax5 - gem 'puma', '>= 5.6.7'
