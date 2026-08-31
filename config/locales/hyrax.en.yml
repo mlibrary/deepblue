@@ -52,6 +52,8 @@ en:
           title_tesim: Title
   hyrax:
     account_label: User
+    controls:
+      contact: Contact Us
     insufficent_privileges_for_action: "You do not have sufficient privileges for this action."
     admin:
       admin_sets:

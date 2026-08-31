@@ -3,10 +3,10 @@
   <div class="list-thumbnail">
     <%# this is for each work showm in the search result page %>
     <%# hyrax2 # doc = render_thumbnail_tag document %>
-    <%= doc = document_presenter(document)&.thumbnail&.thumbnail_tag({}, { suppress_link: true }) %>
+    <% doc = document_presenter(document)&.thumbnail&.thumbnail_tag({}, { suppress_link: true }) %>
     <% if doc.present? %>
-      <% doc = doc.gsub!('data-context-href', 'data-reference') %>
-      <% doc = doc.gsub!('<img ', '<img alt="collection" ') if doc.present? %>
+      <% doc = doc.gsub('data-context-href', 'data-reference') %>
+      <% doc = doc.gsub('<img ', '<img alt="collection" ') %>
       <%= raw doc %>
     <% end %>
   </div>

@@ -151,8 +151,7 @@ button:hover,
 }
 
 .breadcrumb li + ::before {
-  border-right: 0;
-  transform: rotate(0deg);
+  border-right: 0.1em solid var(--color-neutral-400);
 }
 
 /** Header Nav **/
@@ -395,7 +394,7 @@ body.dashboard {
 }
 
 .dashboard .main-header {
-  padding: 1em 0.5em;
+  padding: 0 0 1rem 1rem;
 }
 
 .dashboard .main-header h1 {
@@ -409,6 +408,24 @@ body.dashboard {
 
 .main-content .card {
   font-size: 16px;
+}
+
+.dashboard .card, 
+.dashboard .card-header,
+.dashboard .card-title {
+   font-size: 1rem;
+}
+
+.dashboard .card-header {
+  font-weight: 600;
+}
+
+.dashboard .card-body p {
+  margin-bottom: 0;
+}
+
+.dashboard table {
+  font-size: 1rem;
 }
 
 ul.breadcrumb li a {
@@ -850,6 +867,16 @@ li.radio > label > input[type="radio"] {
   font-weight: bold;
 }
 
+#data_set_rights_license {
+  input[type="radio"] {
+  margin-right: .5rem;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
 input[type="radio"], input[type="checkbox"] {
     box-sizing: border-box;
     width: 18px;
@@ -916,7 +943,7 @@ div.branding-banner-row {
   box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.12), 0 2px 4px 0 rgba(0, 0, 0, 0.24);
 }
 .title-header {
-  font-size: 1.5em;
+  font-size: 1.35em;
   font-weight: 600;
   padding-left: 1rem;
 }
@@ -1636,6 +1663,10 @@ td.name > h2 {
 /* Pagination */
 
 .page-item.active .page-link {
-    background-color: #337ab7;
-    border-color: #337ab7;
+  background-color: #337ab7;
+  border-color: #337ab7;
+}
+
+.page-item .page-link {
+  color: #126DC1;
 }

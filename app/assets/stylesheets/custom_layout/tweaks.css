@@ -102,7 +102,7 @@ form#new_collection,
 }
 
 .help-block {
-  font-size: 0.85em;
+  font-size: 0.9rem;
 }
 
 /* To support [more...] and [less...] */
@@ -138,10 +138,6 @@ ol.catalog li:after {
 
 .multi_value ul.listing {
   max-width: none;
-}
-
-.multi_value .field-controls .btn.remove {
-  width: 15em;
 }
 
 .attributes .attribute {
@@ -217,6 +213,11 @@ div.radio p {
 
 .radio p > label {
   font-weight: bold;
+}
+
+#collapseEmbargo {
+  font-weight: normal;
+  font-size: 1rem;
 }
 
 /**** Buttons for Works/Collections/Upload Forms ****/
@@ -324,6 +325,10 @@ table.work-description {
   background-color: #fff;
   border: 1px solid #e3e3e3;
 }
+
+ .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+ }
 
 /*** Confirm Page ***/
 
@@ -811,10 +816,6 @@ footer.page-footer p a :hover {
         margin-bottom: var(--space-medium);
 }
 
-.page-footer__content > section {
-        margin-bottom: var(--space-x-large);
-}
-
 .page-footer__content section  ul  li {
         list-style: none !important;
         margin: 0;
@@ -982,6 +983,26 @@ log-class-name {
 
 .hidden {
     visibility: hidden;
+}
+
+.badge-primary {
+  background-color: #1D7491 !important;
+}
+
+input#check_all {
+  margin-right: .5rem !important;
+}
+
+.collections-list-table .thumbnail-title-wrapper {
+  font-size: 1rem;
+}
+
+#collections-list-table {
+  font-size: .9rem !important;
+}
+
+#new_collection #description label {
+  font-size: 1rem;
 }
 
 /* End Add file formatting. */

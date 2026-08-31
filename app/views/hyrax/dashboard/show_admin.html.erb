@@ -3,10 +3,18 @@
   <h1><%= t("hyrax.dashboard.title") %></h1>
 <% end %>
 
-<h2 class="title-header"><%= t('hyrax.jobs.running_header') %></h2>
-<label><%= raw ::Deepblue::JobsHelper.jobs_running_msg %></label>
-<br/>
-<br/>
+ <div class="row">
+      <div class="col">
+        <div class="card">
+          <div class="card-header">
+          <h2><%= t('hyrax.jobs.running_header') %></h2>
+           </div>
+            <div class="card-body">
+            <p><%= raw ::Deepblue::JobsHelper.jobs_running_msg %></p>
+            </div>
+        </div>
+      </div>
+    </div>
 
 <div class="spaced-rows">
   <% if Hyrax.config.analytics? %>
@@ -14,7 +22,7 @@
       <div class="col">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title"><%= t(".graph_reports") %>:</h2>
+            <h3 class="card-title"><%= t(".graph_reports") %>:</h3>
             <%= params[:start_date].present? ? params[:start_date].to_date : 1.month.ago.beginning_of_day.to_date %> -
             <%= params[:end_date].present? ? params[:end_date].to_date : Time.zone.now.end_of_day.to_date %>
           </div>
@@ -27,9 +35,7 @@
 
     <div class="row">
       <div class="col">
-        <div class="card">
-          <%= render 'user_activity' %>
-        </div>
+        <%= render 'user_activity' %>
       </div>
     </div>
   <% end %>
@@ -65,7 +71,7 @@
       </div>
       <div class="card-body text-center">
         Current
-        <div class="h3"><%= "BROKEN @presenter.user_count" %></div>
+        <div class="h4"><%= @presenter.user_count(@start_date.to_date, @end_date.to_date) %></div>
       </div>
     </div>
   </div>
@@ -76,7 +82,7 @@
         <h3 class="card-title text-center"><%= t('.total_visitors') %></h3>
       </div>
       <div class="card-body text-center">Past 30 days
-        <div class="h3">n/a</div>
+        <div class="h4">n/a</div>
       </div>
     </div>
   </div>
@@ -87,7 +93,7 @@
           <h3 class="card-title text-center"><%= t('.returning_visitors') %></h3>
         </div>
         <div class="card-body text-center">Past 30 days
-          <div class="h3">n/a</div>
+          <div class="h4">n/a</div>
         </div>
       </div>
     </div>
@@ -95,10 +101,10 @@
     <div class="col-md-3">
       <div class="card">
         <div class="card-header">
-          <h3 class="panel-title text-center"><%= t('.new_visitors') %></h3>
+          <h3 class="card-title text-center"><%= t('.new_visitors') %></h3>
         </div>
         <div class="card-body text-center">Past 30 days
-          <div class="h3">n/a</div>
+          <div class="h4">n/a</div>
         </div>
       </div>
     </div>
@@ -106,7 +112,7 @@
 
 <div class="row">
 
-  <div class="col-md-3">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
         <h3 class="card-title text-center"><%= "DBD Disk Usage" %></h3>
@@ -117,10 +123,10 @@
     </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="panel-title text-center"><%= "Globus Disk Usage" %></h3>
+        <h3 class="card-title text-center"><%= "Globus Disk Usage" %></h3>
       </div>
       <div class="card-body text-center">
         <div class="h4 info-div"><%= raw ::Deepblue::SystemMonitorHelper.space_globus %></div>
@@ -128,7 +134,7 @@
     </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
         <h3 class="card-title text-center"><%= "Prep Disk Usage" %></h3>
@@ -139,13 +145,13 @@
     </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-6">
     <div class="card">
       <div class="card-header">
-        <h3 class="panel-title text-center"><%= t('hyrax.scheduler.status_header') %></h3>
+        <h3 class="card-title text-center"><%= t('hyrax.scheduler.status_header') %></h3>
       </div>
       <div class="card-body text-center">
-        <div class="h3"><%= raw ::Deepblue::SchedulerHelper.scheduler_status %></div>
+        <div class="h4"><%= raw ::Deepblue::SchedulerHelper.scheduler_status %></div>
       </div>
     </div>
   </div>
@@ -156,7 +162,7 @@
   <div class="col-md-12">
     <div class="card">
       <div class="card-header">
-        <div style="font-weight: 700;"><%= t("hyrax.dashboard.my.heading.userinfo") %></div>
+        <h2><%= t("hyrax.dashboard.my.heading.userinfo") %></h2>
       </div>
       <div class="card-body">
         <table class="table table-striped">
@@ -183,33 +189,13 @@
 
 <%= render 'draft_works' %>
 
-<div class="panel panel-default my_active_embargoes">
-  <% if have_assets_under_embargo?( current_ability.current_user.email.to_s ) %>
-    <div class="panel-heading">
-      <h3 class="panel-title "><%= t("hyrax.dashboard.my_active_embargoes") %></h3>
-    </div>
-    <div class="panel-body">
-      <%= render 'hyrax/dashboard/my_active_embargoes' %>
-    </div>
-  <% end %>
-</div>
-
-<div class="row">
-  <div class="col-md-4">
-    <div class="panel panel-default">
-      <%= render 'user_activity' %>
-    </div>
+<% if have_assets_under_embargo?( current_ability.current_user.email.to_s ) %>
+<div class="card my_active_embargoes">
+  <div class="card-header">
+    <h3 class="card-title"><%= t("hyrax.dashboard.my_active_embargoes") %></h3>
   </div>
-
-  <div class="col-md-4">
-    <div class="panel panel-default">
-      <%= render 'repository_growth' %>
-    </div>
-  </div>
-
-  <div class="col-md-4">
-    <div class="panel panel-default">
-      <%= "Missing: render 'repository_objects'" %>
-    </div>
+  <div class="card-body">
+    <%= render 'hyrax/dashboard/my_active_embargoes' %>
   </div>
 </div>
+<% end %>

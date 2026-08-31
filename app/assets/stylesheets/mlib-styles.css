@@ -246,6 +246,7 @@ input {
 
 .form-control {
   padding: 0.15rem 0.25rem;
+  border-radius: 4px !important;
   border: solid 1px black;
   width: 100%;
   font-size: 1rem;
@@ -402,36 +403,6 @@ table {
 .callout--blue {
   background: #F2F9FF;
   border: solid 1px #bfe1ff; }
-
-/*
-  Optional
-*/
-.breadcrumb {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0;
-  margin-top: 0.5rem; }
-  .breadcrumb li {
-    float: left; }
-  .breadcrumb li + li:before {
-    padding: 0 0.5rem;
-    content: "\203A";
-    font-size: 1.2rem;
-    line-height: 1; }
-  .breadcrumb:after {
-    content: "";
-    display: block;
-    clear: both; }
-
-/*
-  Hack for removing the inline space
-  between elements.
-*/
-.breadcrumb {
-  font-size: 0; }
-  .breadcrumb li {
-    font-size: 1rem; }
 
 /*
   Source: https://github.com/jwarby/jekyll-pygments-themes
