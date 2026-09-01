@@ -25,6 +25,7 @@ module Aptrust
     attr_accessor :email_subject
     attr_accessor :email_targets
     attr_accessor :export_dir
+    attr_accessor :min_file_sets
     attr_accessor :noids
     attr_accessor :test_date_begin
     attr_accessor :test_date_end
@@ -47,6 +48,7 @@ module Aptrust
       @email_subject = task_options_value( key: 'email_subject', default_value: '' )
       @email_targets = option_email_targets
       @export_dir    = option_path( key: 'export_dir' )
+      @min_file_sets = option_integer( key: 'min_file_sets', default_value: 0 )
       @track_status  = option_value( key: 'track_status', default_value: true )
       @working_dir   = option_path( key: 'working_dir' )
       @test_mode     = option_value( key: 'test_mode', default_value: false )

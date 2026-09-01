@@ -56,6 +56,7 @@ class Aptrust::AptrustUploader
   mattr_accessor :clear_status,           default: ::Aptrust::AptrustIntegrationService.clear_status
   mattr_accessor :use_external_tar_cmd,   default: true
   mattr_accessor :event_sleep_secs,       default: 1
+  mattr_accessor :allow_total_size_zero,  default: true
 
   BAG_FILE_APTRUST_INFO  = 'aptrust-info.txt'                 unless const_defined? :BAG_FILE_APTRUST_INFO
   DEFAULT_BI_DESCRIPTION = 'No description supplied.'         unless const_defined? :DEFAULT_BI_DESCRIPTION
@@ -770,7 +771,11 @@ class Aptrust::AptrustUploader
     log_lines = []
     exported_files.each do |file|
       # split file if above bag_max_file_size
+      begin
       sz = File.stat( file ).size
+      rescue Exception => e
+      sz = 0
+      end
       # msg_handler.msg_verbose "file: #{file} -- size=#{sz}"
       next unless sz > bag_max_file_size
       export_split( file: file, )
@@ -1082,7 +1087,7 @@ class Aptrust::AptrustUploader
                              "total_size=#{total_size}",
                              "bag_max_file_size=#{bag_max_file_size}",
                              "bag_max_total_file_size=#{bag_max_total_file_size}" ] if debug_verbose
-    if 0 == total_size
+    if 0 == total_size && !allow_total_size_zero
       msg = "Desposit files total size is zero for #{object_id}."
       export_failed( status: ::Aptrust::EVENT_DEPOSIT_FAILED, note: msg )
       msg_handler.bold_error [ msg_handler.here, msg_handler.called_from, msg, "" ]

@@ -407,7 +407,7 @@ class Aptrust::AptrustUploaderForWork < Aptrust::AptrustUploader
           msg_handler.msg_debug "moving new split file to data dir"
           msg_handler.msg_debug "mv #{split_file}"
           msg_handler.msg_debug "to #{data_dir}"
-          FileUtils.mv( split_file, data_dir )
+          FileUtils.mv( split_file, data_dir ) if File.exist? split_file # i.e. if export_file_sets
         end
       end
     end
