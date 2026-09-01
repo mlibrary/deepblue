@@ -33,7 +33,7 @@ module Aptrust
           next
         end
         next unless w&.file_set_ids.present?
-        next unless w.file_set_ids.size > 0
+        next unless w.file_set_ids.size >= min_file_sets
         #next unless w.published?
         next unless w.uploadable?
         # msg_handler.msg_verbose "Filter w.date_modified=#{w.date_modified}"
