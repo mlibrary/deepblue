@@ -10,7 +10,7 @@
          id="data_set_visibility_after_embargo"
          name="data_set[visibility_after_embargo]"
          value="open" />
-  <bold><%= t( 'hyrax.visibility.restricted.text' ) %></bold>
+  <span><%= t( 'hyrax.visibility.restricted.text' ) %></span>
   <%= t( 'hyrax.visibility.until' ) %>
   <%
     embargo_release_date = f.object.embargo_release_date || Date.tomorrow
@@ -37,5 +37,5 @@
                     min: embargo_release_date_min.strftime("%Y-%m-%d"),
                     class: 'datepicker form-control') %>
   <%= t( 'hyrax.visibility.then_change_it_to' ) %>
-  <bold><%= t( 'hyrax.visibility.open.text' ) %></bold>
+  <%= t( 'hyrax.visibility.open.text' ) %>
 </div>
