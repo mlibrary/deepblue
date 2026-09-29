@@ -1,5 +1,6 @@
 <% if @presenter.display_provenance_log_enabled? %>
-  <div id="provenance_log_display" class="tab-pane">
+    <div id="provenance_log_display" class="tab-pane" role="tabpanel"
+      aria-labelledby="provenance_log_display_tab" tabindex="0">
     <div id="provenance_log_container" class="provenance-log-container">
       <div class="documentation-div float-right">
         <% if @presenter.provenance_log_entries? %>
