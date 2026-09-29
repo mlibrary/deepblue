@@ -29,7 +29,7 @@
     <%# if can?(:download, member.id) %>
     <% if member.can_download_file? && !member.anonymous_show? %>
       <% unless member.file_size_too_large_to_download? %>
-        <td role="menuitem" tabindex="-1">
+        <td>
           <%= link_to member.link_name,
                       @presenter.download_path_link( main_app: main_app, curation_concern: member ),
                       target: "_blank",

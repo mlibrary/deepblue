@@ -29,7 +29,7 @@
     <%# if can?(:download, member_no_action.id) %>
     <% if member_no_action.can_download_file? && !member_no_action.anonymous_show? %>
       <% unless member_no_action.file_size_too_large_to_download? %>
-        <td role="menuitem" tabindex="-1">
+        <td>
           <%= link_to member_no_action.link_name,
                       @presenter.download_path_link( main_app: main_app, curation_concern: member_no_action ),
                       title: t('hyrax.file_sets.actions.download_title', file_set: member_no_action.title_first),
