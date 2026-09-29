@@ -147,9 +147,9 @@ export class FieldManager {
         var label = '';
         var $label = $element.find("label").first();
 
-        if ($label.size && options.labelControls) {
+        if ($label.length && options.labelControls) {
           var label = $label.data('label') || $.trim($label.contents().filter(function() { return this.nodeType === 3; }).text());
-          label = ' ' + label;
+          label = ' ' + label.toLowerCase();
         }
 
         return label;
@@ -159,12 +159,7 @@ export class FieldManager {
         var $addHtml  = $(options.addHtml);
         console.log("createAddHtml: options.addText='" + options.addText + "'" );
         console.log("createAddHtml: options.label='" + options.label + "'" );
-        if ( options.label === " Description" )
-        {       
-          $addHtml.find('.controls-add-text').html(options.addText + " paragraph");
-        } else {
-          $addHtml.find('.controls-add-text').html(options.addText + options.label);
-        }
+                $addHtml.find('.controls-add-text').html(options.addText + options.label);
         return $addHtml;
     }
 
