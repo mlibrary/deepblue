@@ -91,7 +91,7 @@ module Umrdr
         index.as :stored_searchable
       end
 
-      property :grantnumber, predicate: ::RDF::URI.new('http://purl.org/cerif/frapo/hasGrantNumber'), multiple: false do |index|
+      property :grantnumber, predicate: ::RDF::URI.new('http://purl.org/cerif/frapo/hasGrantNumber'), multiple: true do |index|
         index.type :text
         index.as :stored_searchable
       end
