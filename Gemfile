@@ -394,7 +394,7 @@ gem 'loofah',         '~> 2.19.1'
 gem 'nokogiri' #,       '>= 1.13.10'
 gem 'rack',           '>= 2.2.6.2'
 # gem 'rails-html-sanitizer', '>= 1.4.4'
-gem 'rubyzip',        '~> 2.0.0'
+gem 'rubyzip',        '~> 3.4.0'
 gem 'sassc',          '>= 2.0.0'
 #hyrax5 - gem "sinatra",        '>= 3.0.4'
 gem "sinatra"
