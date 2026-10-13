@@ -2,8 +2,8 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
@@ -240,8 +240,8 @@ ActiveRecord::Schema.define(version: 2024_11_04_203630) do
     t.string "checksum_algorithm"
     t.datetime "checksum_validated"
     t.text "note"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.integer "file_sys_exports_id"
     t.index ["base_noid_path"], name: "index_file_exports_on_base_noid_path"
     t.index ["checksum_validated"], name: "index_file_exports_on_checksum_validated"
@@ -261,8 +261,8 @@ ActiveRecord::Schema.define(version: 2024_11_04_203630) do
     t.datetime "export_status_timestamp"
     t.text "base_noid_path"
     t.text "note"
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["base_noid_path"], name: "index_file_sys_exports_on_base_noid_path"
     t.index ["export_status"], name: "index_file_sys_exports_on_export_status"
     t.index ["export_type"], name: "index_file_sys_exports_on_export_type"

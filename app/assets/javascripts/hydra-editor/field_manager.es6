@@ -159,7 +159,7 @@ export class FieldManager {
         var $addHtml  = $(options.addHtml);
         console.log("createAddHtml: options.addText='" + options.addText + "'" );
         console.log("createAddHtml: options.label='" + options.label + "'" );
-                $addHtml.find('.controls-add-text').html(options.addText + options.label);
+        $addHtml.find('.controls-add-text').html(options.addText + options.label);
         return $addHtml;
     }
 
