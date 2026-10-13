@@ -1,19 +1,23 @@
 <div class="card tabs work-tabs">
   <ul class="nav nav-tabs" role="tablist">
-    <li id="items_display_link" class="nav-item">
-      <a href="#items_display" data-toggle="tab"> <%= t('show.labels.tab_item') %></a>
+    <li class="nav-item" role="presentation">
+      <a id="items_display_tab" href="#items_display" data-toggle="tab" role="tab"
+         aria-controls="items_display" aria-selected="true"> <%= t('show.labels.tab_item') %></a>
     </li>
-    <li id="read_me_display_link" class="nav-item">
-      <a href="#read_me_display" data-toggle="tab"> <%= t('show.labels.tab_read_me') %></a>
+    <li class="nav-item" role="presentation">
+      <a id="read_me_display_tab" href="#read_me_display" data-toggle="tab" role="tab"
+         aria-controls="read_me_display" aria-selected="false"> <%= t('show.labels.tab_read_me') %></a>
     </li>
     <% if @presenter.can_display_provenance_log? %>
-    <li id="provenance_log_display_link" class="nav-item">
-      <a href="#provenance_log_display" data-toggle="tab"> <%= t('show.labels.tab_provenance_log') %></a>
+    <li class="nav-item" role="presentation">
+      <a id="provenance_log_display_tab" href="#provenance_log_display" data-toggle="tab" role="tab"
+         aria-controls="provenance_log_display" aria-selected="false"> <%= t('show.labels.tab_provenance_log') %></a>
     </li>
     <% end %>
   </ul>
   <div class="tab-content">
-    <div id="items_display" class="tab-pane active">
+        <div id="items_display" class="tab-pane active" role="tabpanel"
+          aria-labelledby="items_display_tab" tabindex="0">
       <%= render 'items', presenter: @presenter %>
     </div>
     <%= render "read_me", presenter: @presenter %>

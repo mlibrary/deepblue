@@ -16,10 +16,8 @@
 
   <div class="row justify-content-between">
 
-        <fieldset>
-          <div class="date-coverage-element <% if !cov_year_end %>hidden<% end %>">
-            <legend class="legend-label">Start Date</legend>
-          </div>
+        <fieldset aria-label="Start Date">
+          <legend class="legend-label date-coverage-element <% if !cov_year_end %>hidden<% end %>">Start Date</legend>
 
           <div class="d-flex coverage-start-group">
           <div>
@@ -54,9 +52,7 @@
       <div class="row">
 
         <fieldset>
-          <div >
-            <%= content_tag(:legend, t('simple_form.labels.generic_work.date_coverage_end'), class: "legend-label") %>
-          </div>
+          <%= content_tag(:legend, t('simple_form.labels.generic_work.date_coverage_end'), class: "legend-label") %>
           <div class="d-flex coverage-end-group">
           <div>
             <label for="date_coverage_end_year" data-label="Date">Year</label>
