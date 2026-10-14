@@ -85,6 +85,7 @@
         <%= f.submit value: t('helpers.action.work.draft'),
                      class: 'btn btn-primary',
                      onclick: "confirmation_needed = false;",
+                     formnovalidate: true,
                      id: "save_as_draft",
                      name: "save_as_draft" %>
       <% elsif ::Deepblue::DraftAdminSetService.draft_admin_set_id.eql? f.object&.admin_set_id %>
@@ -104,6 +105,7 @@
         <%= f.submit value: t('helpers.action.work.draft'),
                      class: 'btn btn-primary',
                      onclick: "confirmation_needed = false;",
+                     formnovalidate: true,
                      id: "save_as_draft",
                      name: "save_as_draft" %>
       <% elsif curation_concern&.workflow_state == "changes_required" %>
