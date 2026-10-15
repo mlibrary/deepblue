@@ -62,6 +62,8 @@ IACUC protocol number(s): <if applicable>
 IRB approval/exemption number(s): <if applicable>
 Other ethical board approval number(s): <if applicable>
 
+RRID number(s): <if applicable>
+
 Brief description of methods used for the collection/generation of data:
 <include links or references to publications or other documentation containing experimental design or protocols used in data collection>
 
