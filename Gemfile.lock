@@ -750,7 +750,7 @@ GEM
     minitar (0.12.1)
     minitest (5.25.4)
     mono_logger (1.1.2)
-    msgpack (1.7.5)
+    msgpack (1.8.2)
     multi_json (1.15.0)
     multi_xml (0.7.1)
       bigdecimal (~> 3.1)
