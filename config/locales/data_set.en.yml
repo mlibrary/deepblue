@@ -340,8 +340,8 @@ en:
         globus_link:
           "Download Data from Globus"
         grantnumber: >
-          If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
-          and Sponsored Projects (ORSP).
+          Provide any grant number(s) that were assigned by the University of Michigan's Office of Research and
+          Sponsored Projects (ORSP).
         identifier: >
           A unique handle identifying the work. An example would be a DOI for a journal article, or an ISBN or OCLC
           number for a book.
