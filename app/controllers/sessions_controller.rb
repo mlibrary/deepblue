@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
       end
     else
       Rails.logger.debug "[AUTHN] sessions#new, failed because user_signed_in? was false" if session_controller_debug_verbose
-      # should have been redirected via mod_cosign - error out instead of going through redirect loop
+      # should have been redirected via Apache mod_auth_openidc - error out instead of going through redirect loop
       render(:status => :forbidden, :text => 'Forbidden')
     end
   end

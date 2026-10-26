@@ -149,7 +149,11 @@ class ApplicationController < ActionController::Base
                                            "[AUTHN] sso_logout: #{current_user.try(:email) || '(no user)'}",
                                            "" ] if application_controller_debug_verbose
     sso_auto_logout # this is needed to actually logout
-    redirect_to Hyrax::Engine.config.logout_prefix + logout_now_url
+    if Rails.env.development?
+      redirect_to logout_now_url # no Apache proxy locally
+    else
+      redirect_to Hyrax::Engine.config.logout_prefix + CGI.escape(logout_now_url)
+    end
   end
 
   def clear_auth_cookies
@@ -165,9 +169,12 @@ class ApplicationController < ActionController::Base
                                            "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}",
                                            "" ] if application_controller_debug_verbose
     sign_out(:user)
+<<<<<<< Updated upstream
     if Rails.env.production?
       clear_auth_cookies
     end
+=======
+>>>>>>> Stashed changes
     session.destroy
     flash.clear
   end
