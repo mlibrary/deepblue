@@ -315,8 +315,10 @@ module DeepBlueDocs
     config.derivative_max_file_size_str = ActiveSupport::NumberHelper::NumberToHumanSizeConverter.convert(config.derivative_max_file_size, precision: 3 )
 
 
-    # URL for logging the user out of Cosign
-    config.logout_prefix = "https://weblogin.umich.edu/cgi-bin/logout?"
+    # Apache mod_auth_openidc logout: ends the proxy session (mod_auth_openidc_session cookie),
+    # then redirects to the URL given in the logout parameter.
+    # Relative so it resolves against whichever host served the request.
+    config.logout_prefix = "/openid-connect/callback?logout="
 
     # FIXME: This unless reveals bugs. There are places in the app that hard-code the
     #        /data prefix and the tests break when it is set.
