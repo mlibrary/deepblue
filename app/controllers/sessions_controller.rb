@@ -36,6 +36,7 @@ class SessionsController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "" ] if session_controller_debug_verbose
     sso_auto_logout
+    clear_auth_cookies if Rails.env.production? # leftover mod_auth_openidc_* cookies, after Apache logout
     redirect_to root_url unless session_controller_skip_redirect_on_logout
   end
 

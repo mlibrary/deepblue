@@ -169,12 +169,6 @@ class ApplicationController < ActionController::Base
                                            "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}",
                                            "" ] if application_controller_debug_verbose
     sign_out(:user)
-<<<<<<< Updated upstream
-    if Rails.env.production?
-      clear_auth_cookies
-    end
-=======
->>>>>>> Stashed changes
     session.destroy
     flash.clear
   end
