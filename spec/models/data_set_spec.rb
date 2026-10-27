@@ -231,7 +231,7 @@ RSpec.describe DataSet do
     end
 
     it 'returns the correct value' do
-      expect( subject.oai_identifier ).to eq "oai:deepbluedata:#{id}"
+      expect( subject.oai_identifier ).to eq "oai:deepbluedata.lib.umich.edu:#{id}"
     end
 
   end
