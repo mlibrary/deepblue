@@ -507,9 +507,12 @@ class CatalogController < ApplicationController
       provider: {
         repository_name: 'Deep Blue Data',
         repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
-        record_prefix: 'oai:deepbluedata.lib.umich.edu',
+        record_prefix: 'oai:deepblue.lib.umich.edu',
+        # Deep Blue Documents shares the deepblue.lib.umich.edu namespace, so Data identifiers
+        # are oai:deepblue.lib.umich.edu:data/<id>. See config/initializers/oai_identifier.rb
+        record_local_prefix: 'data/',
         admin_email: 'researchdataservices@umich.edu',
-        sample_id: '9s1616317'
+        sample_id: 'data/9s1616317'
       },
       document: {
         limit: 50,
