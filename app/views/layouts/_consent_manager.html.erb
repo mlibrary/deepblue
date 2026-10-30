@@ -1,29 +1,58 @@
-<!-- _consent_manager begin -->
-
+<!-- https://vpcomm.umich.edu/resources/cookie-disclosure/ -->
 <script>
-    window.umConsentManager = {
-        //mode: 'prod', // values: 'prod', 'dev'
-        //customManager: {
-        //    enabled: true,
-        //    alwaysShow: true
-            //enabled   : false,
-            //alwaysShow: false,
-            //rootDomain: false,
-            //preferencePanel: {
-            //    beforeCategories: false, // HTML
-            //    afterCategories: false   // HTML
-            //}
-        //},
-        privacyUrl: 'https://lib.umich.edu/about-us/policies/library-privacy-statement',
-        //onConsentChange: ({ cookie }){},
-        googleAnalyticsID: false, // e.g. G-XXXXXXXXXX
-        //cookies: {
-        //    necessary: [], // {name: '', domain: '', regex: ''}
-        //    analytics: []
-        //}
-    };
-</script>
-<!-- script async src="https://umich.edu/apis/umconsentmanager/consentmanager.js"></script -->
-<script async src="https://umich.edu/apis/umconsentmanager/consentmanager.js"></script>
+    // redefine the global `define` method to support old 2-parameter invocation
+    (function (global) {
+        const almondDefine = global.define;
 
-<!-- _consent_manager end -->
+        // Match on a URL fragment so version bumps on the CDN don't break it.
+        const scripts = [
+            {
+                urlFragment: /umich\.edu\/apis\/umconsentmanager/,
+                name: "um-consent-manager",
+                className: "CookieConsent" // TODO: Figure out the right name
+            }
+        ];
+
+        function findScript() {
+            const src = document.currentScript && document.currentScript.src;
+            if (!src) return null;
+            for (const script of scripts) {
+                if (script.urlFragment.test(src)) return script;
+            }
+            return null;
+        }
+
+        function define(name, deps, factory) {
+            if (typeof name !== "string") {
+                const script = findScript();
+                if (!script) {
+                    throw new Error(
+                      "Anonymous define() from unmapped script: " +
+                      (document.currentScript && document.currentScript.src)
+                    );
+                }
+                const newFactory = deps;
+                const newDeps = name;
+                const result = almondDefine(script.name, newDeps, newFactory);
+                if (script.className) {
+                    global[script.className] = global.require(script.name); // sync require runs the factory now
+                }
+                return result;
+            }
+            return almondDefine(name, deps, factory);
+        }
+
+        define.amd = almondDefine.amd;
+        global.define = define;
+    })(this);
+</script>
+<script>
+window.umConsentManager = {
+    customManager: {
+        enabled: true,
+        alwaysShow: true
+    },
+    privacyUrl: 'https://lib.umich.edu/about-us/policies/library-privacy-statement'
+};
+</script>
+<script src="https://umich.edu/apis/umconsentmanager/consentmanager.js"></script>
