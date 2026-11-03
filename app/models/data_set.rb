@@ -702,7 +702,8 @@ class DataSet < ActiveFedora::Base
   end
 
   def oai_identifier
-    rv = "#{CatalogController.blacklight_config.oai[:provider][:record_prefix]}:#{id}"
+    provider = CatalogController.blacklight_config.oai[:provider]
+    rv = "#{provider[:record_prefix]}:#{provider[:record_local_prefix]}#{id}"
     rv
   end
 

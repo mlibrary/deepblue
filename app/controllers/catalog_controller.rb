@@ -507,9 +507,24 @@ class CatalogController < ApplicationController
       provider: {
         repository_name: 'Deep Blue Data',
         repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
-        record_prefix: 'oai:deepbluedata',
+        record_prefix: 'oai:deepblue.lib.umich.edu',
+        # The 'data/' local prefix is applied at the model boundary by
+        # Deepblue::OaiDocumentWrapper (no gem monkey patch required).
+        record_local_prefix: 'data/',
+        # Legacy identifier form (oai:deepbluedata:<id>) is still accepted
+        record_prefix_legacy: 'oai:deepbluedata',
         admin_email: 'researchdataservices@umich.edu',
-        sample_id: '9s1616317'
+        sample_id: 'data/9s1616317',
+        source_model: ->(controller) do
+          oai = controller.blacklight_config.oai
+          Deepblue::OaiDocumentWrapper.new(
+            controller,
+            oai[:document].merge(
+              record_local_prefix:  oai[:provider][:record_local_prefix],
+              record_prefix_legacy: oai[:provider][:record_prefix_legacy]
+            )
+          )
+        end
       },
       document: {
         limit: 50,
