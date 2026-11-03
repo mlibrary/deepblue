@@ -27,7 +27,7 @@ class SessionsController < ApplicationController
       end
     else
       Rails.logger.debug "[AUTHN] sessions#new, failed because user_signed_in? was false" if session_controller_debug_verbose
-      # should have been redirected via mod_cosign - error out instead of going through redirect loop
+      # should have been redirected via Apache mod_auth_openidc - error out instead of going through redirect loop
       render(:status => :forbidden, :text => 'Forbidden')
     end
   end
@@ -36,6 +36,7 @@ class SessionsController < ApplicationController
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "" ] if session_controller_debug_verbose
     sso_auto_logout
+    clear_auth_cookies if Rails.env.production? # leftover mod_auth_openidc_* cookies, after Apache logout
     redirect_to root_url unless session_controller_skip_redirect_on_logout
   end
 
