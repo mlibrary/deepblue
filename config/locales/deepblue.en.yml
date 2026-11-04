@@ -232,8 +232,8 @@ en:
         fundedby: >
           Select funding agency or agencies that supported the research and data collection from the drop-down list.
         grantnumber: >
-          If you have one, provide the grant number that was assigned by the University of Michigan’s Office of Research
-          and Sponsored Projects (ORSP).
+          Provide any grant number(s) that were assigned by the University of Michigan's Office of Research and
+          Sponsored Projects (ORSP).
         language: >
           List the language(s) used in the data and supplementary content. This can include spoken languages
           (like English or Spanish) or programming languages (like Python or Java).

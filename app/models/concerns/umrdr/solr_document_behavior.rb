@@ -118,7 +118,7 @@ module Umrdr
     end
 
     def grantnumber
-      Array(self['grantnumber_tesim']).first
+      fetch('grantnumber_tesim', [])
     end
 
     def methodology
