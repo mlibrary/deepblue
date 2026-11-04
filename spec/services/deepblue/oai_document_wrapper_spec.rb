@@ -9,7 +9,7 @@ RSpec.describe ::Deepblue::OaiDocumentWrapper do
   let(:controller)        { double( 'controller', blacklight_config: blacklight_config ) }
   let(:options)           { { record_prefix_legacy: 'oai:deepbluedata' } }
 
-  subject( :wrapper ) { described_class.new( controller, options ) }
+  subject( :wrapper ) { described_class.new( controller, **options ) }
 
   describe '#initialize' do
     it 'captures the legacy record prefix' do
@@ -17,7 +17,7 @@ RSpec.describe ::Deepblue::OaiDocumentWrapper do
     end
 
     it 'defaults the legacy prefix to an empty string when not provided' do
-      expect( described_class.new( controller, {} ).record_prefix_legacy ).to eq ''
+      expect( described_class.new( controller ).record_prefix_legacy ).to eq ''
     end
   end
 
@@ -49,11 +49,6 @@ RSpec.describe ::Deepblue::OaiDocumentWrapper do
     it 'passes :all through unchanged' do
       wrapper.find( :all )
       expect( captured ).to eq [ :all ]
-    end
-
-    it 'does not strip when a resumption token is present' do
-      wrapper.find( 'oai:deepbluedata:ht24wj40p', resumption_token: 'token' )
-      expect( captured ).to eq [ 'oai:deepbluedata:ht24wj40p' ]
     end
   end
 

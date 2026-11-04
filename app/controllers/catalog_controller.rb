@@ -512,14 +512,15 @@ class CatalogController < ApplicationController
       provider: {
         repository_name: 'Deep Blue Data',
         repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
-        record_prefix: 'oai:data.deepblue.lib.umich.edu',
+        record_prefix: "oai:#{Settings.oai.record_prefix_domain}",
         admin_email: 'researchdataservices@umich.edu',
         sample_id: '9s1616317',
         # Use a wrapper so legacy 'oai:deepbluedata:<id>' identifiers still resolve.
         source_model: lambda do |controller|
           ::Deepblue::OaiDocumentWrapper.new(
             controller,
-            oai_document_options.merge(record_prefix_legacy: 'oai:deepbluedata')
+            record_prefix_legacy: 'oai:deepbluedata',
+            **oai_document_options
           )
         end
       },
