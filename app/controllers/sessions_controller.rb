@@ -32,6 +32,12 @@ class SessionsController < ApplicationController
     end
   end
 
+  def clear_auth_cookies
+    auth_cookie_prefix = Rails.application.config.auth_cookie_prefix
+    cookie_keys = cookies.keys.filter { |k| k.starts_with?(auth_cookie_prefix) }
+    cookie_keys.each { |k| cookies.delete(k) }
+  end
+
   def logout_now
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here, ::Deepblue::LoggingHelper.called_from,
                                            "" ] if session_controller_debug_verbose

@@ -156,12 +156,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def clear_auth_cookies
-    auth_cookie_prefix = Rails.application.config.auth_cookie_prefix
-    cookie_keys = cookies.keys.filter { |k| k.starts_with?(auth_cookie_prefix) }
-    cookie_keys.each { |k| cookies.delete(k) }
-  end
-
   def sso_auto_logout
     # Rails.logger.debug "[AUTHN] sso_auto_logout: #{current_user.try(:email) || '(no user)'}" if application_controller_debug_verbose
     ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
