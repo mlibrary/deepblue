@@ -2,13 +2,12 @@
 <!DOCTYPE html>
 <html lang="<%= I18n.locale.to_s %>" prefix="og:http://ogp.me/ns#">
   <head>
-    <%= render partial: 'layouts/consent_manager' %>
     <%= render partial: 'layouts/head_tag_content' %>
     <%= content_for(:head) %>
+    <%= render partial: 'layouts/consent_manager' %>
   </head>
 
   <body class="dashboard">
-    <%= render partial: '/ga_body', formats: [:html] %>
     <div class="skip-to-content">
       <%= link_to "Skip to Content", "#skip-to-content" %>
     </div>
