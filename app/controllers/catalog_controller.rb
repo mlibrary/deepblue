@@ -503,19 +503,28 @@ class CatalogController < ApplicationController
     config.spell_max = 5
 
     # Oai Configuration
+    oai_document_options = {
+      limit: 50,
+      set_model: AdminsetSet,
+      set_fields: [{ label: 'admin_set', solr_field: 'admin_set_sim' }]
+    }
     config.oai = {
       provider: {
         repository_name: 'Deep Blue Data',
         repository_url: "https://deepblue.lib.umich.edu#{Rails.configuration.relative_url_root}/catalog/oai", # monkey: Rails.configuration.relative_url_root
-        record_prefix: 'oai:deepbluedata',
+        record_prefix: "oai:#{Settings.oai.record_prefix_domain}",
         admin_email: 'researchdataservices@umich.edu',
-        sample_id: '9s1616317'
+        sample_id: '9s1616317',
+        # Use a wrapper so legacy 'oai:deepbluedata:<id>' identifiers still resolve.
+        source_model: lambda do |controller|
+          ::Deepblue::OaiDocumentWrapper.new(
+            controller,
+            record_prefix_legacy: 'oai:deepbluedata',
+            **oai_document_options
+          )
+        end
       },
-      document: {
-        limit: 50,
-        set_model: AdminsetSet,
-        set_fields: [{ label: 'admin_set', solr_field: 'admin_set_sim' }]
-      }
+      document: oai_document_options
     }
 
   end

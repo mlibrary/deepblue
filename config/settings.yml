@@ -17,6 +17,12 @@ hostname: default.deepblue.lib.umich.edu
 #        based on the configuration of Rails / ActionController.
 relative_url_root: /data
 
+# Namespace-identifier (domain) used in the OAI-PMH record_prefix, i.e. the
+# repositoryIdentifier reported by the provider. Must be a valid domain so the
+# endpoint passes OAI validation. Record ids emit as 'oai:<domain>:<id>'.
+oai:
+  record_prefix_domain: data.deepblue.lib.umich.edu
+
 # Does not appear to be used anywhere
 # from_email: 'deepblue@umich.edu'
 
