@@ -118,4 +118,7 @@ Rails.application.configure do
   # https://stackoverflow.com/questions/5914848/ruby-on-rails-error-accessing-to-public-directory
   # config.serve_static_files = true # deprecated in rails 5.1
   config.public_file_server.enabled = true
+
+  # Value is used to clear auth-related cookies on logout so user is not auto-logged in on future visits
+  config.auth_cookie_prefix = ENV.fetch('AUTH_COOKIE_PREFIX', 'mod_auth_openidc_')
 end
