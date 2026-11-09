@@ -807,10 +807,11 @@ GEM
       ostruct (>= 0.2)
     oj_mimic_json (1.0.1)
     okcomputer (1.18.5)
-    omniauth (2.1.2)
-      hashie (>= 3.4.6)
-      rack (>= 2.2.3)
-      rack-protection
+    omniauth (2.2.0)
+      hashie (>= 3.5.2)
+      logger
+      rack (>= 2.2.8)
+      rack-protection (>= 2.2.0)
     omniauth-cas (3.0.0)
       addressable (~> 2.8)
       nokogiri (~> 1.12)
