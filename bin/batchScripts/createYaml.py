@@ -61,7 +61,6 @@ import numpy
 
 now = datetime.datetime.now()
 df = pd.read_csv(argv[1])
-#df = pd.read_csv('../dbDataMeta.csv')
 
 
 def createyml(fname):
@@ -86,12 +85,14 @@ def createyml(fname):
     
     ypartof = ("    :part_of:\n      - 'is part of %s'\n" % df['referenced_by'].iloc[row])
     
-    ycrea = df['creator'].iloc[row]
-    ycreat = ycrea.split(';')
+    crea = df['creator'].iloc[row]
+    creat = ycrea.split(';')
+    cres = [creator.strip() for creator in cres]
     ycreator = ("    :creator: \n      - %s\n" % (            '\n      - '.join("'{0}'".format(w) for w in ycreat)))
 
     kw = df['keyword'].iloc[row]
     kws = kw.split(';')
+    kws = [keyword.strip() for keyword in kws]
     ykw = ("    :keyword: \n      - %s\n" % (            '\n      - '.join("'{0}'".format(w) for w in kws)))
 
     yrights = ("    :rights_license:\n      - '%s'\n" % df['rights_license'].iloc[row])
@@ -103,8 +104,6 @@ def createyml(fname):
     ysub = df['subject_discipline'].iloc[row]
     ysubj = ysub.split(';')
     ysubject = ("    :subject_discipline:\n      - %s\n" % (            '\n      - '.join("'{0}'".format(w) for w in ysubj)))
-
-    # ybib = ("    :bibliographic_citation:\n      - 'For more information on the original UMMZ specimen, see: https://www.gbif.org/occurrence/%s'\n" % (ummzdict['yuuid'])) #build URL from iDigBio uuid
 
     ydesclist = ("    :description:\n      - '%s'\n" % df['description'].iloc[row])
 
@@ -140,10 +139,10 @@ def createyml(fname):
     # UMMZ usage agreement file
 
 
-    yfilename = ("    :filenames:\n%s\n      - README_UMMAA_Photogrammetric_Datasets.txt\n      - UMMAA_Digital_Data_Usage_Terms_and_Conditions.pdf\n" % (uf))  # pull from directory
-    yfiles = ("    :files:\n%s\n      - /deepbluedata-prep-new/upload-globus/UMMAA/ComVert/README_UMMAA_Photogrammetric_Datasets.txt\n      - /deepbluedata-prep-new/upload-globus/UMMAA/ComVert/UMMAA_Digital_Data_Usage_Terms_and_Conditions.pdf\n" % (ixPath))  # pull from directory
+    yfilename = ("    :filenames:\n%s\n" % (uf))  # pull from directory
+    yfiles = ("    :files:\n%s\n" % (ixPath))  # pull from directory
 
-
+ 
     file_name = '%s.yml' % (df['Folder'].iloc[row])
     f = open(file_name, 'w')  # open file in write mode
 
@@ -159,6 +158,7 @@ def createyml(fname):
     # for desc in ummzdict['desc']:
     f.write(ydesclist)
     f.write(yrights)
+    f.write(yrightsOther)
     f.write(ydatecov)
     f.write(ysubject)
     # f.write(ybib)
