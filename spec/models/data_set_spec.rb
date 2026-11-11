@@ -47,6 +47,7 @@ RSpec.describe DataSet do
       file_set_ids
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language
@@ -98,6 +99,7 @@ RSpec.describe DataSet do
       doi
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language

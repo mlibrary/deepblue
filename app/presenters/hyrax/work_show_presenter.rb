@@ -73,6 +73,7 @@ module Hyrax
               :doi_pending_timeout?,
               :fundedby,
               :fundedby_other,
+              :fundedby_um_entity,
               :grantnumber,
               :methodology,
               :prior_identifier,

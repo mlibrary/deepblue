@@ -42,6 +42,7 @@ RSpec.describe Hyrax::DataSetPresenter, clean_repo: true do
   it { is_expected.to delegate_method(:date_uploaded).to(:solr_document) }
   it { is_expected.to delegate_method(:fundedby).to(:solr_document) }
   it { is_expected.to delegate_method(:fundedby_other).to(:solr_document) }
+  it { is_expected.to delegate_method(:fundedby_um_entity).to(:solr_document) }
   it { is_expected.to delegate_method(:rights_license).to(:solr_document) }
   it { is_expected.to delegate_method(:rights_license_other).to(:solr_document) }
 

@@ -117,6 +117,10 @@ module Umrdr
       fetch('fundedby_other_tesim', [])
     end
 
+    def fundedby_um_entity
+      fetch('fundedby_um_entity_tesim', [])
+    end
+
     def grantnumber
       fetch('grantnumber_tesim', [])
     end
