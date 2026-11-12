@@ -44,6 +44,7 @@ Rails.application.routes.draw do
                                                                       desirablechar|
                                                                       faq|
                                                                       help|
+                                                                      human-data|
                                                                       globus-help|
                                                                       orcid|
                                                                       rest-api|

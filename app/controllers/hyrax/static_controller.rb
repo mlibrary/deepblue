@@ -64,6 +64,7 @@ module Hyrax
                       depositor-guide|
                       faq|
                       help|
+                      human-data|
                       globus-help|
                       orcid|
                       rest-api|
