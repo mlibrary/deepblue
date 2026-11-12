@@ -63,14 +63,14 @@ module Hyrax
                       dbd-glossary|
                       depositor-guide|
                       faq|
+                      globus-help|
                       help|
                       human-data|
-                      globus-help|
+                      mendeley|
                       orcid|
                       rest-api|
                       services|
                       user-guide|
-                      mendeley|
                       zotero
                       }x
         render "hyrax/static/#{doc}"
