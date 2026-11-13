@@ -40,17 +40,18 @@ Rails.application.routes.draw do
                                                                       about-top|
                                                                       agreement|
                                                                       dbd-glossary|
+                                                                      delete-to-here|
                                                                       depositor-guide|
                                                                       desirablechar|
                                                                       faq|
-                                                                      help|
                                                                       globus-help|
+                                                                      help|
+                                                                      human-data|
+                                                                      mendeley|
                                                                       orcid|
                                                                       rest-api|
                                                                       services|
                                                                       user-guide|
-                                                                      delete-to-here|
-                                                                      mendeley|
                                                                       zotero
                                                                     }x },
       as: :static
