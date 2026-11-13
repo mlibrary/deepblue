@@ -42,6 +42,7 @@ RSpec.describe Hyrax::DataSetForm do
     rights_license_other
     subject_discipline
     fundedby
+    fundedby_um_entity
     fundedby_other
     grantnumber
     keyword

@@ -17,6 +17,7 @@ module Hyrax
         date_coverage
         description
         fundedby
+        fundedby_um_entity
         fundedby_other
         doi
         grantnumber
@@ -49,6 +50,7 @@ module Hyrax
         rights_license_other
         subject_discipline
         fundedby
+        fundedby_um_entity
         fundedby_other
         grantnumber
         keyword

@@ -240,13 +240,39 @@ export default class SaveWorkControl {
   formChangedAgain() {
 
     var other = false;
+    var um = false;
     var fundedbys = document.getElementsByName('data_set[fundedby][]');
       for(var i=0; i<fundedbys.length; i++) {
         if ( fundedbys[i].value.match(/Other/gi) )
         {
           other = true;
         }
+        if ( fundedbys[i].value === 'University of Michigan' )
+        {
+          um = true;
+        }
       }
+
+    var um_entity = document.getElementById("data_set_fundedby_um_entity");
+    if ( um_entity )
+    {
+      if ( um )
+      {
+        um_entity.setAttribute('required',"required");
+        um_entity.required = true;
+        $('.data_set_fundedby_um_entity').show();
+      }
+      else
+      {
+        um_entity.removeAttribute("required");
+        um_entity.required = false;
+        var um_entities = document.getElementsByName('data_set[fundedby_um_entity][]');
+        for(var i=0; i<um_entities.length; i++) {
+          um_entities[i].value = '';
+        }
+        $('.data_set_fundedby_um_entity').hide();
+      }
+    }
 
     if ( other )
     {
