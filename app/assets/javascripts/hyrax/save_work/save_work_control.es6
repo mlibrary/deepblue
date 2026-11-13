@@ -300,10 +300,7 @@ export default class SaveWorkControl {
   }
 
   isValidForDraft() {
-    // avoid short circuit evaluation. The checkboxes should be independent.
-    let metadataValid = this.validateMetadata()
-    let agreementValid = this.validateAgreement(true)
-    return metadataValid && agreementValid
+    return this.validateMetadata()
   }
 
   // sets the metadata indicator to complete/incomplete
