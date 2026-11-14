@@ -34,7 +34,7 @@ class SessionsController < ApplicationController
 
   def clear_auth_cookies
     auth_cookie_prefix = Rails.application.config.auth_cookie_prefix
-    cookie_keys = cookies.keys.filter { |k| k.starts_with?(auth_cookie_prefix) }
+    cookie_keys = request.cookies.keys.filter { |k| k.starts_with?(auth_cookie_prefix) }
     cookie_keys.each { |k| cookies.delete(k) }
   end
 
