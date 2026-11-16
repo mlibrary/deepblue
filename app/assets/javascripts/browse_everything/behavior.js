@@ -328,7 +328,13 @@ $(function () {
 
   $(document).on('click', 'button.ev-submit', function (event) {
     event.preventDefault();
-    $(this).button('loading');
+    // See https://github.com/samvera/browse-everything/commit/a1732d32ef210328dcfbfd7ea0910fbd58304018
+    // button('loading') is Bootstrap 3's button plugin. When jQuery UI's
+    // button widget owns $.fn.button instead, it throws on the call and the
+    // selection is never submitted. startWait() disables the button either way.
+    if ($.fn.button && $.fn.button.Constructor) {
+      $(this).button('loading');
+    }
     startWait();
     var main_form = $(this).closest('form');
     var resolver_url = main_form.data('resolver');
