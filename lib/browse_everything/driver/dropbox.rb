@@ -160,7 +160,7 @@ module BrowseEverything
                                                ::Deepblue::LoggingHelper.called_from,
                                                "url_options=#{url_options}",
                                                "" ] if browse_everything_driver_dropbox_debug_verbose
-        rv = authenticator.authorize_url redirect_uri: redirect_uri(url_options)
+        rv = authenticator.auth_code.authorize_url redirect_uri: redirect_uri(url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "auth_link rv=#{rv}",
@@ -174,7 +174,7 @@ module BrowseEverything
                                                "params[:code]=#{params[:code]}",
                                                "url_options=#{url_options}",
                                                "" ] if browse_everything_driver_dropbox_debug_verbose
-        auth_bearer = authenticator.get_token params[:code], redirect_uri: redirect_uri(url_options)
+        auth_bearer = authenticator.auth_code.get_token params[:code], redirect_uri: redirect_uri(url_options)
         ::Deepblue::LoggingHelper.bold_debug [ ::Deepblue::LoggingHelper.here,
                                                ::Deepblue::LoggingHelper.called_from,
                                                "auth_bearer=#{auth_bearer}",
