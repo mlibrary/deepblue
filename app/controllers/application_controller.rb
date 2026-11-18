@@ -152,7 +152,7 @@ class ApplicationController < ActionController::Base
     if Rails.env.development?
       redirect_to logout_now_url # no Apache proxy locally
     else
-      redirect_to Hyrax::Engine.config.logout_prefix + CGI.escape(logout_now_url)
+      redirect_to Hyrax::Engine.config.logout_prefix + CGI.escape(logout_now_url(locale: nil))
     end
   end
 
