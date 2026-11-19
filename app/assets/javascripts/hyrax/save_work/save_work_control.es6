@@ -253,22 +253,23 @@ export default class SaveWorkControl {
         }
       }
 
-    var um_entity = document.getElementById("data_set_fundedby_um_entity");
-    if ( um_entity )
+    var umEntity = document.getElementById('data_set_fundedby_um_entity');
+    if ( umEntity )
     {
       if ( um )
       {
-        um_entity.setAttribute('required',"required");
-        um_entity.required = true;
+        umEntity.setAttribute('required', 'required');
+        umEntity.required = true;
         $('.data_set_fundedby_um_entity').show();
       }
       else
       {
-        um_entity.removeAttribute("required");
-        um_entity.required = false;
-        var um_entities = document.getElementsByName('data_set[fundedby_um_entity][]');
-        for(var i=0; i<um_entities.length; i++) {
-          um_entities[i].value = '';
+        // "Add another" copies the required flag, so un-require every box, not just the first
+        var umEntities = document.getElementsByName('data_set[fundedby_um_entity][]');
+        for (const input of umEntities) {
+          input.removeAttribute('required');
+          input.required = false;
+          input.value = '';
         }
         $('.data_set_fundedby_um_entity').hide();
       }
