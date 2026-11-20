@@ -113,6 +113,7 @@ en:
       edit_users:           "Edit Users"
       fundedby:             "Funding agency"
       fundedby_other:       "Other Funding agency"
+      fundedby_um_entity:   "University of Michigan Funding Entity"
       grantnumber:          "ORSP grant number"
       ingest_append_script_prep:   "Append Script Prep"
       ingest_append_script_view: "View Script"
@@ -224,6 +225,7 @@ en:
         files:                "Upload a new version of this file from your computer"
         fundedby:             "Funding Agency"
         fundedby_other:       "Enter other funding agency title"
+        fundedby_um_entity:   "University of Michigan Funding Entity"
         grantnumber:          "ORSP Grant Number"
         hdl:                  "Handle"
         identifier:           "Identifier"
@@ -295,6 +297,8 @@ en:
           Select the primary funding agency that supported the research and data collection from the drop-down list.
         fundedby_other: >
           Enter the funding agency's title.
+        fundedby_um_entity: >
+          Enter the name of the University of Michigan funding entity.
         globus_click_submit_to_start_downloading: >
           Click submit to start downloading %{title} to Globus. If you would like to be sent an email when the files
           are available fill in your email address:

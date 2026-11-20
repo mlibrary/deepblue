@@ -89,6 +89,7 @@ class DataSet < ActiveFedora::Base
       file_set_ids
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language
@@ -141,6 +142,7 @@ class DataSet < ActiveFedora::Base
       file_set_ids
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language
@@ -256,6 +258,7 @@ class DataSet < ActiveFedora::Base
       file_set_ids
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language
@@ -293,6 +296,7 @@ class DataSet < ActiveFedora::Base
       doi
       fundedby
       fundedby_other
+      fundedby_um_entity
       grantnumber
       keyword
       language

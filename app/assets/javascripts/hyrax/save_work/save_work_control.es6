@@ -240,13 +240,40 @@ export default class SaveWorkControl {
   formChangedAgain() {
 
     var other = false;
+    var um = false;
     var fundedbys = document.getElementsByName('data_set[fundedby][]');
       for(var i=0; i<fundedbys.length; i++) {
         if ( fundedbys[i].value.match(/Other/gi) )
         {
           other = true;
         }
+        if ( fundedbys[i].value === 'University of Michigan' )
+        {
+          um = true;
+        }
       }
+
+    var umEntity = document.getElementById('data_set_fundedby_um_entity');
+    if ( umEntity )
+    {
+      if ( um )
+      {
+        umEntity.setAttribute('required', 'required');
+        umEntity.required = true;
+        $('.data_set_fundedby_um_entity').show();
+      }
+      else
+      {
+        // "Add another" copies the required flag, so un-require every box, not just the first
+        var umEntities = document.getElementsByName('data_set[fundedby_um_entity][]');
+        for (const input of umEntities) {
+          input.removeAttribute('required');
+          input.required = false;
+          input.value = '';
+        }
+        $('.data_set_fundedby_um_entity').hide();
+      }
+    }
 
     if ( other )
     {

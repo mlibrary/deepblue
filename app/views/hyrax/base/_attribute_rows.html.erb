@@ -51,6 +51,7 @@
 <%= presenter.attribute_to_html(:contributor, render_as: :faceted) %>
 <%= presenter.attribute_to_html(:subject_discipline, render_as: :faceted, label: t('show.labels.subject_discipline')) %>
 <%= presenter.attribute_to_html(:fundedby, label: t('show.labels.fundedby') ) %>
+<%= presenter.attribute_to_html(:fundedby_um_entity, render_as: :fundedby_other, label: t('show.labels.fundedby_um_entity') ) %>
 <%= presenter.attribute_to_html(:fundedby_other, render_as: :fundedby_other, label: t('show.labels.fundedby_other') ) %><%# unless presenter.fundedby_other.nil? %>
 <%= presenter.attribute_to_html(:grantnumber, label: t('show.labels.grantnumber') ) %>
 <%= presenter.attribute_to_html(:keyword, render_as: :faceted) %>

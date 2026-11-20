@@ -41,6 +41,7 @@ module Deepblue
                                          :description_ordered,
                                          :doi,
                                          :fundedby_other,
+                                         :fundedby_um_entity,
                                          :keyword_ordered, :language_ordered,
                                          :methodology_ordered,
                                          :prior_identifier,
@@ -78,7 +79,7 @@ module Deepblue
                                            :curation_notes_user, :curation_notes_user_ordered,
                                            :checksum_algorithm, :checksum_value,
                                            :description_ordered, :doi,
-                                           :fundedby_other, :keyword_ordered, :language_ordered,
+                                           :fundedby_other, :fundedby_um_entity, :keyword_ordered, :language_ordered,
                                            :methodology_ordered,
                                            :prior_identifier,
                                            :referenced_by_ordered, :title_ordered ].freeze unless const_defined? :DEFAULT_UPDATE_ATTRS_SKIP_IF_BLANK
@@ -1038,6 +1039,7 @@ module Deepblue
         read_users = Array( work_hash[:read_users] )
         fundedby = build_fundedby( hash: work_hash )
         fundedby_other = work_hash[:fundedby_other]
+        fundedby_um_entity = work_hash[:fundedby_um_entity]
         grantnumber = work_hash[:grantnumber]
         language = Array( work_hash[:language] )
         keyword = Array( work_hash[:keyword] )
@@ -1069,6 +1071,7 @@ module Deepblue
                              doi: doi,
                              fundedby: fundedby,
                              fundedby_other: fundedby_other,
+                             fundedby_um_entity: fundedby_um_entity,
                              grantnumber: grantnumber,
                              id: id_new,
                              keyword: keyword,
@@ -1450,6 +1453,7 @@ module Deepblue
         diff_read_users( diffs, work, work_hash )
         diff_attr_value( diffs, work, attr_name: :fundedby, value: build_fundedby( hash: work_hash ) )
         diff_attr( diffs, work, work_hash, attr_name: :fundedby_other )
+        diff_attr( diffs, work, work_hash, attr_name: :fundedby_um_entity )
         diff_attr( diffs, work, work_hash, attr_name: :grantnumber, multi: false )
         diff_attr( diffs, work, work_hash, attr_name: :keyword )
         diff_attr( diffs, work, work_hash, attr_name: :keyword_ordered, multi: false )
@@ -2136,6 +2140,7 @@ module Deepblue
                         doi:,
                         fundedby:,
                         fundedby_other:,
+                        fundedby_um_entity:,
                         grantnumber:,
                         id:,
                         keyword:,
@@ -2166,6 +2171,7 @@ module Deepblue
                        doi: doi,
                        fundedby: fundedby,
                        fundedby_other: fundedby_other,
+                       fundedby_um_entity: fundedby_um_entity,
                        grantnumber: grantnumber,
                        id: id,
                        keyword: keyword,
@@ -2196,6 +2202,7 @@ module Deepblue
                        doi: doi,
                        fundedby: fundedby,
                        fundedby_other: fundedby_other,
+                       fundedby_um_entity: fundedby_um_entity,
                        grantnumber: grantnumber,
                        keyword: keyword,
                        language: language,
@@ -2698,6 +2705,7 @@ module Deepblue
         update_read_users( updates, work, work_hash )
         update_attr_value( updates, work, attr_name: :fundedby, value: build_fundedby(hash: work_hash ) )
         update_attr( updates, work, work_hash, attr_name: :fundedby_other )
+        update_attr( updates, work, work_hash, attr_name: :fundedby_um_entity )
         update_attr( updates, work, work_hash, attr_name: :grantnumber, multi: false )
         update_attr( updates, work, work_hash, attr_name: :keyword )
         update_attr( updates, work, work_hash, attr_name: :keyword_ordered, multi: false )

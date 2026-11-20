@@ -91,6 +91,11 @@ module Umrdr
         index.as :stored_searchable
       end
 
+      property :fundedby_um_entity, predicate: ::RDF::URI.new('https://deepblue.lib.umich.edu/data/help.help#fundedby_um_entity'), multiple: true do |index|
+        index.type :text
+        index.as :stored_searchable
+      end
+
       property :grantnumber, predicate: ::RDF::URI.new('http://purl.org/cerif/frapo/hasGrantNumber'), multiple: true do |index|
         index.type :text
         index.as :stored_searchable

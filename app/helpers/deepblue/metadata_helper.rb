@@ -50,6 +50,7 @@ module Deepblue
                                             doi
                                             fundedby
                                             fundedby_other
+                                            fundedby_um_entity
                                             grantnumber
                                             isReferencedBy
                                             isReferencedBy_ordered
@@ -353,6 +354,7 @@ module Deepblue
         report_item( out, "Discipline: ", work.subject_discipline, one_line: false, item_prefix: "\t" )
         report_item( out, "Funded by: ", work.fundedby )
         report_item( out, "Funded by Other: ", work.fundedby_other ) if report_source == SOURCE_DBDv2
+        report_item( out, "Funded by UM Entity: ", work.fundedby_um_entity ) if report_source == SOURCE_DBDv2
         report_item( out, "ORSP Grant Number: ", work.grantnumber )
         report_item( out, "Keyword: ", work.keyword, one_line: false, item_prefix: "\t" )
         report_item( out, "Date coverage: ", work.date_coverage )
